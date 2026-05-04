@@ -219,7 +219,7 @@ __marimo__/
 docs/forum.org
 
 # Regeneratable output files
-html/
+html_pages/
 
 # local foul papers
 local/
