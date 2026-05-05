@@ -4,9 +4,6 @@
 [submodule "data/canonical-greekLit"]
 	path = data/canonical-greekLit
 	url = https://github.com/PerseusDL/canonical-greekLit.git
-[submodule "wiki"]
-	path = wiki
-	url = git@github.com:PerseusDLCode/MinimumViablePerseus.wiki.git
 [submodule "data/canonical-engLit"]
 	path = data/canonical-engLit
 	url = https://github.com/PerseusDL/canonical-engLit

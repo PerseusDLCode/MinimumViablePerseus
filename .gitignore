@@ -223,3 +223,6 @@ html_pages/
 
 # local foul papers
 local/
+
+# local .gitmodules
+.gitmodules
