@@ -1,12 +1,3 @@
-[submodule "data/canonical-latinLit"]
-	path = data/canonical-latinLit
-	url = https://github.com/PerseusDL/canonical-latinLit.git
-[submodule "data/canonical-greekLit"]
-	path = data/canonical-greekLit
-	url = https://github.com/PerseusDL/canonical-greekLit.git
-[submodule "data/canonical-engLit"]
-	path = data/canonical-engLit
-	url = https://github.com/PerseusDL/canonical-engLit
 [submodule "data/First1KGreek"]
 	path = data/First1KGreek
 	url = https://github.com/OpenGreekAndLatin/First1KGreek
