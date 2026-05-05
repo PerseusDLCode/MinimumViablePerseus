@@ -232,5 +232,13 @@ local/
 # Morphology data files (large; download via src/tools/setup_morph_data.py)
 src/morph-server/*.morph.xml
 
+
+
 # notebooks
 notebooks/
+
+# The top-level data just contains submodules
+data/
+
+# The wiki is a submodule; don't track
+wiki/
