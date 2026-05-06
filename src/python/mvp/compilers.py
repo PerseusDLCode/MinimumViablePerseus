@@ -100,9 +100,11 @@ class PageCompiler:
     """
 
     def __init__(self, strategy: ChunkingStrategy,
-                 xslt_root: Path) -> None:
+                 xslt_root: Path,
+                 morph_url: str = "") -> None:
         self._strategy = strategy
         self._xslt_root = Path(xslt_root)
+        self._morph_url = morph_url
 
     def compile(self, doc: TEIDocument, output_path: Path,
                 catalog_url: str | None = None) -> None:
@@ -146,6 +148,11 @@ class PageCompiler:
                     "catalog-url",
                     proc.make_string_value(catalog_url)
                 )
+                if self._morph_url:
+                    transformer.set_parameter(
+                        "morph-url",
+                        proc.make_string_value(self._morph_url)
+                    )
                 transformer.set_base_output_uri(output_path.as_uri() + "/")
                 transformer.transform_to_string(source_file=str(doc.path))
 

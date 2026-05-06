@@ -42,6 +42,23 @@ hypertextual environment. Perseus6 is an implementation of those tools.
    git clone https://github.com/PerseusDL/canonical-greekLit.git  data/canonical-greekLit
    ```
 
+4. Download the morphology data files (optional — required for the morphological server):
+
+   ```bash
+   python src/tools/setup_morph_data.py
+   ```
+
+   This fetches `greek.morph.xml` (~270 MB) and `latin.morph.xml` (~111 MB) from Tufts Box
+   into `src/morph-server/`. The files are derived from the
+   [Perseus Morpheus project](https://github.com/PerseusDL/morpheus) and are not stored
+   in this repository due to their size.
+
+   Install the morph server dependencies as well:
+
+   ```bash
+   pdm install -G morph
+   ```
+
 ### Running the test suite
 
 ```bash
@@ -75,11 +92,38 @@ Rebuild the catalog from existing compiled output (no recompilation):
 pdm run python src/tools/run_build.py --catalog-only /tmp/out
 ```
 
-Serve the result locally:
+### Building with morphological links
+
+Pass `--morph-url` to embed a link to the morphological server on every word.
+Use the same port you intend to run the morph server on (default: 5000):
 
 ```bash
-cd /tmp/out && python -m http.server 8000
-# open http://localhost:8000
+pdm run python src/tools/run_build.py \
+    --morph-url http://localhost:5000 \
+    data/canonical-latinLit/data \
+    /tmp/out
+```
+
+## Running locally
+
+To serve the compiled site and start the morphological server together:
+
+```bash
+python src/tools/run_local.py /tmp/out
+```
+
+This starts:
+- A static HTTP server at `http://localhost:8000/`
+- The morphological analysis server at `http://localhost:5000/`
+
+Use `--site-port` and `--morph-port` to change the defaults. Press Ctrl+C to stop both servers.
+
+Note: the morph server indexes ~380 MB of XML on startup; expect a 30–60 second delay before it is ready.
+
+The morphological server also exposes a JSON API directly:
+
+```
+GET http://localhost:5000/analyze?form=arma&lang=la
 ```
 
 ## Documentation

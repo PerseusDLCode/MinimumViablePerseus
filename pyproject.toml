@@ -6,7 +6,7 @@ authors = [
     {name = "Cliff Wulfman", email = "cwulfman@princeton.edu"},
     {name = "Charles Pletcher", email = "charles.pletcher@gmail.com"}
 ]
-dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2"]
+dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2", "fastapi>=0.136.1", "uvicorn[standard]>=0.46.0"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
@@ -69,4 +69,8 @@ dev = [
     "pytest-mock>=3.14.0",
     "ruff>=0.11.3",
     "mypy>=1.15.0",
+]
+morph = [
+    "fastapi>=0.136.1",
+    "uvicorn[standard]>=0.46.0",
 ]

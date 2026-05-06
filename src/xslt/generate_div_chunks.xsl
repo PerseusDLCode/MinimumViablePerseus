@@ -35,6 +35,9 @@
   <xsl:param name="chunk-unit"  as="xs:string" select="'chapter'"/>
   <xsl:param name="output-dir"  as="xs:string" select="'.'"/>
   <xsl:param name="catalog-url" as="xs:string" select="'/index.html'"/>
+  <!-- When non-empty, each word in the output is linked to the morphological
+       server at this base URL (e.g. http://localhost:5000). -->
+  <xsl:param name="morph-url"   as="xs:string" select="''"/>
 
 
   <!-- ============================================================
@@ -111,7 +114,7 @@
             <head>
               <meta charset="utf-8"/>
               <meta name="viewport" content="width=device-width, initial-scale=1"/>
-              <title><xsl:value-of select="$work-title"/> &#x2014; Contents | Perseus</title>
+              <title><xsl:value-of select="$work-title"/> — Contents | Perseus</title>
               <style><xsl:value-of select="$page-css"/></style>
             </head>
             <body>
@@ -197,6 +200,9 @@
         select="if ($pos gt 1) then concat($chunk-unit, '_', $pos-prev, '.html') else ()"/>
       <xsl:variable name="next-file"
         select="if (exists($pos-next)) then concat($chunk-unit, '_', $pos-next, '.html') else ()"/>
+
+      <xsl:variable name="chunk-label"
+        select="concat($work-title, ' — ', $chunk-unit, ' ', @n)"/>
 
       <!-- ── Write the chunk HTML file ── -->
       <xsl:result-document
@@ -315,6 +321,7 @@
                     <!-- Render the full div content; no start/stop filtering needed -->
                     <xsl:apply-templates select="$div/node()" mode="chunk">
                       <xsl:with-param name="base-urn" select="$base-urn" tunnel="yes"/>
+                      <xsl:with-param name="morph-url" select="$morph-url" tunnel="yes"/>
                     </xsl:apply-templates>
                   </div>
                   <div class="passage-footer">

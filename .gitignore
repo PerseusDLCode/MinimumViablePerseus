@@ -76,7 +76,8 @@ docs/_build/
 .pybuilder/
 target/
 
-# Jupyter Notebook
+# Jupyter Notebooks
+notebooks/
 .ipynb_checkpoints
 
 # IPython
@@ -218,6 +219,7 @@ __marimo__/
 .claude/settings.local.json
 docs/forum.org
 
+
 # Regeneratable output files
 html_pages/
 
@@ -226,3 +228,14 @@ local/
 
 # local .gitmodules
 .gitmodules
+
+
+# Morphology data files (large; download via src/tools/setup_morph_data.py)
+src/morph-server/*.morph.xml
+
+
+# The top-level data just contains submodules
+data/
+
+# The wiki is a submodule; don't track
+wiki/
