@@ -321,6 +321,7 @@
                     <!-- Render the full div content; no start/stop filtering needed -->
                     <xsl:apply-templates select="$div/node()" mode="chunk">
                       <xsl:with-param name="base-urn" select="$base-urn" tunnel="yes"/>
+                      <xsl:with-param name="morph-url" select="$morph-url" tunnel="yes"/>
                     </xsl:apply-templates>
                   </div>
                   <div class="passage-footer">
