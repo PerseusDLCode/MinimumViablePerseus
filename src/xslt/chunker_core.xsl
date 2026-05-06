@@ -27,172 +27,24 @@
        Shared page CSS (used by generate_chunks.xsl and generate_div_chunks.xsl)
        ============================================================ -->
 
-  <xsl:variable name="page-css" as="xs:string">
-:root {
-  --color-bg-primary:     #ffffff;
-  --color-bg-secondary:   #f7f7f5;
-  --color-text-primary:   #1a1a1a;
-  --color-text-secondary: #555555;
-  --color-text-tertiary:  #999999;
-  --color-border-primary:   #cccccc;
-  --color-border-secondary: #dddddd;
-  --color-border-tertiary:  #e8e8e6;
-  --font-sans:  system-ui, -apple-system, sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
-  --font-mono:  'Courier New', Courier, monospace;
-  --radius-sm: 3px;
-  --radius-md: 4px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-/* Shell */
-.perseus-shell {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
-  background: var(--color-bg-primary);
-  font-family: var(--font-sans);
-}
-.main-area {
-  display: grid;
-  grid-template-columns: 220px 1fr 220px;
-  overflow: hidden;
-}
-/* Header */
-.site-header {
-  background: var(--color-bg-secondary);
-  border-bottom: 0.5px solid var(--color-border-tertiary);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.header-logo { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-.header-logo span { color: var(--color-text-secondary); font-weight: 400; }
-.header-nav { display: flex; gap: 16px; }
-.header-nav a { font-size: 12px; color: var(--color-text-secondary); text-decoration: none; }
-.header-nav a:hover { color: var(--color-text-primary); }
-/* Sidebars */
-.sidebar {
-  background: var(--color-bg-secondary);
-  border-right: 0.5px solid var(--color-border-tertiary);
-  overflow-y: auto;
-  min-width: 0;
-}
-.sidebar.right { border-right: none; border-left: 0.5px solid var(--color-border-tertiary); }
-details { border-bottom: 0.5px solid var(--color-border-tertiary); }
-details summary {
-  list-style: none;
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-}
-details summary::-webkit-details-marker { display: none; }
-details summary::after {
-  content: '›';
-  font-size: 14px;
-  color: var(--color-text-tertiary);
-  transform: rotate(90deg);
-  display: inline-block;
-}
-details[open] summary::after { transform: rotate(270deg); }
-details summary:hover { background: var(--color-bg-primary); color: var(--color-text-primary); }
-details[open] summary { color: var(--color-text-primary); }
-.panel-body { padding: 10px 12px; font-size: 12px; }
-.toc-list { list-style: none; }
-.toc-list li { padding: 2px 0; }
-.toc-list a {
-  display: flex; align-items: center; gap: 6px;
-  color: var(--color-text-secondary); text-decoration: none;
-  font-size: 12px; line-height: 1.5;
-}
-.toc-list a:hover { color: var(--color-text-primary); }
-.toc-list li.current a { color: var(--color-text-primary); font-weight: 500; }
-.toc-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.meta-row { display: flex; flex-direction: column; margin-bottom: 8px; }
-.meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-tertiary); margin-bottom: 1px; }
-.meta-value { font-size: 12px; color: var(--color-text-primary); }
-.placeholder-msg { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; }
-/* Center column */
-.center-col { display: flex; flex-direction: column; min-width: 0; }
-.passage-header {
-  padding: 10px 20px;
-  border-bottom: 0.5px solid var(--color-border-tertiary);
-  background: var(--color-bg-secondary);
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-}
-.passage-breadcrumb { font-size: 12px; color: var(--color-text-secondary); }
-.passage-breadcrumb strong { color: var(--color-text-primary); font-weight: 500; }
-.passage-nav { display: flex; gap: 8px; align-items: center; }
-.nav-btn {
-  font-size: 11px; padding: 3px 10px;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary); text-decoration: none;
-}
-.nav-btn:hover { color: var(--color-text-primary); }
-.urn-chip {
-  font-size: 10px; color: var(--color-text-tertiary);
-  font-family: var(--font-mono); padding: 2px 6px;
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--radius-md);
-}
-/* CSS-only line-number toggle via checkbox hack */
-.toggle-input { display: none; }
-.toggle-input:not(:checked) ~ .text-body .line-n { visibility: hidden; }
-/* 248px right padding = 28px normal gutter + 220px reserved for sidenotes */
-.text-body { padding: 20px 248px 20px 28px; flex: 1; overflow-y: auto; position: relative; }
-/* Text content — position:relative lets .note use absolute positioning */
-.speech { margin: 1em 0; position: relative; }
-.speaker { font-weight: bold; display: block; margin-bottom: .25em; font-family: var(--font-serif); }
-.line { display: flex; gap: 12px; line-height: 1.85; margin-bottom: 2px; font-family: var(--font-serif); font-size: 14px; color: var(--color-text-primary); position: relative; }
-.line-n { font-size: 11px; color: var(--color-text-tertiary); min-width: 28px; text-align: right; padding-top: 3px; user-select: none; flex-shrink: 0; }
-.line-text { flex: 1; }
-p { line-height: 1.7; margin-bottom: .75em; font-family: var(--font-serif); font-size: 14px; color: var(--color-text-primary); position: relative; }
-h2 { font-size: 1.1em; margin: 1.5em 0 .5em; }
-.gap { color: #888; font-style: italic; }
-/* Sidenote: absolutely positioned in the right margin, out of text flow */
-.note { position: absolute; right: -220px; top: 0; width: 200px; padding: .35em .6em; font-size: .82em; line-height: 1.4; color: var(--color-text-secondary); background: var(--color-bg-secondary); border-left: 3px solid var(--color-border-primary); }
-.supplied { color: #666; }
-.unclear { opacity: 0.6; }
-blockquote { margin: 1em 2em; font-style: italic; }
-/* Passage footer */
-.passage-footer {
-  padding: 8px 20px;
-  border-top: 0.5px solid var(--color-border-tertiary);
-  background: var(--color-bg-secondary);
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-}
-.display-opts { display: flex; gap: 8px; align-items: center; }
-.opt-label { font-size: 11px; color: var(--color-text-secondary); }
-.opt-toggle {
-  font-size: 11px; padding: 2px 8px;
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary); cursor: pointer;
-}
-/* Site footer */
-.site-footer {
-  background: var(--color-bg-secondary);
-  border-top: 0.5px solid var(--color-border-tertiary);
-  padding: 8px 16px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.footer-text { font-size: 11px; color: var(--color-text-tertiary); }
-.footer-links { display: flex; gap: 16px; }
-.footer-links a { font-size: 11px; color: var(--color-text-tertiary); text-decoration: none; }
-.footer-links a:hover { color: var(--color-text-secondary); }
-  </xsl:variable>
+  <xsl:variable name="page-css" as="xs:string">body         { font-family: serif; max-width: 48em; margin: 0 auto; padding: 1em 2em }
+.site-header { border-bottom: 1px solid #ccc; margin-bottom: 1.5em;
+               padding-bottom: .5em; font-size: .9em; color: #555 }
+.site-header a { text-decoration: none; font-weight: bold; color: inherit }
+.chunk-nav   { display: flex; justify-content: space-between; font-size: .9em;
+               margin-bottom: 1.5em }
+.chunk-nav a { margin-right: 1em }
+h1           { font-size: 1em; color: #555; margin-bottom: .25em }
+.speech      { margin: 1em 0 }
+.speaker     { font-weight: bold; display: block; margin-bottom: .25em }
+.line        { margin: .1em 0; padding-left: 2em }
+.gap         { color: #888; font-style: italic }
+.note        { border-bottom: 1px dotted #888 }
+.toc         { padding-left: 1.5em; line-height: 1.8 }
+.site-footer { border-top: 1px solid #eee; margin-top: 2em; padding-top: .5em;
+               font-size: .8em; color: #888; text-align: center }
+a.word       { color: inherit; text-decoration: none; border-bottom: 1px dotted #aaa }
+a.word:hover { border-bottom-style: solid }</xsl:variable>
 
   <!-- ============================================================
        Helper functions
@@ -274,6 +126,25 @@ blockquote { margin: 1em 2em; font-style: italic; }
   </xsl:function>
 
 
+  <!--
+    local:strip-punct($s) → xs:string
+    Remove leading and trailing punctuation from a token so the bare
+    surface form can be submitted to the morphological server.
+    Mirrors the same function in tokenize.xsl.
+  -->
+  <xsl:function name="local:strip-punct" as="xs:string">
+    <xsl:param name="s" as="xs:string"/>
+    <xsl:variable name="s1"
+      select="replace($s,
+                '^[.,;:!?·—–(){}\[\]&lt;&gt;⟨⟩&quot;]+', '')"/>
+    <xsl:variable name="s2"
+      select="replace($s1,
+                '[.,;:!?·—–(){}\[\]&lt;&gt;⟨⟩&quot;]+$', '')"/>
+    <xsl:variable name="s3" select="replace($s2, &quot;^'+&quot;, '')"/>
+    <xsl:variable name="s4" select="replace($s3, &quot;'+$&quot;,  '')"/>
+    <xsl:sequence select="$s4"/>
+  </xsl:function>
+
   <!-- ============================================================
        Element templates — chunk mode
        ============================================================ -->
@@ -312,7 +183,7 @@ blockquote { margin: 1em 2em; font-style: italic; }
     <xsl:param name="stop"     tunnel="yes" as="node()?"/>
     <xsl:param name="base-urn" tunnel="yes" as="xs:string?"/>
     <xsl:if test="local:after-start(., $start) and local:before-stop(., $stop)">
-      <div class="line" data-n="{@n}">
+      <p class="line" data-n="{@n}">
         <xsl:if test="exists($base-urn)">
           <xsl:attribute name="data-cts-urn" select="concat($base-urn, ':', @n)"/>
           <xsl:if test="not(preceding::tei:l[@n = current()/@n])">
@@ -327,7 +198,7 @@ blockquote { margin: 1em 2em; font-style: italic; }
         <span class="line-text">
           <xsl:apply-templates mode="chunk"/>
         </span>
-      </div>
+      </p>
     </xsl:if>
   </xsl:template>
 
@@ -503,12 +374,58 @@ blockquote { margin: 1em 2em; font-style: italic; }
     </xsl:if>
   </xsl:template>
 
-  <!-- Text nodes: copy only when within the start/stop range. -->
+b  <!--
+    Text nodes: copy only when within the start/stop range.
+    When $morph-url is set, each whitespace-delimited token is wrapped in
+    an <a class="word"> linking to the morphological server.  The bare
+    surface form (punctuation stripped) is used as the lookup key; the
+    original raw token (with punctuation) is the visible link text.
+    Whitespace-only text nodes pass through unchanged in both modes.
+  -->
   <xsl:template match="text()" mode="chunk">
-    <xsl:param name="start" tunnel="yes" as="node()?"/>
-    <xsl:param name="stop"  tunnel="yes" as="node()?"/>
+    <xsl:param name="start"     tunnel="yes" as="node()?"/>
+    <xsl:param name="stop"      tunnel="yes" as="node()?"/>
+    <xsl:param name="morph-url" tunnel="yes" as="xs:string" select="''"/>
     <xsl:if test="local:after-start(., $start) and local:before-stop(., $stop)">
-      <xsl:copy/>
+      <xsl:choose>
+        <xsl:when test="$morph-url != ''">
+          <xsl:variable name="tei-lang"
+            select="(ancestor::*[@xml:lang])[1]/@xml:lang"/>
+          <xsl:variable name="morph-lang" select="
+            if      ($tei-lang = 'lat') then 'la'
+            else if ($tei-lang = 'grc') then 'grc'
+            else ''
+          "/>
+          <xsl:variable name="normalized" select="normalize-space(.)"/>
+          <xsl:if test="$normalized != ''">
+            <xsl:if test="matches(., '^\s')">
+              <xsl:text> </xsl:text>
+            </xsl:if>
+            <xsl:for-each select="tokenize($normalized, '\s+')">
+              <xsl:variable name="raw"     select="."/>
+              <xsl:variable name="surface" select="local:strip-punct($raw)"/>
+              <xsl:choose>
+                <xsl:when test="$morph-lang != '' and $surface != ''">
+                  <a href="{$morph-url}/morph?form={encode-for-uri($surface)}&amp;lang={$morph-lang}"
+                     class="word"><xsl:value-of select="$raw"/></a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$raw"/>
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:if test="position() != last()">
+                <xsl:text> </xsl:text>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:if test="matches(., '\s$')">
+              <xsl:text> </xsl:text>
+            </xsl:if>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
