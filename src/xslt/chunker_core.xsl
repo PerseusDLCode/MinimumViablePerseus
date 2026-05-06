@@ -374,7 +374,7 @@ a.word:hover { border-bottom-style: solid }</xsl:variable>
     </xsl:if>
   </xsl:template>
 
-b  <!--
+  <!--
     Text nodes: copy only when within the start/stop range.
     When $morph-url is set, each whitespace-delimited token is wrapped in
     an <a class="word"> linking to the morphological server.  The bare
