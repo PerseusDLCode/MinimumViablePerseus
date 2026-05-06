@@ -41,6 +41,9 @@
   <xsl:param name="chunk-unit"  as="xs:string" select="'card'"/>
   <xsl:param name="output-dir"  as="xs:string" select="'.'"/>
   <xsl:param name="catalog-url" as="xs:string" select="'/index.html'"/>
+  <!-- When non-empty, each word in the output is linked to the morphological
+       server at this base URL (e.g. http://localhost:5000). -->
+  <xsl:param name="morph-url"   as="xs:string" select="''"/>
 
 
   <!-- ============================================================
@@ -350,6 +353,7 @@
                       <xsl:with-param name="start"    select="$ms"       tunnel="yes"/>
                       <xsl:with-param name="stop"     select="$ms-next"  tunnel="yes"/>
                       <xsl:with-param name="base-urn" select="$base-urn" tunnel="yes"/>
+                      <xsl:with-param name="morph-url" select="$morph-url" tunnel="yes"/>
                     </xsl:apply-templates>
                   </div>
                   <div class="passage-footer">
