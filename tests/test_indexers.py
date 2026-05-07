@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from mvp.indexers import WordIndexer
-from mvp.models import WordIndex
+from mvp.indexers import ChunkIndexer, WordIndexer
+from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -102,33 +102,33 @@ class TestTreeLoading:
         assert etree.QName(indexer.root).localname == "TEI"
 
 
-class TestGetTeiPath:
+class TestXpathFor:
 
     def test_returns_string(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello</p>"))
         indexer = WordIndexer(path)
         p_elem = indexer.root.find(f".//{{{NS}}}p")
-        result = indexer.get_tei_path(p_elem)
-        assert isinstance(result, str)
+        assert isinstance(indexer.xpath_for(p_elem), str)
 
     def test_path_starts_with_slash(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello</p>"))
         indexer = WordIndexer(path)
         p_elem = indexer.root.find(f".//{{{NS}}}p")
-        assert indexer.get_tei_path(p_elem).startswith("/")
+        assert indexer.xpath_for(p_elem).startswith("/")
 
     def test_path_uses_tei_prefix(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello</p>"))
         indexer = WordIndexer(path)
         p_elem = indexer.root.find(f".//{{{NS}}}p")
-        assert "tei:" in indexer.get_tei_path(p_elem)
+        assert "tei:" in indexer.xpath_for(p_elem)
 
     def test_path_ends_with_element_local_name(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello</p>"))
         indexer = WordIndexer(path)
         p_elem = indexer.root.find(f".//{{{NS}}}p")
-        assert indexer.get_tei_path(p_elem).endswith("]")
-        assert "tei:p[" in indexer.get_tei_path(p_elem)
+        result = indexer.xpath_for(p_elem)
+        assert result.endswith("]")
+        assert "tei:p[" in result
 
     def test_sibling_position_increments(self, tmp_path):
         body = "<p>first</p><p>second</p><p>third</p>"
@@ -138,7 +138,7 @@ class TestGetTeiPath:
         body_elem = indexer.root.find(f".//{{{NS}}}body")
         paragraphs = body_elem.findall(f"{{{NS}}}p")
         assert len(paragraphs) == 3
-        paths = [indexer.get_tei_path(p) for p in paragraphs]
+        paths = [indexer.xpath_for(p) for p in paragraphs]
         assert "tei:p[1]" in paths[0]
         assert "tei:p[2]" in paths[1]
         assert "tei:p[3]" in paths[2]
@@ -181,10 +181,12 @@ class TestWordIndex:
         assert "world" in indexer.word_index.entries
         assert "Hello" not in indexer.word_index.entries
 
-    def test_values_are_sets(self, tmp_path):
+    def test_values_are_sets_of_word_occurrences(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
         indexer = WordIndexer(path)
-        assert isinstance(indexer.word_index.entries["hello"], set)
+        locations = indexer.word_index.entries["hello"]
+        assert isinstance(locations, set)
+        assert all(isinstance(loc, WordOccurrence) for loc in locations)
 
     def test_same_word_in_multiple_locations(self, tmp_path):
         body = "<p>word one</p><p>word two</p>"
@@ -274,7 +276,7 @@ class TestTailText:
         entries = WordIndexer(path).word_index.entries
         # "tail" is in <hi>.tail but logically belongs to <p>
         locations = entries["tail"]
-        assert all("tei:p[" in loc for loc in locations)
+        assert all("tei:p[" in loc.xpath for loc in locations)
 
     def test_tail_after_excluded_element_is_indexed(self, tmp_path):
         # "this" sits in <del>.tail — it belongs to <p>, not <del>
@@ -299,6 +301,85 @@ class TestGreekElision:
         path = write_tei(tmp_path, make_tei(body))
         entries = WordIndexer(path).word_index.entries
         assert "don't" in entries
+
+
+# ---------------------------------------------------------------------------
+# ChunkIndexer tests
+# ---------------------------------------------------------------------------
+
+class TestChunkIndexer:
+
+    def test_returns_chunk_index(self, tmp_path):
+        body = "<p>first paragraph</p><p>second paragraph</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        assert isinstance(result, ChunkIndex)
+
+    def test_entries_are_chunk_occurrences(self, tmp_path):
+        body = "<p>hello world</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        assert all(isinstance(e, ChunkOccurrence) for e in result.entries)
+
+    def test_chunk_text_content(self, tmp_path):
+        body = "<p>hello world</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        texts = [e.chunk for e in result.entries]
+        assert "hello world" in texts
+
+    def test_chunk_xpath_starts_with_slash(self, tmp_path):
+        body = "<p>hello</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        assert all(e.xpath.startswith("/") for e in result.entries)
+
+    def test_multiple_paragraphs_produce_multiple_chunks(self, tmp_path):
+        body = "<p>first</p><p>second</p><p>third</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        texts = [e.chunk for e in result.entries]
+        assert "first" in texts
+        assert "second" in texts
+        assert "third" in texts
+
+    def test_excluded_content_stripped_from_chunk(self, tmp_path):
+        body = "<p>keep <del>deleted</del> this</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        body_chunk = next(e for e in result.entries if "tei:body" in e.xpath)
+        assert "deleted" not in body_chunk.chunk
+        assert "keep" in body_chunk.chunk
+
+    def test_tail_after_excluded_element_preserved(self, tmp_path):
+        # "this" is in <del>.tail — must appear in the chunk despite <del> being excluded
+        body = "<p>keep <del>deleted</del> this</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        body_chunk = next(e for e in result.entries if "tei:body" in e.xpath)
+        assert "this" in body_chunk.chunk
+
+    def test_empty_chunks_omitted(self, tmp_path):
+        body = "<p></p><p>content</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        assert all(e.chunk.strip() for e in result.entries)
+
+    def test_verse_lines_chunked(self, tmp_path):
+        body = "<lg><l>first line</l><l>second line</l></lg>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        texts = [e.chunk for e in result.entries]
+        assert any("first line" in t for t in texts)
+        assert any("second line" in t for t in texts)
+
+    def test_tei_header_excluded(self, tmp_path):
+        body = "<p>body text</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).generate_chunks()
+        # "Test" and "Author" live in teiHeader — must not appear in any chunk
+        all_text = " ".join(e.chunk for e in result.entries)
+        assert "Author" not in all_text
 
 
 # ---------------------------------------------------------------------------
@@ -328,15 +409,21 @@ class TestArgonauticaIntegration:
             assert isinstance(locations, set), f"{word!r}: expected set"
             assert len(locations) > 0, f"{word!r}: empty location set"
 
-    def test_all_locations_are_strings(self, word_index):
+    def test_all_locations_are_word_occurrences(self, word_index):
         for word, locations in word_index.entries.items():
             for loc in locations:
-                assert isinstance(loc, str), f"{word!r}: non-string location"
+                assert isinstance(loc, WordOccurrence), f"{word!r}: expected WordOccurrence"
 
-    def test_locations_start_with_slash(self, word_index):
+    def test_occurrence_xpaths_start_with_slash(self, word_index):
         for word, locations in word_index.entries.items():
             for loc in locations:
-                assert loc.startswith("/"), f"{word!r}: {loc!r} missing leading slash"
+                assert loc.xpath.startswith("/"), f"{word!r}: {loc.xpath!r} missing leading slash"
+
+    def test_occurrence_spans_are_valid(self, word_index):
+        for word, locations in word_index.entries.items():
+            for loc in locations:
+                assert loc.start >= 0, f"{word!r}: negative start"
+                assert loc.end > loc.start, f"{word!r}: end not after start"
 
     def test_tei_header_content_absent(self, word_index):
         # "apollonius" lives only in teiHeader — must be excluded

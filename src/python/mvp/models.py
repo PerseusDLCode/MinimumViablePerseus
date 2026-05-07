@@ -28,6 +28,13 @@ class TEIMetadata:
     source_path: Path
 
 
+
+@dataclass(frozen=True)
+class WordOccurrence:
+    xpath: str
+    start: int
+    end: int
+
 @dataclass
 class WordIndex:
     """Word-location index built from a TEI document body.
@@ -35,7 +42,23 @@ class WordIndex:
     Maps each lowercased word form to the set of XPath locations
     (tei:-prefixed strings) where it appears in the document.
     """
-    entries: dict[str, set[str]] = field(default_factory=dict)
+    entries: dict[str, set[WordOccurrence]]
+
+
+@dataclass(frozen=True)
+class ChunkOccurrence:
+    xpath: str
+    chunk: str
+
+
+@dataclass
+class ChunkIndex:
+    """Chunk-location index built from a TEI document body.
+
+    Maps an XPath expression to the contents of the element
+    stripped of markup.
+    """
+    entries: list[ChunkOccurrence] = field(default_factory=list)
 
 
 @dataclass
