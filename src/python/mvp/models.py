@@ -29,6 +29,16 @@ class TEIMetadata:
 
 
 @dataclass
+class WordIndex:
+    """Word-location index built from a TEI document body.
+
+    Maps each lowercased word form to the set of XPath locations
+    (tei:-prefixed strings) where it appears in the document.
+    """
+    entries: dict[str, set[str]] = field(default_factory=dict)
+
+
+@dataclass
 class ChunkManifestEntry:
     """A single entry in a chunk manifest: one compiled HTML page.
 
