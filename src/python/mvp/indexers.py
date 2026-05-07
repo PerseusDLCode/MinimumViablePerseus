@@ -2,9 +2,6 @@ from pathlib import Path
 import re
 from lxml import etree
 
-test_doc = Path("/Users/wulfmanc/repos/gh/PerseusDLCode/MinimumViablePerseus/tests/data/tlg0001.tlg001.perseus-grc2.xml")
-
-
 class WordIndexer:
     ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
     excluded_tags = ["teiHeader", "del", "note", "cit", "bibl", "rdg", "head"]
@@ -21,6 +18,12 @@ class WordIndexer:
             parser = etree.XMLParser(remove_blank_text=True)
             self._tree = etree.parse(self.doc, parser)
         return self._tree
+
+    @property
+    def word_index(self) -> dict(str,str):
+        if self._word_index is None:
+            self._word_index = self._generate_word_index()
+        return self._word_index
 
 
 
@@ -44,20 +47,23 @@ class WordIndexer:
         return "/" + "/".join(path_parts)
 
 
-    def generate_word_index(self) -> None:
-        index = {}
+    def _generate_word_index(self) -> dict:
+        index: dict = {}
         for elem in self.root.iter():
-            if any(anc.tag in self.exclusions for anc in elem.xpath('ancestor-or-self::*')):
-                continue
+            elem_excluded = any(anc.tag in self.exclusions for anc in elem.xpath('ancestor-or-self::*'))
 
-            text_content = elem.text
-            if text_content and text_content.strip():
+            if not elem_excluded and elem.text and elem.text.strip():
                 xpath_context = self.get_tei_path(elem)
-                words = re.findall(r"[\w']+", text_content, re.UNICODE)
+                for word in re.findall(r"[\w'’]+",elem.text, re.UNICODE):
+                    index.setdefault(word.lower(), set()).add(xpath_context)
 
-                for word in words:
-                    word_key = word.lower()
-                    if word_key not in index:
-                        index[word_key] = set()
-                    index[word_key].add(xpath_context)
+            # tail text is logically part of the parent element, not this one
+            if elem.tail and elem.tail.strip():
+                parent = elem.getparent()
+                if parent is not None:
+                    parent_excluded = any(anc.tag in self.exclusions for anc in parent.xpath('ancestor-or-self::*'))
+                    if not parent_excluded:
+                        xpath_context = self.get_tei_path(parent)
+                        for word in re.findall(r"[\w'’]+",elem.tail, re.UNICODE):
+                            index.setdefault(word.lower(), set()).add(xpath_context)
         return index
