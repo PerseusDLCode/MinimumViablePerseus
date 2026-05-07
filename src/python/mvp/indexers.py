@@ -2,6 +2,9 @@ from pathlib import Path
 import re
 from lxml import etree
 
+from mvp.models import WordIndex
+
+
 class WordIndexer:
     ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
     excluded_tags = ["teiHeader", "del", "note", "cit", "bibl", "rdg", "head"]
@@ -20,42 +23,34 @@ class WordIndexer:
         return self._tree
 
     @property
-    def word_index(self) -> dict(str,str):
+    def word_index(self) -> WordIndex:
         if self._word_index is None:
             self._word_index = self._generate_word_index()
         return self._word_index
-
-
 
     @property
     def root(self):
         return self.tree.getroot()
 
-
     def get_tei_path(self, elem):
         """Returns a readable XPath string using 'tei' prefixes."""
         path_parts = []
         for node in elem.xpath('ancestor-or-self::*'):
-            # Strip the {url} from the tag to get just the local name
             name = etree.QName(node).localname
-
-            # Find the position among siblings of the same name
             siblings = node.xpath(f'preceding-sibling::tei:{name}', namespaces=self.ns)
             index = len(siblings) + 1
             path_parts.append(f"tei:{name}[{index}]")
-
         return "/" + "/".join(path_parts)
 
-
-    def _generate_word_index(self) -> dict:
-        index: dict = {}
+    def _generate_word_index(self) -> WordIndex:
+        entries: dict = {}
         for elem in self.root.iter():
             elem_excluded = any(anc.tag in self.exclusions for anc in elem.xpath('ancestor-or-self::*'))
 
             if not elem_excluded and elem.text and elem.text.strip():
                 xpath_context = self.get_tei_path(elem)
-                for word in re.findall(r"[\w'’]+",elem.text, re.UNICODE):
-                    index.setdefault(word.lower(), set()).add(xpath_context)
+                for word in re.findall(r"[\w'']+", elem.text, re.UNICODE):
+                    entries.setdefault(word.lower(), set()).add(xpath_context)
 
             # tail text is logically part of the parent element, not this one
             if elem.tail and elem.tail.strip():
@@ -64,6 +59,7 @@ class WordIndexer:
                     parent_excluded = any(anc.tag in self.exclusions for anc in parent.xpath('ancestor-or-self::*'))
                     if not parent_excluded:
                         xpath_context = self.get_tei_path(parent)
-                        for word in re.findall(r"[\w'’]+",elem.tail, re.UNICODE):
-                            index.setdefault(word.lower(), set()).add(xpath_context)
-        return index
+                        for word in re.findall(r"[\w'']+", elem.tail, re.UNICODE):
+                            entries.setdefault(word.lower(), set()).add(xpath_context)
+
+        return WordIndex(entries=entries)

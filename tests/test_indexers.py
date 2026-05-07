@@ -1,10 +1,10 @@
 # tests/test_indexers.py
 #
-# Tests for WordIndexer.
+# Tests for WordIndexer and WordIndex.
 #
 # Three layers:
 #   1. Unit tests against minimal synthetic XML fixtures
-#   2. Regression tests that expose known issues / gaps
+#   2. Regression tests for tail text and Greek elision
 #   3. Integration test against a real corpus file
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ import pytest
 from lxml import etree
 
 from mvp.indexers import WordIndexer
+from mvp.models import WordIndex
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -145,10 +146,15 @@ class TestGetTeiPath:
 
 class TestWordIndex:
 
-    def test_returns_dict(self, tmp_path):
+    def test_returns_word_index_instance(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
         indexer = WordIndexer(path)
-        assert isinstance(indexer.word_index, dict)
+        assert isinstance(indexer.word_index, WordIndex)
+
+    def test_entries_is_dict(self, tmp_path):
+        path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
+        indexer = WordIndexer(path)
+        assert isinstance(indexer.word_index.entries, dict)
 
     def test_cached_after_first_access(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
@@ -165,98 +171,92 @@ class TestWordIndex:
     def test_basic_word_extraction(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
         indexer = WordIndexer(path)
-        assert "hello" in indexer.word_index
-        assert "world" in indexer.word_index
+        assert "hello" in indexer.word_index.entries
+        assert "world" in indexer.word_index.entries
 
     def test_words_are_lowercased(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>Hello World</p>"))
         indexer = WordIndexer(path)
-        assert "hello" in indexer.word_index
-        assert "world" in indexer.word_index
-        assert "Hello" not in indexer.word_index
+        assert "hello" in indexer.word_index.entries
+        assert "world" in indexer.word_index.entries
+        assert "Hello" not in indexer.word_index.entries
 
     def test_values_are_sets(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>hello world</p>"))
         indexer = WordIndexer(path)
-        assert isinstance(indexer.word_index["hello"], set)
+        assert isinstance(indexer.word_index.entries["hello"], set)
 
     def test_same_word_in_multiple_locations(self, tmp_path):
         body = "<p>word one</p><p>word two</p>"
         path = write_tei(tmp_path, make_tei(body))
         indexer = WordIndexer(path)
-        assert len(indexer.word_index["word"]) == 2
+        assert len(indexer.word_index.entries["word"]) == 2
 
-    def test_empty_body_returns_empty_index(self, tmp_path):
+    def test_empty_body_returns_empty_entries(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p></p>"))
         indexer = WordIndexer(path)
-        assert indexer.word_index == {}
+        assert indexer.word_index.entries == {}
 
     def test_whitespace_only_text_not_indexed(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>   </p>"))
         indexer = WordIndexer(path)
-        assert indexer.word_index == {}
+        assert indexer.word_index.entries == {}
 
     def test_punctuation_only_not_indexed(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>... --- .</p>"))
         indexer = WordIndexer(path)
-        assert indexer.word_index == {}
+        assert indexer.word_index.entries == {}
 
 
 class TestExclusions:
 
     def test_tei_header_words_excluded(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>body</p>"))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
+        entries = indexer = WordIndexer(path).word_index.entries
         # "Test" and "Author" come from teiHeader — must not appear
-        assert "test" not in index
-        assert "author" not in index
+        assert "test" not in entries
+        assert "author" not in entries
 
     def test_del_words_excluded(self, tmp_path):
         # "after" is in a separate <p> so it hits elem.text, not a tail
         body = "<p>keep</p><del>deleted</del><p>after</p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
-        assert "deleted" not in index
-        assert "keep" in index
-        assert "after" in index
+        entries = WordIndexer(path).word_index.entries
+        assert "deleted" not in entries
+        assert "keep" in entries
+        assert "after" in entries
 
     def test_note_words_excluded(self, tmp_path):
         body = "<p>text <note>editorial note</note></p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
-        assert "editorial" not in index
-        assert "note" not in index
-        assert "text" in index
+        entries = WordIndexer(path).word_index.entries
+        assert "editorial" not in entries
+        assert "note" not in entries
+        assert "text" in entries
 
     def test_rdg_words_excluded(self, tmp_path):
         body = "<p>text <app><rdg>variant</rdg></app></p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
-        assert "variant" not in index
+        entries = WordIndexer(path).word_index.entries
+        assert "variant" not in entries
 
     def test_nested_exclusion_excludes_descendants(self, tmp_path):
         body = "<note><p>deeply nested excluded text</p></note>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
-        assert "deeply" not in index
-        assert "nested" not in index
+        entries = WordIndexer(path).word_index.entries
+        assert "deeply" not in entries
+        assert "nested" not in entries
 
     def test_bibl_words_excluded(self, tmp_path):
         body = "<p>prose <bibl>Hom. Il. 1.1</bibl></p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        index = indexer.word_index
-        assert "hom" not in index
-        assert "prose" in index
+        entries = WordIndexer(path).word_index.entries
+        assert "hom" not in entries
+        assert "prose" in entries
 
 
 # ---------------------------------------------------------------------------
-# Layer 2: Regression tests for known gaps
+# Layer 2: Regression tests for tail text and Greek elision
 # ---------------------------------------------------------------------------
 
 class TestTailText:
@@ -264,41 +264,41 @@ class TestTailText:
     def test_tail_text_collected(self, tmp_path):
         body = "<p><hi>head</hi>tail word</p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        assert "tail" in indexer.word_index
-        assert "word" in indexer.word_index
+        entries = WordIndexer(path).word_index.entries
+        assert "tail" in entries
+        assert "word" in entries
 
     def test_tail_attributed_to_parent(self, tmp_path):
         body = "<p><hi>head</hi>tail</p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
+        entries = WordIndexer(path).word_index.entries
         # "tail" is in <hi>.tail but logically belongs to <p>
-        locations = indexer.word_index["tail"]
+        locations = entries["tail"]
         assert all("tei:p[" in loc for loc in locations)
 
     def test_tail_after_excluded_element_is_indexed(self, tmp_path):
         # "this" sits in <del>.tail — it belongs to <p>, not <del>
         body = "<p>keep <del>deleted</del> this</p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        assert "deleted" not in indexer.word_index
-        assert "keep" in indexer.word_index
-        assert "this" in indexer.word_index
+        entries = WordIndexer(path).word_index.entries
+        assert "deleted" not in entries
+        assert "keep" in entries
+        assert "this" in entries
 
 
 class TestGreekElision:
 
     def test_u2019_apostrophe_matched(self, tmp_path):
-        body = "<p>αλλ’</p>"  # αλλ’ with U+2019
+        body = "<p>αλλ'</p>"  # αλλ' with U+2019
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        assert "αλλ’" in indexer.word_index
+        entries = WordIndexer(path).word_index.entries
+        assert "αλλ'" in entries
 
     def test_ascii_apostrophe_matched(self, tmp_path):
-        body = "<p>don’t</p>"
+        body = "<p>don't</p>"
         path = write_tei(tmp_path, make_tei(body))
-        indexer = WordIndexer(path)
-        assert "don’t" in indexer.word_index
+        entries = WordIndexer(path).word_index.entries
+        assert "don't" in entries
 
 
 # ---------------------------------------------------------------------------
@@ -309,32 +309,35 @@ class TestArgonauticaIntegration:
     """tlg0001.tlg001.perseus-grc2.xml — Greek verse."""
 
     @pytest.fixture(scope="class")
-    def index(self):
+    def word_index(self):
         path = DATA_DIR / "tlg0001.tlg001.perseus-grc2.xml"
         return WordIndexer(path).word_index
 
-    def test_index_is_nonempty(self, index):
-        assert len(index) > 0
+    def test_returns_word_index_instance(self, word_index):
+        assert isinstance(word_index, WordIndex)
 
-    def test_all_keys_are_lowercase(self, index):
-        for key in index:
+    def test_entries_is_nonempty(self, word_index):
+        assert len(word_index.entries) > 0
+
+    def test_all_keys_are_lowercase(self, word_index):
+        for key in word_index.entries:
             assert key == key.lower(), f"Key not lowercase: {key!r}"
 
-    def test_all_values_are_nonempty_sets(self, index):
-        for word, locations in index.items():
+    def test_all_values_are_nonempty_sets(self, word_index):
+        for word, locations in word_index.entries.items():
             assert isinstance(locations, set), f"{word!r}: expected set"
             assert len(locations) > 0, f"{word!r}: empty location set"
 
-    def test_all_locations_are_strings(self, index):
-        for word, locations in index.items():
+    def test_all_locations_are_strings(self, word_index):
+        for word, locations in word_index.entries.items():
             for loc in locations:
                 assert isinstance(loc, str), f"{word!r}: non-string location"
 
-    def test_locations_start_with_slash(self, index):
-        for word, locations in index.items():
+    def test_locations_start_with_slash(self, word_index):
+        for word, locations in word_index.entries.items():
             for loc in locations:
                 assert loc.startswith("/"), f"{word!r}: {loc!r} missing leading slash"
 
-    def test_tei_header_content_absent(self, index):
+    def test_tei_header_content_absent(self, word_index):
         # "apollonius" lives only in teiHeader — must be excluded
-        assert "apollonius" not in index
+        assert "apollonius" not in word_index.entries
