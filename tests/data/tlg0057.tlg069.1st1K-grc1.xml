@@ -1,0 +1,1383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../../verbatim_theme/verbatim.xsl"?>
+<?xml-model href="https://epidoc.stoa.org/schema/dev/tei-epidoc.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://epidoc.stoa.org/schema/dev/tei-epidoc.rng" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader xml:lang="eng">
+    <fileDesc>
+      <titleStmt>
+        <title xml:lang="lat">De venae sectione adversus Erasistrateos Romae degentes</title>
+        <author xml:lang="lat">
+<name ref="http://viaf.org/viaf/44299175">Galenus</name>
+</author>
+        <editor role="editor">Kühn, Karl Gottlob</editor>
+        <funder>Andrew W. Mellon Foundation</funder>
+        <respStmt>
+          <resp>Published original versions of the electronic texts</resp>
+          <orgName ref="http://www.graeco-arabic-studies.org/">A Digital Corpus for Graeco-Arabic Studies, funded by the Andrew W. Mellon Foundation</orgName>
+          <persName>Mark Schiefsky, Harvard University</persName>
+          <persName>Gregory R. Crane, Universität Leipzig</persName>
+          <persName>Uwe Vagelpohl, University of Warwick</persName>
+        </respStmt>
+        <respStmt>
+          <resp>Keyboarding</resp>
+          <orgName xml:id="DDD">Digital Divide Data</orgName>
+        </respStmt>
+        <respStmt>
+          <resp>Editor-in-Chief, Perseus Digital Library</resp>
+          <persName>Gregory R. Crane</persName>
+        </respStmt>
+        <respStmt>
+          <resp>Project Manager (University of Leipzig)</resp>
+          <persName>Matt Munson</persName>
+        </respStmt>
+        <respStmt>
+          <resp>Project Assistant (University of Leipzig)</resp>
+          <persName>Annette Geßner</persName>
+        </respStmt>
+        <respStmt>
+          <resp>Lead Developer (University of Leipzig)</resp>
+          <persName>Thibault Clérice</persName>
+        </respStmt>
+        <respStmt>
+          <resp>Technical Advisor</resp>
+          <persName>Bruce Robertson</persName>
+        </respStmt>
+      </titleStmt>
+<editionStmt resp="#Galenus_verbatim">
+<edition n="1">Revised edition of the originally published versions of the electronic texts.
+<date type="revision" when="2024">2024</date>
+</edition>
+<respStmt>
+<resp>To reuse the Kühn’s edition for the Galenus verbatim project, we (silently) corrected the texts as found in the <orgName source="https://github.com/OpenGreekAndLatin/First1KGreek">First1KGreek</orgName> repository, whether there were mistakes of transcriptions, errors in the metadata or missing parts of the text. We added bibliographical references to the previous editions referred to in Kühn’s edition as "Bas." and "Chart.": that of the Γαληνοῦ Ἅπαντα published in Basel (hence referred to as #Basel) and the Operum Hippocratis Coi, et Galeni Pergameni of René Chartier (hence referred to as #Chartier); we changed the naming schemes of the milestones indicating the corresponding Basel and Chartier pages in Kühn’s edition, and added the corresponding Basel and Chartier volume number. The editions other than that of Kühn were given milestones indicating the corresponding Kühn volume and pages when they were missing. Treatises from Kühn’s edition were given line numbers. We also added elements of structuration that were present in Kühn’s edition but were missing in the TEI, mainly the division of chapters into sections in some treatises, as well as the header for those sections. The text of headings containing the name of chapter and numbers of chapters and sections have been restored, as well as the original symbols as they appear in Kühn’s printed edition. The text numbered tlg0057.tlg096 that was separately edited was reinserted in the tlg0057.tlg095 in accordance with its location within Kühn’s edition. For details, see the revisionDesc section.</resp>
+<orgName xml:id="Galenus_verbatim" ref="https://galenus-verbatim.huma-num.fr/">Galenus verbatim, funded by the Institut universitaire de France (2019-2024), the Initiative humanités biomédicales de l’Alliance Sorbonne Université (2021-2024) and the Institut des sciences de l’Antiquité de l’Alliance Sorbonne Université (2024-2025)</orgName>
+<persName>Nathalie Rousseau, Sorbonne Université</persName>
+</respStmt>
+<respStmt>
+<resp>Editor-in-Chief, Galenus verbatim</resp>
+<orgName ref="#Galenus_verbatim">Galenus verbatim, funded by the Institut universitaire de France (2019-2024), the Initiative humanités biomédicales de l’Alliance Sorbonne Université (2021-2024) and the Institut des sciences de l’Antiquité de l’Alliance Sorbonne Université (2024-2025)</orgName>
+<persName>Nathalie Rousseau, Sorbonne Université</persName>
+</respStmt>
+<respStmt>
+<resp>Lead Developer, Optéos</resp>
+<persName>Frédéric Glorieux</persName>
+</respStmt>
+<respStmt>
+<resp from="2021-11" to="2023-03">Digital Editor, Galenus verbatim</resp>
+<orgName ref="#Galenus_verbatim">Galenus verbatim, funded by the Institut universitaire de France (2019-2024), the Initiative humanités biomédicales de l’Alliance Sorbonne Université (2021-2024) and the Institut des sciences de l’Antiquité de l’Alliance Sorbonne Université (2024-2025)</orgName>
+<persName>Cahal Taaffe</persName>
+</respStmt>
+<respStmt>
+<resp from="2024-02-19" to="2024-07-19">Digital Editor, Galenus verbatim</resp>
+<persName>Lucas Lemperriere, Université de Rouen</persName>
+<orgName ref="#Galenus_verbatim">Galenus verbatim, funded by the Institut universitaire de France (2019-2024), the Initiative humanités biomédicales de l’Alliance Sorbonne Université (2021-2024) and the Institut des sciences de l’Antiquité de l’Alliance Sorbonne Université (2024-2025)</orgName>
+</respStmt>
+<funder ref="https://www.iufrance.fr/">Institut universitaire de France</funder>
+<funder ref="https://www.sorbonne-universite.fr/">Initiative humanités biomédicales de l’Alliance Sorbonne Université</funder>
+</editionStmt>
+<publicationStmt>
+        <authority>A Digital Corpus for Graeco-Arabic Studies, funded by the Andrew W. Mellon Foundation</authority>
+        <publisher>University of Leipzig</publisher>
+        <pubPlace>Germany</pubPlace>
+        <idno type="filename">tlg0057.tlg069.1st1K-grc1.xml</idno>
+        <availability>
+          <licence target="https://creativecommons.org/licenses/by-sa/4.0/">Available under a Creative Commons Attribution-ShareAlike 4.0 International License</licence>
+        </availability>
+        <date>2016</date>
+      </publicationStmt>
+      <sourceDesc>
+        <biblStruct>
+          <monogr>
+            <title xml:lang="lat">Claudii Galeni Opera Omnia</title>
+            <author xml:lang="lat">Galenus</author>
+            <editor role="editor">Kühn, Karl Gottlob</editor>
+            <imprint>
+              <publisher>Cnobloch</publisher>
+              <pubPlace>Leipzig</pubPlace>
+              <biblScope unit="vol">11</biblScope>
+              <biblScope unit="pp" from="187" to="249">187-249</biblScope>
+              <date>1826</date>
+            </imprint>
+          </monogr>
+          <ref target="https://catalog.hathitrust.org/Record/009723957">HathiTrust</ref>
+        </biblStruct>
+        <biblStruct>
+          <monogr corresp="Basel">
+            <title xml:lang="lat">Γαληνοῦ Ἅπαντα. Galeni Pergameni Opera omnia</title>
+            <author xml:lang="lat">Galenus</author>
+            <editor>Camerarius, Joachim</editor>
+            <editor>Fuchs, Leonhart</editor>
+            <editor>Gemusaeus, Hieronymus</editor>
+            <imprint>
+              <publisher>Cratander</publisher>
+              <pubPlace>Basel</pubPlace>
+              <biblScope unit="vol">4</biblScope>
+              <biblScope unit="pp" from="7" to="16">7-16</biblScope>
+              <date>1538</date>
+            </imprint>
+          </monogr>
+          <ref target="https://www.biusante.parisdescartes.fr/histmed/medica/cote?00039x04">BIU Santé, Medica</ref>
+        </biblStruct>
+        <biblStruct>
+          <monogr corresp="Chartier">
+            <title xml:lang="lat">Magni Hippocratis Coi, et Claudii Galeni Pergameni archiatrΩn uniuersa quae extant</title>
+            <author xml:lang="lat">Galenus</author>
+            <editor>Chartier, René</editor>
+            <editor>Blondel, François</editor>
+            <editor>Le Moine, Antoine</editor>
+            <imprint>
+              <publisher>André Pralard</publisher>
+              <pubPlace>Paris</pubPlace>
+              <biblScope unit="vol">10</biblScope>
+              <biblScope unit="pp" from="406" to="427">406-427</biblScope>
+              <date>1679</date>
+            </imprint>
+          </monogr>
+          <ref target="https://www.biusante.parisdescartes.fr/histmed/medica/cote?00013x10">BIU Santé, Medica</ref>
+        </biblStruct>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <p>The following text is encoded in accordance with EpiDoc standards and with the CTS/CITE Architecture.</p>
+      <refsDecl n="CTS">
+        <cRefPattern matchPattern="(.+)" n="chapter" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])"/>
+      </refsDecl>
+<editorialDecl resp="#Galenus_verbatim">
+<correction>
+<p>Typographical errors of the printed edition are marked up by a &lt;choice&gt; element.</p>
+</correction>
+<hyphenation eol="none">
+<p>End-of-line hyphenation is silently removed where appropriate.</p>
+</hyphenation>
+<interpretation>
+<p>The layout of the printed edition is marked up by &lt;pb&gt; and &lt;lb&gt; elements. The indentation type has been systematically specified with a rend value.</p>
+</interpretation>
+<interpretation>
+<p>Titles for books of treatises are marked up by a &lt;head&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>Divisions in works, books, chapters, sections are marked up by a &lt;div&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>Headings are marked up by a &lt;label&gt; element. Greek numbers in headings of chapters or sections are marked up by a &lt;num&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>Verse lines are marked up by an &lt;l&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>Linegroups are marked up by an &lt;lg&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>Tables are marked up by a &lt;table&gt; element.</p>
+</interpretation>
+<interpretation>
+<p>In the commentaries, Hippocratic lemmas are marked up by a &lt;quote&gt; element.</p>
+</interpretation>
+<normalization>
+<p>Original symbols are maintained as they appear in Kühn’s printed edition. In the Greek text, the following symbols are used: ϛ (stigma: U+03DB), ϟ (koppa: U+03DF), ϡ (sampi: U+03E1), S" (as Galen describes this symbol as a ‘Roman S’ [Ῥωμαϊκὸν S: 19.757.6-7], the Unicode character 𐅵 for ‘half’, U+10175, is not appropriate), 𐆃 (litra: U+10183), 𐅻 (drachma: U+1017B), 𐆈 (gramma: U+10188), 𐅼 (obol: U+1017C), 𐅽 (two obols: U+1017D), Ͻ (capital lunate reverse sigma: U+03FD), 𐆅 (xestes: U+10185), 𐆂ο (kyathos: U+10182+ super omicron 03BF), ♃ (Jupiter: U+2643). In the pseudo-Galenic text Prognostica de decubitu ex mathematica scientia (urn:cts:greekLit:tlg0530.tlg024.verbatim-grc1), the following astrological symbols are also used: ♒ (aquarius: U+2652), ♈ (aries: U+2648), ♋ (cancer: U+264B), ♑ (capricorn: U+2651), ♀ (female sign: U+2640), ♊ (gemini: U+264A), ☾ (last quarter moon: U+263E), ♌ (leo: U+264C), ♎ (libra: U+264E), ♂ (male sign: U+2642), ☿ (mercury: U+263F), ☍ (opposition: U+260D), ♓ (pisces: U+2653), ♐ (sagittarius: U+2650), ♄ (saturn: U+2644), ♏ (scorpio: U+264F), ☉ (sun: U+2609), ♉ (taurus: U+2649), ♍ (virgo: U+264D), □ (white square: U+25A1).</p>
+</normalization>
+<normalization>
+<p>The Unicode character dexia keraia (U+0374) is used to indicate the numeric use of Greek letters.</p>
+</normalization>
+</editorialDecl>
+</encodingDesc>
+    <profileDesc>
+      <langUsage>
+        <language ident="grc">Greek</language>
+      </langUsage>
+    </profileDesc>
+<revisionDesc>
+<change who="#Galenus_verbatim" when="2023">First round of revisions for publication on the Galenus verbatim website.</change>
+<change who="#Galenus_verbatim" when="2023">Added bibliographical information on the editions referred to in Kühn’s edition as "Bas." and "Chart."</change>
+<change who="#Galenus_verbatim" when="2023">Corrected and added milestone tags for the missing page changes of both Basel and Chartier editions when they were missing.</change>
+<change who="#Galenus_verbatim" when="2023">Punctual correction to the digitization of Kühn’s text.</change>
+<change who="#Galenus_verbatim" when="2023">Correction and additions of the sections &lt;div&gt; level when they were missing to better reflect the structure of Kühn’s edition.</change>
+<change who="#Galenus_verbatim" when="2023">Modification to the subtype of some &lt;div&gt; to better reflect the structure of Kühn’s edition.</change>
+<change who="#Galenus_verbatim" when="2023">Added &lt;label&gt; elements for all headings of chapters and sections.</change>
+<change who="#Galenus_verbatim" when="2023">Added &lt;l&gt; elements for verse lines and &lt;lg&gt; elements for linegroups.</change>
+<change who="#Galenus_verbatim" when="2023">Symbols that the initial transcription rendered as abbreviations have been restored as they appear in Kühn’s printed edition. For details, see the editorialDecl section.</change>
+<change who="#Galenus_verbatim" when="2023">Added line number.</change>
+<change who="#Galenus_verbatim" when="2024">The text of headings containing the name of chapter and numbers of chapters and sections have been restored and marked with &lt;label&gt; and &lt;num&gt; elements.</change>
+<change who="#Galenus_verbatim" when="2024">All the indentations have been restored.</change>
+<change who="#Galenus_verbatim" when="2025">The transcription of the Greek numerals has been verified. The correct Unicode character dexia keraia (U+0374) has been restored to indicate the numeric use of Greek letters in place of the erroneous acute accent (U+0384) that appeared in the initial transcription.</change>
+<change who="#Galenus_verbatim" when="2025">The transcription of the punctuation has been reviewed overall, with line-by-line checks for suspicious character sequences. In particular, numerous spurious punctuation marks (dots, commas, apostrophes) present in the initial transcription but corresponding to print smudges in Kühn’s printed edition have been silently removed; whereas punctuation errors originating in the printed edition have been marked up by a &lt;choice&gt; element, in accordance with the principles stated in the editorialDecl section.</change>
+</revisionDesc>
+</teiHeader>
+  <text>
+    <body>
+      <div type="edition" xml:lang="grc" n="urn:cts:greekLit:tlg0057.tlg069.1st1K-grc1">
+        <pb n="11.187"/>
+        <div type="textpart" subtype="chapter" n="1" xml:id="_1">
+          <head>ΓΑΛΗΝΟΥ ΠΕΡΙ ΦΛΕΒΟΤΟΜΙΑΣ ΠΡΟΣ
+<lb/>ΕΡΑΣΙΣΤΡΑΤΕΙΟΥΣ ΤΟΥΣ ΕΝ ΡΩΜΗι.
+</head>
+<p rend="indent">
+<lb n="1"/><label type="head"><num value="1">Κεφ. αʹ.</num></label> Ὅτε τὸ πρῶτον ἧκον εἰς Ῥώμην, εὗρόν
+<lb n="2"/>τινας ἰατροὺς εἰς τοσοῦτον φυλαττομένους φλεβοτομίαν ὥστε
+<lb n="3"/>ἐνίοτε διὰ πλῆθος ἀνθρώπου πνιγομένου, μηδὲ τότε χρῆσθαι
+<lb n="4"/>τῷ βοηθήματι. καί τινα γυναῖκα τῇ μὲν ἡλικίᾳ σχεδὸν
+<lb n="5"/>ἐτῶν κά, ἐξ ἐπισχέσεως τῆς ἐμμήνου καθάρσεως ἐρυθρόν τε
+<lb n="6"/>τὸ πρόσωπον ἔχουσαν καὶ βήττουσαν ἀτρέμα καὶ δυσπνοοῦσαν
+<lb n="7"/>ἤδη που σμικρὰ διαδοῦντας ἐρίοις δεσμοῖς τὰ κῶλα καὶ
+<lb n="8"/>ἀσιτεῖν κελεύοντας, οὔτε δὲ αὐτοὺς φλεβοτομοῦντας ἡμᾶς τε
+<pb n="11.188"/>
+<lb n="1"/>κωλύοντας· ἐπεὶ ᾧ συνήθες εἶναι τοῖς οἰκείοις τῆς γυναικὸς
+<lb n="2"/>καὶ πρεσβύτεραι μᾶλλον ἐπιστεύοντο. πείθειν μὲν αὐτοὺς ἔτι
+<lb n="3"/>περὶ τῆς φλεβοτομίας οὐδὲ ἐπεχείρησα, προσανηρώτησα δ’ εἰ
+<lb n="4"/>μὴ κωλύοιεν ἐρεθίζειν ἐπὶ μήτραν τὸ αἷμα τοῖς τοῦτ’ ἐργάζεσθαι
+<lb n="5"/>δυναμένοις φαρμάκοις. ὡς δὲ συνεχώρησαν, ἑτοίμως
+<lb n="6"/>τὴν συνήθη τῇ καμνούσῃ μαιεύτριαν ἐξευρὼν<milestone unit="ed2page" n="10.407"/> ἐπὶ τὴν
+<lb n="7"/>χρῆσιν αὐτῶν προὔτρεπον. ἡ δὲ κεχρῆσθαι καθ’ ὃν ἐχρῆν
+<lb n="8"/>καιρὸν ἔλεγεν, ἡνίκα ἐπίδοξος ἡ ἔμμηνος ἦν ἔσεσθαι κάθαρσις.
+<lb n="9"/>ἐμέμνητό τε τῶν φαρμάκων ἃ προσήνεγκε τῇ
+<lb n="10"/>γυναικὶ, δοκίμων ἁπάντων ὄντων, ὡς μὴ δόξαι τινὰ τῇ
+<lb n="11"/>τούτων ἀσθενείᾳ τὴν βοήθειαν ἄπρακτον γενέσθαι. ταῦτά
+<lb n="12"/>τε οὖν ἐγὼ πυθόμενος, ἔτι τε πρὸς τούτοις ὅτι τέταρτος
+<lb n="13"/>εἴη μὴν πεπλησμένος τῆς ἐπισχέσεως τοῦ αἵματος, αὖθις
+<lb n="14"/>ἐντυχὼν τοῖς ἰατροῖς ἐπεχείρουν πείθειν ἐπὶ τὴν φλεβοτομίαν
+<lb n="15"/>ἀφικέσθαι. μὴ βουληθέντων δὲ θαυμάζων εἰ διὰ μὲν
+<lb n="16"/>τῆς μήτρας ἐκκενῶσαι τὸ περιττὸν αἷμα σπουδάζουσιν, ἀναστομώσαντες
+<lb n="17"/>δηλαδὴ φλέβας ἐνταῦθα πολλὰς, ἄλλης δέ
+<pb n="11.189"/>
+<lb n="1"/>τινος φλεβὸς τμηθείσης ἡγοῦνται βλαβερὰν ἔσεσθαι τὴν
+<lb n="2"/>κένωσιν. τῶν δὲ εἰπόντων ὑπὸ μόνης τῆς ἀσιτίας κενωθῆναι
+<lb n="3"/>δύνασθαι τὸ πλεονάζον αἷμα, χωρὶς τοῦ προσαχθῆναι βοήθημα
+<lb n="4"/>τοιοῦτον, σιωπήσας ἀπηλλαττόμην, οὐδὲν χρηστὸν
+<lb n="5"/>ἐλπίζων ἐπὶ τῇ γυναικὶ, διά τε τὴν βῆχα καὶ τὴν δύσπνοιαν.
+<lb n="6"/>ἢ γὰρ αἷμά τι πτύσσειν αὐτὴν ἐκ θώρακος ἢ πνεύμονος,
+<lb n="7"/>ἀγγείου ῥαγέντος, ἢ πάντως γε συναγχικὴν ἢ πλευριτικὴν ἢ
+<lb n="8"/>περιπνευμονικὴν ἔσεσθαι προσεδόκουν. ἐβουλόμην τε μᾶλλον,
+<lb n="9"/>ὡς ἐν κακῶν αἱρέσει, πλευριτικὴν γενέσθαι τὴν γυναῖκα, δεδιὼς
+<lb n="10"/>τῆς μὲν ἐν συνάγχῃ τε καὶ περιπνευμονίᾳ τὴν ὀξύτητα τοῦ κινδύνου,
+<lb n="11"/>τῆς δὲ ἐν τῷ πνεύμονι ῥήξεως ἀγγείου τὸ θανατῶδες, ὅπερ
+<lb n="12"/>οὖν καὶ συνέβη γενέσθαι. βηξάσῃ γὰρ αὐτῇ συντονώτερον αἷμα
+<lb n="13"/>συνανήχθη. καὶ ἤδη καὶ τῶν ἰδιώτων οὐχ ὀλίγοι τοῖς κωλύσασι
+<lb n="14"/>φλεβοτομηθῆναι τὴν ἄνθρωπον ἐμέμφοντο. καὶ πάντως,
+<lb n="15"/>εἰ καὶ μὴ πρόσθεν, ἀλλὰ νῦν γοῦν ἤλπιζον αἰδεσθέντας
+<lb n="16"/>αὐτοὺς συγχωρῆσαι τῷ βοηθήματι. τῶν δὲ μηδὲ τότε ἐπιτρεπόντων,
+<lb n="17"/>ἀλλὰ τά τε τῶν κώλων δεσμὰ ἐπεσφίγγειν σφοδρότερον
+<pb n="11.190"/>
+<lb n="1"/>ἀξιούντων, ἐρεθίζειν τε διὰ μήτρας, ἐπιμένειν τε
+<lb n="2"/>ταῖς ἀσιτίαις, ἐγὼ μὲν ἐχωρίσθην, ὡς ἂν μηδὲν ἀνύσειν ἐλπίζων
+<lb n="3"/>διά τε τὴν ἡλικίαν τῶν ἀνδρῶν καὶ τὴν δόξαν. ἡ γυνὴ
+<lb n="4"/>δ’ ἀπέθανεν οὐ μετὰ πολὺν χρόνον, ἀνιάτῳ δυσπνοίᾳ συσχεθεῖσα.
+<lb n="5"/>καὶ μὲν δὴ καὶ συναγχικῶν ὑπὸ τῶν αὐτῶν τούτων
+<lb n="6"/>ἰατρῶν κωλυθέντων φλεβοτομῆσαι διὰ ταχέων ἀποθανόντων.
+<lb n="7"/>καὶ πάλιν ἄλλον τινα ἦρος ὥρᾳ, δι’ ὅλου μὲν τοῦ χειμῶνος
+<lb n="8"/>ἐμπεπλησμένον ἄνευ γυμνασίων, ἐρυθροὺς δὲ οὕτω τοὺς
+<lb n="9"/>ὀφθαλμοὺς ἔχοντα καὶ τὸ πρόσωπον ὅλον, ὡς εἰ καί τις μὲν
+<lb n="10"/>ἐρείσας χαμαὶ τὴν κεφαλὴν, ὑψηλὰ δ’ ἀνατείνας τὰ σκέλη,
+<lb n="11"/>χρονίσει ἐν τούτῳ τῷ σχήματι, πεμπταῖος οὗτος δυσπνοήσας
+<lb n="12"/>ἐπνίγη. τετάρτην ἐπὶ τούτων γυναῖκα τῆς ἐμμήνου καθάρσεως
+<lb n="13"/>ἐπεσχημένης οὐκ ὀλίγου χρόνου κατὰ τὸν αὐτὸν τρόπον ἐπὶ
+<lb n="14"/>θάνατον ἐποδήγουν οἱ τῆς φλεβοτομίας ἐχθροὶ, τὰς τρεῖς μὲν
+<lb n="15"/>ἡμέρας ἐν πρώτοις ἐν ἀσιτίᾳ φυλάξαντες· καὶ γὰρ καὶ ὁ πυρετὸς
+<lb n="16"/>ἦν αὐτῇ συνεχής· τῇ τετάρτῃ δὲ δόντες αὐτῇ ὀλιγοστόν
+<lb n="17"/>τι ῥοφήματος, εἶτα τῇ πέμπτῃ πάλιν ἀσιτεῖν κελεύσαντες,
+<lb n="18"/>ἐν ᾗ καὶ παροξυνθεῖσα σφοδρότερον ἀνεπήδα τε παραφρονοῦσα
+<pb n="11.191"/>
+<lb n="1"/>καὶ διὰ τῶν θυρῶν ἐκτὸς ἔθει κεκραγυῖα, καὶ μόγις αὐτὴν οἱ
+<lb n="2"/>παρόντες ἠδύναντο κατέχειν. ἀλλὰ ταύτην γε ἡ φύσις ἔσωσεν,
+<lb n="3"/>αἷμα ἐκ μυκτήρων ἐκχέασα <milestone unit="ed1page" n="4.8"/>πάμπολυ. καὶ ἦν θαυμάσαι
+<lb n="4"/>τε ἅμα καὶ διδαχθῆναι πηλίκην ἔχει δύναμιν εἰς τὴν τῶν
+<lb n="5"/>τοιούτων παθημάτων ἴασιν αἵματος ἀφαίρεσις. αὐτίκα γὰρ
+<lb n="6"/>ἐπὶ τῇ διὰ τῶν μυκτήρων αἱμοῤῥαγίᾳ πάντων ἀπήλλακτο τῶν
+<lb n="7"/>συμπτωμάτων ἡ γυνή. ἔμπροσθεν μὲν οὖν ἐδεδίειν εἰς λόγους
+<lb n="8"/>ἰέναι τοῖς ἰατροῖς, εἰκάζων ἃ μέλλουσιν ἐρεῖν εἰς τὸ μὴ χρῆσθαι
+<lb n="9"/>τῇ φλεβοτομίᾳ. φανερῶς δὲ δοξάσης ἅπασι σωθῆναι
+<lb n="10"/>τῆς γυναικὸς ἐπὶ τῇ κενώσει τοῦ αἵματος, ἀνέμνησα <milestone unit="ed2page" n="10.408"/>αὐτοὺς
+<lb n="11"/>τῶν ἀποθανόντων, ὡς εἰ καί τις ἐκείνους ἐφλεβοτόμησεν,
+<lb n="12"/>ἴσως ἂν ἐσώθησαν, ἔλεγόν τε τινὰς ἐπὶ τούτων λογισμοὺς,
+<lb n="13"/>οἱ δὲ περιέπλεκον μὲν ἄνω καὶ κάτω τοὺς λόγους ἑλίττοντες,
+<lb n="14"/>ἐπέραινον δ’ οὐδὲν, ἀλλὰ καὶ τελευτῶντες ἐπὶ τὸν Ἐρασίστρατον
+<lb n="15"/>κατέφευγον, ἐν μὲν τῷ πρώτῳ περὶ αἵματος ἀναγωγῆς βιβλίῳ
+<lb n="16"/>φάσκοντες ἀποδεδεῖχθαι πρὸς αὐτοῦ κάλλιον εἶναι τοῦ φλεβοτομεῖν
+<lb n="17"/>τὸ διαδεῖν τὰ κῶλα, κατά τε τὴν περὶ τῶν πυρετῶν ﻿
+<pb n="11.192"/>
+<lb n="1"/>πραγματείαν, μηδὲ ἐπιμνησθῆναι τὴν ἀρχὴν τῆς φλεβοτομίας
+<lb n="2"/>αὐτὸν, ὡς ἂν ὧν δὴ ἔδειξεν ἐν τῷ περὶ αἵματος ἀναγωγῆς
+<lb n="3"/>μεμνημένον. καὶ γὰρ ἂν ἦν, ἔφασαν, γελοῖος εἰ παραιτησάμενος
+<lb n="4"/>τῆς φλεβοτομίας ἐπὶ τοῦ μάλιστα δεῖσθαι δοκοῦντος πάθους
+<lb n="5"/>ἔμελλεν ἔτι περὶ τῶν ἄλλων ἐρεῖν. τὸν αὐτὸν δὲ τοῦτον
+<lb n="6"/>Ἐρασίστρατον οὐ μόνον ἐν τῇ περὶ τῶν πυρετῶν πραγματείᾳ
+<lb n="7"/>σεσιγηκέναι περὶ τῆς φλεβοτομίας ἔλεγον, ἀλλὰ κᾀν ταῖς
+<lb n="8"/>ἄλλαις ἁπάσαις. οὔτε γὰρ ἐν τῇ τῶν κατὰ τὴν κοιλίαν παθῶν
+<lb n="9"/>οὔτε ἐν τῇ τῶν παρέσεων οὔτε ἐν τῇ περὶ ποδάγρας,
+<lb n="10"/>ἀλλ’ οὐδὲ ἐν τῇ τῶν ὑγιεινῶν κεχρῆσθαι φλεβοτομίᾳ. καίτοι
+<lb n="11"/>τὸ πλῆθός γε τοῦ αἵματος ἐν τοῖς ὑγιεινοῖς συγγράμμασι
+<lb n="12"/>μάλιστα αὐτὸν αἰτιᾶσθαι τῶν νόσων. ἐμοῦ δ’ ἀποθαυμάζοντός
+<lb n="13"/>τε τὰ λεγόμενα καὶ τοσοῦτον ἔτι προσανερωτήσαντος
+<lb n="14"/>αὐτοὺς, εἰ μηδέποτε χρηστέον ἐστὶ φλεβοτομίᾳ, μηδ’ ἂν
+<lb n="15"/>περιπνευμονικός τις εἴη ἢ συναγχικῶς πνιγόμενος τύχοι, μηδ’
+<lb n="16"/>ἂν ἐξ ἐπισχέσεως ἐμμήνου καθάρσεως ἢ αἱμοῤῥοΐδος ἐπὶ θώρακα
+<lb n="17"/>ὠθεῖται τὸ πλεονάζον αἷμα. καὶ πρὸς τούτοις ἀπεκρίναντο
+<lb n="18"/>προχειρισάμενοι τοὺς ἐν τοῖς τῶν διαιρέσεων βιβλίοις
+<pb n="11.193"/>
+<lb n="1"/>Ἐρασιστράτῳ γεγραμμένους ἀῤῥώστους, καὶ μάλιστα αὐτῶν
+<lb n="2"/>τὸν Κρίτωνα καὶ τὴν ἐκ τῆς Χίου παιδίσκην. τὸν μὲν γὰρ ἐξ
+<lb n="3"/>ἀρχῆς συναγχικῶς ἐνοχλούμενον, ἅμα δὲ καὶ πληθωρικὸν
+<lb n="4"/>ὄντα, καθάπερ αὐτὸς ὁ Ἐρασίστρατος ἔγραψεν· τὴν δὲ τῶν
+<lb n="5"/>καταμηνίων ἐπεσχημένων καὶ τοῦ πλήθους ὁρμήσαντος ἐπὶ
+<lb n="6"/>πνεύμονα μὴ φλεβοτομῆσαι τὸν ἄνδρα. λεγόντων δ’ αὐτῶν ἔτι
+<lb n="7"/>ταῦτα Τεύθρας τις ἐμὸς πολίτης ἅμα καὶ συμφοιτητὴς, ἦν
+<lb n="8"/>δὲ πάνυ τὸν τρόπον ἐλεύθερος, οὐ κάμψεις, ἔφη, τούτους ποτὲ,
+<lb n="9"/>τοὺς μηδὲ ἄχρι τοσούτου σωφρονοῦντας, ὡς μεμνῆσθαι τῶν
+<lb n="10"/>δι’ Ἐρασίστρατον ἀποθανόντων. διὰ τί γὰρ ἄλλο, ἔφη, τοὺς
+<lb n="11"/>προκεχειρισμένους ὑπ’ αὐτῶν ἀῤῥώστους ἀποθανεῖν συνέβη,
+<lb n="12"/>πλὴν ὅτι παρελείφθη τὸ τῆς φλεβοτομίας βοήθημα; διὰ τί δὲ
+<lb n="13"/>ἄλλο τοὺς πρῲ ὑπὸ τούτων κωλυθέντας κενωθῆναι; καὶ
+<lb n="14"/>πάντας ἑξῆς αὐτοὺς ὀνόματι κατέλεξεν ἅμα ταῖς διαθέσεσιν
+<lb n="15"/>αἷς ἔσχον, ὧν ὀλίγον ἔμπροσθεν ἐμνημόνευσα. καὶ ταῦτα
+<lb n="16"/>μειδιῶν ἀνελιττόμενος τὴν χεῖρα καὶ βίαιον ἐπισπασάμενος
+<lb n="17"/>ἀπῆγε τῶν ἰατρῶν. τῇ δ’ ὑστεραίᾳ προκομίσας τὰ τῶν διαιρέσεων
+<pb n="11.194"/>
+<lb n="1"/>Ἐρασιστράτου βιβλία τοῖς φιλοσόφοις ἅπασιν ἀνεγίνωσκε,
+<lb n="2"/>ἅμα μὲν ἐπιδεικνὺς ὅτι δι’ Ἐρασίστρατον ἀπέθανον
+<lb n="3"/>ἥ τε ἐκ τῆς Χίου παιδίσκη καὶ Κρίτων ἅμα προσκαλούμενος
+<lb n="4"/>τοὺς πρεσβύτας ἰατροὺς εἰς διάλογον. ἐκεῖνοι μὲν οὖν οὐκ
+<lb n="5"/>ἀφικνοῦντο, μικρότερον ἑαυτῶν εἶναι νομίζοντες ἁμιλλᾶσθαι
+<lb n="6"/>νεανίσκῳ. συνέβη γάρ πως ἐν ἐκείνῳ τῷ χρόνῳ καθ’ ἑκάστην
+<lb n="7"/>ἡμέραν εἰς τὰ προβαλλόμενα λέγειν ἐν πλήθει. προεβλήθη
+<lb n="8"/>μὲν οὖν ὑπό τινος, εἰ δεόντως Ἐρασίστρατος οὐ κέχρηται
+<lb n="9"/>φλεβοτομίᾳ. διῆλθον δ’, ὡς ἔδοξε τοῖς τότε ἀκούσασιν, ὠφελιμώτατον
+<lb n="10"/>πρόβλημα. διὸ καὶ παρεκάλεσεν ὁ Τεύθρας ὑπαγορεῦσαι
+<lb n="11"/>μεταλελεγμένα τῷ πρὸς αὐτοῦ πεμφθησομένῳ παιδί.
+<lb n="12"/>καὶ γάρ τοι καὶ μέλλων εἰς τὴν Ἰωνίαν ἐπιδημῆσαι καὶ ἐξορμήσασθαι
+<lb n="13"/>πάντως ἔφασκεν ἔχειν αὐτὰ βούλεσθαι. ἐγὼ μὲν
+<lb n="14"/>οὖν ἐπείσθην τε τῷ ἑταίρῳ <milestone unit="ed2page" n="10.409"/>καὶ τὸν λόγον ὑπηγόρευσα.
+<lb n="15"/>συνέβη δ’ ἐκπεσεῖν εἰς πολλοὺς τὸ βιβλίον, οὐ κατὰ τὴν
+<lb n="16"/>γνώμην ὑπ’ ἐκείνου διαδοθὲν. ὁ γάρ τοι λόγος οὐ συγγράμματι
+<lb n="17"/>πρεπόντως, ἀλλ’ ἀκουστηρίῳ συνέκειτο, δεηθέντος τοῦ
+<pb n="11.195"/>
+<lb n="1"/>φίλου καθ’ ὃν ἐῤῥέθη τρόπον, οὕτως αὐτὸν ὑπαγορευθῆναι.
+<lb n="2"/>ἀλλὰ καὶ τοιοῦτος ὢν καὶ πολλὰ λείποντα ἔχων ὡς τὸ τέλεον,
+<lb n="3"/>ὅμως ἔοικεν ἠνυκέναι μεῖζόν τι τῆς ἐλπίδος. ἐπὶ γὰρ τοὐναντίον
+<lb n="4"/>ἀφιγμένοι πάντες εἰσὶν οἱ νῦν ὀνομάζοντες ἑαυτοὺς Ἐρασιστρατείους,
+<lb n="5"/>ἐφεξῆς τε φλεβοτομοῦσιν ἅπαντας, οὐ μόνον
+<lb n="6"/>οὓς ὀλίγον ἔμπροσθεν εἶπον, ἀλλὰ καὶ τοὺς ὁπωσοῦν πυρέττοντας.
+<lb n="7"/>ὥστε κατὰ τὸν Στησίχορον ἔοικα δεήσεσθαι παλινῳδίας
+<lb n="8"/>τινὸς, ἐν ᾗ παρακαλέσω τοὺς ἄνδρας ἐπὶ μὲν τῶν
+<lb n="9"/>κατὰ τοὺς λόγους διατριβῶν ἐρίζειν εἰς ὅσον βούλονται, φείδεσθαι
+<lb n="10"/>δὲ τῶν ἀῤῥώστων ἀποθεμένους τὸ σφοδρὸν τοῦτο τῆς
+<lb n="11"/>ἐφ’ ἑκάτερον ὁρμῆς. οὔτε γὰρ ἐπέχεσθαι χρὴ φλεβοτομίας διὰ
+<lb n="12"/>παντὸς, οὐδ’ ἡγεῖσθαι πάντας ὅσους ἂν Ἐρασίστρατος ἀσιτεῖν
+<lb n="13"/>κελεύῃ δεῖσθαι φλεβοτομίας, ὅπερ οἱ νῦν Ἐρασιστράτειοι
+<lb n="14"/>φασίν. οὐ μὴν οὐδὲ ῥᾷστον εἶναι πάντας τοὺς χρῄζοντας
+<lb n="15"/>τοῦ βοηθήματος διαγνῶναι, καθάπερ οὐδὲ τὸ μέτρον εὑρεῖν
+<lb n="16"/>ἢ τὴν τμηθησομένην φλέβα καὶ τὸν καιρόν. τόν τε Ἐρασίστρατον
+<lb n="17"/>αὐτὸν διὰ τοῦτο οἶμαι παραλιπεῖν ἐφ’ ἑκάστου τῶν
+<pb n="11.196"/>
+<lb n="1"/>παθῶν, ὥς γε σαφῶς ἐν τῷ μάλιστα δεομένῳ φλεβοτομίας
+<lb n="2"/>ἐκώλυσε χρῆσθαι. ἀλλά τοι, φασὶν, ἀσιτεῖν κελεύων ἐν τοῖς τῆς
+<lb n="3"/>φλεγμονῆς καιροῖς αὐτοῖς ἔγραψε κατὰ λέξιν ὧδε· κενούμεναι
+<lb n="4"/>γὰρ φλέβες ῥᾷον παραδέξονται τὸ παρεμπεπτωκὸς αἷμα
+<lb n="5"/>εἰς τὰς ἀρτηρίας. τούτου δὲ συμβαίνοντος ἧττον αἱ φλεγμοναὶ
+<lb n="6"/>ἔσονται. εἴπερ οὖν ὡς κενωτικὸν βοήθημα τὴν ἀσιτίαν
+<lb n="7"/>συμβουλεύει, πολὺ δήπου, φασὶ, μᾶλλον ἐπὶ φλεβοτομίας
+<lb n="8"/>ἀφίξεται. ὅτι μὲν οὖν ἐπὶ φλεβοτομίαν ἐχρῆν ἔρχεσθαι
+<lb n="9"/>μᾶλλον αὐτὸν ἔνθα ταχέως κενῶσαι βούλεται, κάλλιστα
+<lb n="10"/>λέγουσι, πλὴν ὅτι κᾀνταῦθα παραλείπουσι τοὺς κωλύοντας
+<lb n="11"/>ἐνίοτε σκοποὺς, ὧν τοῦ λόγου προϊόντος ἐγὼ
+<lb n="12"/>μνημονεύσω.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="2" xml:id="_2">
+          <p rend="indent">
+            <lb n="13"/><label type="head"><num value="2">Κεφ. βʹ.</num></label> Ζητεῖται δὲ νῦν οὐχ ἁπλῶς τί βέλτιον ἐστὶν,
+<lb n="14"/>ἀλλ’ εἰ φαίνεται χρώμενος Ἐρασίστρατος τῷ βοηθήματι.
+<lb n="15"/>τοῦτο δ’ οἱ μὲν ἔμπροσθεν, ἡνίχ’ ἧκον εἰς Ῥώμην τὸ πρῶτον,
+<lb n="16"/>ἅπαντες ἠρνοῦντο τῶν Ἐρασιστράτου μαθητῶν, οἱ δὲ
+<lb n="17"/>δοκιμώτατοι, οὓς αὐτὸς οἶδα, νῦν ὡς σμικρῷ τινὶ παραλλάττουσιν
+<lb n="18"/>αὐτῶν. ἵνα γὰρ ἐάσας τοὺς ἄλλους Στράτωνος ﻿
+<pb n="11.197"/>
+<lb n="1"/>μνημονεύσω, διὰ παντὸς μὲν Ἐρασιστράτῳ συγγενομένου,
+<lb n="2"/>γράψαντος δ’ ἐπὶ τῆς οἰκίας αὐτοῦ καὶ διὰ τοῦτο λεγομένου
+<lb n="3"/>δεδουλευκέναι τἀνδρὶ, τά τ’ ἄλλα, φησὶν ἐκεῖνος, Ἐρασίστρατον
+<lb n="4"/>ἐπαινεῖσθαι δίκαιόν ἐστι καὶ ὅτι χωρὶς φλεβοτομίας
+<lb n="5"/>ἐθεράπευεν ἃ μετὰ τοῦ φλεβοτομεῖν οἱ πρόσθεν
+<lb n="6"/>ἐπεχείρουν ἰᾶσθαι. καὶ μέντοι καὶ αὐτὸς ὁ Στράτων φαίνεται
+<lb n="7"/>διὰ τῶν ἰδίων συγγραμμάτων ἀεὶ τὰς θεραπείας χωρὶς
+<lb n="8"/>φλεβοτομίας ποιούμενος. καὶ τί θαυμαστὸν Ἐρασίστρατον
+<lb n="9"/>ἕπεσθαι τὰ πάντα Χρυσίππῳ τῷ Κνιδίῳ, προῃρημένον ἀποστῆναι
+<lb n="10"/>τοῦ φλεβοτομεῖν ὥσπερ κᾀκεῖνος; οὕτω δὲ καὶ Ἀριστογένης
+<lb n="11"/>καὶ Μήδιος, οἵ τ’ ἄλλοι πάντες οἱ ἀπὸ τοῦ
+<lb n="12"/>Χρυσίππου φαίνονται ποιοῦντες. ὅσον μὲν οὖν <milestone unit="ed1page" n="4.9"/>ἐπὶ τῇ
+<lb n="13"/>τῶν καμνόντων σωτηρίᾳ, <milestone unit="ed2page" n="10.410"/>πολὺ βέλτιόν ἐστι πεπεῖσθαι
+<lb n="14"/>φλεβοτομίᾳ χρῆσθαι τὸν Ἐρασίστρατον· ὡς δ’ ἐπὶ
+<lb n="15"/>τοῖς νῦν Ἐρασιστρατείοις, ἄμεινον μὴ πεπεῖσθαι. μανίας
+<lb n="16"/>γὰρ ἐσχάτης ἔργον οἴεσθαι διὰ τοῦτ’ Ἐρασίστρατον ἐφ’
+<lb n="17"/>ὧν εἰρήκαμεν ὀλίγον ἔμπροσθεν παθῶν σεσιγηκέναι τὴν
+<lb n="18"/>φλεβοτομίαν, ὅτι κενοῦσθαι τὰς φλέβας ἀξιοῖ καὶ τοῦτον
+<pb n="11.198"/>
+<lb n="1"/>τίθεσθαι τῆς θεραπείας τὸν σκοπὸν, ὅγε τοι τούτῳ πεισθεὶς
+<lb n="2"/>ἐφ’ ὧν ἂν εὕροι παθῶν Ἐρασίστρατον ἀσιτίαν συμβουλεύοντα.
+<lb n="3"/>πρόδηλον γὰρ ὡς τοῦθ’ ἕπεται τοῖς ὁμότιμον
+<lb n="4"/>εἰποῦσιν εἶναι βοήθημα τὴν φλεβοτομίαν ταῖς ἀσιτίαις, εἰ δὲ
+<lb n="5"/>οὐκ ἔστιν ὁμότιμον, ἀλλὰ δεῖταί τινων διορισμῶν, οὓς ὁ
+<lb n="6"/>μαθὼν ἐξευρήσει, πηνίκα μὲν ἄμεινόν ἐστι διὰ φλεβοτομίας
+<lb n="7"/>μόνης τὴν κένωσιν ποιεῖσθαι, πηνίκα δ’ ἤτοι δι’ ἀσιτίας
+<lb n="8"/>μόνης ἢ δι’ ἀμφοτέρων, καταβάλλεται φανερῶς αὐτοὺς ὁ
+<lb n="9"/>λόγος. ἔγραψε γὰρ ὁ Ἐρασίστρατος τοὺς διορισμοὺς ἐκείνους,
+<lb n="10"/>εἴπερ, ὡς οὗτοι φασὶν, ἔδοξε περὶ τῆς φλεβοτομίας ὡς ὁ λόγος
+<lb n="11"/>αὐτῶν ἑαυτὸν περιτρέπει καθ’ ἑκάτερον. εἰ μὲν γὰρ ὁμότιμον
+<lb n="12"/>ἐστὶ, διὰ τοῦτο παρέλιπεν ὁ Ἐρασίστρατος ἔν τε τῇ περὶ τῶν
+<lb n="13"/>πυρετῶν πραγματείᾳ καὶ ταῖς ἄλλαις ὧν ὀλίγον ἔμπροσθεν
+<lb n="14"/>ἐμνημόνευσα γράψαι τι περὶ φλεβοτομίας. εἰ δ’ οὐκ ἐστὶν
+<lb n="15"/>ὁμότιμον πάντῃ τὸ τῆς φλεβοτομίας βοήθημα τῷ τῆς ἀσιτίας,
+<lb n="16"/>οὐκ ὀρθῶς αὐτοὶ λέγουσιν ἐξ ὧν ἐπὶ τῆς ἀσιτίας ἔγραψεν, ἐκ
+<lb n="17"/>τούτων ἡμᾶς χρῆναι τεκμαίρεσθαι περὶ τῆς φλεβοτομίας. καὶ
+<lb n="18"/>μὴν κατὰ τοῦτο πάλιν ὁ λόγος αὐτῶν ἑαυτὸν περιτρέπει, τὴν
+<pb n="11.199"/>
+<lb n="1"/>ἀσιτίαν ἀποφαίνων ἄχρηστον. εἴπερ γὰρ ὅτι κενουμέναις ταῖς
+<lb n="2"/>φλεψὶ ἐν ταῖς ἀσιτίαις ἕπεται τὸ μειοῦσθαι τὰ πάθη, διὰ
+<lb n="3"/>τοῦτο αὐτὰς παραλειψόμεθα, πολλῷ βέλτιόν ἐστι ἅπαξ
+<lb n="4"/>ἐκκενώσαντας τὸ περιττὸν ἀποστῆναι τῶν ἀσιτιῶν, ἀηδίαν
+<lb n="5"/>τε πολλὴν παρεχουσῶν τοῖς κάμνουσι καὶ ἀγρυπνίαν καὶ ἄσην
+<lb n="6"/>ἐπιφερουσῶν, ἔτι τε στομάχου κάκωσιν καὶ χυμῶν διαφθορὰν
+<lb n="7"/>καὶ γαστρὸς, ἐνίοτε καὶ οὔρων ἐπίσχεσιν.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="3" xml:id="_3">
+<p rend="indent">
+<lb n="8"/><label type="head"><num value="3">Κεφ. γʹ.</num></label> Ὅτι δὲ ὄντως Ἐρασίστρατος οὐ κέχρηται
+<lb n="9"/>τῇ φλεβοτομίᾳ, δῆλον ἐναργῶς ἐστὶν ἐκ τῶν ἐν τοῖς διαιρέσεων
+<lb n="10"/>βιβλίοις γεγραμμένων ἀῤῥώστων, ἐφ’ ὧν διηγούμενος
+<lb n="11"/>ἅπαντα τὰ πραχθέντα κατὰ τὴν θεραπείαν οὐδαμῆ φαίνεται
+<lb n="12"/>φλεβοτομίας μνημονεύων. ἅπαντας μὲν οὖν αὐτοὺς προχειρίζεσθαι
+<lb n="13"/>μακρὸν, ἀρκεῖ δ’ ἀναμνῆσαι μόνων ἐκείνων, ὧν ὀλίγον
+<lb n="14"/>ἔμπροσθεν ἔφην τοὺς πρεσβύτας ἰατροὺς μνημονεῦσαι. γέγραπται
+<lb n="15"/>δ’ αὐτῶν ὁ μὲν ἐν τῷ προτέρῳ τῶν διαιρέσεων, ὁ δ’
+<lb n="16"/>ἕτερος ἐν τῷ δευτέρῳ. καίτοι καὶ νῦν ἤδη καιρὸς αὐτὰς τὰς
+<lb n="17"/>λέξεις παραγράψαι, καθ’ ἃς ὁ Ἐρασίστρατος ἅπαντα διηγεῖται
+<lb n="18"/>τὰ γενόμενα τοῖς ἀῤῥώστοις. ἐν μὲν οὖν τῷ προτέρῳ τῶν
+<pb n="11.200"/>
+<lb n="1"/>βιβλίων οὕτως ἔγραψε· τῇ ἐκ τῆς Χίου παιδίσκῃ τὰ μὲν
+<lb n="2"/>γενόμενα τῶν καθάρσεων τοπρῶτον ἐπεσχέθη ἐπὶ πλείω
+<lb n="3"/>χρόνον. ἔπειτα εἵπετο τὰ βηχία καὶ ἀναγωγὴ φλέγματος.
+<lb n="4"/>χρόνου δὲ προϊόντος αἵματος ἀναγωγὴ ἐγένετο, κατὰ τὴν
+<lb n="5"/>τῶν καθάρσεων περίοδον ἑαυτῇ ἠκολούθει, ἐνίοτε μὲν διὰ
+<lb n="6"/>μηνῶν δʹ, ὁτὲ δὲ διὰ δύο. εἰ δέ πως ταῖς ἡμέραις ἐν αἷς αἱ
+<lb n="7"/>καθάρσεις ἐγίνοντο καὶ ἡ ἀναγωγὴ συνέβαινεν, παρηκολούθει
+<lb n="8"/>ἐφ’ ἡμέρας τρεῖς ἢ τέσσαρας· ὥστε παντάπασιν
+<lb n="9"/>ἐμφαίνειν ὅτι ἀντὶ τῶν καθάρσεων ταύτην τὴν ἔκκρισιν λαμβάνει.
+<lb n="10"/>ἐπηκολούθει δὲ καὶ πυρετὸς ἐν ταύταις <milestone unit="ed2page" n="10.411"/>ταῖς
+<lb n="11"/>ἡμέραις· ἔπειτα ἀπεκαθίστατο. ταῦτα προειπὼν ὁ Ἐρασίστρατος
+<lb n="12"/>ἐφεξῆς γράφει περὶ τῶν ἰαμάτων αὐτῆς ὧδε· ἐν δὲ
+<lb n="13"/>τοῖς πρώτοις χρόνοις αὕτη ἐπεχείρησε θεραπεύεσθαι ποτήμασί
+<lb n="14"/>τε καὶ πυριάσεσι τῆς ὑστέρας καὶ προσθέτοις καὶ
+<lb n="15"/>τῇ ἄλλῃ διαίτῃ πρὸς ταῦτα ἁρμοζούσῃ. ἦν γὰρ δή τις
+<lb n="16"/>καὶ περὶ τὸ στόμα τῆς ὑστέρας οὐκ ἰσχυρὰ σκληρότης,
+<lb n="17"/>οὐδαμῶς δὲ οὐδὲν ὑπακουούσης τῆς θεραπείας, ἀλλὰ κατά
+<lb n="18"/>τινα μίαν περίοδον εἰς τὴν ὀσφὺν βάρους ἀπαντήσαντος,
+<pb n="11.201"/>
+<lb n="1"/>ὑγρασίας δὲ οὐδεμιᾶς, οἵ τε πυρετοὶ συνεχέστεροι ἦσαν ἢ καὶ
+<lb n="2"/>τῷ σώματι ᾧ ἐνεδίδουν καὶ βῆχες ἠκολούθουν σφοδραί. τῆς
+<lb n="3"/>μὲν οὖν περὶ τὴν ὑστέραν θεραπείας ἀπέστημεν, ἐργῶδες
+<lb n="4"/>ὑπολαμβάνοντες εἶναι τῶν πυρετῶν μενόντων καθάρσεις
+<lb n="5"/>ποιεῖσθαι· τῇ δὲ λοιπῇ θεραπείᾳ χρώμεθα, ὡς εἰθίσμεθα
+<lb n="6"/>πρὸς τὰ τοιαῦτα τά τ’ ἄλλα καὶ πρὸς τὴν θεραπείαν περίοδον
+<lb n="7"/>τῶν καθάρσεων προσλαμβάνοντες ὑπεστέλλομεν τὰ σιτία,
+<lb n="8"/>καὶ ἡ μὲν τοῦ αἵματος ἀναγωγὴ οὐκ ἐγένετο ἀλλ’ ἢ ἅπαξ
+<lb n="9"/>ἐπὶ βραχύ. ἀλλὰ μέντοι οὐδὲν ἔφρασεν, ἀλλά που καὶ ἀνέτρεχον
+<lb n="10"/>ἤδη πυώδεις ἀναγωγαί. φλεβοτομίας λόγος ἐνταῦθα
+<lb n="11"/>οὐδεὶς, καὶ προσῆκον γ’ ἦν, ὡς ἅπαντες ἴσασιν οἱ τῶν ἔργων
+<lb n="12"/>τῆς τέχνης ἔμπειροι, τὴν ἀρχὴν τῶν βοηθημάτων ἀπὸ φλεβοτομίας
+<lb n="13"/>ποιεῖσθαι. ἴσως τις φήσει τούτων τῶν ἅπανθ’ ἑτοίμως
+<lb n="14"/>λέγειν οὐκ ὀκνούντων, ὡς οὐ παρ’ Ἐρασιστράτου τῆς θεραπείας
+<lb n="15"/>προσισταμένου ταῦτ’ ἐγένετο. διηγεῖται δὲ αὐτὰ νῦν
+<lb n="16"/>ἡμῖν ἕνεκα τοῦ μηδὲν τῶν πραχθέντων λαθεῖν. ἀλλ’ ἐξελέγξει
+<lb n="17"/>γε τούτους τὸ ἐπιφερόμενον, ἔνθα φησὶ, τῆς μὲν οὖν περὶ τὴν
+<lb n="18"/>ὑστέραν θεραπείας ἀπέστημεν, ἐργῶδες ὑπολαμβάνοντες εἶναι ﻿
+<pb n="11.202"/>
+<lb n="1"/>τῶν πυρετῶν μενόντων τὰς καθάρσεις ποιεῖσθαι, τῇ δὲ λοιπῇ
+<lb n="2"/>θεραπείᾳ χρώμεθα πρὸς τὰ τοιαῦτα, τά τε ἄλλα καὶ πρὸς
+<lb n="3"/>τὴν θεραπείαν περίοδον τῶν καθάρσεων προσλαμβάνοντες
+<lb n="4"/>ὑπεστέλλομεν τὰ σιτία. ἐν τούτοις γὰρ ὁ Ἐρασίστρατος
+<lb n="5"/>ἐνδείκνυται σαφῶς οὐχ ἑτέρων θεραπείαν διηγούμενος, ἀλλ’
+<lb n="6"/>ἑαυτὸν συναριθμῶν τε καὶ συνεπιγράφων ἅπασι τοῖς πραχθεῖσι
+<lb n="7"/>περὶ τὸν ἄνθρωπον. τὸ γὰρ ἀπέστημεν, καὶ ἀπολαμβάνοντες,
+<lb n="8"/>ἔτι τε τὸ χρώμεθα καὶ τὸ προσλαμβάνοντες,
+<lb n="9"/>ἔτι τε πρὸς τούτοις τὸ ὑπεστέλλομεν τὰ σιτία, προδήλως
+<lb n="10"/>ἐνδείκνυται δυοῖν θάτερον, ἤτοι γ’ αὐτὸν ἐξηγεῖσθαι τῆς
+<lb n="11"/>θεραπείας τὸν Ἐρασίστρατον ἢ τοῖς ὑφ’ ἑτέρου γιγνομένοις
+<lb n="12"/>ἀρέσκεσθαι. καὶ μὴν εἴπερ ἠρέσκετο τοῖς πραττομένοις, ἐναργὲς
+<lb n="13"/>ἂν εἴη τεκμήριον αὐτοῦ τῆς γνώμης ἣν εἶχε περὶ φλεβοτομίας.
+<lb n="14"/>τὸ γὰρ ὑποστέλλειν τὰ σιτία δυοῖν τούτοιν τὸ ἕτερον,
+<lb n="15"/>ἤτοι ἀφαιρεῖν τελέως ἢ μειοῦν. ὅπερ ἐπὶ τῆς νοσούσης ὁ
+<lb n="16"/>Ἐρασίστρατος ἔφη πεπρᾶχθαι, καθ’ ὃν καιρὸν τῆς καθάρσεως
+<lb n="17"/>περίοδος ἦν, ὡς ὡμολόγει τοῖς ἄλλοις συγγράμμασι ἅπασιν
+<lb n="18"/>αὐτοῦ, καὶ ταῖς φλεβοτομίαις μὲν οὐδαμόθεν χρώμενος, συμβουλεύων
+<pb n="11.203"/>
+<lb n="1"/>δ’ ἀσιτεῖν. εἰ μή τι ἄρα κᾀνταῦθα φήσουσί γε
+<lb n="2"/>φλεβοτομεῖσθαι μὲν τὴν γυναῖκα, παραλελεῖφθαι δὲ ἐν τῇ διηγήσει
+<lb n="3"/>τὸ βοήθημα, νοούντων ἡμῶν αὐτὸ προσῆχθαι, κᾂν
+<lb n="4"/>μὴ ῥηθῇ. τί δή ποτ’ οὖν καὶ περὶ τῆς ἀσιτίας οὐκ ἐσίγησε,
+<lb n="5"/>νοεῖσθαί τε δυναμένων καὶ ταῦθ’ ὁμοίως; ὁ δ’ αὐτὸς λόγος
+<lb n="6"/>καὶ περὶ τῶν ποτημάτων καὶ τῆς πυριάσεως καὶ τῶν προσθέντων.
+<lb n="7"/>εἰ γὰρ μηδ’ ὅλως ἐγέγραπτο πρὸς Ἐρασίστρατον,
+<lb n="8"/>πάντως ἄν που συνήκαμεν ὑπὸ τῶν ἰατρῶν αὐτὰ πεπρᾶχθαι.
+<lb n="9"/>ὡς τό γε συνιέντων πεπραγμένον, εἰ καὶ μὴ ἐγέγραπτο,
+<lb n="10"/>κοινὸν ἁπάντων ἐστὶ τῶν βοηθημάτων. ἀλλ’ Ἐρασίστρατός
+<lb n="11"/>τε διηγεῖσθαι πάντα προὔθετο, σαφηνείας ἀκριβοῦς
+<lb n="12"/>ἕνεκεν, ἵνα μή τις τὴν ἐξουσίαν ἔχῃ τὰ μὲν προστιθέναι
+<lb n="13"/>τῶν βοηθημάτων, ὡς προσαχθέντα τῇ καμνούσῃ, τὰ
+<lb n="14"/>δ’ ἀφαιρεῖν, ὡς παραλειφθέντα, πρὸς τῷ καὶ μάχεσθαι τῇ
+<lb n="15"/>τούτων <milestone unit="ed2page" n="10.412"/>δόξῃ τὴν διήγησιν αὐτοῦ. εἰ γὰρ ὅλον ἐφλεβοτομήθη
+<lb n="16"/>τὸ γύναιον, ἡ ἀσιτία μάτην παρελαμβάνετο. μᾶλλον
+<lb n="17"/>δ’, εἰ χρὴ τἀληθὲς εἰπεῖν, οὐ μάτην μόνον, ἀλλὰ καὶ
+<pb n="11.204"/>
+<lb n="1"/>πρὸς κακοῦ. δείξω γὰρ ὀλίγον ὕστερον τοῦτο, νῦν δὲ ὅτι
+<lb n="2"/>μάτην ἁρμόττει πρὸς τὸν ἐνεστῶτα λόγον. ἐπεὶ γὰρ ἐν
+<lb n="3"/><milestone unit="ed1page" n="4.10"/>τῷ καιρῷ τῆς κατὰ περίοδον καθάρσεως ἐπὶ θώρακα
+<lb n="4"/>φερομένου τοῦ περιττοῦ κίνδυνος ἦν αἷμά τι πτύσαι τὴν
+<lb n="5"/>γυναῖκα, μειῶσαι τὸ πλῆθος ὁ Ἐρασίστρατος βουλόμενος ἐπὶ
+<lb n="6"/>τὴν ἀσιτίαν ἀφίκετο προδήλως ματαίαν οὖσαν, εἴπερ ἡ φλεβοτομία
+<lb n="7"/>παρείληπτο, καθ’ ἣν ἐν ἀκαρεῖ χρόνῳ ῥᾷστον ἦν ἐκκενῶσαι
+<lb n="8"/>τὸ περιττὸν τοῦ αἵματος. οἱ γοῦν θεραπεύοντες ἐν
+<lb n="9"/>Ῥώμῃ τὰς γυναῖκας αὐτῇ τοῦ συμβαίνοντος ἐμπειρίᾳ μάλιστα
+<lb n="10"/>ἐπείσθησαν, ἐπὶ μὲν τὴν φλεβοτομίαν ἔρχοντες κατὰ τὸν καιρὸν
+<lb n="11"/>ἐκεῖνον ᾧ ἐπίδοξος ἡ φορὰ γενέσθαι τῶν καταμηνίων, μήτε
+<lb n="12"/>δ’ ἡσυχίαν προστάσσειν μήτ’ ἀσιτίαν, ἀλλὰ καὶ μελίκρατον
+<lb n="13"/>διδόναι καὶ τροφῆς ὑγραινούσης δαψιλῶς καὶ λουτροῖς χρῆσθαι
+<lb n="14"/>συγχωρεῖν, ἐφ’ οἷς εἴωθεν εἰς ταυτὸν, ὅτε γε μετρίως
+<lb n="15"/>ἀφαιρεθῶσι τοῦ αἵματος, ἡ κάθαρσις ἐπιφαίνεσθαι, καὶ μάλισθ’
+<lb n="16"/>ὅτε κατ’ ἰγνὺν παρὰ σφυρὸν ἡ φλεβοτομία γένηται. ὡς εἴγε
+<lb n="17"/>φλεβοτομήσας τις ἀσιτεῖν προστάξειεν, οὐ μόνον ἐπίσχῃ τὸ
+<lb n="18"/>τῶν ἔμπροσθεν μηνῶν, ἀλλὰ καὶ τὰς ἀμέμπτως κενουμένας
+<pb n="11.205"/>
+<lb n="1"/>ἐπισχεθήσειεν νῦν καθάρσεις. ξηραίνεται γὰρ ἐν ταῖς ἀσιτίαις
+<lb n="2"/>καὶ παχύτερον ἑαυτοῦ γίνεται τὸ αἷμα, καὶ διὰ τοῦτο δύσρουν
+<lb n="3"/>ἀποτελεῖται. λουομέναις δ’ αὐταῖς καὶ μελικράτου μὲν προσλαμβανούσαις,
+<lb n="4"/>ἐς ὕστερον δέ τινα σιτία καὶ πινούσαις οἴνου μήτε
+<lb n="5"/>αὐστηροῦ μήτε παχέος αἱ καθάρσεις ἐπιγίνονται. διὰ τοῦτο οὖν
+<lb n="6"/>ἔφην οὐ μόνον ἐκ περιττοῦ παραλαμβάνεσθαι τὰς ἀσιτίας ἐπὶ
+<lb n="7"/>ταῖς φλεβοτομίαις, ἀλλὰ καὶ πρὸς κακοῦ. τῇ δὲ ἐκ τῆς Χίου
+<lb n="8"/>παιδίσκῃ καὶ ἐξ αὐτῶν τῶν ἐπιγινομένων εὔδηλόν ἐστι παραλελεῖφθαι
+<lb n="9"/>τὴν φλεβοτομίαν· αἵματός τι γὰρ ἔπτυσεν, οὐκ ἂν,
+<lb n="10"/>εἴπερ ἐκενώθη, πτύσασα, καὶ μετὰ δυσπνοίας ἀπέθανε, οὐκ ἂν
+<lb n="11"/>οὐδὲ τοῦτο παθοῦσα. μεγίστην δὲ βάσανον ἡ φλεβοτομία
+<lb n="12"/>παρεῖχε κατὰ τοὺς ἡμετέρους καιροὺς ἐν Ῥώμῃ διὰ τὸ πλῆθος
+<lb n="13"/>τῶν γυναικῶν ὕδωρ ψυχρότατον ἀπὸ χιόνος πινουσῶν, ἤτοι μηδ’
+<lb n="14"/>ὅλως ἢ ἐλλειπῶς καθαίρεσθαι. ἀλλ’ ὅμως ταύτας ἰατροὶ φλεβοτομοῦντες
+<lb n="15"/>ὑγιαινούσας διαφυλάττουσιν, ὡς μήθ’ αἷμα
+<lb n="16"/>πτύσαι μήτε πλευρίτισι ἢ περιπνευμονίαις ἢ κυνάγχαις ἁλῶναι.
+<lb n="17"/>οὔκουν οὐδὲ ἐκ τῆς Χίου παιδίσκην ἤκουσαν ὑπ’ Ἐρασιστράτου
+<pb n="11.206"/>
+<lb n="1"/>φλεβοτομηθῆναι. οὔτε γε ἂν ἐν τῇ τῶν ἄλλων διηγήσει
+<lb n="2"/>παρέλιπεν ὡς μικρόν τι βοήθημα τῆς φλεβοτομίας, οὔτ’ ἂν
+<lb n="3"/>ἐκεῖνος διὰ τὴν ἀσιτίαν, οὔτ’ ἂν ὅλως ἀπέθανεν ὑπὸ τοῦ
+<lb n="4"/>πλήθους ἡ γυνὴ πνιγεῖσα. περὶ μὲν δὴ ταύτης ἀποχρήσει
+<lb n="5"/>πρός γε τὸ παρόν. ἐπὶ δὲ τὸν Κρίτωνα μεταβάντες ἤδη παραγράψομεν
+<lb n="6"/>αὐτῇ λέξει τὴν Ἐρασιστράτου διήγησιν ὧν ἔπαθεν
+<lb n="7"/>ὁ ἄνθρωπος. ἔχει δὲ οὕτως· Κρίτωνι ἡ μὲν ἀρχὴ τῆς ἀῤῥωστίας
+<lb n="8"/>ἐγένετο πληθώρα. συνέβη δὲ αὐτὸν ἐμπεσεῖν εἰς πλήθη
+<lb n="9"/>συναγχικά. ἔστι δὲ τὸ γινόμενον φλεγμονὴ τῶν τε παρισθμίων
+<lb n="10"/>καὶ τῆς ἐπιγλωττίδος. συμβαίνει οὖν τοὺς εἰς ταῦτ’ ἐμπίπτοντας
+<lb n="11"/>πνίγεσθαι, καὶ ἐὰν μὴ θᾶττον βοηθῶνται, συντόμως
+<lb n="12"/>ἀπόλλυσθαι. ἐν τούτοις οὖν ὄντος τοῦ Κρίτωνος τῇ μὲν
+<lb n="13"/>πρώτῃ ἡμέρᾳ βοηθοῦμεν πυριῶντες σπόγγοις τὸν εἰθισμένον
+<lb n="14"/>τρόπον, ὁπότε διελείποιμεν τὰ καταπλάσματα ἐπιθέμενα,
+<lb n="15"/>ὥστε διὰ παντὸς ἐν θεραπείᾳ εἶναι. ἐδόθη δὲ αὐτῷ καὶ καταπότια
+<lb n="16"/>τὰ διὰ τοῦ καστορίου πρὸς τὸ τὴν κοιλίαν ὑπάγειν, καὶ
+<lb n="17"/>πρὸς τούτοις ὑπήκουσεν ἀστείως. οὐδένα λανθάνειν οἶμαι
+<lb n="18"/>τὴν ἐπιμέλειαν τῆς διηγήσεως ἁπάντων<milestone unit="ed2page" n="10.413"/> τῶν πραχθέντων ﻿
+<pb n="11.207"/>
+<lb n="1"/>ἐπὶ τοῦ Κρίτωνος. καὶ γὰρ διὰ τῶν σπόγγων πυρίαν εἶπε καὶ
+<lb n="2"/>τὴν τῶν καταπλασμάτων χρῆσιν, ἔτι τε τὴν τῶν καταποτίων.
+<lb n="3"/>ἆρ’ οὖν ὅτι μὲν ἐπυριάσθη διὰ τῶν σπόγγων ἐδήλωσε καὶ
+<lb n="4"/>τἄλλ’ ἑξῆς ἐπιμελῶς διηγήσατο, περὶ δὲ τῆς φλεβοτομίας
+<lb n="5"/>ἑκὼν ἐσιώπησεν, ὅτι μικρότερον ἦν δηλαδὴ τοῦτο τὸ βοήθημα.
+<lb n="6"/>μεμνῆσθαι δ’ οὐ προσήκει μοι τῶν πάνυ μικρῶν ἐν
+<lb n="7"/>τοιαύταις διηγήσεσιν. ἀλλά τοι κᾀνταῦθα μετ’ ὀλίγα πάλιν
+<lb n="8"/>αὐτὸς ὁ Ἐρασίστρατος ἐρεῖ. ἐφαίνετο οὖν ἡμῖν μετάστασιν
+<lb n="9"/>εἰληφέναι τὰ πάθη, ἐπί τε τὸν πνεύμονα καὶ τὸ ἧπαρ καταῤῥυῆσαι
+<lb n="10"/>μὲν αὐτῷ τὴν συνάγχην, αὐξηθῆναι δὲ τοὺς πυρετοὺς
+<lb n="11"/>ἄνευ τῇ καθ’ ὑποχόνδριον ἐντάσει τὴν μετάσχεσιν ἐλογίσατο
+<lb n="12"/>γεγενῆσθαι τῶν παθῶν. ἔνθα τε καὶ μάλιστα τὸν νοῦν προσέχειν
+<lb n="13"/>ἀξιῶ σκοπούμενον οἷόν τί σοι διὰ τῆς λέξεως ταύτης, ἐν
+<lb n="14"/>ᾗ φησὶ μετάστασιν εἰληφέναι τὰ πάθη, πότερον αὐτῶν τῶν
+<lb n="15"/>φλεγμαινόντων μορίων μεταβάντων ἢ τοῦ αἵματος, ὃ τὴν
+<lb n="16"/>φλεγμονὴν αὐτῶν εἰργάζετο, μεταῤῥυέντων. ἐμοὶ μὲν γὰρ δοκεῖ
+<lb n="17"/>τὸ πρότερον μὲν τῶν προειρημένων μηδὲ νοηθῆναι δύνασθαι,
+<lb n="18"/>τὸ δεύτερον δ’ ἐξ αὐτῶν εἶναι τὸ ἀληθές. ἐγὼ μὲν γὰρ ἐνίοτε
+<pb n="11.208"/>
+<lb n="1"/>τὸ κατασκῆψαν εἰς τὸ μόριον πλῆθος ἴσχων, εἶτ’ αὐτὸ διώσασθαι
+<lb n="2"/>τῆς ἐν ἐκείνῳ δυνάμεως ἐφ’ ἕτερόν τι μεθίσταται.
+<lb n="3"/>τοῦτο τοίνυν φαίνεται καὶ τῷ Κρίτωνι συμβὰν, ἀλλ’ ὅμως
+<lb n="4"/>οὐδὲ τότε φλεβοτομίας ἐμνημόνευσεν ὁ Ἐρασίστρατος. ἀλλὰ
+<lb n="5"/>τί φησι; κατεπλάσσετο καὶ τὸν θώρακα ὅλως καὶ τὰ ὑποχόνδρια.
+<lb n="6"/>ὥσπερ δὲ ἐκ τῶν κατὰ τὴν ἐπιγλωττίδα καὶ τὰ παρίσθμια
+<lb n="7"/>μορίων ἡ τοῦ πλεονάζοντος αἵματος ἐπὶ τὰ κάτω χωρία
+<lb n="8"/>μετάστασις ἐγένετο, κατὰ τὸν αὐτὸν τρόπον αὖθις ἐκ τῶν
+<lb n="9"/>κάτω μερῶν ἐπὶ τὴν κεφαλὴν ἀνεχθέντος αὐτοῦ τοὺς μὲν
+<lb n="10"/>πυρετοὺς καὶ συνέβη λωφῆσαι, σύμπτωμα δ’ ἐπιγενέσθαι τὴν
+<lb n="11"/>τῶν νεύρων ἀρχὴν ἐνδεικνύμενον πάσχειν. ἄκουσον δὲ καὶ
+<lb n="12"/>ταύτης τῆς Ἐρασιστράτου ῥήσεως. ὄντος δ’ αὐτοῦ ἀπὸ μὲν
+<lb n="13"/>γὰρ τῆς ἀρχῆς δεκαταίου, ἀπὸ δὲ τῆς ἐπιστάσεως ἑκταίου, ὅ τε
+<lb n="14"/>πυρετὸς εὖ μάλα ἐπανῆκεν καὶ παραστροφή τις ἐγένετο τοῦ τ’
+<lb n="15"/>ἰνίου, ὀψὲ δὲ τῆς ὥρας ἀναισθησία τις ἐγένετο, ὥστε καὶ τὸ
+<lb n="16"/>οὖρον ἐκ τοῦ στρώματος προΐεσθαι, καὶ μετ’ οὐ πολὺ ἐπίστασις
+<lb n="17"/>τοῦ πυρετοῦ. εἶτα ἐπιφέρων φησίν· ἐφαίνετο οὖν ἡμῖν
+<lb n="18"/>πάλιν μετάστασιν εἰληφέναι τὰ πάθη ἐπὶ τὴν κεφαλὴν, καὶ
+<pb n="11.209"/>
+<lb n="1"/>κατὰ μὲν αὐτὴν τὴν μετάστασιν ἐπανηκέναι τὸν πυρετὸν,
+<lb n="2"/>ὕστερον δὲ πάλιν ἐπιτετακέναι ἐμπαθῆ γενόμενον τῶν περὶ
+<lb n="3"/>τὴν κεφαλήν. εἴπωμεν ἤδη τι καὶ ἡμεῖς ἐπὶ τῇδε τῇ ῥήσει
+<lb n="4"/>πρὸς τὸν ἄνδρα. κάλλιστα λέγεις ὦ Ἐρασίστρατε μετάστασιν
+<lb n="5"/>ἐπὶ τὴν κεφαλὴν γεγονέναι τῶν παθῶν. ἄμεινον δ’ ἦν εἰ μὴ
+<lb n="6"/>τῶν παθῶν εἴποις, ἀλλὰ παθῶν αἰτίου πλήθους. ὥσπερ
+<lb n="7"/>οὐκ ἄν τις φαίη τὰ μέρη τοῦ σώματος αὐτὰ τὰ πάσχοντα
+<lb n="8"/>εἰληφέναι, κατὰ τὸν αὐτὸν τρόπον οὐδὲ τὰ πάθη. βέλτιον
+<lb n="9"/>γὰρ οἶμαι φάναι παύσασθαι μὲν τὰ πρότερα πάθη, γενέσθαι
+<lb n="10"/>δ’ αὖθις ἕτερα τῆς αἰτίας μεταστάσης, ἥτις ἦν, ὡς αὐτός
+<lb n="11"/>ἐν ἀρχῇ τῆς ὅλης διηγήσεως ἔφη, πληθώρα. ταύτην
+<lb n="12"/>οὖν εἴπερ ἐκένωσεν, οὐκ ἂν οὔθ’ ὁ κύων κατὰ τὴν ἐπιγλωττίδα
+<lb n="13"/>τούτων εἰς τὸ κάτω τὴν μετάστασιν ἔλαβεν οὔτ’
+<lb n="14"/>αὖθις ἐκεῖθεν ἐπὶ τὴν κεφαλὴν ἀνηνέχθη. ὥστε φαίνεται καὶ
+<lb n="15"/>Κρίτων ὁμοίως τῇ Χίᾳ γυναικὶ διὰ τὸ παραλειφθῆναι τὴν
+<lb n="16"/>φλεβοτομίαν ἀποθανεῖν. ἀλλὰ τοῦτο μὲν δοκεῖ καὶ αὐτὸς ὁ
+<lb n="17"/>Ἐρασίστρατος αἴθεσθαι. τί γὰρ φησί; τοῦτο ἐδόκει αἰτία
+<lb n="18"/>τῆς ἀπωλείας γενέσθαι τὰ ἐπὶ τὸν πνεύμονα ἐπενεχθέντα,
+<pb n="11.210"/>
+<lb n="1"/>πλὴν ὅτι κακῶς οὐκ ἔφθασεν ἐκκενῶσαι ταῦτα, καίτοι γινώσκων
+<lb n="2"/>εὐθὺς ἐξ ἀρχῆς ὡς πληθωρικὴ διάθεσις εἴη περὶ τὸν
+<lb n="3"/>ἄνθρωπον. ἐὰν οὖν τις ἐθέλῃ κατασκευάζειν <milestone unit="ed2page" n="10.414"/>ὡς οὐκ
+<lb n="4"/>εἰκὸς ἦν Ἐρασίστρατον ἰατρὸν ἄριστον ὄντα, καὶ μέντοι καὶ
+<lb n="5"/>γνόντα Κρίτωνι μὲν ἐκ πληθώρας συμβῆναι τὰ πάθη, τῇ δὲ
+<lb n="6"/>ἐκ τῆς Χίου παιδίσκῃ διὰ τὴν τῶν ἐμμήνων ἐπίσχεσιν, ἑκόντα
+<lb n="7"/>παραλιπεῖν ἀφαίρεσιν τοῦ αἵματος, ἀλλ’ ἀφαιρεῖσθαι <milestone unit="ed1page" n="4.11"/>μὲν
+<lb n="8"/>αἵματος καὶ τοῦτον καὶ ἐκείνην, παραλελεῖφθαι δὲ ἐν τῇ
+<lb n="9"/>διηγήσει, τί κωλύει κᾀμὲ λέγειν ὅ τι περ ἂν ἄλλο βούλωμαι
+<lb n="10"/>τῶν κενωτικῶν βοηθημάτων, προσενηνέχθαι μὲν τοῖς κάμνουσι,
+<lb n="11"/>παραλελεῖφθαι δὲ ἐν τῇ διηγήσει; καὶ τίς νοῦν ἔχων
+<lb n="12"/>ἰατρὸς ἀνέξεται ταῦθ’ ἡμῶν λεγόντων; ὅπως γε καὶ τὰ μέχρι
+<lb n="13"/>θανάτου συμπτώματα ταῦτ’ αὐτοῖς φαίνεται διὰ πλῆθος γινόμενα
+<lb n="14"/>καὶ αὐτὸς ὁ θάνατος οὐ δι’ ἄλλην τινὰ αἰτίαν ἀκολουθήσας
+<lb n="15"/>ἢ τὴν τὸ μὴ κενωθῆναι τὸ πλῆθος; τίς δ’ ἀνέξεται
+<lb n="16"/>λεγόντων ἀνθρώπων τὰ μὲν μικρὰ τῶν πραχθέντων ὑπ’
+<lb n="17"/>Ἐρασιστράτου γεγράφθαι, φλεβοτομίαν καὶ κάθαρσιν ὑπ’
+<lb n="18"/>ἐλλεβόρου τε καὶ σκαμμωνίας, ὅτι παντί πως ἐπίδηλα,
+<lb n="19"/>παραλελεῖφθαι; εἰ γὰρ ἐκ τοῦ μόνον εἰπεῖν τὸ κοινὸν ὡς ἡ
+<pb n="11.211"/>
+<lb n="1"/>πληθώρα κενώσεως δεῖται, δεδήλωται φλεβοτομία, διότι
+<lb n="2"/>τῶν κενωτικῶν ἢ βοηθημάτων, τί κωλύει καὶ τῶν ἄλλων
+<lb n="3"/>ἕκαστον ἐρῆσθαι τῶν κενωτικῶν; μὴ τοίνυν μόνην τὴν φλεβοτομίαν
+<lb n="4"/>ὑπ’ Ἐρασιστράτου προσῆχθαι τοῖς κάμνουσι λεγέτωσαν,
+<lb n="5"/>ἀλλὰ καὶ τἄλλα πάντα, κλυστῆρας, ἐμέτους, καθάρσεις,
+<lb n="6"/>λουτρὰ, γυμνάσια, τρίψεις, αἰωρήσεις, χρίσματα, θερμαίνοντα
+<lb n="7"/>καταπλάσματα, πάνθ’ ἑξῆς ὅσα ἐκεῖνος. εἰ δ’ οὐκ ἀρκεῖ μόνον ὅτι
+<lb n="8"/>κενωτέος ὁ κάμνων ἐστὶν, οὐδὲ τούτων τὸ τέλος ὑπάρχει τῆς
+<lb n="9"/>τῶν βοηθημάτων διδασκαλίας, ἀλλὰ πρῶτον μὲν προσθεῖναι
+<lb n="10"/>χρὴ τὸν τρόπον τῆς κενώσεως, εἶτα τὴν ὕλην εἰπεῖν δι’ ἧς
+<lb n="11"/>ἄριστα πραχθήσεται, καὶ ταύτῃ προσθεῖναι τὸν καιρὸν καὶ τὸ
+<lb n="12"/>μέτρον καὶ τρόπον τῆς χρήσεως, ὅτε κοινὸν εἰπὼν σκοπὸν τῶν
+<lb n="13"/>βοηθημάτων οὐδέ πως κατὰ μέρος οὐδὲν εἰρηκέναι. εἰ γὰρ
+<lb n="14"/>ἀρκεῖ τὸ κοινὸν εἰπεῖν, ἐκ περιττοῦ μνημονεύει καταπλασμάτων
+<lb n="15"/>τε καὶ ἀσιτίας καὶ πυρίας τῆς διὰ σπόγγων. εἰ τὸ μὲν
+<lb n="16"/>κατάπλασμά τε καὶ τὴν ἀσιτίαν οὐκ ἂν ἡμεῖς εὕροιμεν ἄνευ
+<lb n="17"/>τοῦ παρ’ ἐκείνου μαθεῖν; ἡ φλεβοτομία δὲ ἐστὶ δήλη πᾶσι,
+<lb n="18"/>κᾂν Ἐρασίστρατος μὴ λέγῃ.
+</p>
+        </div>
+        <pb n="11.212"/>
+        <div type="textpart" subtype="chapter" n="4" xml:id="_4">
+<p rend="indent">
+<lb n="1"/><label type="head"><num value="4">Κεφ. δʹ.</num></label> Ἀλλὰ κᾂν τοῦτό τις αὐτοῖς συγχωρήσῃ, καίτοι
+<lb n="2"/>φανερῶς ὂν ἄτοπον, ἄλλα μεγάλα καὶ πολλὰ λείπεται
+<lb n="3"/>σκέμματα τῷ μέλλοντι χρήσασθαι προσηκόντως τῷ βοηθήματι.
+<lb n="4"/>πρῶτον μὲν εἰ μηδὲν διαφέρει τέμνειν ἡντινοῦν φλέβα, καθάπερ
+<lb n="5"/>οἴονταί τινες, ἢ καθ’ ἕκαστον τῶν πεπονθότων μορίων
+<lb n="6"/>ἰδίαι φλέβες εἰσὶν αἱ ταχέως ἐκκενοῦσαι τὸ πλῆθος αὐτῶν.
+<lb n="7"/>δεύτερον δ’ ἐπὶ τούτῳ σκέμμα, πότερον ἅπαξ ἢ πλεονάκις
+<lb n="8"/>ἀφαιρεῖν προσήκει. καὶ τρίτον δ’ ἐπ’ αὐτοῖς σκοποὺς ἐξευρεῖν,
+<lb n="9"/>οἷς προσέχων τις ἀκριβῶς στοχάσαιτο τοῦ μέτρου τῆς κενώσεως.
+<lb n="10"/>καὶ τέταρτον ὁ καιρὸς ἐν ᾧ χρὴ μάλιστα ποιεῖσθαι τὰς
+<lb n="11"/>φλεβοτομίας, εἰ μηδέν ἐστιν ἐξαίρετον, αὐτὸ τοῦτο σὺν ἀποδείξει
+<lb n="12"/>διδάξεται. τῷ μὲν οὖν ὅλως ἀποστάντι φλεβοτομίας
+<lb n="13"/>οἴχεταί τε καὶ συνανῄρηται τούτων ἁπάντων<milestone unit="ed2page" n="10.415"/> ἡ σκέψις,
+<lb n="14"/>τῷ προθεμένῳ δ’ ἐξ ἀνάγκης ἕπεται. καὶ γάρ τοι κᾀπὶ τῶν
+<lb n="15"/>ἄλλων βοηθημάτων ἁπάντων ὁ αὐτός ἐστι λόγος, οἷον ἐλλεβόρου,
+<lb n="16"/>σκαμμωνίας, οἴνου, λουτροῦ, σιτίων. εἰ μὲν γὰρ μηδ’
+<lb n="17"/>ὅλως ἐστὶ χρηστέον ἐπὶ τῶν νοσούντων ὁτῳδήποτε τῶν εἰρημένων,
+<pb n="11.213"/>
+<lb n="1"/>οὔτε καιρὸς οὔτε ποσότης οὔτε τρόπος τῆς χρήσεως
+<lb n="2"/>οὔτ’ ἄλλο οὐδὲν ἔτι καὶ ζητηθήσεται τῷ καθ’ αὑτό. προσιεμένῳ
+<lb n="3"/>δὲ τὴν χρῆσιν ἀναγκαῖόν ἐστι περὶ τούτων πάντων
+<lb n="4"/>διελθεῖν, οὐ μόνον ἐπὶ τῶν δραστικῶν βοηθημάτων, ἐν οἷς εἰ
+<lb n="5"/>παροφθείη τι σμικρὸν, ἡ βλάβη μεγίστη δι’ αὐτὸ γίνεται τοῖς
+<lb n="6"/>νοσοῦσιν, ἀλλὰ κᾀπὶ τῶν ἐλαττόνων. καὶ φαίνεται τοῦτο
+<lb n="7"/>οὕτως γινόμενον ἑκάστης ἡμέρας ἐπὶ πάντων τῶν νοσούντων.
+<lb n="8"/>οὐδεὶς γοῦν εἰπὼν ἰατρὸς, ἄνθρωπος οὗτος τραφήτω, χαρίζεται,
+<lb n="9"/>μήτε τὸν καιρὸν ἔτι προσθεὶς, ἐν ᾧ κελεύει τραφῆναι
+<lb n="10"/>τὸν κάμνοντα, μήτε τὸ σιτίον ὁρίσας αὐτὸ, μήτε τὴν ποσότητα
+<lb n="11"/>μήτε τὴν σκευασίαν, ἢ τὴν τῆς χρήσεως τάξιν, ἀλλ’ ἕκαστον
+<lb n="12"/>τούτων ἀκριβῶς ἐκδιηγεῖται τοῖς παροῦσιν ὅπως δεῖ πραχθῆναι.
+<lb n="13"/>καὶ τοίνυν καὶ γράφουσιν ἐν τοῖς βιβλίοις ἅπασιν ἐφ’
+<lb n="14"/>ὧν ἂν πράττουσι βοηθημάτων ἑξῆς ταῦτα σύμπαντα, καί
+<lb n="15"/>τινες γ’ αὐτῶν, ὅσοι οὐ μακρολογώτεροι, χρονίζουσιν τῇ διηγήσει,
+<lb n="16"/>οὐ μακρολογίαν, ἀλλ’ ἐπιμέλειαν ἡγούμενοι τὴν τοιαύτην
+<lb n="17"/>διδασκαλίαν. Ἱπποκράτης μὲν ἐν τοῖς πλείστοις τῶν ἑαυτοῦ
+<lb n="18"/>συγγραμμάτων ἐσχάτως βραχυλόγος ὢν, ὅμως οὐκ ὀκνεῖ γράφειν
+<pb n="11.214"/>
+<lb n="1"/>ἐπὶ τῆς φλεβοτομίας οὔτε τὸ μέρος τοῦ σώματος, ἐν ᾧ
+<lb n="2"/>χρὴ τμηθῆναι τὸ ἀγγεῖον, οὔτε τὸ μέτρον τῆς κενώσεως οὔτε
+<lb n="3"/>τὸν καιρόν. Ἐρασίστρατος δὲ, ὃν οἱ νῦν Ἐρασιστράτειοι φασὶ
+<lb n="4"/>χρῆσθαι φλεβοτομίᾳ, μακρολογότερος ὢν, ὡς ὀλίγον ὕστερον
+<lb n="5"/>δείξω, πρῶτον μὲν οὐδὲ αὐτὸ τὸ ὄνομα ὑπέμεινε προσγράψαι
+<lb n="6"/>τῆς φλεβοτομίας ἅμα τοῖς ἄλλοις βοηθήμασι· εἶτα παρέλιπεν ἑξῆς
+<lb n="7"/>πάντα τὰ κατειλεγμένα καὶ τὸν καιρὸν καὶ τὸ μέτρον καὶ τόπον
+<lb n="8"/>ἀγγείου καὶ τρόπον χρήσεως, ὁ μηδ’ ὡς χρὴ τὰ καταπλάσματα
+<lb n="9"/>ἐφ’ ἕκαστον τῶν νοσούντων προσφέρειν ἢ τὴν μᾶζαν
+<lb n="10"/>φυρᾷν, ὀκνῶν προσγράφειν, ὁ μηδὲ περὶ τῆς τῶν λαχάνων
+<lb n="11"/>ἑψήσεως σιωπῶν. ἄκουσον γοῦν ἃς γράφει κατὰ τὴν περὶ τῆς
+<lb n="12"/>κοιλίας πραγματείαν προσφοράς. τὴν μὲν πρώτην προσφορὰν
+<lb n="13"/>ἄλφιτα κριμνώδη πεφρυγμένα εὖ ἀποσεσεισμένα. ὅταν δὲ
+<lb n="14"/>προσφέρεσθαι μέλλῃ, ἔν τινι ψυκτῆρι ἐπιχέοντα ὕδωρ φυράσαντα
+<lb n="15"/>διδόναι, μηδ’ εἰς ἅπαξ δὲ ἅπαν ὃ ἂν μέλλῃς διδόναι
+<lb n="16"/>φυράσας, ἀλλὰ δὶς ἢ τρὶς, ὅπως μὴ ξηρὰ γενομένη ἡ μᾶζα
+<lb n="17"/>δυσάλωτος μὴ πολὺ τὸ ὑγρὸν ἀναδέξηται. οὐδὲν γὰρ τούτων
+<lb n="18"/>χρήσιμον. προσεσθίειν δὲ διδόναι τῶν κιχωρίων συχνὰ εἰς
+<pb n="11.215"/>
+<lb n="1"/>ὄξος μὴ δριμὺ ἐμβάπτοντας καὶ ἐπὶ τῶν σιτίων ἀναλίσκειν.
+<lb n="2"/>ἑφθὰ κιχώρια ἑψῆναι δεῖ δύο παρασκευάζοντας χυτρίδας, καὶ
+<lb n="3"/>εἰς μὲν τὴν μίαν ἐμβάλλοντας ἑψεῖν, ὅταν δὲ ἤδη καθεψηθέντα
+<lb n="4"/>εὖ μάλα ᾖ καὶ ἡ ἑτέρα χύτρα τοῦ ὕδατος ζέῃ, μεταγγίζειν αὐτὰ
+<lb n="5"/>εἰς τὴν ἑτέραν. εἶναι δὲ δέσμια ὅπως εὐμετάθετα ᾖ. συνεψήσαντα
+<lb n="6"/>δὲ καὶ ἀποχέοντα τὸ ὕδωρ ἀρτύσαι ἁλὶ καὶ ἐλαίῳ καὶ
+<lb n="7"/>διδόναι προσφέρεσθαι. ἆρ’ ἐπινοεῖς ἔτι δύνασθαί τι ἐπιμελέστερον
+<lb n="8"/>γράψαι τὰ σμικρότατα τοῦ μηδ’ ὅτι χρὴ δεσμίδια
+<lb n="9"/>ποιεῖν τῶν κιχωρίων, ὅπως εὐμετάθετα ᾖ, σιωπήσαντος; εὔδηλον
+<lb n="10"/>γὰρ ὅτι τὰ λελυμένα δυσμετάθετα γίγνονται καὶ διὰ τοῦτο
+<lb n="11"/>κηδόμενος οὐ μόνον ἡμῶν ἰατρῶν, ἀλλὰ καὶ τῶν ἑψόντων
+<lb n="12"/>τὰ λάχανα μαγείρων ἐδίδαξεν αὐτοὺς ὡς χρὴ συνδεῖν τὰ
+<lb n="13"/>λάχανα. τοιοῦτος δ’ ἐστὶ κᾀπειδὰν ἤτοι καταπλάσματός τινος
+<lb n="14"/>γράφῃ σκευασίαν ἢ περιπατεῖν κελεύῃ τοσούσδε σταδίους ἢ
+<lb n="15"/>τρίβεσθαι τρίψεις τοσαύτας, ἤ τι τοιοῦτον <milestone unit="ed2page" n="10.416"/>ἕτερον, ἐφ’
+<lb n="16"/>οἷς ἤδη τινὲς οὐ μόνον οὐκ ἐπαινοῦσι τῆς περιττῆς ἐπιμελείας,
+<lb n="17"/>ἀλλὰ καὶ ψέγουσι ὡς ὅρους καὶ μέτρα τιθέμενον ἐπὶ τῶν
+<pb n="11.216"/>
+<lb n="1"/>ἀόριστον ἐχόντων τὴν ποσότητα. τίς ἂν οὖν οὐ πεισθῇ τὸν
+<lb n="2"/>οὕτως ἐπιμελῆ κεχρῆσθαι μὲν ὁμοίως τοῖς ἄλλοις, φλεβοτομίας
+<lb n="3"/>μηδαμόθεν δ’ αὐτῆς μνημονεῦσαι πλὴν ἅπαξ ἐν τῷ περὶ αἵματος
+<lb n="4"/>ἀναγωγῆς; οὐδ’ οὖν οὐδὲ τότε χρώμενον, ἀλλὰ τοὐναντίον
+<lb n="5"/>ἅπαν ἐπαινοῦντα τὸν Χρύσιππον ἐπὶ τῷ μὴ χρῆσθαι
+<lb n="6"/>φλεβοτομίᾳ καὶ τὴν ἀπόδειξιν αὐτοῦ καθ’ ἣν ἀποδεικνύναι
+<lb n="7"/>νομίζει τὸ Χρυσίππου δόγμα περὶ τῆς φλεβοτομίας, τοῦ
+<lb n="8"/>μᾶλλον τῶν αἷμα πτυσάντων κοινὴν εἶναι λέγοντος ἢ ἄλλων
+<lb n="9"/>ἁπάντων οἷς μόριόν τι τοῦ σώματος μέλλει φλεγμαίνειν.
+<lb n="10"/>ἀλλὰ περὶ μὲν τοῦδε καὶ αὖθις εἰρήσεται. νῦν
+<lb n="11"/>δ’ ὅπερ ἔλεγον <milestone unit="ed1page" n="4.12"/>ἀναληπτέον, ὡς οὐκ ἂν Ἐρασίστρατος
+<lb n="12"/>ἐπὶ πλεῖστον ἐκτείνων ἅπαντας τοὺς λόγους, καὶ μέντοι καὶ
+<lb n="13"/>δὶς καὶ τρὶς ἐνίοτε διεξερχόμενος ἕνα λόγον ἐν διαφέρουσι
+  <lb n="14"/>βιβλίοις, ὀλιγώρησεν ἄν που κᾂν ἅπαξ <choice><sic>έ</sic><corr>εʹ</corr></choice> συλλαβὰς προσγράψαι
+<lb n="15"/>παρενθεὶς ἅμα τοῖς ἄλλοις βοηθήμασι τὸ τῆς φλεβοτομίας
+<lb n="16"/>ὄνομα, πρὸς τῷ καὶ τὴν ποσότητα πάντως ἂν αὐτῆς εἰπεῖν,
+<lb n="17"/>ὡς ἐπ’ ἄλλων ἐποίησε, καὶ τὸν καιρὸν, ὡς εἴρηται πρόσθεν,
+<lb n="18"/>ὅσα τ’ ἄλλα τοιαῦτα. τινὲς μέν γε τῶν ἰατρῶν ἐπὶ σημείοις ﻿
+<pb n="11.217"/>
+<lb n="1"/>ὁρίζουσι τὸ ποσὸν τῆς κενώσεως, οἷον εἰ μεταβάλλοι κατὰ
+<lb n="2"/>τὴν χρόαν ἢ τὸν τόνον ἢ τὴν ῥύσιν τοῦ αἵματος, ἢ εἰ καταπίπτοιεν
+<lb n="3"/>εἰς ἀτονίαν οἱ σφυγμοὶ καί τινες ἱδρῶτες ἐπιφαίνοντο
+<lb n="4"/>ἐν αὐτῷ τῷ καιρῷ τῆς ἀφαίρεσεως. ταῦτα δ’ οὖν καὶ Ἱπποκράτης
+<lb n="5"/>πόνους φησὶν, καὶ τοὺς σφοδροτέρους τῶν ἐμέτων καὶ
+<lb n="6"/>τὰς ἀλογωτέρας διαχωρήσεις ἄλλοις διείρηκεν ἄχρι λειποθυμίας
+<lb n="7"/>ἄγειν τὴν κένωσιν, ὁπόταν τι φαίνηται κατὰ τὸν λόγον
+<lb n="8"/>αὐτῇ γινομένῃ τῆς κενώσεως, οὐχ ὑπὸ χυμοῦ ῥυέντος εἰς
+<lb n="9"/>τὸ τῆς γαστρὸς στόμα. πολλάκις γὰρ ἐναργῶς φαίνεσθαι διὰ
+<lb n="10"/>χολὴν ἢ διὰ φλέγμα συῤῥυὲν ἐνταῦθα λειποθυμίαν γινομένην.
+<lb n="11"/>ἔνιοι δὲ τῇ τε τοῦ παντὸς σώματος μεταβολῇ κατὰ
+<lb n="12"/>χρόαν καὶ τῇ κατὰ τοὺς σφυγμοὺς ἐτεκμαίροντο τὴν σύμμετρον
+<lb n="13"/>ἀφαίρεσιν καὶ διὰ τοῦτο εἰς ἅπαξ ἀπαγορεύουσιν ἢ
+<lb n="14"/>χρῆσθαι δαψιλεῖ τῇ κενώσει, βέλτιον εἶναι τοῖς ἐπιγινομένοις
+<lb n="15"/>τεκμηραμένους πρότερον οὕτως ἐπὶ τὴν τοῦ λυποῦντος
+<lb n="16"/>ἔρχεσθαι κένωσιν. ἄλλοι δέ τινες ἐτόλμησαν ἤδη τι καὶ
+<lb n="17"/>μέτρον ὁρίζειν οἷον ἤτοι δύο κοτύλας Ἀττικὰς εἶναι τὴν
+<lb n="18"/>σύμμετρον ἀφαίρεσιν ἢ βραχὺ πλείω ἢ ἔλασσον, ὡς ἐκ τοῦ
+<pb n="11.218"/>
+<lb n="1"/>συμμέτρου δυνησομένων ἡμῶν εὑρίσκειν τὸ μᾶλλόν τε καὶ
+<lb n="2"/>ἧττον ἁρμόττον ἑκάστῳ τῶν φλεβοτομουμένων καθ’ ἡλικίας
+<lb n="3"/>καὶ φύσεις καὶ ὥρας καὶ χώρας. οὐκοῦν Ἐρασίστρατον ἀριθμὸν
+<lb n="4"/>μέν τινα τρίψεως ὁρίζειν, ἵνα κᾂν σφαλῶμεν τῆς
+<lb n="5"/>ἀκριβοῦς συμμετρίας, οὐδεμία μεγάλη βλάβη, μετὰ δὲ μηδὲν
+<lb n="6"/>εἰπεῖν ὅλως ἐπὶ φλεβοτομίας. ἐγὼ μὲν γὰρ εὖ οἶδα ὅτι καὶ
+<lb n="7"/>περὶ τῶν φλεβῶν αὐτῶν τῶν τμηθησομένων ἔγραψεν ἂν οὐκ
+<lb n="8"/>ὀλίγα καὶ μάλισθ’ ὅτι πολλάκις Ἱπποκράτης αὐτῶν ἐμνημόνευσεν.
+<lb n="9"/>ἐνίοτε μὲν κατὰ ἰγνὺν ἢ παρὰ σφυρὸν, ἐνίοτε δὲ τὴν
+<lb n="10"/>ὀρθίαν ἐν τῷ μετώπῳ καὶ αὖθις τὴν ἐπὶ τῇ γλώττῃ. περὶ μὲν
+<lb n="11"/>γὰρ τῶν κατ’ ἀγκῶνα τί δεῖ καὶ λέγειν ὡς οὐκ ἂν ἐσιώπησεν
+<lb n="12"/>ὁ Ἐρασίστρατος, εἴτε χρὴ πάσας ἐπὶ πᾶσι τέμνεσθαι νοσήμασι,
+<lb n="13"/>εἴθ’, ὡς Ἱπποκράτης ἐκέλευεν, ἄλλην ἐπ’ ἄλλων; τοῦ
+<lb n="14"/>γὰρ οὕτως ἐπιμελῶς γράφοντος πάντα καὶ τοῦτο ἦν ἔργον
+<lb n="15"/>οἰκεῖον ὁρίσαι μέν τί ἄμετρον ἐν τηλικούτῳ βοηθήματι, προσγράψαι
+<lb n="16"/>δ’ ἣν ἔχει γνώμην ὑπὲρ τῶν φλεβῶν, ὥσπερ οἱ ἄλλοι
+<lb n="17"/>πεποιήκασιν ἰατροὶ, τινὲς μὲν οὐδὲν διαφέρειν<milestone unit="ed2page" n="10.417"/> φάσκοντες
+<pb n="11.219"/>
+<lb n="1"/>ὁποίαν ἄν τις ἐθέλοι τέμνειν φλέβα· κενοῦσθαι γὰρ ἐξ
+<lb n="2"/>ἑκάστης αὐτῶν ὁμοτίμως τὸ πᾶν· τινὲς δὲ πάμπολλα ἡγούμενοι
+<lb n="3"/>καὶ παρὰ τοῦτο γίνεσθαι διαφοράν. ἐνίας μὲν γὰρ αὐτῶν
+<lb n="4"/>θᾶττον, ἐνίας δὲ ἐν χρόνῳ πλείονι τὸ πεπονθὸς μέρος ἐκκενοῦν.
+<lb n="5"/>ὁ τοίνυν μήτε τούτων τι γράψας μήτε τοῦ μέτρου
+<lb n="6"/>τῆς φλεβοτομίας ὁρίσας τοὺς σκοποὺς, εὔδηλον διὰ τοῦτο
+<lb n="7"/>παραλελοιπὼς ἅπαντας τούσδε τοὺς λόγους ὅτι μηδ’ ὅλως
+<lb n="8"/>ἐχρῆτο τῷ βοηθήματι. ὥσπερ γὰρ ὁ μηδέποτε χρώμενος ἐπ’
+<lb n="9"/>ἀῤῥώστου καταπλάσμασι γράφειν οὐ δύναται τὰς διαφορὰς
+<lb n="10"/>αὐτῶν ἢ τὰς σκευασίας ἢ τὸν καιρὸν ἢ τὸν τρόπον τῆς χρήσεως,
+<lb n="11"/>ἀναγκαῖον δ’ εἶναι τοῖς χρωμένοις, ὥσπερ Ἐρασίστρατος
+<lb n="12"/>ἐχρῆτο, καὶ περὶ τούτων ἑκάστου διορίσαι, κατὰ τὸν
+<lb n="13"/>αὐτὸν τρόπον ὅσοι μὲν μηδ’ ὅλως χρῶνται φλεβοτομίᾳ, καιρὸν
+<lb n="14"/>καὶ τρόπον χρήσεως καὶ σκοποὺς τοῦ μέτρου γράφειν
+<lb n="15"/>οὐ δύνανται. τοῖς χρωμένοις δ’ ἀναγκαῖόν ἐστι καὶ περὶ
+<lb n="16"/>τούτων διορίσασθαι καὶ πολὺ μᾶλλον ὑπὲρ τῆς φλεβῶν διαφορᾶς,
+<lb n="17"/>εἰ καὶ μηδὲν ἄλλο, τὸ γοῦν τοσοῦτον ὡς οὐδὲν διαφέρει
+<pb n="11.220"/>
+<lb n="1"/>τήνδε πρὸ τῆσδε τέμνειν, ὁμοίως ἁπασῶν ἐκκενοῦν
+<lb n="2"/>δυναμένων τὰ φλεγμαίνοντα μόρια.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="5" xml:id="_5">
+<p rend="indent">
+<lb n="3"/><label type="head"><num value="5">Κεφ. εʹ.</num></label> Τὸ δὲ μήτε τούτων τι γράψαι καὶ τὴν
+<lb n="4"/>χρείαν ὅλην ἀνελεῖν τοῦ βοηθήματος, ἐπὶ δὲ πάθους ὃ μάλιστα
+<lb n="5"/>χρῄζειν αὐτοῦ πεπίστευται, πῶς οὐκ ἄν τις ἐναργὲς εἶναι
+<lb n="6"/>φαίη γνώρισμα τοῦ μηδέποτε Ἐρασίστρατον κεχρῆσθαι τῷ
+<lb n="7"/>βοηθήματι; τί γὰρ οὖν δύσκολον, ἡνίκα ἔγραφεν ἐν τῇ τῶν
+<lb n="8"/>πυρετῶν θεραπείᾳ κατὰ λέξιν ὧδε· περὶ μὲν οὖν τὰς ἀρχὰς
+<lb n="9"/>τῶν ἀῤῥωστιῶν καὶ τὰς τῶν φλεγμονῶν γενέσεις ἀφαιρετέον
+<lb n="10"/>ἂν εἴη πᾶσαν προσφορὰν ῥοφημάτων τε καὶ σιτίων, ἐνταῦθα
+<lb n="11"/>προσγράψαι, χρηστέον δὲ φλεβοτομίᾳ; ὥσθ’ ὅλην αὐτοῦ τὴν
+<lb n="12"/>ῥῆσιν γενέσθαι τοιάνδε· περὶ μὲν τὰς ἀρχὰς τῶν ἀῤῥωστιῶν
+<lb n="13"/>καὶ τὰς τῶν φλεγμονῶν γενέσεις ἀφαιρετέον ἂν εἴη πᾶσαν
+<lb n="14"/>προσφορὰν ῥοφημάτων τε καὶ σιτίων, χρηστέον δὲ φλεβοτομίᾳ.
+<lb n="15"/>γίνονται γὰρ ὡς τὸ πολὺ αἱ τοὺς πυρετοὺς ποιοῦσαι
+<lb n="16"/>φλεγμοναὶ διὰ πληθώραν. διδομένων οὖν ἐν τοῖς τοιούτοις
+<lb n="17"/>καιροῖς προσφορῶν καὶ τῆς πέψεώς τε καὶ ἀναδόσεως τὰς κατ’
+<lb n="18"/>αὐτὰς ἐνεργείας ἀποδιδουσῶν, πληρουμένων τε τῶν ἀγγείων
+<pb n="11.221"/>
+<lb n="1"/>τῆς τροφῆς, ἔτι γε πλείστας τε καὶ ἰσχυρὰς συμβήσεται τὰς
+<lb n="2"/>φλεγμονὰς γίνεσθαι. βέλτιον οὖν μήτε διδόναι σιτία καὶ
+<lb n="3"/>τέμνειν φλέβα. τοιαύτη μὲν ἂν ἡ ῥῆσις ἐγένετο, βουληθέντος
+<lb n="4"/>αὐτοῦ ὥσπερ ταῖς ἀσιτίαις, οὕτω καὶ τῇ φλεβοτομίᾳ χρῆσθαι.
+<lb n="5"/>μὴ προσγράψαντος δὲ πῶς ἄν τις πιστεύσειε ἐπαινεῖν τὸν ἄνδρα
+<lb n="6"/>τὴν χρῆσιν τοῦ βοηθήματος; ὅτε δὲ μηδ’ ἐν ἄλλῃ τινὶ πραγματείᾳ
+<lb n="7"/>θεραπευτικῇ φαίνεται τοῦτο ποιεῖν, ἔτι καὶ μᾶλλον
+<lb n="8"/>ἄν τις πιστεύσειεν ὑπὸ τῆς γνώμης αὐτοῦ. τίς γὰρ ἂν δύναιτο
+<lb n="9"/>πεισθῆναι τὸν μακρολογώτατον Ἐρασίστρατον ὀκνῆσαι προσθεῖναι
+  <lb n="10"/>συλλαβὰς ἤτοι δʹ ἢ <choice><sic>έ</sic><corr>εʹ</corr></choice> κᾂν ἅπαξ που τῶν γεγραμμένων
+<lb n="11"/>αὐτῶν πραγματειῶν; ἐγὼ μὲν οὖν εἰ καὶ μηδὲν ἐσώζετο
+<lb n="12"/>Ἐρασιστράτου βιβλίον, ἀλλ’ ἤδη πάντα ἀπολώλει, καθάπερ
+<lb n="13"/>τὰ Χρυσίππου κινδυνεύει παθεῖν, τοῦτο τοῖς μαθηταῖς ἂν
+<lb n="14"/>αὐτοῦ μᾶλλον ἐπίστευσα περὶ τοῦ διδασκάλου λέγουσιν ἢ
+<lb n="15"/>τοῖς μήτ’ <milestone unit="ed2page" n="10.418"/>Ἐρασίστρατον αὐτὸν ἰδοῦσι, ποτὲ μήτε
+<lb n="16"/>μαθητὴν αὐτοῦ, μήτε τῶν ὡς ἐκείνου φοιτησάντων ἢ τῶν
+<lb n="17"/>τούτοις συγγενομένων. ἀλλὰ μετὰ τοσαύτας ἐτῶν γενεὰς ﻿
+<pb n="11.222"/>
+<lb n="1"/>ἀποφαινομένων τολμηρῶς ὑπὲρ ὧν οὔτ’ εἶδον οὔτε ἰδόντος
+<lb n="2"/>τινὸς ἤκουσαν οὔτε ἀνέγνωσαν Ἐρασίστρατον γράψαντα
+<lb n="3"/>οὐδ’ ἄχρι τεττάρων ἢ πέντε συλλαβῶν, ὡς ἔφην. τὸ μὲν
+  <lb n="4"/>γὰρ τεμεῖν φλέβα δʹ συλλαβῶν, φλεβοτομία δὲ αὕτη <choice><sic>έ</sic><corr>εʹ</corr></choice>. τὸ
+<lb n="5"/>δ’ εἰς τὴν ῥῆσιν αὐτοῦ παραγραφὲν ὀλίγον ἔμπροσθεν ὑπ’
+<lb n="6"/>ἐμοῦ, τὸ, χρηστέον δὲ φλεβοτομίᾳ, διὰ θʹ λέγεται συλλαβῶν.
+<lb n="7"/>παυσάσθωσαν οὖν ἤδη λωβώμενοι τοῖς γε μανθάνουσι τὴν
+<lb n="8"/>τέχνην καὶ τοῖς νοσοῦσιν αὐτοῖς οἱ λέγοντες Ἐρασίστρατον
+<lb n="9"/>κεχρῆσθαι μὲν τῆ φλεβοτομίᾳ, λόγον δ’ οὐδένα πεποιῆσθαι
+<lb n="10"/>περὶ αὐτῆς, ὡς παραδήλου πᾶσιν οὔσης μᾶλλον ἢ τῆς τῶν
+<lb n="11"/>καταπλασμάτων τε καὶ λαχάνων ἑψήσεως. εἰ γὰρ διὰ τοῦτο
+<lb n="12"/>φλεβοτομήσουσιν οἱ μανθάνοντες τὴν τέχνην, διότι καθάπερ
+<lb n="13"/>ἐν ταῖς ἀσιτίαις αἱ φλέβες κενούμεναι λύουσι τὰς φλεγμονὰς,
+<lb n="14"/>οὕτω καὶ αἱ φλεβοτομίαι πάντας ἑξῆς φλεβοτομήσουσιν
+<lb n="15"/>ὅσους Ἐρασίστρατος ἀσιτεῖν κελεύει. καὶ τοῦτο μὲν ἔτι
+<lb n="16"/>σμικρὸν.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="6" xml:id="_6">
+<p rend="indent">
+<lb n="17"/><label type="head"><num value="6">Κεφ. στʹ.</num></label> Τὸ δὲ μήτε περὶ τοῦ μέτρου φλεβοτομίας
+<lb n="18"/>μήτε περὶ τῶν τμηθησομένων φλεβῶν ἀκούσαντάς τι τοὺς
+<pb n="11.223"/>
+<lb n="1"/>νέους ἐπὶ <milestone unit="ed1page" n="4.13"/>βοηθήματος παραγίνεσθαι, μεγίστην οἴσει
+<lb n="2"/>βλάβην τοῖς κάμνουσιν, ὥσπερ ἔφην εὐθὺς κατ’ ἀρχάς. ἄμεινον
+<lb n="3"/>οὖν αὐτοῖς μηδ’ ὅλως ἐπιχειρεῖν φλεβοτομεῖν ἢ χωρὶς
+<lb n="4"/>τοῦ διορισθέντος περὶ τῶν εἰρημένων ἐπὶ βοήθημα παραγίνεσθαι.
+<lb n="5"/>πλείονες γὰρ οὕτως ἀπώλλοντο τῶν ἔμπροσθεν εἴτ’
+<lb n="6"/>ἀπολλυμένων διὰ τοὺς μὴ φλεβοτομοῦντας. οἱ μέν γε τότε
+<lb n="7"/>πρεσβῦται μηδ’ ὅλως φλεβοτομοῦντες ἄλλοις ἐχρῶντο κενωτικοῖς
+<lb n="8"/>βοηθήμασι ἐν μακροτέρῳ χρόνῳ ταυτὸν τῇ φλεβοτομίᾳ
+<lb n="9"/>δυναμένοις ἐργάζεσθαι, πλὴν εἴ που διὰ τὸ κύριον τοῦ πάσχοντος
+<lb n="10"/>μέρος ἢ τὴν τοῦ πλήθους ὑπερβολὴν ἔφθασεν ἀποθανεῖν
+<lb n="11"/>ὁ κάμνων. οἱ δὲ νῦν οἰόμενοι δεῖσθαι πᾶσαν ἀρχὴν
+<lb n="12"/>πυρετοῦ φλεβοτομίας οὐ σμικρὰ λυμαίνονται τοῖς νοσοῦσιν.
+<lb n="13"/>οὕτως γὰρ πεπείκασιν ἑαυτοὺς περὶ τοῦ βοηθήματος, ὡς εἰ καὶ
+<lb n="14"/>πρὸς Ἐρασιστράτου ἐγέγραπτο καθ’ ὃν ἐγὼ μικρὸν ἔμπροσθεν
+  <lb n="15"/>ἐδήλωσα τρόπον, ἐνθεὶς αὐτὰς τῇ ῥήσει τὰς θʹ συλλαβὰς ὡς
+<lb n="16"/>γενέσθαι τὴν λέξιν τοιαύτην, ἄνωθεν γὰρ αὐτῆς ἄμεινον μνημονεῦσαι.
+<lb n="17"/>περὶ μὲν οὖν τὰς ἀρχὰς τῶν ἀῤῥωστῶν καὶ τὰς τῶν
+<lb n="18"/>φλεγμονῶν γενέσεις ἀφαιρετέον ἂν εἴη πᾶσαν προσφορὰν ῥοφημάτων
+<pb n="11.224"/>
+<lb n="1"/>τε καὶ σιτίων. χρηστέον δὲ φλεβοτομίᾳ. τοιαύτην γὰρ οἱ
+<lb n="2"/>νῦν εἶναι βούλονται τὴν Ἐρασιστράτου γνώμην οὐκ ἐπ’ ἀγαθῷ
+<lb n="3"/>τῶν καμνόντων, ἑτέρων μὲν ὑπαρχόντων καιρῶν καὶ σκοπῶν
+<lb n="4"/>ἀσιτίας, ἑτέρων δὲ φλεβοτομίας, οὓς ἐγὼ κατὰ τήνδε τὴν πραγματείαν
+<lb n="5"/>ἐρῶ πάντας ἐν τῇ προσήκῃ τάξει. νυνὶ μὲν γὰρ ὥσπερ
+<lb n="6"/>εἰ τοῖς πρεσβύταις ἔμπροσθεν πεπεισμένοι κενῆς ὑπήρξαντο
+<lb n="7"/>παλινῳδίας, οὕτω κᾀμοὶ παλινῳδητέον ἐστὶ ἐπενεκτέον τε
+<lb n="8"/>καὶ τοὺς νῦν ἀλόγως φλεβοτομοῦντας ἐπὶ τὸ μηδ’ ὅλως φλεβοτομεῖν.
+<lb n="9"/>ὡς γὰρ ὁ Πλάτων ἔλεγεν, ἧττον εἰκός ἐστι σφάλλεσθαι
+<lb n="10"/>τοὺς μηδ’ ὅλως ἐγχειροῦντας οἷς οὐκ ἴσασιν τῶν πραττόντων
+<lb n="11"/>ἃ μὴ γινώσκουσιν, ὅπερ οἱ νῦν ποιοῦσιν ἀναπεπεικότες
+<lb n="12"/>ἑαυτοὺς, οὕτω γὰρ ῥᾷστον εὑρεῖν πρῶτον μὲν οὓς χρὴ
+<lb n="13"/>φλεβοτομεῖν, εἶθ’ <milestone unit="ed2page" n="10.419"/>ἕκαστον τῶν ἄλλων. ὧν ἐν ἅπαντι
+<lb n="14"/>νοσήματι κατὰ τὴν ἀρχὴν ὡς ἀσιτίαν, οὕτω καὶ φλεβοτομίαν
+<lb n="15"/>παραλαμβάνουσι. μᾶλλον δ’, εἰ χρὴ τἀληθὲς εἰπεῖν, ὑπηλλάχασι
+<lb n="16"/>τὴν Ἐρασιστράτου γνώμην. φλεβοτομοῦσι γὰρ καὶ
+<lb n="17"/>τρέφουσιν εὐθέως τοὺς φλεβοτομηθέντας, ἐκείνου τὸ φλεβοτομεῖν
+<lb n="18"/>ἀπαγορεύοντος, τὸ δὲ μὴ τρέφειν συμβουλεύοντος.
+<pb n="11.225"/>
+<lb n="1"/>ἐπεὶ τοίνυν τὴν ἀλήθειαν οὗτοι τιμῶσιν, οὐκ Ἐρασίστρατον,
+<lb n="2"/>ἐπιδεικτέον αὐτοῖς ἐστὶν ὡς ὁ γεγραμμένος ὑπ’ αὐτοῦ λόγος
+<lb n="3"/>ἐν τῷ περὶ αἵματος ἀναγωγῆς οὐκ ἔστιν ἴδιος ἐκείνου τοῦ
+<lb n="4"/>πάθους, ἀλλὰ κοινὸς ἁπάσης φλεγμονῆς. ἔχει γοῦν ἡ ῥῆσις
+<lb n="5"/>οὕτως· ἐχόμενος γὰρ τούτων περὶ τὴν ἀναγωγὴν ἢ περὶ τὴν
+<lb n="6"/>φλεγμονὴν κίνδυνος, ἐν ᾧ προσφέρειν μὲν οὐ ῥᾴδιον, φλεβοτομηθέντι
+<lb n="7"/>δὲ καὶ πολὺν χρόνον ἀσιτήσαντι κίνδυνος ἐκλυθῆναι.
+<lb n="8"/>οὕτως ὁ λόγος ἔχει πτύουσιν αἷμα. διὰ τοῦτο κωλύει
+<lb n="9"/>φλεβοτομεῖσθαι τοὺς κάμνοντας. ἀλλ’ ὅτι φλεγμονὴν ὑπείληφεν
+<lb n="10"/>αὐτὸς ἀκολουθήσειν, ἐν ᾗ φησὶ προσφέρειν μὲν οὐ ῥᾴδιον,
+<lb n="11"/>ὅπερ ἐστὶν διδόναι σιτία, φλεβοτομηθέντι δὲ καὶ πολὺν χρόνον
+<lb n="12"/>ἀσιτήσαντι κίνδυνος καταλυθῆναι τὴν δύναμιν. οὐδὲ
+<lb n="13"/>ἐνταῦθ’ ἴδιον αἵματος ἀναγωγῆς ἐστι, δι’ ὃ φυλάξαιτ’ ἄν τις
+<lb n="14"/>τὴν φλεβοτομίαν, ἀλλὰ ἄμφω κοινὰ καὶ πρὸς τοὺς πυρετοὺς,
+<lb n="15"/>τό τε μὴ δοῦναι σιτία διὰ τὰς φλεγμονὰς, τό τε τοῦτο πραττόντων
+<lb n="16"/>ἐπὶ φλεβοτομίας κίνδυνος καταλυθῆναι τὴν δύναμιν.
+<lb n="17"/>εἰ δὲ προσέχοις τὸν νοῦν ἐπιμελέστερον, ὁ πρὸς Ἐρασιτράτου
+<pb n="11.226"/>
+<lb n="1"/>λόγος εἰρημένος ἀπαγορεύειν σοι δόξει τὴν φλεβοτομίαν ἐπὶ
+<lb n="2"/>τῶν πυρεττόντων μᾶλλον ἢ τῶν αἷμα πτυόντων. ἐν ἀρχῇ
+<lb n="3"/>μὲν γὰρ τῆς ἀναγωγῆς τοῦ αἵματος οὐδέποτε φλεγμαίνει τὸ
+<lb n="4"/>ἐῤῥωγὸς ἀγγεῖον. αἱ δὲ ἀρχαὶ τῶν πυρετῶν ἐξ ἀνάγκης ἔχουσι
+<lb n="5"/>κατὰ τὸν Ἐρασίστρατον ἀρχὴν φλεγμονῆς. εἴπερ οὖν, ὡς
+<lb n="6"/>αὐτὸς ἐκεῖνος βούλεται, τοῖς ἐναργῶς φαινομένοις χρηστέον
+<lb n="7"/>ἐστὶ εἰς τὴν τῶν ἀδήλων πίστιν, ὅρα πολλὰ τῶν τραυμάτων
+<lb n="8"/>κολλησθῆναι φθάνοντα, πρὶν φλεβοτομηθῆναι. δυνατὸν οὖν ἐστὶ
+<lb n="9"/>καὶ τὴν ἐῤῥωγυῖαν φλέβα μηδ’ ὅλως φλεγμῆναι φθασάντων ἡμῶν,
+<lb n="10"/>τἄλλα πρᾶξαι προσηκόντως, ἐκκενῶσαί τε τοῦ μέλλοντος ἐργάζεσθαι
+<lb n="11"/>τὴν φλεγμονὴν αἵματος, ὁπόσον ἂν βουληθῶμεν. εἴπερ
+<lb n="12"/>οὖν ἐν ᾧ χρόνῳ φλεγμαίνει τὰ φλεγμαίνοντά φησιν Ἐρασίστρατος
+<lb n="13"/>ἀναγκαῖον εἶναι τὰς ἀσιτίας παραλαμβάνεσθαι καὶ
+<lb n="14"/>διὰ τοῦτο φοβεῖται προκαταλῦσαι τὴν δύναμιν τῇ φλεβοτομίᾳ,
+<lb n="15"/>πολὺ μᾶλλον αὐτὴν ἐπὶ τῶν πυρεσσόντων εὐλαβεῖσθαι προσήκει
+<lb n="16"/>τῶν ἀναγόντων αἷμα. τούτων μὲν γὰρ ἐγχωρεῖ πρὸ τού
+<lb n="17"/>φλεγμῆναι συμφῦναι τὴν ἐῤῥωγυῖνα φλέβα, καὶ μᾶλλον ὅταν ﻿
+<pb n="11.227"/>
+<lb n="1"/>κενωθῶσι. τοῖς πυρέσσουσι δ’ ἀναγκαῖόν ἐστι φλεγμαίνειν
+<lb n="2"/>ἤδη τι μόριον. ὅτι δὲ ἐγχωρεῖ συμφῦναι τὸ ἀγγεῖον ἄνευ
+<lb n="3"/>τοῦ φλεγμῆναι πάρεστι μέν τινι κᾀπὶ τῶν ἄλλων ἁπάντων
+<lb n="4"/>τραυμάτων πεισθῆναι. πολλάκις οἴδαμεν ἐπὶ τῶν μονομαχούντων
+<lb n="5"/>ὅλον ἀναπτυγέντα μηρὸν ἢ βραχίονα κολληθέντα
+<lb n="6"/>πρὶν φλεγμῆναι, καὶ μᾶλλόν γε ὅτε, ὡς Ἱπποκράτης
+<lb n="7"/>ἔφη, δαψιλὲς αἷμα παραχρῆμα συμβῇ ῥυῆναι. πολλάκις δὲ
+<lb n="8"/>καὶ σύντρησιν εἰς τὰ κενὰ καλούμενα τοῦ θώρακος ἐντὸς
+<lb n="9"/>τῆς τρίτης ἡμέρας ἐθεασάμεθα κολληθεῖσαν. ἀλλὰ καὶ
+<lb n="10"/>πρώην τις ἐν παλαίστρᾳ πληγεὶς σφοδρῶς ἀνέβηξεν αἵματος
+<lb n="11"/>αὐτίκα κοτύλας ὡς δύο, φλεβοτομηθεὶς δὲ παραχρῆμα
+<lb n="12"/>καὶ τῶν ἄλλων ὡς ἐχρῆν γενομένων, οὔτε ἔβηξεν ἔτι
+<lb n="13"/>τελέως καὶ ὑγιής ἐστι, κᾀκ τούτων <milestone unit="ed2page" n="10.420"/>οἶμαί τινα συνορᾷν
+<lb n="14"/>ὡς ἐπὶ τῶν ἤδη φλεγμαίνειν ἠργμένων ἀπέχεσθαι χρὴ
+<lb n="15"/>μᾶλλον, εἴ τις Ἐρασιστράτῳ πείθοιτο φλεβοτομίας, ἤπερ
+<lb n="16"/>ἐφ’ ὧν οὐδέπω φλεγμαίνει.
+</p>
+        </div>
+        <pb n="11.228"/>
+        <div type="textpart" subtype="chapter" n="7" xml:id="_7">
+<p rend="indent">
+<lb n="1"/><label type="head"><num value="7">Κεφ. ζʹ.</num></label> Δῆλον δ’ οὐδὲν ἧττον τοῦδε καὶ ὅτι τὰς
+<lb n="2"/>φλεβοτομίας ὁ Ἐρασίστρατος οὔτε σὺν ταῖς ἀσιτίαις οὔτε
+<lb n="3"/>πρὸς αὐτῶν παραλαμβάνει. ἀλλὰ γὰρ εἰς τοσοῦτον ἥκουσι
+<lb n="4"/>τινὲς φιλονεικίας ἢ ἀνοίας ὥσθ’ ὅταν ἀκούσωσι τῶν τοιούτων
+<lb n="5"/>λόγων, λύειν μὲν αὐτοὺς οὐδ’ ὅλως ἐγχωροῦσι. ὥσπερ
+<lb n="6"/>δὲ μηδενὸς εἰρημένου λόγων ἀρχὴν ἰδίαν ποιοῦνται τὴν λέξιν
+<lb n="7"/>ἐκείνην μόνην προχειριζόμενοι, καθ’ ἣν ὁ Ἐρασίστρατός φησιν·
+<lb n="8"/>ἀκόλουθόν ἐστι μηδὲν προσφέρειν κατὰ τοὺς τῆς φλεγμονῆς
+<lb n="9"/>καιρούς. κενούμεναι γὰρ αἱ φλέβες ῥᾷον παραδέξονται τὸ
+<lb n="10"/>παρεμπεπτωκὸς αἷμα εἰς τὴν ἀρτηρίαν. τούτου δὲ συμβαίνοντος
+<lb n="11"/>ἧττον φλεγμοναὶ ἔσονται. κᾄπειτ’ ἐπ’ αὐτῇ λέγουσιν
+<lb n="12"/>αὐτὸ πρόδηλον εἶναι τὴν ἐκ τῆς φλεβοτομίας χρείαν. ὅπου
+<lb n="13"/>γὰρ καὶ αὐτὴν τὴν ἀσιτίαν ὡς κενωτικὸν βοήθημα παραλαμβάνει,
+<lb n="14"/>πολὺ δήπου μᾶλλόν, φασὶν, ἐπὶ τὴν φλεβοτομίαν ἀφίξεται,
+<lb n="15"/>πρὸς οὓς ἐάν τις εἴπῃ δι’ ὧν λέγουσιν οὐ τομίαν τὸν
+<lb n="16"/>Ἐρασίστρατον ἐπιδεικνύειν αὐτοὺς, ἀλλὰ τὸ τῆς εἰρημένης
+<lb n="17"/>ἐπὶ τῆς ἀσιτίας ἀκόλουθον εἶναι τῷ καὶ τῇ φλεβοτομίᾳ χρῆσθαι
+<pb n="11.229"/>
+<lb n="1"/>καταγελῶντες, εἶτα σὺ μὲν, φασὶ, γινώσκεις τὸ ἀκόλουθον,
+<lb n="2"/>Ἐρασίστρατος δ’ οὐκ ἐγίνωσκεν; ἀγύμναστος ἦν δηλαδὴ
+<lb n="3"/>τὸν λογισμὸν, ὃν γεγύμνασαι σὺ μᾶλλον ἐκείνου, καὶ εἴπερ
+<lb n="4"/>ἔζη, συνεβουλεύσαμεν ἂν αὐτῷ παρὰ σὲ φοιτᾷν, ἵν’ ἐθισθῇ
+<lb n="5"/>γινώσκειν ἀκόλουθόν τε καὶ μαχόμενον. ἔπειτ’ ἐντεῦθεν
+<lb n="6"/>ἐκτραπόμενοι συνείρουσι τοὺς ἀσελγεῖς εἰς ὕβριν τῶν προσδιαλεγομένων,
+<lb n="7"/>οὕτω πολλοὺς ἐφεξῆς ὡς μηκέτ’ ἂν ἐπιτρέπειν
+<lb n="8"/>φθέγξασθαι μηδενὶ, καὶ τοῦτ’ αὐτοῖς ἐστὶ τὸ τέλος τῆς συνουσίας.
+<lb n="9"/>ἀλλ’ ἡμῖν γε νῦν <milestone unit="ed1page" n="4.14"/>οὐχ ὡς ἄν τις ἀμείψαιτο τὸν
+<lb n="10"/>ὑπαρξάμενον λοιδορεῖσθαι ζητοῦμεν, ἀλλὰ πρῶτον μὲν εἰ Ἐρασίστρατος
+<lb n="11"/>ἐχρήσατο φλεβοτομίᾳ, δεύτερον δὲ περὶ τῆς δυνάμεως
+<lb n="12"/>τοῦ βοηθήματος. ἑκατέρου δ’ αὐτῶν ἀποδείξεις εἰσὶν
+<lb n="13"/>ἴδιαι· τοῦ μὲν μὴ χρῆσθαι φλεβοτομίᾳ τὸν ἄνδρα τά τε
+<lb n="14"/>συγγράμματα αὐτοῦ καὶ τῶν μαθητῶν οἱ ἀξιοπιστόταται καὶ
+<lb n="15"/>τοῦ Χρυσίππου διδασκαλεῖον ἅπαν, τῆς δὲ τῶν βοηθημάτων
+<pb n="11.230"/>
+<lb n="1"/>δυνάμεως οὐκ ἔτι ταῦτα, προτάσεις δέ τινες ἀληθεῖς ἅμα
+<lb n="2"/>τοῖς οἰκείοις συμπεράσμασι. εἰ δὲ ἐάσας τις ταῦτα πάντα τὴν
+<lb n="3"/>ἀκολουθίαν μόνην ἐπικελεύεσθαι βούλοιτο, κινδυνεύσει τὰ
+<lb n="4"/>σαφῶς ὑπ’ Ἐρασιστράτου γεγραμμένα, μηδ’ ὅλως οἴεσθαι
+<lb n="5"/>γεγράφθαι. πρόσχες γοῦν μοι τὸν νοῦν ἐντεῦθεν ἀρξάμενος,
+<lb n="6"/>ἐν ᾧ περὶ αἵματος ἀναγωγῆς αὐτὸς ἐπαινῶν Χρύσιππον,
+<lb n="7"/>ὡς καλῶς ἀντὶ τῆς φλεβοτομίας τοῖς διαδέσμοις τῶν κώλων
+<lb n="8"/><milestone unit="ed2page" n="10.421"/>χρώμενον ἔγραψεν αὐτοῖς ὀνόμασι ταυτί· τὸ δὲ αὐτὸ
+<lb n="9"/>τοῦτο βούλονται ποιεῖν καὶ φλεβοτομοῦντες τοὺς ἀνάγοντας
+<lb n="10"/>αἷμα. ἀλλὰ πολὺ βέλτιον ὁ Χρύσιππος οὐ μόνον τὸ
+<lb n="11"/>παρὸν ἐπιβλέπων, ἀλλὰ καὶ τοῦ ἐπιφερομένου κινδύνου
+<lb n="12"/>φροντίζων, ἐχόμενον περὶ τὴν ἀναγωγὴν ὃ περὶ τὴν φλεγμονὴν
+<lb n="13"/>κίνδυνος, ἐν ᾧ προσφέρειν μὲν οὐ ῥᾴδιον, φλεβοτομηθέντι
+<lb n="14"/>δὲ καὶ πολὺν χρόνον ἀσιτήσαντι κίνδυνος ἐκλυθῆναι.
+<lb n="15"/>οὐκ ἔτι προσέθηκεν ἐνταῦθα τὴν αἰτίαν δι’ ἣν ἐν
+<lb n="16"/>τοῖς τῆς φλεγμονῆς καιροῖς ἀσιτίαν ἀξιοῖ. λέλεκτο γὰρ
+<lb n="17"/>αὐτῷ περὶ τοῦδε κατ’ ἐκείνην τὴν ῥῆσιν ἐν ᾗ φησίν·
+<pb n="11.231"/>
+<lb n="1"/>ἀκόλουθον δὲ καὶ τὸ μηδὲν προσφέρειν τοῖς τετραυματισμένοις
+<lb n="2"/>ὑπὸ τοὺς τῆς φλεγμονῆς καιρούς· στερνούμεναι γὰρ
+<lb n="3"/>αἱ φλέβες τῆς τροφῆς ῥᾷον παραδέξονται τὸ παρεμπεπτωκὸς
+<lb n="4"/>αἷμα εἰς τὰς ἀρτηρίας. τούτου δὲ συμβαίνοντος
+<lb n="5"/>ἧττον αἱ φλεγμοναὶ ἔσονται. ὥστε τὴν ἀσιτίαν ἐν τοῖς τῆς
+<lb n="6"/>φλεγμονῆς καιροῖς διὰ τοῦτο ἐπαινεῖ, διότι κενοῖ τὰς φλέβας.
+<lb n="7"/>ἀλλὰ ἐὰν ἑνώσεις τοὺς εἰρημένους δύο λόγους, εἷς
+<lb n="8"/>ἔσται τοιοῦτος. ὀρθῶς ὁ Χρύσιππος οὐκ ἐφλεβοτόμει τοὺς
+<lb n="9"/>ἀνάγοντας αἷμα διὰ τὸ χρῄζειν αὐτοὺς ὀλίγον ὕστερον
+<lb n="10"/>κενωτικοῦ βοηθήματος τῆς ἀσιτίας. οὕτως δ’ αὐτὸς πάλιν
+<lb n="11"/>ὁ λόγος, κἂν διὰ συντομωτέρων λεχθῇ, τοιοῦτός τις ἔσται.
+<lb n="12"/>οὔκουν χρὴ κενοῦν τοὺς ἀνάγοντας αἷμα διὰ τὸ μικρὸν
+<lb n="13"/>ὕστερον ἐν τοῖς τῆς φλεγμονῆς καιροῖς κενώσεως χρῄζειν.
+<lb n="14"/>ἔτι δὲ σαφέστερον οὕτως ἂν ῥηθείη. πρὸ τοῦ καιροῦ τῆς
+<lb n="15"/>φλεγμονῆς οὐ δεῖ κενοῦσθαι τὰς φλέβας, ὅτι κενουμένων
+<lb n="16"/>αὐτῶν αἱ φλεγμοναὶ παύονται. καὶ μὴν πρόδηλός γε ὁ λόγος
+<lb n="17"/>οὗτος ἐναντιοῦται πρὸς ἑαυτῶν. πλὴν οὖν εἴ τις αὐτῷ ﻿
+<pb n="11.232"/>
+<lb n="1"/>βοηθῶν ἰταμῶς δύο ταῦτα εἰσηγοῖτο, τό τε βέλτιον εἶναι
+<lb n="2"/>κενοῦν τὸ σῶμα κατὰ τὸν τῆς φλεγμονῆς καιρὸν οὐ πρόσθεν,
+<lb n="3"/>ἀσιτίαν τε μᾶλλον ἢ φλεβοτομίαν, ἀλλ’ ἐᾷν. ταῦτα
+<lb n="4"/>λέγοντα οὔτε ἀποδεδεῖχθαι τὸ προκείμενον φήσομεν οὔθ’
+<lb n="5"/>ὁμολογούμενον ὑπάρχον ἑαυτῷ. διαφέρεται γοῦν τοὺς.
+<lb n="6"/>λόγους τὰ μέρη μὴ σώζοντα τὴν ἀκόλουθον. ἐναργῶς γὰρ
+<lb n="7"/>φαίνεται πᾶσιν ἀνθρώποις. ὅσοι γὰρ ἔχουσιν νοῦν τε καὶ
+<lb n="8"/>σμικρὸν ὥστε σκοπεῖν ὡς θεμένῳ, τὸ παρεμπεπτωκὸς εἰς
+<lb n="9"/>τὰς ἀρτηρίας αἷμα διὰ τοῦ κενῶσαι τὰς φλέβας εἰς τὴν
+<lb n="10"/>οἰκείαν ἐπανάγειν χώραν, ὅτι τάχιστα τοῦτ’ εἶναι πρακτέον.
+<lb n="11"/>ἐναργὲς δὲ καὶ ὅτι βοηθήματι κενωτικῷ χρηστέον
+<lb n="12"/>ἐλαχίστῳ τε χρόνῳ τὴν κένωσιν ἣν ποιήσασθαι δυναμένων
+<lb n="13"/>καὶ χωρὶς τοῦ κακῶσαι τὸ σῶμα. δέδεικται γὰρ ὀλίγον
+<lb n="14"/>ἔμπροσθεν ὅσα βλάπτουσιν αἱ ἀσιτίαι πολλάκις τοὺς κάμνοντας.
+<lb n="15"/>ἐξεῖναι γοῦν τινὶ λέγειν οὑτωσὶ, γελοιοτάτους ἐγὼ
+<lb n="16"/>νομίζω τοὺς ὑπολαμβάνοντας Ἐρασίστρατον ἐπὶ τῶν ἀναγόντων
+<lb n="17"/>αἷμα χρῆσθαι φλεβοτομίᾳ. ὅπου γὰρ ἀσιτίαν ὡς
+<lb n="18"/>κενωτικὸν ἐπαινεῖ βοήθημα, πολὺ δήπου μᾶλλον αὐτὴν
+<pb n="11.233"/>
+<lb n="1"/>ἐπαινέσει τὴν φλεβοτομίαν. ὅπου δὲ κατὰ τὸν τῆς φλεγμονῆς
+<lb n="2"/>καιρὸν ἡγεῖται δεῖν ἔτι κενοῦν, εὔδηλον ὅτι μᾶλλον
+<lb n="3"/>ἀρχομένης αὐτῆς ἢ μελλούσης ἐπαινέσει τὴν κένωσιν. οὐ
+<lb n="4"/>γὰρ οὕτω γ’ ἦν ἀμαθὴς Ἐρασίστρατος, ὅτι θᾶττον πολὺ
+<lb n="5"/>ἐκ τῶν ἀρτηριῶν εἰς τὰς φλέβας ἐπανάξει τὸ αἷμα κατὰ
+<lb n="6"/>τὴν ἀρχὴν τῆς παρεμπτώσεως, οὔτε σφηνούμενον ἤδη σφοδρῶς,
+<lb n="7"/>οὔτ’ ἐξικμασμένον ὑπὸ τῆς πυρετώδους θερμότητος,
+<lb n="8"/>διὰ τοῦτο παχὺ γεγενημένον. ὁ ταῦτα λέγων ἄρ’ οὐκ εἶναι
+<lb n="9"/>γελοῖον ἑαυτὸν <milestone unit="ed2page" n="10.422"/>ἀποφαίνων οὐκ ἐκείνοις οἷς ἐγκαλεῖ.
+<lb n="10"/>γεγραφότος γὰρ αὐτοῦ τοῦ Ἐρασιστράτου μὴ χρῆσθαι φλεβοτομίᾳ,
+<lb n="11"/>διότι φυλάττειν ἄμεινον ἐστὶν ἐν τῷ τῆς φλεγμονῆς
+<lb n="12"/>παραληφθήσεσθαι.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="8" xml:id="_8">
+<p rend="indent">
+<lb n="13"/><label type="head"><num value="8">Κεφ. ηʹ.</num></label> Ἴσχειν ἀνίατον ἢ πάντως γε δυσίατον, οἷα
+<lb n="14"/>καὶ ταῖς αἱμοῤῥοΐσιν ἐπιγίνεται. λεγόντων δ’ ἡμῶν ὡς οἱ
+<lb n="15"/>τῶν κώλων δεσμοὶ τὸ πλῆθος εἰς ἑαυτοὺς ἀγαγεῖν εἰσὶν
+<lb n="16"/>ἱκανοὶ χωρὶς τῆς φλεβοτομίας, ἀδύνατον ἔφασκεν εἶναι
+<lb n="17"/>γενέσθαι τοῦτο κατὰ τὰς πληθώρας, ἐφ’ ὧν αὐτὸς ὁ
+<pb n="11.234"/>
+<lb n="1"/>Ἐρασίστρατος ἔφη παραπίμπρασθαι βραχίονάς τε καὶ χεῖρας
+<lb n="2"/>καὶ κνήμας, τοῦτο γάρ τοι τὸ παραπίμπρασθαι γίνεσθαι διὰ
+<lb n="3"/>πλῆθος τοῦ αἵματος τεινομένων τῶν ἀγγείων. πῶς οὖν ἔτι
+<lb n="4"/>δυνατὸν εἰς αὐτὰς μεταστῆσαι τὸ κατὰ βάθος, ὁπότε φαίνεται
+<lb n="5"/>καὶ τὸ χωρὶς ἐκείνου κινδυνεύειν ἤδη ῥαγῆναι; καὶ μὴν
+<lb n="6"/>Ἐρασίστρατον γεγράφαμεν ἐπαινεῖν Χρύσιππον, οὐ μετὰ τοῦ
+<lb n="7"/>διωρίσθαι τὸν λόγον, ὡς νῦν ποιήσω, γράψας, ἀλλ’ ἁπλῶς
+<lb n="8"/>ἀποφηνάμενος. ἔχει γὰρ ἡ λέξις ὧδε. ἀποδέσεις δὲ ποιεῖσθαι
+<lb n="9"/>ἐρίοις παρ’ αὐτὰ τὰς μασχάλας καὶ τοὺς βουβῶνας. ἀποδέσεις
+<lb n="10"/>ἔφη ποιεῖσθαι, μηδὲν ἔτι προσθεὶς τῷ λόγῳ πότερον ἐπὶ μὲν
+<lb n="11"/>τῶν πληθωρικῶν οὐδὲν μὲν ἀνήσει τὸ βοήθημα, τοὺς δὲ
+<lb n="12"/>ἄλλους ὠφελήσει, ἀλλ’ ἁπλῶς ἀποφηνάμενος ἵν’ ἐπὶ πάντων
+<lb n="13"/>σκοπῶμεν. τί γὰρ, ἔφη, προσέθηκεν ἐπὶ πάντων ἀκούσωμεν
+<lb n="14"/>οὑτωσί πως γράψας· ἀποδέσεις ποιεῖσθαι, ἐρειδέων ἐπὶ πάντων·
+<lb n="15"/>ἀλλ’ ἁπλῶς εἶπεν, ἀποδέσεις ποιεῖσθαι ἐρίοις παρά τε
+<lb n="16"/>τὰς μασχάλας καὶ τοὺς βουβῶνας, ὡς ἡμῶν δυναμένων νοεῖν
+<lb n="17"/>ἐπ’ ἐκείνων εἰρῆσθαι τὸν λόγον, ἐφ’ ὧν ἐστὶ δυνατὸν εἰς τὰ
+<pb n="11.235"/>
+<lb n="1"/>κῶλα μεταχθῆναι τοῦ αἵματος. ὡς ἐφ’ ὧν ἀδύνατον, οὐδὲ
+<lb n="2"/>ἐπιχειρητέον ἐστὶ τοῖς τῶν κώλων δεσμοῖς. τί δή ποτ’ οὖν,
+<lb n="3"/>ἔφαμεν, οὐκ αὐτὸ τοῦτο ἔγραψεν ὁ Ἐρασίστρατος ὡς σὺ νῦν
+<lb n="4"/>εἶπες; ὡς ἐπὶ μὲν τῶν οὕτω πληθωρικῶν, ἐν οἷς παραπίμπρανται
+<lb n="5"/>βραχίονές τε καὶ κνήμαις καὶ πήχεις, αἵματος ἀφαιρεῖν
+<lb n="6"/>προσήκει, τῶν δ’ ἄλλων διαδεῖν τὰ κῶλα; ὅτι, ἔφην,
+<lb n="7"/>ἀνθρώποις ἔγραψεν οὐ κοινοῖς δυναμένοις τὰ ἀκόλουθα γνῶναι
+<lb n="8"/>καὶ πρᾶξαι ταῦτα, καὶ μηδὲ ἐπιχειρεῖν ὅλως ἀδυνάτοις.
+<lb n="9"/>μὴ δεῖν κελεύεις οὖν ἡμᾶς, ἔφαμεν, ὅταν μέν ποτε πληθωρικὴ
+<lb n="10"/>διάθεσις ᾖ κατὰ τὸ σῶμα, κᾂν Ἐρασίστρατος μὴ γράψῃ φλεβοτομίαν.
+<lb n="11"/>ἐναργὲς γάρ ἐστι τοῦτο καὶ φαίνεσθαι σαφῶς
+<lb n="12"/>ἅπασι καὶ διὰ τοῦτο μηδ’ ὑπ’ Ἐρασιστράτου γεγράφθαι, τὰς
+<lb n="13"/>ἄλλας διαθέσεις <milestone unit="ed1page" n="4.15"/>ὅσαι χωρὶς πληθώρας εἰσὶν Ἐρασίστρατος
+<lb n="14"/>ἔγραψεν ἰᾶσθαι. τὸν δὲ πνεύσαντα πρὸς ταῦτα πρώτης
+<lb n="15"/>μὲν ἐπακοῦσαι τῆς ἐκ τοῦ τρίτου περὶ πυρετῶν ἠξίωσα ῥήσεως.
+<lb n="16"/>ἐφεξῆς δὲ καὶ τῆς ἐκ τοῦ προτέρου τῶν ὑγιεινῶν. ἔστι
+<lb n="17"/>δὲ ἡμῖν ἐκ τοῦ τρίτου τῶν πυρετῶν ἥδε· περὶ μὲν οὖν τὰς
+<pb n="11.236"/>
+<lb n="1"/>ἀρχὰς τῶν ἀῤῥωστιῶν καὶ τὰς τῶν φλεγμονῶν γενέσεις
+<lb n="2"/><milestone unit="ed2page" n="10.423"/>ἀφαιρετέον ἂν εἴη πᾶσαν προσφορὰν ῥοφημάτων τε καὶ
+<lb n="3"/>σιτίων. γίγνονται γὰρ ὡς τὸ πολὺ αἱ τοὺς πυρετοὺς ποιοῦσαι
+<lb n="4"/>τῶν φλεγμονῶν διὰ πληθώρας. διδομένων οὖν ἐν τοῖς
+<lb n="5"/>τοιούτοις καιροῖς προσφορῶν καὶ πέψεως καὶ ἀναδόσεως, τὰς
+<lb n="6"/>κατ’ αὐτὰς ἐνεργείας ἀποδιδουσῶν πληρουμένων ἀγγείων τῆς
+<lb n="7"/>τροφῆς, ἐπιπλέον τε καὶ ἰσχυροτέρας συμβήσεται τὰς φλεγμονὰς
+<lb n="8"/>γίνεσθαι. ἐν τούτῳ τῷ λόγῳ σαφῶς ὁ Ἐρασίστρατος
+<lb n="9"/>ἔγραψέ τε τὸ τῆς πληθώρας ὄνομα καὶ θεραπείαν αὐτῆς διδάσκων
+<lb n="10"/>ἀσιτίας μὲν ἐμνημόνευσε, φλεβοτομίαν δὲ ἐσιώπησε.
+<lb n="11"/>ὥστε καὶ τετράκις ἐψεύσω βέλτιστε, πρὸς τὸν Ἐρασιστράτειον
+<lb n="12"/>ἔφην, ἐπειδὴ φαίνεται καὶ θεραπείας πληθώρας ὁ Ἐρασίστρατος
+<lb n="13"/>γράψας. οὕτω δὲ κᾀν τῷ προτέρῳ τῶν ὑγιεινῶν
+<lb n="14"/>μετὰ τοῦ προειπεῖν ὅπερ ἄν τις γνωρίζοι πληθώρας ἐφεξῆς
+<lb n="15"/>ἰάματα γράφων, πάντων μᾶλλον ἢ φλεβοτομίας ἐμνημόνευσεν.
+<lb n="16"/>ἔχει δὲ ἡ ῥῆσις ὧδε· μεγίστην δὲ ἔχειν τισὶν εἰς ὑγείας φυλακὴν,
+<lb n="17"/>ὡς ἔμπροσθεν συμβαλλόμενον τὸ γνῶναί τε καὶ φυλάξεσθαι
+<pb n="11.237"/>
+<lb n="1"/>δύνασθαι τὴν κατὰ πληθώραν διάθεσιν. δι’ ὧν μὴ
+<lb n="2"/>δεῖ μάλιστα μὲν ἀρχομένης αὐτῆς διαλύειν· εἰ δὲ μὴ, προσελθούσης
+<lb n="3"/>πρὸ τοῦ ἀρχὴν ἀῤῥωστίαν ποιῆσαι. πλείους δὲ
+<lb n="4"/>τρόποι τοῦ διαλύειν τὴν τοιαύτην διάθεσιν εἰσὶν καὶ οὐχ
+<lb n="5"/>οἱ αὐτοὶ πᾶσιν ἁρμόζουσιν, περὶ ὧν ἂν ἐφεξῆς εἴη τοῦ
+<lb n="6"/>λέγειν. τοῖς μὲν οὖν εἰθισμένοις διαπονεῖν τῶν σωμάτων
+<lb n="7"/>κράτιστον ἂν εἴη, τοὺς συνήθους πόνους μικρῷ πλείους
+<lb n="8"/>ποιοῦνται διαλύειν πειρᾶσθαι τὴν τοιαύτην διάθεσιν, μετὰ
+<lb n="9"/>δὲ τὰ γυμνάσια ἱδρῶτάς τε ἐν βαλανείῳ ἐκκρίνειν ἢ διὰ
+<lb n="10"/>πυριάσεως ἐξηράνθαι σύνηθες καὶ λουτρῷ πλείονι χρῆσθαι,
+<lb n="11"/>καὶ μετὰ ταῦτα πάντα ἐν ἡσυχίᾳ πλείονι γίνεσθαι πλείω
+<lb n="12"/>χρόνον μηδὲν προσφερόμενον. οὗτος γὰρ καιρὸς μάλιστα
+<lb n="13"/>συναιρεῖ τὴν πληθώραν ὁ ἀπὸ τῶν γυμνασίων καὶ τοῦ
+<lb n="14"/>λουτροῦ, ἐὰν μηδενὸς προσενεγκάμενός τις ἡσυχάζει πλέον
+<lb n="15"/>χρόνον μετὰ ταῦτα, ἄριστον μὲν ἀφαιρεῖσθαι, τὸ δὲ δεῖπνον
+<lb n="16"/>ἔλασσον λαμβάνειν καὶ ὄγκους ἀτρόφους εἷναι τοὺς
+<lb n="17"/>προσφερομένους. εἴη δ’ ἂν τοιαῦτα λαχάνων τε γένη ﻿
+<pb n="11.238"/>
+<lb n="1"/>ὠμῶν καὶ ἑφθῶν καὶ κολοκύνται καὶ συκιοὶ, πέπονές τε οἱ
+<lb n="2"/>ἁπαλοὶ καὶ σῦκα χλωρὰ καὶ τῶν ὀσπρίων τινὰ μετὰ λαχάνων
+<lb n="3"/>ἑψόμενα, ἄρτος τε μὴ πεπονημένος. ἅπαντα γὰρ τὰ
+<lb n="4"/>τοιαῦτα τὴν μὲν κοιλίαν εὐέκκριτον ποιοῦσι, τὰ δὲ ἀναδιδόμενα
+<lb n="5"/>ἀπ’ αὐτῶν οὐδὲ πολλὰ οὐδὲ ἰσχυρά ἐστι. κρεῶν καὶ
+<lb n="6"/>ἰχθύων καὶ τῶν ἑψημάτων τῶν μετὰ γάλακτος χόνδρου τε
+<lb n="7"/>καὶ ἀμύλου καὶ πάντων τῶν τοιούτων, ἀφεκτέον ἐν τῷ
+<lb n="8"/>εἰρημένῳ καιρῷ ἢ ὀλίγοις παντάπασι. χρῆσθαι δὲ τῇ ἀγωγῇ
+<lb n="9"/>τῆς ἐπιμελείας ταύτης, ὡς ἂν ἀσφαλῶς καθαιρεθῇ ἡ γενομένη
+<lb n="10"/>πληθώρα. οἷς δὲ μὴ σύνηθες τὸ μὴ διαπονεῖν τῷ
+<lb n="11"/>σώματι οὐκ ἐπιτήδειον γυμνάσια πλείω ἐμβάλλειν. ταῦτα
+<lb n="12"/>γὰρ ὁμοίως τοῖς πλείστοις ἀσφαλεῖς ποιεῖται τὰς κενώσεις.
+<lb n="13"/>χρήσιμον δὲ πᾶσι κοινὸν ὅσοι τυγχάνουσιν εὐεμεῖς ὄντες,
+<lb n="14"/>τοὺς ἀπὸ τοῦ δείπνου ἐμέτους ποιεῖσθαι, ἐὰν μὴ πρός τι
+<lb n="15"/>ἄλλο ἀνάρμοστοι ὦσι, μὴ πολὺν χρόνον διαλείποντας ἀπὸ
+<lb n="16"/>τῆς προσφορᾶς, ἵνα μετέωρά τε τὰ σιτία λαμβάνονται
+<lb n="17"/>πρὸς τὸ ἐμεῖν καὶ μὴ πολὺ πρὸ τοῦ ἐμεῖν τὰ ἀναδιδόμενα
+<pb n="11.239"/>
+<lb n="1"/>ἀπ’ αὐτῶν. τῇ δὲ ὑστεραίᾳ ἀριστᾷν τε καὶ ἱδρῶτας καὶ
+<lb n="2"/>λουτρὰ ποιεῖσθαι. κενωθέντος δὲ τοῦ σώματος καὶ τῆς
+<lb n="3"/>πληθώρας ἀποκατάστασιν λαβούσης, συντόμως ἐπὶ τὰ εἰθισμένα
+<lb n="4"/>ἐπαναγαγεῖν. ἔν τε οὖν τούτῳ τῷ λόγῳ πάντα σαφῶς
+<lb n="5"/>ὁ Ἐρασίστρατος ἐδήλωσεν· ἄλλοις μὲν τοῖς βοηθήμασιν
+<lb n="6"/><milestone unit="ed2page" n="10.424"/>ἑαυτὸν χρώμενον ἐπὶ τῆς πληθωρικῆς διαθέσεως, οὐ
+<lb n="7"/>χρώμενον, φλεβοτομίᾳ καὶ πάλιν ἐν τοῖς κατωτέρω τοῦ
+<lb n="8"/>συγγράμματος, ἔνθα φησίν· ἐννοεῖν δὲ χρὴ καὶ τὰ τοιαῦτα
+<lb n="9"/>διότι οὐ πάντες ἄνθρωποι ἐπὶ ταῦτα φέρονται πάθη,
+<lb n="10"/>ἀλλὰ γενομένου περὶ πλείους τοῦ αὐτοῦ συμπτώματος,
+<lb n="11"/>λέγω δὲ πληθώρας, οἷς πᾶσιν ἐπὶ τοὺς τόπους εἴθισται ἡ
+<lb n="12"/>ὁρμὴ γίγνεσθαι, ἀλλὰ τοῖς μὲν ἐπὶ τὸ ἧπαρ, ἐνίοις δὲ ἐπὶ
+<lb n="13"/>τὴν κοιλίαν, ἄλλοις δὲ εἰς ἐπιληπτικὰ πάθη, τοῖς δὲ ἐπὶ
+<lb n="14"/>τὰ ἄρθρα. ἕκαστον οὖν δεῖ συνθρωτὰ εἰθισμένα ἑαυτῷ
+<lb n="15"/>συμβαίνειν τὴν ἁρμόζουσαν φυλακὴν γιγνομένοις πάθεσι
+<lb n="16"/>ποιεῖσθαι. οὐ γὰρ ὡσαύτως φυλακτέον τῷ εἰθισμένῳ εἰς
+<lb n="17"/>ἐπιληπτὸν φέρεσθαι καὶ τῷ εἰς αἱμοπτυικὰ, ἀλλὰ τῷ μὲν
+<pb n="11.240"/>
+<lb n="1"/>εἰς πόνους ἀφειδῶς δοτέον, τῷ δὲ φυλακτέον τὰ ἐπιπονώτερα
+<lb n="2"/>γυμνάσια. κίνδυνος γὰρ ἂν ἦν ἐν τῷ διαπονεῖν ἀρχὴν
+<lb n="3"/>ῥήξεως γενέσθαι. ὁμοίως τῷ μὲν εἰς ἐπιληπτικὰ φερομένῳ
+<lb n="4"/>ἀφειδῶς αὐτὸν διδόναι εἰς ἀσιτίαν τε καὶ ὀλιγοσιτίαν. τὰ
+<lb n="5"/>δὲ πλείω λουτρὰ καὶ μεταβολὴν ἰσχυρὰν ποιοῦντα φυλακτέον.
+<lb n="6"/>τῷ δὲ ἐπὶ νεφριτικὰ πάθη φερομένῳ σιτία μὲν
+<lb n="7"/>ἐλαφρὰ ποιεῖν, λουτροῖς δὲ ἀφειδῶς χρῆσθαι, τό τε πινόμενον
+<lb n="8"/>οὐκ ἐπιτήδειον συστέλλειν, ἵνα μὴ δριμέων τῶν
+<lb n="9"/>οὔρων γινομένων, ἀναδάκνονται οἱ τόποι δι’ ὧν φέρεται
+<lb n="10"/>ἡ ἔκκρισις, ἐργῶδές τε καὶ τὸ διαπονεῖν πλείω τοῖς τοιούτοις.
+<lb n="11"/>οἷς δὲ ἐπὶ σπλῆνα ἢ τὸ ἧπαρ εἴθισται φέρεσθαι,
+<lb n="12"/>κόπους τε καὶ ψυχρολουσίαν εὐλαβητέον, ἀσιτίαις τε
+<lb n="13"/>καὶ ὀλιγοποσίαις καὶ λουτροῖς τὸ ἐπίπαν τὴν φυλακὴν
+<lb n="14"/>ποιεῖσθαι.
+</p>
+        </div>
+        <div type="textpart" subtype="chapter" n="9" xml:id="_9">
+<p rend="indent">
+<lb n="15"/><label type="head"><num value="9">Κεφ. θʹ.</num></label> Ἐν τούτοις πάλιν ὁ Ἐρασίστρατος ἐναργῶς
+<lb n="16"/>ἐνεδείξατο τὴν αὐτοῦ γνώμην. ἄγε τοὺς ἐκ πληθώρας
+<lb n="17"/>ἤτοι γ’ αἷμα πτύσειν μέλλοντας, ἢ τοῖς ἐπιληπτικοῖς ἁλώσεσθαι
+<pb n="11.241"/>
+<lb n="1"/>πάθεσι, οὔτε διὰ τῶν ἰσχυρῶς καθαιρόντων φαρμάκων
+<lb n="2"/>ἐπεχείρησε κενοῦν, ἀλλ’ οὐδὲ διὰ πλήθους τρίψεως
+<lb n="3"/>ἀσθενεστέρου μὲν ἢ κατ’ αὐτὰ βοηθήματος, ἰσχυροτέρου δὲ
+<lb n="4"/>οὐ σμικρῷ μόνης τῆς ἀσιτίας. πλήθει γοῦν τρίψεως ἐνίους
+<lb n="5"/>τῶν τοιούτων ἐκενώσαμεν ὑπὸ μαλακείας ψυχῆς, οὔτε καθαῖρον
+<lb n="6"/>φάρμακον ὑπομένοντας λαβεῖν οὔτε ἐπιτρέποντας τέμνειν
+<lb n="7"/>τὴν φλέβα. καὶ εἴπερ ἦν ἱκανὸν ἐπὶ πάντων τὸ βοήθημα
+<lb n="8"/>τοῦτο, τάχα ἄν τις ἀντὶ φλεβοτομίας αὐτῷ χρῆσθαι διηνεκῶς
+<lb n="9"/>ἐδύνατο. νῦν δὲ ἐστὶν ὅτε μικρότερον εὑρίσκεται τῆς κατὰ
+<lb n="10"/>τὸ σῶμα πληθώρας καὶ μάλιστ’ ἀηθῶν τρίβεσθαι κοπώδεσιν
+<lb n="11"/>αὐτίκα διαθέσεσιν ἁλισκομένων, ἢν ἐπιπλέον τριφθῶσιν. ἔνιοι
+<lb n="12"/>δὲ πυκνὸν καὶ σκληρὸν ἔχουσι τὸ δέρμα, κᾂν πλείστη τρίψις
+<lb n="13"/>προσαχθῇ, κένωσις βραχυτάτη γίνεται. εἰ δέ τις ἰατρὸς ἐπιμελῶς
+<lb n="14"/>ὁμιλήσει τοῖς ἔργοις τῆς τέχνης αὐτῇ τῇ πείρᾳ διδαχθεὶς,
+<lb n="15"/>οἶδεν ὅπως ἐπικαλεῖται παροξυσμὸν ἐπιληπτικὸν ἡ τοῦ στομάχου
+<lb n="16"/>κένωσις. ἔγνω δὲ καὶ τοὺς ἐπὶ κακοπραγίᾳ μόνῃ
+<lb n="17"/>στομάχου ταῖς ἐπιληψίαις <milestone unit="ed2page" n="10.425"/>ἁλισκομένους, ὧν ἔνιοι
+<pb n="11.242"/>
+<lb n="1"/>βλάπτονται μεγάλως ὑπὸ τῆς ἀσιτίας, ὥσπερ γε καὶ Διόδωρος
+<lb n="2"/>ὁ γραμματικός. οὗτος γὰρ εἴ ποτε κατά τινα περίστασιν
+<lb n="3"/>γραμμάτων ἐπιπλέον ἄσιτος διετέλεσεν, ἐπιληπτικὸς
+<lb n="4"/>ἐσπᾶτο. καὶ τοίνυν ἐπενοήσαμεν αὐτῷ βοηθήματι περὶ
+<lb n="5"/>τρίτην ὥραν ἢ τετάρτην ἄρτον προσλαμβάνειν ἐξ οἴνου
+<lb n="6"/>κεκραμένου. καὶ τούτῳ χρώμενος ἐτῶν ἤδη πολλῶν ὑγίαινε,
+<lb n="7"/>μόνου φροντίζων ἑνὸς τοῦ πέπτειν ὅτι κάλλιστα τὴν ἐπὶ
+<lb n="8"/>τῷ δείπνῳ τροφήν. καὶ ποτὲ διά τινα χρείαν πολιτικὴν
+<lb n="9"/><milestone unit="ed1page" n="4.16"/>ἀναγκασθεὶς ἐπὶ τῆς ἀγορᾶς ἕως μεσημβρίας ἄσιτος
+<lb n="10"/>διατρῖψαι, καταπεσὼν ἐσπάσθη. οὗτος μὲν οὖν, ὡς ἔφην,
+<lb n="11"/>ἐπὶ τῷ στομάχῳ κακοπραγοῦντι ταῖς ἐπιληψίαις ἡλίσκετο.
+<lb n="12"/>τοὺς δὲ ἄλλους εἰ καὶ μὴ μόνους, ἀλλ’ ὅταν ἐπιτηδείως
+<lb n="13"/>ἔχῃ, συμπαροξύνει τε κἀξέλκει διὰ ταχέων ὁ στομαχὸς
+<lb n="14"/>βλαβεὶς εὔδηλον. ἔστι δ’ ὅτε τὸ στόμα τῆς γαστρὸς ὀνομάζεται
+<lb n="15"/>στόμαχος ὑπὸ τῶν ἰατρῶν. ἐν ταύταις ταῖς διαθέσεσι
+<lb n="16"/>καὶ πολλοῖς γε ἤδη πρὸ ἡμῶν ἐγνώσθησαν αἱ τοιαῦται
+<lb n="17"/>διαθέσεις ὑπὲρ ὧν ἑτέρωθι κάλλιον εἰπεῖν. ἐν δὲ τῷ
+<pb n="11.243"/>
+<lb n="1"/>παρόντι μέχρι τοσούτου λελέχθαι, μετρίως δηλούντων ἡμῶν
+<lb n="2"/>ὅτι πολλοὶ τῶν ἐπιλήπτων ὑπὸ τῶν μακροτέρων ἀσιτιῶν
+<lb n="3"/>κακούμενοι τὸν στόμαχον ἐξ αὐτοῦ τούτου παροξύνονται.
+<lb n="4"/>ὑποκείσθω τοίνυν ὁ μὲν ἄνθρωπος εἶναι πληθωρικὸς
+<lb n="5"/>οὕτως ὡς παραπεπρῆσθαι βραχίονάς τε καὶ τὰ περὶ μηροὺς
+<lb n="6"/>καὶ κνήμας, ἡ δ’ ὥρα τοῦ ἔτους ἔαρ εἰσβαλὸν, οὐδὲ γὰρ
+<lb n="7"/>οὐδὲ αὐτὴ σπάνιος ὑπόθεσις, ἀλλ’ ἡμεῖς μὲν καὶ πάνυ
+<lb n="8"/>πολλάκις ἐθεασάμεθα διακειμένους οὕτως ἀνθρώπους ἐν
+<lb n="9"/>ἐκείνῳ τῷ καιρῷ. προσυποκείσθω δὲ καὶ τρίψεων εἶναι καὶ
+<lb n="10"/>γυμνασίων ἀήθης ὁ τοιοῦτος, ὑπό τε τῆς ἀσιτίας κακούμενος,
+<lb n="11"/>εἶτα ζητῶμεν ὅπως αὐτὸν κενώσωμεν. ἆρά γε λουτροῖς
+<lb n="12"/>πλείοσιν ἢ γυμνασίοις ἢ τοῖς ἀπὸ δείπνων ἐμέτοις
+<lb n="13"/>ἢ ἀσιτίαις; ταῦτα γάρ ἐστιν Ἐρασιστράτῳ πλήθους ἰάματα.
+<lb n="14"/>γυμνάσια μὲν οὖν οὐδὲ αὐτὸς ἀξιοῖ χρῆσθαι τοὺς ἀήθεις.
+<lb n="15"/>λουτρῶν δὲ εἴργει πάντας ἁλῶναι πάθεσιν ἐπιληπτικοῖς.
+<lb n="16"/>εἴρξει δ’, οἶμαι, καὶ τῶν ἐμέτων αὐτοὺς ἐναργῶς πληρούντων
+<lb n="17"/>κεφαλὴν. ἡ δ’ ἀσιτία μόνη τῶν οὕτω πεπληρωμένων ﻿
+<pb n="11.244"/>
+<lb n="1"/>ὡς τάσεως σφόδρα αἰσθάνεσθαι κατὰ τὰ σκέλη καὶ τὰς
+<lb n="2"/>χεῖρας οὐχ ἱκανὴ κενοῦν αὐτάρκως μετὰ τοῦ καὶ βλάπτειν
+<lb n="3"/>ἰσχυρῶς, εἰ τὸν στόμαχον ἔχοιεν εὐπαθῆ. πῶς οὖν αὐτὸν
+<lb n="4"/>κενώσομεν; ἆρά γε μόναις τρίψεσιν, ὧν οὐδ’ ὅλως ἐμνημόνευσεν
+<lb n="5"/>Ἐρασίστρατος; ἀλλὰ τοῖς ἀήθεσιν οὐχ οἷόν τε τρίψιν
+<lb n="6"/>τοσαύτην προσφέρειν ὡς αὐτάρκως κενῶσαι· ἢ διαδήσωμεν
+<lb n="7"/>αὐτὸν ἐρίοις; ὅπερ οὐδὲ ὅλως εἶπεν ὁ Ἐρασίστρατος
+<lb n="8"/>ἐνταῦθα, καίτοι γε ἐν τῷ περὶ αἵματος ἀναγωγῆς εἶπεν.
+<lb n="9"/>ὑποκείσθω δ’, ὡς εἴρηκεν, ἐκ περιουσίας ἡ σκέψις γένηται.
+<lb n="10"/>ἀλλ’ εἴρηται καὶ πρόσθεν ὡς ἀνιαρόν τε ἀλλὰ καὶ ἀδύνατον
+<lb n="11"/>εἶναι τὸ βοήθημα τοῦτο, τοὺς εἰς τοσοῦτο πληθώρας
+<lb n="12"/>ἥκοντας ὡς εἰς τὰ κῶλα πιπρᾶσθαι νομίζειν. οὐδὲ ἐκεῖνο
+<lb n="13"/>δυνατὸν εἰπεῖν, ὅπερ ἐν τῷ περὶ αἵματος ἀναγωγῆς ὁ Ἐρασίστρατος
+<lb n="14"/>ἔγραψεν, ὡς ἐχόμενός τε περὶ τὴν ἀναγωγὴν
+<lb n="15"/>ὁ κατὰ τὴν φλεγμονὴν κίνδυνος ἐστίν. ἐν ᾧ τῶν ἀσιτιῶν
+<lb n="16"/>ἀναγκάζει, ὡς παραλαμβανομένων οὐ χρὴ τῇ φλεβοτομίᾳ
+<lb n="17"/><milestone unit="ed2page" n="10.426"/>προσκαταλελύσθαι τὴν δύναμιν. οὐδεμία γὰρ ἀνάγκη
+<pb n="11.245"/>
+<lb n="1"/>φλεγμονὴν ἀκολουθῆσαι τῇ πληθώρᾳ φθασάντων αὐτὴν
+<lb n="2"/>κενῶσαι. ἀλλά τοι καὶ τούτου τοῦ πιθανοῦ μὲν οὐ μὴν
+<lb n="3"/>ἀληθοῦς κατὰ τὴν τῶν ὑγιεινῶν πραγμάτων ἐκποδῶν ὄντος,
+<lb n="4"/>ὅμως ὁ Ἐρασίστρατος οὐκ ἐτόλμησεν ἐκκενῶσαι διὰ φλεβοτομίας,
+<lb n="5"/>τὸ μέλλον ἤτοι γ’ ἐπιληψίαν ἢ αἵματος ἀναγωγὴν
+<lb n="6"/>ἐργάζεσθαι πλῆθος. οὕτως ἄρα προκείμενόν ἐστιν αὐτὸ
+<lb n="7"/>διαφυλάττειν ἀεὶ τὸ τοῦ Χρυσίππου καὶ μὴ φλεβοτομίᾳ
+<lb n="8"/>χρῆσθαι, μήτε τινι τῶν ἰσχυρῶς καθαιρόντων φαρμάκων.
+<lb n="9"/>ἐνῆν γοῦν καὶ διὰ φλεβοτομίας, ἀλλὰ καὶ διὰ καθάρσεώς
+<lb n="10"/>γέ τινος ἐκκενῶσαι τὸ πλῆθος. οὐ μήν γε ὁ Ἐρασίστρατος
+<lb n="11"/>ἔγραψεν ὑπὲρ αὐτῶν, ὥσπερ γε οὐδὲ ἐν τοῖς περὶ παραλύσεως
+<lb n="12"/>ἢ περὶ ποδάγρας. αἰτιᾶται μὲν γὰρ κἀκεῖ τὴν
+<lb n="13"/>πληθώραν, οὔτε δὲ φλεβοτομίας οὐδέ τινι τῶν δραστηρίων
+<lb n="14"/>χρῆται καθαρτικῶν φαρμάκων. ἔτι δὲ ἐναργέστερον ἐδήλωσε
+<lb n="15"/>τὴν ἑαυτοῦ γνώμην ἐν τῷ περὶ αἵματος ἀναγωγῆς, ἐν
+<lb n="16"/>ἐκείνῳ τῷ μέρει τοῦ γράμματος ἔνθα φασὶν ἐνίους τῶν
+<pb n="11.246"/>
+<lb n="1"/>ἀνθρώπων εἰς κίνδυνον ἥκειν αἵματος ἀναγωγῆς ἐπισχεθείσης
+<lb n="2"/>αὐτοῖς συνήθους ἐκκρίσεως. μεμνημένος γὰρ ἅμα ταῖς
+<lb n="3"/>ἄλλαις ἐπισχέσεσι καὶ τῆς τῶν ἄλλων αἱμοῤῥοΐδων ἀφαιρέσεως,
+<lb n="4"/>οὐχ ἁπλῶς εἶπεν ὅτι κενοῦν χρὴ τοὺς τοιούτους,
+<lb n="5"/>ἀλλὰ κατ’ εἶδος ἔγραψε τὰ κενωτικὰ βοηθήματα, καθάπερ
+<lb n="6"/>ἐν τοῖς ἄλλοις βιβλίοις, οὕτω κἀνταῦθα τὰ δοκοῦντα
+<lb n="7"/>αὐτῷ πάντα χωρὶς τῆς φλεβοτομίας. ἔχει δὲ ἡ ῥῆσις ὧδε·
+<lb n="8"/>τοῖς μὲν οὖν νῦν ἐνεστῶσιν οἷς ἔκκλυσις αἵματος πλείων
+<lb n="9"/>εἴθισται γίγνεσθαι, ἐκκρίσεις ἁρμόττοιεν ἂν οὐρήσεών τε
+<lb n="10"/>καὶ ἱδρώτων. ἁρμόζει δὲ καὶ συστολὴ τῶν προσφερομένων
+<lb n="11"/>καὶ περιπάτων πλῆθος ἐπιπέδων μὴ ταχέων. ἐν τούτοις
+<lb n="12"/>πάλιν ἱδρῶσιν καὶ οὔροις καὶ ἀσιτίαις καὶ περιπάτοις ἐκκενῶν
+<lb n="13"/>τὸ πλῆθος, οὐ χρῆται φλεβοτομίᾳ. καὶ μὴν εἰ μήτε
+<lb n="14"/>πρὶν γενέσθαι τὴν φλεγμονὴν μήτε γενομένης ἢ ὑποπτευομένοις
+<lb n="15"/>ἔσεσθαι παραλαμβάνειν φλεβοτομίαν ὡσαύτως
+<lb n="16"/>ἐδήλωσε δι’ ἑνὸς τούτου βιβλίου, περιττὸν ἦν κατ’ ἄλλην
+<lb n="17"/>πραγμάτων αὐτὸν μνημονεύειν φλεβοτομίας, ἐν ᾗ φλεγμονὴν
+<pb n="11.247"/>
+<lb n="1"/>ἤτοι γεγενημένην ἤδη θεραπεύει, καθάπερ ἐν τῇ περὶ τῶν
+<lb n="2"/>πυρετῶν, ἢ μέλλουσαν, ἢ ὑποπτευομένην, ἢ ἀρχομένην ὡς
+<lb n="3"/>ἐν ταῖς ἄλλαις. ἀλλ’ οὐδὲν τούτων ὁρῶντες ἔνιοι τῶν
+<lb n="4"/>Ἐρασιστρατείων εἴπερ φασὶ ὡς κενωτικοῦ τε βοηθήματος
+<lb n="5"/>χρῆται τῇ φλεβοτομίᾳ. καὶ γὰρ Ἐρασιστράτου σαφῶς εἰρηκότος
+<lb n="6"/>αὐτὸ τὸ ἐναντιώτατον. ἐπειδὴ γάρ φησι κατὰ τὸν
+<lb n="7"/>φλεγμονῆς καιρὸν οὐκέτι ῥᾴδιον προσφέρειν σιτία τούτῳ
+<lb n="8"/>μὴ χρῆσθαι φλεβοτομίᾳ μελλούσης ἔσεσθαι φλεγμονῆς. ὁ
+<lb n="9"/>τοίνυν λόγος οὗτος ἄντικρυς ἐνδείκνυται φυλάττεσθαι φλεβοτομίαν,
+<lb n="10"/>ἐφ’ ὧν μέλλομεν ἀσιτίαν συμβουλεύειν. οὐκ
+<lb n="11"/>οὖν ἐνδέχεται καθ’ ἕνα καὶ τὸν αὐτὸν ἄῤῥωστον ἄμφω
+<lb n="12"/>παραλαμβάνειν τὰ βοηθήματα, τὴν ἀσιτίαν καὶ τὴν φλεβοτομίαν.
+<lb n="13"/>ὥστε εὔδηλον εἴποθ’ εὕροι Ἐρασίστρατος συμβουλεύοντος
+<lb n="14"/>τὴν ἀσιτίαν μὴ χρῆσθαι τηνικαῦτα φλεβοτομίᾳ,
+<lb n="15"/>διὰ τοῦτο γοῦν οὐδὲ ἐμνημόνευσεν, ὡς ἔφην, ἔτι τοῦ
+<lb n="16"/>βοηθήματος ἐν ταῖς ἄλλαις πραγματείαις. ἐν ἁπάσαις γὰρ
+<lb n="17"/>αὐταῖς, ὡς δέδεικται, συμβουλεύων ἀσιτίαν ἀναιρεῖ δηλονότι
+<pb n="11.248"/>
+<lb n="1"/>τὴν φλεβοτομίαν οὐκ ὀρθῶς μὲν πράττων, ὥσπερ καὶ
+<lb n="2"/>καθ’ ἑκατὸν ἡμῖν πρότερον, ὡς ἔφην, ἐδείχθη γράμμα,
+<lb n="3"/>μικρότερον ἁμαρτανόντων τῶν <milestone unit="ed2page" n="10.427"/>οἰομένων ἅπαντας
+<lb n="4"/>ὅσοι χρῄζουσιν ἀσιτίας, εὐθὺς τούτους δεῖσθαι φλεβοτομίᾳ.
+<lb n="5"/>ἐγὼ γὰρ ἐπιδείξω κατὰ τὸν ἑξῆς λόγον οὐ μόνον
+<lb n="6"/>ἅπαντας οὐ δεομένους φλεβοτομίας, ἀλλ’ οὐδὲ τοὺς πληθωρικοὺς
+<lb n="7"/>αὐτοὺς, ἐὰν μὴ πρότερον αὐτό τε τὸ πλῆθος
+<lb n="8"/>ὁποῖόν τι τὴν φύσιν ἐστὶ διορίσεται καὶ μετὰ τοῦτο τὴν
+<lb n="9"/>ἕξιν τοῦ κάμνοντος ἡλικίαν τε καὶ ὥραν καὶ χώραν καὶ
+<lb n="10"/>κατάστασιν, ὅσα τε προηγεῖται καὶ ὅσα πάρεστι τῷ κάμνοντι
+<lb n="11"/>συμπτώματα. καθ’ ἕκαστον γὰρ τούτων ἐπειδείξω
+<lb n="12"/>πολλοὺς μὴ φέροντας ἀβλαβῶς τὴν φλεβοτομίαν. ὥσπερ
+<lb n="13"/>αὖθις πάλιν ἑτέρους ἐπειδείξω χωρὶς πληθώρας δεομένους
+<lb n="14"/>φλεβοτομίας. ἐπειδὰν δὲ ταῦτα διορίσωμαι, τόν τε καιρὸν
+<lb n="15"/>ἐρῶ τῆς φλεβοτομίας καὶ τὸ μέτρον, ἔτι τε πρὸ τούτων
+<lb n="16"/>τὴν ἐν τοῖς τμηθησομένοις φλεψὶ διαφοράν. εἰρήσεται δὲ
+<pb n="11.249"/>
+<lb n="1"/>καὶ περὶ τοῦ πλεονάκις ἢ ἅπαξ ἀφαιρεῖν. ἐπί τε τούτων
+<lb n="2"/>οὐδὲν ἧττον ὥς τινες ἐν ἦρι φλεβοτομεῖν ἢ καθαίρειν ἔτι
+<lb n="3"/>ὑγιαίνοντας προσήκει.
+</p>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

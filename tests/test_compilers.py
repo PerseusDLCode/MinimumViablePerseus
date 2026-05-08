@@ -424,7 +424,7 @@ class TestPageCompilerIntegration:
         assert (tmp_path / "toc.html").exists(), "Expected toc.html to be produced"
         toc = (tmp_path / "toc.html").read_text(encoding="utf-8")
         assert "card_1.html" in toc
-        assert 'class="toc"' in toc
+        assert 'class="toc-list"' in toc
 
     def test_dtd_document_produces_chunks(self, tmp_path):
         """Documents with DOCTYPE references compile after the DTD parser fix."""

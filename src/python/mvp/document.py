@@ -213,25 +213,16 @@ class TEIDocument:
     def chunk_hint(self) -> str | None:
         """Return the preferred chunk unit for this document, or None.
 
-        Consults two sources in order:
-        1. <refState n='chunk' unit='...'> — explicit editorial signal.
-        2. <cRefPattern> in <refsDecl n='CTS'> — the pattern with the fewest
-           capture groups in matchPattern is the coarsest (outermost) scope
-           and gives the appropriate top-level chunking granularity (e.g. 'book').
-
-        StrategySelector consults this before falling back to body inspection.
+        Reads <refState n='chunk' unit='...'>, an explicit editorial signal
+        placed in encodingDesc to override automatic strategy selection.
+        Returns None when no such element is present, causing StrategySelector
+        to fall back to body inspection.
         """
         root = self._tree.getroot()
         el = root.find(".//tei:encodingDesc//tei:refState[@n='chunk']", NS)
         if el is not None:
             return el.get("unit")
-        patterns = root.findall(
-            ".//tei:encodingDesc//tei:refsDecl[@n='CTS']/tei:cRefPattern", NS
-        )
-        if not patterns:
-            return None
-        coarsest = min(patterns, key=lambda p: p.get("matchPattern", "").count("("))
-        return coarsest.get("n")
+        return None
 
     def _extract_chunk_unit(self, root: etree._Element) -> str:
         # Read the first milestone/@unit found in the text body.
