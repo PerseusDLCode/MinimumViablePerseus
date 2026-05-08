@@ -29,10 +29,14 @@ class TEIIndexer:
         """Returns a readable XPath string using 'tei' prefixes."""
         path_parts = []
         for node in elem.xpath('ancestor-or-self::*'):
+            # Strip the {url} from the tag to get just the local name
             name = etree.QName(node).localname
+
+            # Find the position among siblings of the same name
             siblings = node.xpath(f'preceding-sibling::tei:{name}', namespaces=self.ns)
             index = len(siblings) + 1
             path_parts.append(f"tei:{name}[{index}]")
+
         return "/" + "/".join(path_parts)
 
 
