@@ -1,20 +1,57 @@
+* Perseus 6 Architecture
+Perseus 6 is the latest in a series of digital library systems that enable users to read texts in rich hypertextual contexts.  Those users range from traditional classical philologists to computational linguists to classical-language students to general humanities scholars and readers.
+
+Perseus comprises four resource types:
+
+1. Encoded texts;
+2. Derived data;
+3. User interfaces;
+4. Applications
+
+*** Encoded Texts
+Perseus has been encoding texts since the late 1980s. Its corpora are products of over forty years of scholarly work and their value, as a corpus, is incalcuable.  In its very early days, Perseus developed custom DTDs to govern its encodings of prose, verse, and drama. As well, in its early days Perseus was at the cutting edge of text encoding and explored a variety of patterns to encode texts. Today, Perseus’s encoding practices have standardized, but its corpus still retains older encodings that do not comply with current standards, making it difficult to work with the corpora qua corpora and for others outside the project to use.
+
+*** Derived Data
+Much of Perseus's focus in recent years has been on creating metadata: treebanks and other morphological analyses. These metadata are used in various tasks: automatic translation; text alignment; statistical studies; citation linking.
+
+The TEI encodings themselves have been augmented with metadata in several ways:
+
+1. Many have been restructured to conform with the EpiDoc schema (stemming from the Perseus Open Publications Series efforts?) Scaife, Atlas
+
+2. CTS URNs have been attached to many structural elements and milestones.
+
+*** User Interfaces
+P4 has long been the public-facing interface to Perseus's resources. Developed in Java by David Mimno in the 2000s, it has not been updated or maintained in years.
+
+The Scaife Viewer was to be its successor, but it took on a life of its own (https://scaife-viewer.org/). It's codebase, as Charles has discovered, is not well-documented or easy to work with, and there is no appetite to polish it into a maintainable production system.
+
+Perseus has a diverse user base with many different needs. P4 served a general audience of students and teachers of Latin and Greek, and of general readers seeking open-source digital editions of classical texts.  The Scaife Viewer has continued to focus on that audience.
+
+*** Applications
+Both P4 and Scaife are systems built using the Model-View-Controller pattern, with a running application taking HTTP requests and returning HTML to be displayed in a web browser.  Recent design trends have shifted more an more computational work to the client (web browser) through the use of complex Javascript frameworks, but they still require a server-side application with access to a database.
+
+MVC systems are falling out of favor now, especially in universities and libraries, because they require computational resources and maintenance institutions are increasingly reluctant to provide. And Javascript-heavy web applications have begun to fall out of favor in general, because of their complexity and subsequent maintenance burden.
+
+Partly as a result of dwindling institutional support, recent years have seen growing interest in building simpler web resources: simpler to design, simpler to use, simpler to maintain. Static websites -- HTML pages hosted on a simple HTTP server, with no backend code to interact with -- are becoming more and more common, and software that compiles HTML pages from static data files has become popular.
+
+Perseus 6 is being designed using these minimalist principles.  There will be no backend server, nor will there be complex Javascript driving a web application. The reading environment will consist of hyperlinked HTML pages constructed using plain HTML5 and a maintainable collection of CSS stylesheets.
+
+
 * Perseus 6 Design
-
-* Minimal Computing
-Perseus6 follows the principles of /minimal computing/, which advocate lightweight web design and reduced complexity.
-
 ** MVP: The Perseus 6 Core
 The core of Perseus 6 is a static website called Minimum Viable Perseus (MVP) comprising linked HTML documents compiled from TEI-encoded XML files and other resources. We aim to make the core adhere to the [[https://www.w3.org/standards/][W3C's Web Standards]], in order to make it stable, maintainable, and accessible.  MVP's web pages are built entirely with modern HTML and CSS; following the [[https://github.com/aarontgrogg/NoLoJS][NoLoJS philosophy]], they employ little to no Javascript.
 
 ** External Components
-Perseus6 relies on external services to supplement its minimal capabilities with full-text searching, metadata faceting, and on-demand linguistic processing and analysis, all of which require web-accessible database systems that Perseus can no longer provide.  Instead, Perseus6 is /data forward/:  Perseus provides the data and the software that allow users with computation resources to create services.
+Perseus 6 will rely on external services to supplement its minimal capabilities with full-text searching, metadata faceting, and on-demand linguistic processing and analysis, all of which require web-accessible database systems that Perseus can no longer provide.  Instead, Perseus 6 is /data forward/:  Perseus provides the data and the software that allow users with computational resources to create services.
 
 ** Processors
-Perseus6 includes several compilers:
+Perseus 6 includes several compilers:
 
-- a program that takes TEI-encoded XML documents and generates HTML pages that can be read without JavaScript.
+- a program that tokenizes the text of a TEI-encoded document and generates a data file that may be used by morphological analyzers to create annotations that can be folded into the generated HTML
 
 - a program that compiles catalogs, citation tables, and other files that define links.
+
+- a program that takes TEI-encoded XML documents and generates HTML pages that can be read without JavaScript.
 
 - a program that compiles vocabulary aids for Greek and Latin texts.
 
@@ -29,10 +66,4 @@ MVP includes a simple catalog for finding texts and translations using link-foll
 
 *** Reading
 
-MVP does not have a reading environment /per se/, as prior versions did; its compiled HTML pages may be viewed and navigated using a basic web browser, but there are no features that would rely on communication with a running backend process or database.  Full-text search is not included in the Perseus6 reader. Instead, it provides a website that serves hypertextually linked HTML files via simple HTTP.
-
-
-
-** Documentation
-
-See the wiki associated with this repository for standards, workflows, and best practices used in this project.
+The MVP website will be a collection of "old-fashioned" hyperlinked HTML files, which may be viewed and navigated with a basic web browser.
