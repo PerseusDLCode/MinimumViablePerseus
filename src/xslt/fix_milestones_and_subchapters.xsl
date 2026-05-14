@@ -9,6 +9,14 @@
     <xsl:template match="tei:div[@type='edition'] | tei:div[@type='translation']">
         <xsl:apply-templates />
     </xsl:template>
+    
+    <xsl:template match="tei:div[@type='textpart' and @subtype='chapter']">
+        <xsl:copy>
+            <xsl:attribute name="type" select="@subtype"/>
+            <xsl:attribute name="n" select="@n"/>
+            <xsl:apply-templates />
+        </xsl:copy>
+    </xsl:template>
 
     <xsl:template match="tei:div[@type='textpart' and @subtype='subchapter']">
         <xsl:apply-templates>
@@ -31,11 +39,23 @@
         
         <xsl:choose>
             <xsl:when test="$col = 'a'">
-                <milestone ed="Bekker" unit="page" n="{$num}"/>
-                <milestone ed="Bekker" unit="column" n="a"/>
+                <xsl:copy>
+                    <xsl:attribute name="ed">Bekker</xsl:attribute>
+                    <xsl:attribute name="unit" select="@unit" />
+                    <xsl:attribute name="n" select="$num" />
+                </xsl:copy>
+                <xsl:copy>
+                    <xsl:attribute name="ed">Bekker</xsl:attribute>
+                    <xsl:attribute name="unit">column</xsl:attribute>
+                    <xsl:attribute name="n">a</xsl:attribute>
+                </xsl:copy>
             </xsl:when>
             <xsl:when test="$col = 'b'">
-                <milestone ed="Bekker" unit="column" n="b"/>
+                <xsl:copy>
+                    <xsl:attribute name="unit">column</xsl:attribute>
+                    <xsl:attribute name="ed">Bekker</xsl:attribute>
+                    <xsl:attribute name="n">b</xsl:attribute>
+                </xsl:copy>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy>
