@@ -89,6 +89,13 @@ option 2" or "Defer until after v0.3."
 ,**** Implementation
 Claude Code's record of what was done: files changed, tests added,
 commit hash.  Written after the work is complete.
+
+,**** Review
+Design and interface assessment from Claude Chat: conformance with the
+spec in the Research section, architectural concerns, coherence with
+adjacent modules.  Written after Implementation, before DONE.  Ends
+with an explicit disposition: approved for DONE, or specific items
+Claude Code must address first.
 #+end_example
 
 ** When to Use TODO Keywords
@@ -105,7 +112,8 @@ An item might pass through several phases without ever becoming a TODO:
 | Decided, no work | /none/   | Decision made; nothing to implement           |
 | Actionable       | TODO     | Decision made; work to be done                |
 | In progress      | ACTIVE   | Being worked on (optional; useful for Claude Code) |
-| Complete         | DONE     | Work finished                                 |
+| Awaiting review  | REVIEW   | Implementation complete; Review section needed |
+| Complete         | DONE     | Work finished; Review section present          |
 
 Items that never become actionable simply accumulate Research,
 Analysis, and Decision sections as a project record.  Org's property
@@ -144,13 +152,14 @@ Not every item needs all four sub-sections.  Use what's appropriate:
   actionable.
 - Architectural decision :: Research + Analysis + Decision.  The
   decision is the point; implementation may follow or may not.
-- Full feature :: All four sections.
+- Full feature :: All four sections, plus Review.
 - Reference / context :: Just the headline and body paragraph.  No
   sub-sections needed.  Useful for recording external constraints,
   stakeholder requirements, or background that multiple items refer to.
 
 The key discipline: *Research and Analysis are proposals.  Decision is
-the record of authority.  Implementation is the record of action.*
+the record of authority.  Implementation is the record of action.
+Review is the gate before DONE.*
 
 ** Timestamps
 
@@ -219,6 +228,29 @@ research, code analysis, or both.
 4. Cliff decides
 #+end_example
 
+** Pattern 4: Review-gated completion
+
+Used for any task producing new modules, public interfaces, or
+architectural changes.  Adds a Review checkpoint between Implementation
+and DONE.
+
+#+begin_example
+1. Claude Code completes implementation; writes Implementation section;
+   sets keyword to REVIEW
+2. Cliff uploads key files to Claude Chat
+3. Claude Chat writes Review section (interface conformance, design
+   concerns, notes for future implementors)
+4. Cliff pastes Review section into forum.org
+5. If Review approves: Cliff sets keyword to DONE
+   If Review requests fixes: Claude Code addresses them, updates
+   Implementation section, Cliff sets back to REVIEW for a second pass
+#+end_example
+
+The Review section is written by Claude Chat because it has the design
+context from the Research phase.  Claude Code's self-report in
+Implementation is not a substitute: it records what was done, not
+whether the design was followed faithfully.
+
 * Handoff Conventions
 
 ** From Claude Chat to Claude Code
@@ -238,7 +270,7 @@ concrete, reference specific files/functions/APIs where possible, and
 state constraints.  It should not require Claude Code to understand the
 full research narrative — just the conclusion.
 
-** From Claude Code to Claude Chat
+** From Claude Code to Claude Chat (research questions)
 
 When Claude Code's analysis reveals questions that need broader
 research, the Analysis section should end with:
@@ -261,6 +293,24 @@ Open questions:
 - Priority relative to other work?
 - Any constraints from stakeholders?
 #+end_example
+
+** From Claude Code to Claude Chat (review request)
+
+When Claude Code sets a task to REVIEW, the Implementation section
+should end with a block identifying what Claude Chat most needs to
+examine:
+
+#+begin_example
+Ready for review:
+- New public interface: ClassName.method_name() in src/python/mvp/foo.py
+- Design decision made during implementation: brief description of
+  deviation or elaboration, and why
+- Uncertain about: anything Claude Code wants a second opinion on
+#+end_example
+
+This is not a comprehensive change log (that belongs in the git commit
+message) but a navigation guide for the reviewer, who has design context
+but not codebase access.
 
 * What This Protocol Does Not Cover
 
