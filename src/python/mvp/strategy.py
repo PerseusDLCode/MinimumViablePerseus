@@ -68,7 +68,7 @@ class MilestoneStrategy(ChunkingStrategy):
 
     @property
     def xslt_stylesheet(self) -> str:
-        return "generate_chunks.xsl"
+        return "html/generate_chunks.xsl"
 
     def describes(self, doc: TEIDocument) -> bool:
         root = doc.tree.getroot()
@@ -96,7 +96,7 @@ class DivisionStrategy(ChunkingStrategy):
 
     @property
     def xslt_stylesheet(self) -> str:
-        return "generate_div_chunks.xsl"
+        return "html/generate_div_chunks.xsl"
 
     def describes(self, doc: TEIDocument) -> bool:
         root = doc.tree.getroot()
