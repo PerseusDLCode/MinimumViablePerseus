@@ -14,7 +14,7 @@ XML_ID = f"{{{XML_NS}}}id"
 XML_LANG = f"{{{XML_NS}}}lang"
 
 
-def _expected_div_base(div: etree._Element, base_urn: str) -> str:
+def expected_div_base(div: etree._Element, base_urn: str) -> str:
     """Compute the correct xml:base for a textpart div by walking its ancestor chain."""
     chain: list[str] = []
     node: Optional[etree._Element] = div
@@ -31,7 +31,7 @@ def _expected_div_base(div: etree._Element, base_urn: str) -> str:
     return f"{base_urn}:{'.'.join(chain)}"
 
 
-def _expected_leaf_base(
+def expected_leaf_base(
     elem: etree._Element, base_urn: str
 ) -> Optional[str]:
     """Compute the correct xml:base for a leaf element (l, p, ab, seg).

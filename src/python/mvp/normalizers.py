@@ -8,8 +8,9 @@ from mvp.tei_document import (
     NS,
     XML_BASE,
     XML_ID,
-    _expected_div_base,
-    _expected_leaf_base,
+    TEIDocument,
+    expected_div_base,
+    expected_leaf_base,
 )
 
 
@@ -23,35 +24,23 @@ def _write_tree(tree: etree._ElementTree, output_path: Path) -> None:
     )
 
 
-def _extract_base_urn(root: etree._Element) -> str:
-    edition_divs = root.xpath("//tei:div[@type='edition']", namespaces=NS)
-    if not edition_divs:
-        return ""
-    ed = edition_divs[0]
-    urn = ed.get("n", "") or ed.get(XML_BASE, "")
-    return urn.rstrip(":")
-
-
 def phase2_normalize(
     path: Path, output_path: Path, verbose: bool = False
 ) -> dict[str, int]:
     """Repair xml:base on all citable elements. Returns a dict of change counts."""
-    parser = etree.XMLParser(recover=True, remove_comments=False)
-    tree = etree.parse(str(path), parser)
-    root = tree.getroot()
-
-    base_urn = _extract_base_urn(root)
+    doc = TEIDocument(path)
+    base_urn = doc.extract_base_urn()
     if not base_urn:
         raise ValueError(f"Cannot normalize {path.name}: no base URN found")
 
     counts = {"div_fixed": 0, "div_added": 0, "leaf_fixed": 0, "leaf_added": 0}
 
-    edition_div = root.xpath("//tei:div[@type='edition']", namespaces=NS)
+    edition_div = doc.root.xpath("//tei:div[@type='edition']", namespaces=NS)
     if edition_div:
         for div in edition_div[0].xpath(
             ".//tei:div[@type='textpart']", namespaces=NS
         ):
-            expected = _expected_div_base(div, base_urn)
+            expected = expected_div_base(div, base_urn)
             actual = div.get(XML_BASE)
             if actual is None:
                 div.set(XML_BASE, expected)
@@ -64,7 +53,7 @@ def phase2_normalize(
             for elem in edition_div[0].xpath(f".//tei:{tag}", namespaces=NS):
                 if not elem.get("n"):
                     continue
-                expected = _expected_leaf_base(elem, base_urn)
+                expected = expected_leaf_base(elem, base_urn)
                 if expected is None:
                     continue
                 actual = elem.get(XML_BASE)
@@ -75,7 +64,7 @@ def phase2_normalize(
                     elem.set(XML_BASE, expected)
                     counts["leaf_fixed"] += 1
 
-    _write_tree(tree, output_path)
+    _write_tree(doc.tree, output_path)
 
     if verbose:
         print(f"  Phase 2 changes: {counts}")
@@ -87,11 +76,8 @@ def phase3_add_ids(
     path: Path, output_path: Path, verbose: bool = False
 ) -> dict[str, int]:
     """Add xml:id to all citable elements derived from (corrected) xml:base."""
-    parser = etree.XMLParser(recover=True, remove_comments=False)
-    tree = etree.parse(str(path), parser)
-    root = tree.getroot()
-
-    base_urn = _extract_base_urn(root)
+    doc = TEIDocument(path)
+    base_urn = doc.extract_base_urn()
     if not base_urn:
         raise ValueError(f"Cannot add IDs to {path.name}: no base URN found")
 
@@ -105,7 +91,7 @@ def phase3_add_ids(
             urn = urn[len("urn:cts:"):]
         return urn.replace(":", ".")
 
-    edition_div = root.xpath("//tei:div[@type='edition']", namespaces=NS)
+    edition_div = doc.root.xpath("//tei:div[@type='edition']", namespaces=NS)
     if edition_div:
         for div in edition_div[0].xpath(
             ".//tei:div[@type='textpart']", namespaces=NS
@@ -113,7 +99,7 @@ def phase3_add_ids(
             if div.get(XML_ID):
                 counts["div_skipped"] += 1
                 continue
-            base = div.get(XML_BASE) or _expected_div_base(div, base_urn)
+            base = div.get(XML_BASE) or expected_div_base(div, base_urn)
             div.set(XML_ID, urn_to_id(base))
             counts["div_added"] += 1
 
@@ -124,13 +110,13 @@ def phase3_add_ids(
                     continue
                 if not elem.get("n"):
                     continue
-                base = elem.get(XML_BASE) or _expected_leaf_base(elem, base_urn)
+                base = elem.get(XML_BASE) or expected_leaf_base(elem, base_urn)
                 if not base:
                     continue
                 elem.set(XML_ID, urn_to_id(base))
                 counts["leaf_added"] += 1
 
-    _write_tree(tree, output_path)
+    _write_tree(doc.tree, output_path)
 
     if verbose:
         print(f"  Phase 3 changes: {counts}")

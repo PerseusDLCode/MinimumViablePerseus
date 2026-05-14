@@ -4,6 +4,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Generic, TypeVar
 
 from lxml import etree
 
@@ -12,9 +13,11 @@ from mvp.tei_document import (
     XML_BASE,
     XML_ID,
     TEIDocument,
-    _expected_div_base,
-    _expected_leaf_base,
+    expected_div_base,
+    expected_leaf_base,
 )
+
+_T = TypeVar("_T")
 
 
 # ---------------------------------------------------------------------------
@@ -158,12 +161,12 @@ class ReferenceAuditReport:
 # Abstract base
 # ---------------------------------------------------------------------------
 
-class Auditor(ABC):
+class Auditor(ABC, Generic[_T]):
     def __init__(self, doc: TEIDocument) -> None:
         self._doc = doc
 
     @abstractmethod
-    def audit(self) -> StructureAuditReport | ReferenceAuditReport:
+    def audit(self) -> _T:
         ...
 
 
@@ -171,7 +174,7 @@ class Auditor(ABC):
 # StructureAuditor
 # ---------------------------------------------------------------------------
 
-class StructureAuditor(Auditor):
+class StructureAuditor(Auditor[StructureAuditReport]):
 
     def audit(self) -> StructureAuditReport:
         root = self._doc.root
@@ -315,7 +318,7 @@ class StructureAuditor(Auditor):
         correct = wrong = 0
         wrong_examples: list[tuple[str, str]] = []
         for div in divs:
-            expected = _expected_div_base(div, base_urn)
+            expected = expected_div_base(div, base_urn)
             actual = div.get(XML_BASE, "MISSING")
             if actual == expected:
                 correct += 1
@@ -333,7 +336,7 @@ class StructureAuditor(Auditor):
         for elem in elems:
             if not elem.get("n"):
                 continue
-            expected = _expected_leaf_base(elem, base_urn)
+            expected = expected_leaf_base(elem, base_urn)
             actual = elem.get(XML_BASE, "MISSING")
             if actual == expected:
                 correct += 1
@@ -395,7 +398,7 @@ class StructureAuditor(Auditor):
 # ReferenceAuditor
 # ---------------------------------------------------------------------------
 
-class ReferenceAuditor(Auditor):
+class ReferenceAuditor(Auditor[ReferenceAuditReport]):
 
     def audit(self) -> ReferenceAuditReport:
         root = self._doc.root
