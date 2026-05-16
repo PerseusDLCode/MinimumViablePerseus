@@ -235,21 +235,65 @@ architectural changes.  Adds a Review checkpoint between Implementation
 and DONE.
 
 #+begin_example
-1. Claude Code completes implementation; writes Implementation section;
+1. Claude Code creates feature branch (or works on one Cliff has
+   already created — see Git Conventions below)
+2. Claude Code completes implementation; writes Implementation section;
    sets keyword to REVIEW
-2. Cliff uploads key files to Claude Chat
-3. Claude Chat writes Review section (interface conformance, design
+3. Cliff uploads key files to Claude Chat
+4. Claude Chat writes Review section (interface conformance, design
    concerns, notes for future implementors)
-4. Cliff pastes Review section into forum.org
-5. If Review approves: Cliff sets keyword to DONE
+5. Cliff pastes Review section into forum.org
+6. If Review approves: Cliff merges branch, sets keyword to DONE,
+   records commit hash in COMMIT property
    If Review requests fixes: Claude Code addresses them, updates
-   Implementation section, Cliff sets back to REVIEW for a second pass
+   Implementation section; Cliff sets back to REVIEW for a second pass
 #+end_example
 
 The Review section is written by Claude Chat because it has the design
 context from the Research phase.  Claude Code's self-report in
 Implementation is not a substitute: it records what was done, not
 whether the design was followed faithfully.
+
+* Git Conventions
+
+** Feature branches
+
+All implementation work happens on a feature branch cut from =dev=,
+never directly on =dev= or =main=.  Branch names should follow the
+pattern =feature/CUSTOM_ID-short-description=, e.g.
+=feature/refactor-citation-pipeline=.
+
+Note: *before starting work, Claude Code must check whether Cliff has
+already created the branch.*  Cliff sometimes creates the branch in
+advance — particularly when he has already made preparatory edits.
+Claude Code should run =git branch -a= or check with Cliff rather than
+assuming the branch does not exist.
+
+When the branch does not yet exist, Claude Code creates it:
+
+#+begin_example
+git checkout dev
+git pull
+git checkout -b feature/my-task-slug
+#+end_example
+
+** When to mark a task DONE
+
+A task moves from REVIEW to DONE only when all of the following are
+true:
+
+1. The Review section is present and contains an explicit approval from
+   Claude Chat (or Cliff, for tasks that did not require Claude Chat
+   review).
+2. Any fixes requested in the Review have been addressed and noted in
+   the Implementation section.
+3. The feature branch has been merged into =dev= and the merge commit
+   hash recorded in the =COMMIT= property.
+4. All tests pass on =dev= after the merge.
+
+Claude Code should not self-approve by setting a task to DONE after
+writing its own Implementation section.  The state transition to DONE
+is Cliff's action, taken after the Review is complete.
 
 * Handoff Conventions
 
@@ -282,18 +326,6 @@ Questions for Claude Chat:
 - What does the spec/standard say about Z?
 #+end_example
 
-** From either AI to Cliff
-
-Open questions requiring Cliff's judgment should always be explicit
-and clearly separated from analysis:
-
-#+begin_example
-Open questions:
-- Preferred approach: A (simpler) or B (more robust)?
-- Priority relative to other work?
-- Any constraints from stakeholders?
-#+end_example
-
 ** From Claude Code to Claude Chat (review request)
 
 When Claude Code sets a task to REVIEW, the Implementation section
@@ -311,6 +343,18 @@ Ready for review:
 This is not a comprehensive change log (that belongs in the git commit
 message) but a navigation guide for the reviewer, who has design context
 but not codebase access.
+
+** From either AI to Cliff
+
+Open questions requiring Cliff's judgment should always be explicit
+and clearly separated from analysis:
+
+#+begin_example
+Open questions:
+- Preferred approach: A (simpler) or B (more robust)?
+- Priority relative to other work?
+- Any constraints from stakeholders?
+#+end_example
 
 * What This Protocol Does Not Cover
 
