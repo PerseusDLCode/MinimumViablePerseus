@@ -107,6 +107,7 @@ Almost all source code lives under `src/python/`.  The primary package is
 | `mvp/models.py`| Core data objects for the build pipeline |
 | `mvp/normalizers.py` | Phases 2 and 3 of the citation pipeline: repair `xml:base`, add `xml:id` (status: possibly superseded by `citeStructure` approach; retained pending decision) |
 | `mvp/pipeline.py` | BuildPipeline : orchestrates the site build |
+| `mvp/reference_parser.py` | `ReferenceParser` — resolves CTS URNs to TEI elements and generates CTS URNs from elements via `<citeStructure>`; raises `ConfigurationError` / `CitationError` |
 | `mvp/site_map.py` | owns the output path and URL scheme for all compiled artifacts |
 | `mvp/strategy.py` | ChunkingStrategy and StrategySelector  |
 | `run_build.py` | Builds the site |
@@ -135,9 +136,11 @@ it separate, as an "external service". We do not need to decide this now, howeve
 The following areas are currently under active development (see
 `forum.org` for the full deliberative record and current TODO items):
 
-- **Citation infrastructure**: `ReferenceParser` implementation
-  (resolves/generates CTS URNs via `<citeStructure>`); migration of
-  corpus from `<cRefPattern>` to `<citeStructure>` (design phase)
+- **Citation infrastructure**: `ReferenceParser` is complete (merged to
+  `dev`, PRs #49 and #53).  Next steps: (1) connect
+  `ReferenceParser.citations()` to the XSLT chunkers for navigation-link
+  generation (undesigned — see open question in `#implement-reference-parser`);
+  (2) migrate corpus from `<cRefPattern>` to `<citeStructure>` (design phase).
 - **XSLT modularization**: refactoring chunker stylesheets into a
   proper stylesheet family (see `#reimplement-xslt-to-be-modular`)
 
