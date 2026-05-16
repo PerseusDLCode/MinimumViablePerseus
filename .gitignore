@@ -238,4 +238,4 @@ src/morph-server/*.morph.xml
 data/
 
 # The wiki is a submodule; don't track
-wiki/
+wiki
