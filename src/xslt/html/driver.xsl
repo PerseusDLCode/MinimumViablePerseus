@@ -9,8 +9,8 @@
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     exclude-result-prefixes="xs tei"
     version="4.0">
-    <xsl:import href="core.xsl"/>
-    <xsl:import href="textstructure.xsl"/>
+    <xsl:import href="tei/core.xsl"/>
+    <xsl:import href="tei/textstructure.xsl"/>
     
     <xsl:output method="html" doctype-system="about:legacy-compat" />
     

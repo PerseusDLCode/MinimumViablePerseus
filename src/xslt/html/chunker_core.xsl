@@ -23,28 +23,7 @@
   version="3.0"
   exclude-result-prefixes="tei xs local">
 
-  <!-- ============================================================
-       Shared page CSS (used by generate_chunks.xsl and generate_div_chunks.xsl)
-       ============================================================ -->
-
-  <xsl:variable name="page-css" as="xs:string">body         { font-family: serif; max-width: 48em; margin: 0 auto; padding: 1em 2em }
-.site-header { border-bottom: 1px solid #ccc; margin-bottom: 1.5em;
-               padding-bottom: .5em; font-size: .9em; color: #555 }
-.site-header a { text-decoration: none; font-weight: bold; color: inherit }
-.chunk-nav   { display: flex; justify-content: space-between; font-size: .9em;
-               margin-bottom: 1.5em }
-.chunk-nav a { margin-right: 1em }
-h1           { font-size: 1em; color: #555; margin-bottom: .25em }
-.speech      { margin: 1em 0 }
-.speaker     { font-weight: bold; display: block; margin-bottom: .25em }
-.line        { margin: .1em 0; padding-left: 2em }
-.gap         { color: #888; font-style: italic }
-.note        { border-bottom: 1px dotted #888 }
-.toc         { padding-left: 1.5em; line-height: 1.8 }
-.site-footer { border-top: 1px solid #eee; margin-top: 2em; padding-top: .5em;
-               font-size: .8em; color: #888; text-align: center }
-a.word       { color: inherit; text-decoration: none; border-bottom: 1px dotted #aaa }
-a.word:hover { border-bottom-style: solid }</xsl:variable>
+  <xsl:import href="variables.xsl"/>
 
   <!-- ============================================================
        Helper functions
