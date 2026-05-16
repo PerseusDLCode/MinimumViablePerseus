@@ -96,6 +96,9 @@ class ReferenceParser:
         if not passage:
             raise CitationError(f"URN has no passage component: {urn!r}")
 
+        # The root <citeStructure> is an anchor only: its @match binds <body>
+        # as context and its @use provides the base URN. It is not itself a
+        # citation level, so resolution begins with its children.
         children = list(self._root_cs.findall("tei:citeStructure", NS))
         if not children:
             raise CitationError("Root <citeStructure> has no children to resolve against")
@@ -176,7 +179,11 @@ class ReferenceParser:
             )
         parts: list[str] = []
         for cs, elem in path:
-            delim = cs.get("delim", ":")
+            delim = cs.get("delim")
+            if delim is None:
+                raise ConfigurationError(
+                    f"<citeStructure unit={cs.get('unit')!r}> is missing required @delim"
+                )
             use_attr = cs.get("use", "@n")
             val = elem.get(use_attr[1:], "") if use_attr.startswith("@") else ""
             parts.append(delim + val)
@@ -188,6 +195,9 @@ class ReferenceParser:
         parent_cs: etree._Element,
         context: etree._Element,
     ) -> Optional[list[tuple[etree._Element, etree._Element]]]:
+        # The root <citeStructure>'s @match is never evaluated here: the caller
+        # passes self._body as context and self._root_cs as parent_cs, so we
+        # begin immediately at the root's children (the real citation levels).
         for cs in parent_cs.findall("tei:citeStructure", NS):
             match_expr = cs.get("match", "")
             candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)

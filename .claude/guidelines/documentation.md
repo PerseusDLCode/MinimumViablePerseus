@@ -21,8 +21,8 @@ The rest of the project uses **org-mode** for documentation.
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | Project overview and entry point; read first at the start of every session |
-| `guidelines/python.md` | Python packaging and coding conventions |
 | `guidelines/documentation.md` | This file |
+| `guidelines/collaboration-protocol.org` | defines protocol for collaboration; read at start of every session |
 
 Design documents (architecture, algorithms, deferred work) belong in the
 project wiki, not in `.claude/`.
