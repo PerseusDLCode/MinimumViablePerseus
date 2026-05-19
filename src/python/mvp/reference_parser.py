@@ -5,7 +5,7 @@ from typing import Optional
 
 from lxml import etree
 
-from mvp.tei_document import TEIDocument, NS, XML_ID
+from mvp.tei_document import TEIDocument, NS, XML_BASE, XML_ID
 
 
 class ConfigurationError(Exception):
@@ -29,11 +29,11 @@ class ReferenceParser:
             raise ConfigurationError("No <body> element found in document")
         self._body = body
 
-        self._base_urn = body.get("n", "")
+        self._base_urn = body.get(XML_BASE, "")
         if not self._base_urn:
             raise ConfigurationError(
-                "No base URN found in <body @n>. "
-                "Ensure the document has been normalized with @n on <body>."
+                "No base URN found in <body @xml:base>. "
+                "Ensure the document encodes the CTS URN as xml:base on <body>."
             )
 
         refs_decls = root.findall(".//tei:refsDecl", NS)

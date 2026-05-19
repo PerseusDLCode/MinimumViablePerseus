@@ -29,14 +29,14 @@ APOLOGY_XML = f"""\
       <teiHeader>
         <encodingDesc>
           <refsDecl xml:id="cite_by_section" default="true">
-            <citeStructure match="/tei:TEI/tei:text/tei:body" use="@n">
+            <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
               <citeStructure unit="section" delim=":" match="tei:div[@type='textpart']" use="@n"/>
             </citeStructure>
           </refsDecl>
         </encodingDesc>
       </teiHeader>
       <text>
-        <body n="{APOLOGY_BASE}">
+        <body xml:base="{APOLOGY_BASE}">
           <div type="textpart" subtype="section" n="17"><p>ὅτι μέν...</p></div>
           <div type="textpart" subtype="section" n="18"><p>τοῦτο...</p></div>
           <div type="textpart" subtype="section" n="19"><p>ἴσως...</p></div>
@@ -53,7 +53,7 @@ THUCYDIDES_XML = f"""\
       <teiHeader>
         <encodingDesc>
           <refsDecl xml:id="cite_by_section" default="true">
-            <citeStructure match="/tei:TEI/tei:text/tei:body" use="@n">
+            <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
               <citeStructure unit="book" delim=":" match="tei:div[@subtype='book']" use="@n">
                 <citeStructure unit="chapter" delim="." match="tei:div[@subtype='chapter']" use="@n">
                   <citeStructure unit="section" delim="." match="tei:div[@subtype='section']" use="@n"/>
@@ -64,7 +64,7 @@ THUCYDIDES_XML = f"""\
         </encodingDesc>
       </teiHeader>
       <text>
-        <body n="{THUCYDIDES_BASE}">
+        <body xml:base="{THUCYDIDES_BASE}">
           <div type="textpart" subtype="book" n="1">
             <div type="textpart" subtype="chapter" n="1">
               <div type="textpart" subtype="section" n="1"><p>Θουκυδίδης...</p></div>
@@ -125,14 +125,14 @@ class TestApologyConstructor:
               <teiHeader>
                 <encodingDesc>
                   <refsDecl xml:id="cite_by_section">
-                    <citeStructure match="/tei:TEI/tei:text/tei:body" use="@n">
+                    <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
                       <citeStructure unit="section" delim=":" match="tei:div[@type='textpart']" use="@n"/>
                     </citeStructure>
                   </refsDecl>
                 </encodingDesc>
               </teiHeader>
               <text>
-                <body n="{APOLOGY_BASE}">
+                <body xml:base="{APOLOGY_BASE}">
                   <div type="textpart" n="1"><p>text</p></div>
                 </body>
               </text>
@@ -152,6 +152,30 @@ class TestApologyConstructor:
                                  replacementPattern="#xpath(...)">
                       <p>section</p>
                     </cRefPattern>
+                  </refsDecl>
+                </encodingDesc>
+              </teiHeader>
+              <text>
+                <body xml:base="{APOLOGY_BASE}">
+                  <div type="textpart" n="1"><p>text</p></div>
+                </body>
+              </text>
+            </TEI>
+        """
+        doc = TEIDocument(write_xml(tmp_path, xml))
+        with pytest.raises(ConfigurationError):
+            ReferenceParser(doc)
+
+    def test_body_n_without_xml_base_raises(self, tmp_path):
+        xml = f"""\
+            <?xml version="1.0" encoding="UTF-8"?>
+            <TEI xmlns="http://www.tei-c.org/ns/1.0">
+              <teiHeader>
+                <encodingDesc>
+                  <refsDecl xml:id="cite_by_section" default="true">
+                    <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
+                      <citeStructure unit="section" delim=":" match="tei:div[@type='textpart']" use="@n"/>
+                    </citeStructure>
                   </refsDecl>
                 </encodingDesc>
               </teiHeader>

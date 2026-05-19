@@ -412,7 +412,7 @@ class ReferenceAuditor(Auditor[ReferenceAuditReport]):
         issues: list[str] = []
         if not body_urn:
             issues.append(
-                "WARNING: CTS URN not found on <body>/@n — "
+                "WARNING: CTS URN not found on <body>/@xml:base — "
                 "ReferenceParser requires it there, not on <div type='edition'>/@n"
             )
         if not has_cite_structure:
@@ -439,9 +439,9 @@ class ReferenceAuditor(Auditor[ReferenceAuditReport]):
     def _extract_body_urn(self, root: etree._Element) -> str:
         body = root.find(".//tei:text/tei:body", NS)
         if body is not None:
-            n = body.get("n", "")
-            if n.startswith("urn:cts:"):
-                return n
+            urn = body.get(XML_BASE, "")
+            if urn.startswith("urn:cts:"):
+                return urn
         return ""
 
     def _parse_refs_decls(self, root: etree._Element) -> list[RefsDecl]:
