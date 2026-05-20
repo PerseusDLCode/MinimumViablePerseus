@@ -2129,7 +2129,8 @@ milestone elements in addition to div and leaf elements:
   =@n=?  These may differ if milestones are not strictly sequential
   in the source.
 
-** PR Refactor StrategySelector to use structural heuristics
+** DONE Refactor StrategySelector to use structural heuristics
+CLOSED: [2026-05-20 Wed 16:42]
 :PROPERTIES:
 :CUSTOM_ID: refactor-strategy-selector
 :ASSIGNEES: Claude Code
