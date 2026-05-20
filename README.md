@@ -9,6 +9,14 @@ MVP is a static website generated from the TEI-encoded documents in Perseus's co
 
  - To establish a foundation upon which features and functions developed for the Scaife Viewer and Beyond Translation may be included in Perseus.
 
+## MVP Components
+
+* **Normalizers**: XSL stylesheets and Python modules that upgrade Perseus's TEI texts to conform with an established set of practices.
+  
+* **Indexers**: XSL stylesheets and Python modules that generate tokenizations, citation indexes, and other intermediate files.
+
+* **Compilers**: XSL stylesheets and Python modules that use the TEI texts and the intermediate files to create a website.
+
 ## Repository Organization
 There is a wiki that contains a variety of documents, including installation instructions.
 

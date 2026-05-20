@@ -9,7 +9,7 @@ Perseus comprises four resource types:
 4. Applications
 
 *** Encoded Texts
-Perseus has been encoding texts since the late 1980s. Its corpora are products of over forty years of scholarly work and their value, as a corpus, is incalcuable.  In its very early days, Perseus developed custom DTDs to govern its encodings of prose, verse, and drama. As well, in its early days Perseus was at the cutting edge of text encoding and explored a variety of patterns to encode texts. Today, Perseus’s encoding practices have standardized, but its corpus still retains older encodings that do not comply with current standards, making it difficult to work with the corpora qua corpora and for others outside the project to use.
+Perseus has been encoding texts since the 1980s. Its corpora are products of over forty years of scholarly work and their value, as a corpus, is incalcuable.  In its very early days, Perseus developed custom DTDs to govern its encodings of prose, verse, and drama. As well, in its early days Perseus was at the cutting edge of text encoding and explored a variety of patterns to encode texts. Today, Perseus’s encoding practices have standardized, but its corpus still retains older encodings that do not comply with current standards, making it difficult to work with the corpora qua corpora and for others outside the project to use.
 
 *** Derived Data
 Much of Perseus's focus in recent years has been on creating metadata: treebanks and other morphological analyses. These metadata are used in various tasks: automatic translation; text alignment; statistical studies; citation linking.
