@@ -6,7 +6,6 @@ from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
 
 class TEIIndexer:
     ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
-    excluded_tags = ["teiHeader", "del", "note", "cit", "bibl", "rdg", "head"]
 
     def __init__(self, doc:Path | str) -> None:
         self.doc = doc
@@ -39,6 +38,8 @@ class TEIIndexer:
 
 
 class WordIndexer(TEIIndexer):
+    excluded_tags = ["teiHeader", "del", "note", "cit", "bibl", "rdg", "head"]
+
     def __init__(self, doc:Path | str) -> None:
         super().__init__(doc)
         self._word_index = None
@@ -83,6 +84,8 @@ class WordIndexer(TEIIndexer):
 
 
 class ChunkIndexer(TEIIndexer):
+    excluded_tags = ["teiHeader", "del", "note", "cit", "bibl", "rdg", "head"]
+
     # Tags that define a "chunk" for NLP
     chunk_tags = ["p", "l", "lg", "ab"]
 
