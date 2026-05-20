@@ -215,7 +215,6 @@ def make_entry(urn: str, title: str = "Test Title", author: str = "Test Author",
         author=author,
         language=language,
         text_type="prose",
-        chunk_unit="section",
         source_path=Path(f"/fake/{urn}.xml"),
     )
 

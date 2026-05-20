@@ -24,7 +24,6 @@ class TEIMetadata:
     author: str
     language: str       # BCP 47 / ISO 639-3: 'grc', 'lat', 'eng', etc.
     text_type: str      # 'verse' | 'prose' | 'drama'
-    chunk_unit: str     # 'card' | 'section' | 'line' | etc.
     source_path: Path
 
 

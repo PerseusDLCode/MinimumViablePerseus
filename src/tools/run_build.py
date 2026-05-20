@@ -72,7 +72,6 @@ def _rebuild_catalog(output_root: Path) -> None:
             author=data.get("author", ""),
             language=data.get("language", ""),
             text_type="",
-            chunk_unit="",
             source_path=manifest_path,
         ))
 

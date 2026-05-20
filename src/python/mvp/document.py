@@ -141,7 +141,6 @@ class TEIDocument:
         author = self._extract_author(root)
         language = self._extract_language(root)
         text_type = self._extract_text_type(root)
-        chunk_unit = self._extract_chunk_unit(root)
 
         return TEIMetadata(
             urn=urn,
@@ -149,7 +148,6 @@ class TEIDocument:
             author=author,
             language=language,
             text_type=text_type,
-            chunk_unit=chunk_unit,
             source_path=self._path,
         )
 
@@ -210,24 +208,3 @@ class TEIDocument:
             return "verse"
         return "prose"
 
-    def chunk_hint(self) -> str | None:
-        """Return the preferred chunk unit for this document, or None.
-
-        Reads <refState n='chunk' unit='...'>, an explicit editorial signal
-        placed in encodingDesc to override automatic strategy selection.
-        Returns None when no such element is present, causing StrategySelector
-        to fall back to body inspection.
-        """
-        root = self._tree.getroot()
-        el = root.find(".//tei:encodingDesc//tei:refState[@n='chunk']", NS)
-        if el is not None:
-            return el.get("unit")
-        return None
-
-    def _extract_chunk_unit(self, root: etree._Element) -> str:
-        # Read the first milestone/@unit found in the text body.
-        # If none, fall back to 'section' as a safe default.
-        ms = root.find(".//tei:text//tei:milestone", NS)
-        if ms is not None:
-            return ms.get("unit", "section")
-        return "section"

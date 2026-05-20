@@ -260,32 +260,6 @@ class TestTextTypeExtraction:
         assert doc.metadata.text_type == "drama"
 
 
-class TestChunkUnitExtraction:
-
-    def test_extracts_card_unit(self, tmp_path):
-        body = '<milestone unit="card" n="1"/><p>text</p>'
-        path = write_tei(tmp_path, make_tei(body))
-        doc = TEIDocument.from_path(path)
-        assert doc.metadata.chunk_unit == "card"
-
-    def test_extracts_section_unit(self, tmp_path):
-        body = '<milestone unit="section" n="1"/><p>text</p>'
-        path = write_tei(tmp_path, make_tei(body))
-        doc = TEIDocument.from_path(path)
-        assert doc.metadata.chunk_unit == "section"
-
-    def test_extracts_ed2page_unit(self, tmp_path):
-        """Non-standard milestone units should be preserved as-is."""
-        body = '<milestone unit="ed2page" n="1"/><p>text</p>'
-        path = write_tei(tmp_path, make_tei(body))
-        doc = TEIDocument.from_path(path)
-        assert doc.metadata.chunk_unit == "ed2page"
-
-    def test_defaults_to_section_when_no_milestone(self, tmp_path):
-        path = write_tei(tmp_path, make_tei("<p>text</p>"))
-        doc = TEIDocument.from_path(path)
-        assert doc.metadata.chunk_unit == "section"
-
 
 # ---------------------------------------------------------------------------
 # Layer 2: Integration tests against known corpus files
@@ -317,9 +291,6 @@ class TestSenecaAgamemnon:
     def test_text_type(self, doc):
         assert doc.metadata.text_type == "drama"
 
-    def test_chunk_unit(self, doc):
-        assert doc.metadata.chunk_unit == "card"
-
 
 class TestSophoclesTrachiniae:
     """tlg0011.tlg001.perseus-grc2.xml — Greek drama, card milestones."""
@@ -344,9 +315,6 @@ class TestSophoclesTrachiniae:
 
     def test_text_type(self, doc):
         assert doc.metadata.text_type == "drama"
-
-    def test_chunk_unit(self, doc):
-        assert doc.metadata.chunk_unit == "card"
 
 
 class TestGalenDeVenaeSectione:
@@ -373,9 +341,6 @@ class TestGalenDeVenaeSectione:
     def test_text_type(self, doc):
         assert doc.metadata.text_type == "prose"
 
-    def test_chunk_unit(self, doc):
-        assert doc.metadata.chunk_unit == "ed2page"
-
 
 # ---------------------------------------------------------------------------
 # Layer 3: Invariants (smoke assertions on known corpus files)
@@ -401,7 +366,6 @@ class TestCorpusFileInvariants:
         assert isinstance(m.author, str)
         assert isinstance(m.language, str)
         assert isinstance(m.text_type, str)
-        assert isinstance(m.chunk_unit, str)
 
     def test_text_type_is_known_value(self, doc):
         assert doc.metadata.text_type in ("prose", "verse", "drama")
@@ -433,7 +397,6 @@ class TestDTDDocument:
         assert isinstance(m.author, str)
         assert isinstance(m.language, str)
         assert isinstance(m.text_type, str)
-        assert isinstance(m.chunk_unit, str)
 
     def test_extracts_expected_metadata(self):
         doc = TEIDocument.from_path(self.DTD_FIXTURE)

@@ -60,7 +60,6 @@ def make_metadata(urn: str, language: str = "lat") -> TEIMetadata:
         author="Test Author",
         language=language,
         text_type="prose",
-        chunk_unit="card",
         source_path=Path(f"/fake/{urn}.xml"),
     )
 
