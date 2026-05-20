@@ -63,8 +63,12 @@
                <p>This pointer pattern extracts book.</p>
             </cRefPattern>
          </refsDecl>
+         
+         <refsDecl>
+           <refState n='chunk' unit='bekker_page' />
+         </refsDecl>
       </encodingDesc>
-      
+
       <profileDesc>
          <langUsage>
             <language ident="grc">Greek</language>

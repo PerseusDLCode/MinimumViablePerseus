@@ -2,6 +2,7 @@
 #+TITLE: MVP Forum
 #+DATE: <2026-04-14 Tue>
 #+AUTHOR: Cliff Wulfman
+#+TODO: TODO DOING REVIEW REVISE PR | DONE
 
 This file, =forum.org= is a place for the exchange of ideas among
 participating agents, human and AI.
@@ -2128,7 +2129,7 @@ milestone elements in addition to div and leaf elements:
   =@n=?  These may differ if milestones are not strictly sequential
   in the source.
 
-** REVIEW Refactor StrategySelector to use structural heuristics
+** PR Refactor StrategySelector to use structural heuristics
 :PROPERTIES:
 :CUSTOM_ID: refactor-strategy-selector
 :ASSIGNEES: Claude Code
@@ -2325,9 +2326,17 @@ Ready for review:
   to milestones" logic (Gap 1) and "flat-drama collapse" logic (Gap 2)
   were not in the original spec but emerged from corpus testing.
   Both are gated by named constants to allow tuning.
-- Uncertain about: (a) whether =bekker_page= is the right default
-  chunk unit for the Politics — it emerges correctly from the depth
-  heuristic, but an editorial =<refState n='chunk' unit='bekker_page'>=
-  might be preferable to relying on the heuristic; (b) the
-  =MAX_SUBTYPES_PER_DIV_TYPE = 5= threshold for flat-drama detection
-  has not been tested beyond the Aristophanes fixture.
+  
+- Uncertain about:
+  - (a) whether =bekker_page= is the right default chunk unit for the
+    Politics — it emerges correctly from the depth heuristic, but an
+    editorial <refState n='chunk' unit='bekker_page'>
+    might be preferable to relying on the heuristic;
+
+    - Response :: This is worth emphasizing. The heuristic may not
+      always yield an acceptable solution, and in any case, structural
+      responsibility should lie with the editor. I've added that
+      =<refState>= element for us to test.
+
+- (b) the =MAX_SUBTYPES_PER_DIV_TYPE = 5= threshold for flat-drama
+  detection has not been tested beyond the Aristophanes fixture.
