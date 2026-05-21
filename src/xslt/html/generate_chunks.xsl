@@ -350,9 +350,8 @@
                   <div class="text-body">
                     <!-- Single-pass transform: templates check $start/$stop themselves -->
                     <xsl:apply-templates select="$top" mode="chunk">
-                      <xsl:with-param name="start"    select="$ms"       tunnel="yes"/>
-                      <xsl:with-param name="stop"     select="$ms-next"  tunnel="yes"/>
-                      <xsl:with-param name="base-urn" select="$base-urn" tunnel="yes"/>
+                      <xsl:with-param name="start"     select="$ms"        tunnel="yes"/>
+                      <xsl:with-param name="stop"      select="$ms-next"   tunnel="yes"/>
                       <xsl:with-param name="morph-url" select="$morph-url" tunnel="yes"/>
                     </xsl:apply-templates>
                   </div>
