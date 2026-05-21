@@ -241,6 +241,9 @@
     original raw token (with punctuation) is the visible link text.
     Whitespace-only nodes pass through unchanged in both modes.
   -->
+  <!-- TODO: $morph-url crossing the mode boundary is a temporary inconsistency.
+       The live-URL morphological linking mechanism is interim; it will be
+       replaced by compiled links via document() in a future design. -->
   <xsl:template match="text()" mode="tei-to-html">
     <xsl:param name="morph-url" tunnel="yes" as="xs:string" select="''"/>
     <xsl:choose>
