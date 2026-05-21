@@ -80,12 +80,12 @@
 
   <!--
     local:extract-base-urn($root) → xs:string?
-    Returns the CTS base URN from div[@type='edition']/@n, or empty sequence.
+    Returns the CTS base URN from tei:body/@xml:base, or empty sequence.
     Used by chunkers (generate_chunks.xsl) to compute CTS line-range URNs.
   -->
   <xsl:function name="local:extract-base-urn" as="xs:string?">
     <xsl:param name="root" as="node()"/>
-    <xsl:sequence select="($root//tei:div[@type='edition']/@n/string())[1]"/>
+    <xsl:sequence select="($root//tei:body/@xml:base/string())[1]"/>
   </xsl:function>
 
   <!--
