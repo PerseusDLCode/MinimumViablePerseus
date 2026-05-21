@@ -2673,6 +2673,92 @@ deviations.
 - =mode="chunk"= templates must not produce HTML element content
   directly.
 
+**** Implementation Notes
+
+Implemented on branch =implement-tei-to-html-process= (off =dev=).
+The following summarizes decisions and non-obvious details not visible
+from the code alone.
+
+***** File structure
+
+- =src/xslt/html/tei/perseus_base.xsl= — new pure rendering library.
+  All templates operate in =mode="tei-to-html"=.  Imports
+  =../variables.xsl= (one level up from the =tei/= subdirectory).
+  =chunker_core.xsl= now imports =tei/perseus_base.xsl= and thereby
+  gets =variables.xsl= transitively; its direct =variables.xsl= import
+  was removed.
+
+- =src/xslt/html/chunker_core.xsl= — stripped to boundary logic only.
+  Retains =local:before-stop=, =local:after-start=,
+  =local:extract-base-urn=, =local:chunk-cts-range=.  All ~20 element
+  and text rendering templates removed.  The single =mode="chunk"=
+  catch-all checks boundary conditions and delegates to
+  =mode="tei-to-html"=.
+
+- =src/xslt/html/driver.xsl= — updated to import =tei/perseus_base.xsl=
+  and =chunker_core.xsl=; stale imports of =tei/core.xsl= and
+  =tei/textstructure.xsl= removed.  Downgraded from XSLT 4.0 to 3.0
+  for consistency with the rest of the pipeline.
+
+***** Straddling-boundary case (critical invariant)
+
+Container templates in =mode="tei-to-html"= recurse via
+=<xsl:apply-templates mode="chunk"/>= on their children, /not/
+=mode="tei-to-html"=.  This is required to preserve correctness when a
+container element (e.g. =tei:div=, =tei:p=) straddles a milestone
+chunk boundary: without the round-trip through =mode="chunk"=, content
+on the far side of the boundary would be emitted when it should be
+suppressed.  The exception is =tei:body=, which recurses in
+=mode="tei-to-html"= because there is no chunking context at the body
+level.  Leaf elements (=tei:gap=, =tei:lb=, =tei:pb=, =tei:milestone=,
+=text()=) do not recurse and so have no mode-choice to make.
+
+***** =tei:l= and =@xml:base=
+
+The previous implementation of =tei:l= relied on a =$base-urn= tunnel
+parameter passed down from the chunker.  This was replaced: the
+template now reads =ancestor::tei:body/@xml:base= directly.  If the
+attribute is absent, the transformation terminates with an error
+message.
+
+Consequence: every TEI document that contains =tei:l= elements must
+have =xml:base= set on its =<body>= element.  The value should be the
+CTS URN for the edition (e.g.
+=urn:cts:greekLit:tlg0001.tlg001.perseus-grc2=).  All test fixtures
+under =tests/data/= were updated accordingly.  Note that =tests/data/=
+is gitignored; force-add with =git add -f= is required to stage those
+files.
+
+The =$base-urn= local variable still exists in the chunkers (used by
+=local:chunk-cts-range()= and the CTS range chip in the passage
+header); it is simply no longer tunneled into =mode="chunk"=.
+
+***** New templates (output changes from baseline)
+
+Two element types that previously fell through the catch-all (emitting
+content but no wrapper element) now have dedicated templates:
+
+- =tei:lg= → =<div class="lg">= (recurses in =mode="chunk"=)
+- =tei:stage= → =<div class="stage">= (recurses in =mode="chunk"=)
+
+Documents containing these elements will have additional wrapper
+=<div>= elements in the output compared with a pre-refactoring
+baseline.
+
+=local:strip-punct= was moved from =chunker_core.xsl= to
+=tei/perseus_base.xsl=, where it is used exclusively (by the =text()=
+rendering template).
+
+***** =generate-html-from-tei= CLI
+
+A Python CLI script, =src/python/generate_html_from_tei.py=, was
+written as part of this work item.  It takes a TEI file, an XSL driver
+file, and an output directory, and runs the transformation via
+=saxonche=.  Registered in =pyproject.toml= as the =generate-html-from-tei=
+entry point.  The key detail is that =set_base_output_uri= must be
+called with the output directory URI before invoking the transformer,
+or =xsl:result-document= outputs are written to the wrong location.
+
 ** Schema Work
 
 ** General
