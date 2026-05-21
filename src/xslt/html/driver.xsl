@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- 
-    SAMPLE DRIVER FILE
+<!--
+  driver.xsl
+  Sample driver for the Perseus TEI-to-HTML pipeline.
+  Imports the rendering library and chunking infrastructure.
+  Add a root template and page shell to produce a complete output document.
 -->
+<xsl:stylesheet
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tei="http://www.tei-c.org/ns/1.0"
+  exclude-result-prefixes="xs tei"
+  version="3.0">
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:tei="http://www.tei-c.org/ns/1.0"
-    exclude-result-prefixes="xs tei"
-    version="4.0">
-    <xsl:import href="tei/core.xsl"/>
-    <xsl:import href="tei/textstructure.xsl"/>
-    
-    <xsl:output method="html" doctype-system="about:legacy-compat" />
-    
-    <xsl:template match="/">
-        <xsl:apply-templates />
-    </xsl:template>
-    
+  <xsl:import href="tei/perseus_base.xsl"/>
+  <xsl:import href="chunker_core.xsl"/>
+
+  <xsl:output method="html" doctype-system="about:legacy-compat"/>
+
+  <xsl:template match="/">
+    <xsl:apply-templates/>
+  </xsl:template>
+
 </xsl:stylesheet>
