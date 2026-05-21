@@ -58,7 +58,7 @@
       </encodingDesc>
    </teiHeader>
   <text>
-      <body>
+      <body xml:base="urn:cts:greekLit:tlg0001.tlg001.perseus-grc2">
       <div type="book" n="1">
         <milestone unit="card" n="1"/>
         <l n="1">ἀρχόμενος σέο, Φοῖβε, παλαιγενέων κλέα φωτῶν</l>

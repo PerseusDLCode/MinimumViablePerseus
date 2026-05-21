@@ -84,7 +84,7 @@
  </teiHeader>
   
 <text>
-<body n="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2">
+<body n="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2" xml:base="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2">
 <div type="edition" xml:lang="grc" n="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2">
   <div type="textpart" subtype="chapter" xml:base="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2" n="1">   
     <div type="textpart" subtype="subchapter" xml:base="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2:1" n="1">

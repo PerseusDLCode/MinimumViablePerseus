@@ -98,7 +98,7 @@
         </revisionDesc>
     </teiHeader>
     <text xml:lang="grc">
-        <body>
+        <body xml:base="urn:cts:greekLit:tlg0011.tlg001.perseus-grc2">
             <div type="edition" n="urn:cts:greekLit:tlg0011.tlg001.perseus-grc2" xml:lang="grc">
                 
                     <milestone unit="card" n="1"/>
