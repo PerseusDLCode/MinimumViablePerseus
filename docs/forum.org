@@ -5,104 +5,32 @@
 #+TODO: TODO DOING REVIEW REVISE PR | DONE
 
 This file, =forum.org= is a place for the exchange of ideas among
-participating agents, human and AI.
+participating agents, human and AI.  It is both a deliberative forum
+and a collaborative task tracker
 
-* Researching milestones in Perseus Corpora
+It has two sections: =Discussions= and =Implementations=. Discussion
+sections are the /why/: the reasoning that led to a choice.  They should
+be readable as continuous prose.  Implementation sections are the
+/what was done/: task items, commit hashes, deviations from spec.  They
+are dense and highly structured, but clearly separated from the
+reasoning.
+
+* Discussions
+
+** Researching milestones in Perseus Corpora
+*** Topic
 The TEI-encoded texts in the Perseus Corpora use many types of <div>
 element and many kinds of <milestone unit="someUnit"> elements to
 represent structure, as well as various types of page-break markers
 <pb>. We want to analyze the use of these structuring elements across
 the entire corpus in order to design strategies for chunking the TEI
 texts into sequential HTML pages that are identifiable via CTS urns.
-
-** DONE Implement script
-CLOSED: [2026-04-16 Thu 10:36]
-:PROPERTIES:
-:CUSTOM_ID: analyze-milestones-implementation
-:ASSIGNEES: Claude Code
-:END:
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2026-04-16 Thu 10:36]
-:END:
-
-The programming task here is to write one or more Python scripts that
-will traverse each of the corpus directories in the data/ directory
-and compile a report of div, pb, and milestone use in each
-document. These reports will be collected in a milestone-reports/
-directory, where they may be used for analysis.
-
+*** Research
 *** Analysis
-[2026-04-15] Implemented in the new =perseus-tools= repo at
-=PerseusDLCode/perseus-tools= (local:
-=/Users/wulfmanc/repos/gh/PerseusDLCode/perseus-tools=).
+*** Decision
 
-The script is a proper PDM package (src layout, same conventions as MVP).
-Entry point: =analyze-milestones --source_dir PATH --output_dir PATH=.
 
-JSON shape adopted:
-#+begin_src json
-{
-  "filename": "<stem>",
-  "milestones": [{"unit": "<unit-attr>", "frequency": N}],
-  "divs": [{"div_type": "<type>", "subtypes": [{"subtype": "<subtype>|null", "frequency": N}]}]
-}
-#+end_src
-
-The forum spec used ={"milestone": ..., "frequency": ...}= but the key name
-was ambiguous (the value is the =@unit= attribute). Normalized to =unit= for
-clarity.
-
-Verified against =canonical-greekLit=: 1,615 files processed successfully.
-Sophocles Ajax (tlg0011.tlg001) shows 65 =card= milestones and the expected
-=textpart= div subtypes (strophe/antistrophe, episode, etc.).
-
-*** Components
-- *analyze_milestones(tei_doc:Path, target_dir:Path) -> None:*
-
-  A function that traverses a TEI document, using lxml, and compiles
-  several lists:
-
-  - a list of milestone types : organized by unit attribute.  Record the
-    frequency of each type.
-
-  - a list of div types, organized by type and subtype attributes.
-    Record the frequency of each type and subtype.
-
-   The output of this function is a JSON object:
-   { "filename" : name ,
-     "milestones" : [{"milestone" : milestone, "frequency" :
-   frequency}],
-     "divs" : [{"div_type" : [{ "subtype" : subtype "frequency"}] }]
-     }
-
-  The object should be serialized to target_dir/filename.json.
-
-- *analyze-milestones.py --source_dir --output_dir*
-  A script that traverses source_dir, applying =analyze_milestones()=
-  to each TEI document (be sure to skip __cts__.xml files).
-
-*** Implementation
-[2026-04-15] Created =perseus-tools= repo with the following structure:
-
-#+begin_example
-perseus-tools/
-├── pyproject.toml
-├── README.md
-├── src/python/perseus_tools/
-│   ├── __init__.py
-│   └── analyze_milestones.py
-└── tests/
-#+end_example
-
-Key files:
-- =src/python/perseus_tools/analyze_milestones.py= — =analyze_milestones()=
-  function + =main()= CLI entry point
-- =pyproject.toml= — PDM package, entry point =analyze-milestones=
-
-Tested against =canonical-greekLit= (1,615 files). GitHub repo not yet
-created; local only at =/Users/wulfmanc/repos/gh/PerseusDLCode/perseus-tools=.
-
-* Improving Chunking Strategies
+** Improving Chunking Strategies
 :PROPERTIES:
 :CUSTOM_ID: improving-chunking-strategies
 :END:
@@ -130,13 +58,13 @@ We've already designed our chunking stylesheets to be imported by more specializ
 
 In other words, I propose that responsibility for choosing how a TEI document is rendered into HTML should lie with the editors and not be something that's calculated. As I recall that's actually how P4 (at least the Perl-based P4) worked.
 
-* Walking back poor encoding decisions
+** Walking back poor encoding decisions
 This section is opinionated, but I want to make some cases for the stakeholders (especially Greg) to consider.
 
-** The use of the Epidoc schema for documents that aren't epigraphic or papyrological
+*** The use of the Epidoc schema for documents that aren't epigraphic or papyrological
 I've been told that at some point, the developers decided to enforce the use of Epidoc simply because it was the sparest TEI schema they could find.  These developers seem to have been unaware that the TEI schema is /meant/ to be customized, and that they could have created their own TEI customization more closely tailored to the Perseus corpus.
 
-** Failure to use xml:base to specify CTS urns.
+*** Failure to use xml:base to specify CTS urns.
 In the current editions, the base CTS urn is specified in an @n attribute on the top-most div in the <body>:
 
 #+begin_src xml
@@ -152,18 +80,18 @@ That type="edition" encoding is also a poor choice: that kind of metadata belong
 
 The fact is -- here's the polemical part -- there was a generation of Perseus developers who had scant knowledge of the TEI and an active dislike of XML. As a result, they damaged the Perseus corpus by trying to shoe-horn it into Epidoc and making poor use of TEI features (like xml:base). I don't know how extensive the damage is, nor do I know how difficult it would be to repair it. But in some cases, at least -- fixing refsDecls, moving to Perseus-specific TEI customizations instead of Epidoc -- I think we would improve the work we're doing on Perseus 6 if we took some restorative actions.
 
-* Linguistic Annotation of TEI documents
+** Linguistic Annotation of TEI documents
 Charles has developed a method in kodon <https://github.com/PerseusDLCode/kodon-py> for adding morphological tagging to Perseus's TEI documents, but it involves using his own, idiosyncratic TEI XML parser to generate a JSON representation, operating on the JSON, and then somehow converting it back to XML.  I think developing a bespoke XML parser is a bad design choice; however, I do understand that available lemmatizers work on plain text, not XML.
 
 The TEI schema includes elements and attributes that support linguistic annotation of corpora (see https://tei-c.org/release/doc/tei-p5-doc/en/html/CC.html#CCAN and https://tei-c.org/release/doc/tei-p5-doc/en/html/AI.html#AILA). It may be that the TEI's elements are insufficient for Perseus's use, but I fear Charles and other developers have abandoned TEI XML prematurely because they dislike XML and prefer to work with JSON. I have the advantage and disadvantage of not being a classical philologist, and my training in computational linguistics is dated. I'd like to spend some time answering the naive-sounding question: "Why can't we just do this in TEI XML?"
 
 [[https://tei-c.org/release/doc/tei-p5-doc/en/html/AI.html#AILALW][Section 18.4.2]] in the Guidelines discusses the needs of corpus linguists and how the TEI may be used to address them. We need to study this carefully.
 
-** Research Task
+*** Research Task
 Find research papers that discuss practical uses of TEI linguistic markup. What projects have used it? What barriers or limitations did they encounter? If they chose not to use TEI markup to perform linguistic annotation, what did they use instead, and why?
 
 
-** Develop a tokenizer in XSLT 3
+*** Develop a tokenizer in XSLT 3
 ----------------------------------------------------------------------
 *[2026-05-13 Wed] *UPDATE* Since this discussion, we have developed a new
 strategy. I have implemented [[file:~/repos/gh/PerseusDLCode/MinimumViablePerseus/src/python/mvp/indexers.py][indexers]] to create Word and Chunk indexes
@@ -348,7 +276,7 @@ that is simply unique during the run of the stylesheet.  This code,
 then, requires a pre-processing step that adds proper xml:ids to all citable elements
 in the document.
 
-*** DONE write a preparation stylesheet in XSLT that adds xml:ids to a source document
+**** DONE write a preparation stylesheet in XSLT that adds xml:ids to a source document
 CLOSED: [2026-04-20 Sun 00:00]
 :PROPERTIES:
 :ASSIGNEES: Claude Code
@@ -370,7 +298,7 @@ citation and mints an id from it.
 Look at [[file:~/mvp/wiki/Consolidated-Milestone-Report.md][the milestone report]] listing the div types and milestones
 currently being used in the Perseus corpus.
 
-**** Implementation
+***** Implementation
 [2026-04-20] Implemented as =src/xslt/add_xml_ids.xsl=.
 
 The stylesheet is a standard identity transform with additional high-priority
@@ -409,7 +337,7 @@ through all other attributes and content unchanged.
 
 CLI driver: =src/tools/run_add_xml_ids.py SOURCE [SOURCE ...] OUTPUT_DIR=
 
-*** Investigate using the xml:base attribute to create correct CTS urns for elements
+**** Investigate using the xml:base attribute to create correct CTS urns for elements
 
 #+begin_comment
 [2026-04-30 Thu] This discussion has evolved towards an investigation of citeStructures.
@@ -437,7 +365,7 @@ E.g.,
 
 There are several problems with this example.
 
-**** PROBLEM: Reliance on a <div type='edition'> element to hold critical metadata
+***** PROBLEM: Reliance on a <div type='edition'> element to hold critical metadata
 *The reliance on a <div type="edition">* CTS URNs have the following
 structure, as defined in the specification
 (https://cite-architecture.github.io/ctsurn_spec/):
@@ -468,7 +396,7 @@ which are required, but ideally it would live in the TEIHeader with
 the rest of the metadata.
 
 
-**** PROBLEM: underspecified text citation hierarchy for the PASSAGE section
+***** PROBLEM: underspecified text citation hierarchy for the PASSAGE section
 The CTS URN specification says the following:
 
 #+begin_quote
@@ -526,7 +454,7 @@ structure.  For example
 3. <cRefPattern>s are meant to be used for citation *resolution*, not
 *composition*.
 
-**** One solution: use citeStructures
+***** One solution: use citeStructures
 <<citesStructure ref>>
 See
 https://tei-c.org/release/doc/tei-p5-doc/en/html/SA.html#SACRCS. The
@@ -549,7 +477,7 @@ several possible reasons:
 
 
 
-*** DONE write a tokenizer in XSLT
+**** DONE write a tokenizer in XSLT
 CLOSED: [2026-04-20 Sun 00:00]
 :PROPERTIES:
 :ASSIGNEES: Claude Code
@@ -562,7 +490,7 @@ CLOSED: [2026-04-20 Sun 00:00]
 Modify the prototype above to work on documents derived from the
 preparation run and generate a <tokens> document.
 
-**** Implementation
+***** Implementation
 [2026-04-20] Implemented as =src/xslt/tokenize.xsl=.
 
 The tokenizer is a lightly adapted version of the prototype. Key differences
@@ -606,7 +534,7 @@ CLI drivers:
 - =src/tools/run_tokenize.py SOURCE [SOURCE ...] OUTPUT_DIR=
 - =src/tools/run_annotation_pipeline.py SOURCE PREP_DIR TOKEN_DIR [SUMMARY]=
   (runs both stages in sequence with per-file error and token counts)
-*** WONTFIX add additional anchors to tokens
+**** WONTFIX add additional anchors to tokens
 :PROPERTIES:
 :ASSIGNEES: Claude Code
 :CUSTOM_ID: add-anchors
@@ -636,7 +564,7 @@ example, Thucydides (tlg0003.tlg001.perseus-grc2.xml):
 
 There need to be anchors for book, chapter, and section.
 
-* Develop XSLT stylesheets to compile MVP reader HTML pages
+** Develop XSLT stylesheets to compile MVP reader HTML pages
 :PROPERTIES:
 :CUSTOM_ID: develop_xslt_stylesheets_for_reader
 :END:
@@ -645,7 +573,7 @@ HTML pages (see [[#improving-chunking-strategies][Improving chunking strategies]
 customizable]]). Now we must design the actual production HTML pages and
 write the XSLT to generate them.
 
-** DONE Design a Wireframe
+*** DONE Design a Wireframe
 CLOSED: [2026-04-27 Mon]
 :PROPERTIES:
 :CUSTOM_ID: design-wireframe
@@ -666,12 +594,12 @@ morphology, notes).
 For our first iteration, restrict the widgets to navigatable table of
 contents and placeholders for morphology and notes.
 
-*** Criteria
+**** Criteria
 - Use HTML semantic elements
 - Use Grid and Flex CSS
 - Do not use JavaScript
 
-** DONE Write the XSLT
+*** DONE Write the XSLT
 CLOSED: [2026-04-27 Mon]
 :PROPERTIES:
 :CUSTOM_ID: write-reader-page-xslt
@@ -683,7 +611,7 @@ CLOSED: [2026-04-27 Mon]
 Using the chunking techniques we developed earlier, write XSL
 stylesheets that generate pages conforming with the wireframe.
 
-*** Implementation
+**** Implementation
 [2026-04-27] Three-column reader layout implemented across three XSLT files:
 
 src/xslt/chunker_core.xsl — $page-css variable replaced with full
@@ -711,7 +639,7 @@ No JavaScript used anywhere. Collapsible sidebar panels use native
 
 Verified against all three test corpus files (3 documents, 0
 failures).
-*** Code Review
+**** Code Review
 :PROPERTIES:
 :STATUS:   fixed
 :END:
@@ -723,7 +651,7 @@ failures).
   @data/greekLit/tlg0012/tlg002/perseus-eng4/. What gets displayed is
   a concatenation of <term> elements.
 
-** DONE [#A] BUG FIX: restore layout CSS
+*** DONE [#A] BUG FIX: restore layout CSS
 :PROPERTIES:
 :DATE_CREATED: [2026-05-15 Fri]
 :DATE_CLOSED: [2026-05-16 Fri]
@@ -733,7 +661,7 @@ failures).
 :END:
 During code reorganization, the CSS stylesheets used to implement the three-column layout were lost. Some of it is now in [[file:~/repos/gh/PerseusDLCode/MinimumViablePerseus/src/xslt/html/variables.xsl][variables.xsl]] Expand the use of that imported variables xsl stylesheet to include the layout directives as well, and make sure everything is being properly imported into the html.
 
-** Implementation
+*** Implementation
 
 - Expanded ~variables.xsl~ ~$page-css~ to include the full three-column
   layout (shell grid, sidebars, passage header/nav, verse lines,
@@ -743,12 +671,12 @@ During code reorganization, the CSS stylesheets used to implement the three-colu
 - Fixed ~driver.xsl~ import paths to ~tei/core.xsl~ and ~tei/textstructure.xsl~.
 - Squash-merged as PR #52 into ~dev~.
 
-** Re-Implementing XSLT to be Modular
+*** Re-Implementing XSLT to be Modular
 :PROPERTIES:
 :CUSTOM_ID: reimplementing-xslt-to-be-modular
 :ASSIGNEES: Claude Chat, Cliff
 :END:
-*** [2026-05-12 Tue]
+**** [2026-05-12 Tue]
 We have already implemented XSL stylesheets that chunk TEI documents
 into HTML pages, based on either =<div>= elements (structure) or on
 =<milestone>= elements. Those stylesheets have been moved into
@@ -762,7 +690,8 @@ Stubs of those can be found in [[file:~/repos/gh/PerseusDLCode/MinimumViablePers
 
 *Priority*: Developing these XSL stylesheets and refining the production/generation pipeline are high priority: they're a major milestone on the way to a deployable MVP.
 
-** Integrating the XSL stylesheets with custom schemas
+
+*** Integrating the XSL stylesheets with custom schemas
 :PROPERTIES:
 :CUSTOM_ID: integrate-xsl-stylesheets-with-custom-schemas
 :ASSIGNEES: Claude Chat, Cliff
@@ -770,7 +699,399 @@ Stubs of those can be found in [[file:~/repos/gh/PerseusDLCode/MinimumViablePers
 
 It would be cool to integrate XSLT with the custom TEI schemas in some way. Doing so would gurantee coverage of every allowable element/attribute combo. We've discussed this before, and concluded it would involve some heavy-duty processing of ODD files, but I'd like to think about it.
 
-* TEI Citation Normalization Pipeline
+
+** DONE [#A] Refactor tei_citation_pipeline.py
+CLOSED: [2026-05-14 Wed]
+:PROPERTIES:
+:CUSTOM_ID: refactor-citation-pipeline
+:ASSIGNEES: Claude Code
+:SOURCE: chat/2026-05-14
+:COMMIT: 0a75715, 751aa0d
+:END:
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2026-05-14 Wed]
+:END:
+
+Refactor =src/python/tei_citation_pipeline.py= into three modules with
+clear responsibilities, in preparation for the =ReferenceParser= work
+that depends on a clean auditing foundation.
+
+*** Research
+[2026-05-14] Designed in consultation with Claude Chat.
+
+The existing module conflates three concerns: shared document utilities,
+structural auditing, and normalization/repair.  The refactoring separates
+these without rewriting any logic — the existing implementations are sound
+and should be preserved.
+
+**** Target module structure
+
+- =tei_document.py= :: Thin wrapper around a parsed TEI lxml tree.
+  Owns the shared utilities currently implemented as free functions:
+  =extract_base_urn()=, =parse_cref_patterns()=, and the namespace
+  constants (=TEI_NS=, =XML_NS=, =NS=, =XML_BASE=, =XML_ID=,
+  =XML_LANG=).  Both auditors and the future =ReferenceParser= take a
+  =TEIDocument= instance rather than a raw =etree._Element=.
+
+- =auditors.py= :: Defines =Auditor= (abstract base), =StructureAuditor=,
+  and =ReferenceAuditor=.  See below for details.
+
+- =normalizers.py= :: Receives phases 2 and 3 from the existing module
+  with no logic changes.  Functions =phase2_normalize()= and
+  =phase3_add_ids()= move here as-is, along with =_write_tree()= and
+  the =_expected_*= helpers they depend on.  The question of whether
+  these phases remain relevant given the shift to =citeStructure= is
+  deferred; they should compile and pass existing tests.
+
+- =tei_citation_pipeline.py= :: Reduced to a CLI entry point that
+  imports from the above modules.  Existing CLI behaviour (=--phase=,
+  =--fix=, =--output=, =--output-dir=, =--verbose=) is preserved
+  unchanged so no calling code breaks.
+
+**** =auditors.py= design
+
+*=Auditor= (base class)*
+
+Holds a =TEIDocument= reference.  Declares one abstract method:
+=audit() -> AuditReport=.
+
+*=StructureAuditor(Auditor)=*
+
+Absorbs the following from the existing module:
+- =classify_structure()= → =self._classify_structure()=
+- =get_citation_levels()= → =self._get_citation_levels()=
+- =_check_div_base_correctness()=, =_check_leaf_base_correctness()=,
+  =_expected_div_base()=, =_expected_leaf_base()=,
+  =_ancestor_ns()= → private methods
+- =propose_cite_structure()= → =self._propose_cite_structure()=
+- =phase1_audit()= → =self.audit()=
+
+Returns a =StructureAuditReport= dataclass.  Fields are those currently
+on =AuditReport= that pertain to structure: =path=, =base_urn=,
+=citation_levels=, =milestones=, =structural_type=, =issues=,
+=proposed_cite_structure=.
+
+*=ReferenceAuditor(Auditor)=*
+
+New class.  Analyses the =<refsDecl>= elements in the =<teiHeader>=:
+- Detects and parses any =<citeStructure>= elements, reporting their
+  unit hierarchy and =@default= status.
+- Detects legacy =<cRefPattern>= elements and reports them.
+- Reports whether a =default="true"= =refsDecl= is present.
+- Issues are classified as =CRITICAL= / =WARNING= / =INFO= following
+  the existing convention.
+
+Returns a =ReferenceAuditReport= dataclass with fields: =path=,
+=base_urn=, =refsDecls= (list of =RefsDecl= dataclass instances),
+=has_cite_structure= (bool), =has_default= (bool), =issues= (list of
+str).
+
+**** Report rendering
+
+Each report dataclass should have two methods:
+- =render_text() -> str= :: human-readable prose, replacing the current
+  =print_audit_report()= free function.
+- =to_json() -> str= :: JSON serialization via =dataclasses.asdict()= +
+  =json.dumps()=.  =Path= fields should serialize as strings.
+
+**** Corpus runner script
+
+Write =src/tools/run_audit.py= with entry point =run-audit=.  Accepts
+one or more TEI files or a corpus root directory (traversing the
+=data/textgroup/work/edition/= structure, skipping =__cts__.xml= files).
+Runs both auditors on each file and writes one JSON report per file to
+an output directory.  Prints a summary table to stdout.
+
+**** =CitationLevel= and =MilestoneInfo= dataclasses
+
+These currently live in =tei_citation_pipeline.py=.  Move them to
+=auditors.py= alongside the classes that use them.
+
+*** Implementation
+[2026-05-14] Implemented as three modules under =src/python/mvp/=:
+
+- =tei_document.py= — =TEIDocument= (eager parse, recover mode), namespace
+  constants, and semi-public helpers =expected_div_base()= /
+  =expected_leaf_base()= (leading underscore dropped per review).
+
+- =auditors.py= — =Auditor[T]= generic ABC; =StructureAuditor= (absorbs
+  Phase 1 logic); =ReferenceAuditor= (new: parses =<refsDecl>=,
+  =<citeStructure>=, legacy =<cRefPattern>=); dataclasses
+  =StructureAuditReport=, =ReferenceAuditReport=, =CitationLevel=,
+  =MilestoneInfo=, =RefsDecl=; each report exposes =render_text()= and
+  =to_json()=.
+
+- =normalizers.py= — Phases 2 and 3 moved verbatim; duplicate
+  =_extract_base_urn= removed in favour of =TEIDocument.extract_base_urn()=
+  per review.
+
+Also: =src/python/run_audit.py= (corpus runner; entry point =run-audit=);
+=tei_citation_pipeline.py= reduced to a thin CLI wrapper.
+
+Review fixes (commit =751aa0d=): made =Auditor= generic (=Auditor[T]=);
+removed duplicate private function from normalizers; renamed helpers
+to drop leading underscore.
+
+*** Open questions
+- Should =TEIDocument= parse lazily (parse on first access) or eagerly
+  (parse in =__init__=)?  Lazy is friendlier for corpus-scale iteration
+  where many documents may be skipped after a header-only check; eager
+  is simpler.  Suggest eager for now with a note to revisit.
+- The =_ancestor_ns()= helper name appears to be a typo for
+  =_ancestor_ns()= (it returns ancestors, not namespaces).  Rename to
+  =_textpart_ancestors()= for clarity.
+**** FIX NEEDED
+The ReferenceParser will assume the base URN will be in the @n
+attribute of the <body> element.  If it is not, be sure to note its
+absence in the audit.
+*** Review
+:PROPERTIES:
+:CUSTOM_ID: refactor-citation-pipeline-review
+:END:
+[2026-05-14] Reviewer: Claude Chat
+
+Overall: clean refactoring, spec followed faithfully.  Three items to
+address, one before ReferenceParser work begins:
+
+BEFORE proceeding:
+- =Auditor= ABC return type :: The abstract =audit()= signature declares
+  =StructureAuditReport | ReferenceAuditReport= as its return type.
+  This weakens the abstraction and will produce mypy warnings.  Make
+  =Auditor= generic (=Auditor[T]=) or drop the union and let concrete
+  subclasses carry their own precise return types.
+
+BEFORE closing:
+- =normalizers.py= has a private =_extract_base_urn= that duplicates
+  =TEIDocument.extract_base_urn()=.  Normalizers should accept a
+  =TEIDocument= or call =TEIDocument(path).extract_base_urn()= rather
+  than maintaining a parallel implementation.
+- =_expected_div_base= and =_expected_leaf_base= in =tei_document.py=
+  carry a leading underscore but are imported across modules.  Either
+  remove the underscore (acknowledging semi-public status) or move them
+  to a =_helpers.py=.
+
+NOTE for ReferenceParser implementor:
+- =RefsDecl.cite_units= is a flat list of unit names, losing hierarchy.
+  Do not use it as input to the parser; parse the =<citeStructure>= tree
+  directly from the lxml element.
+** TEI->HTML Stylesheet Family
+:PROPERTIES:
+:CUSTOM_ID: tei-html-stylesheet-family
+:SOURCE: chat/2026-05-21
+:END:
+
+The current XSLT pipeline conflates two distinct concerns: chunking
+(dividing a TEI document into separately-navigable HTML pages) and
+rendering (transforming TEI elements into HTML elements).  This item
+records the design of a new stylesheet architecture that separates these
+concerns and supports a family of TEI customization-specific rendering
+libraries.
+
+*** Research
+[2026-05-21]
+
+**** The problem with the current architecture
+
+=chunker_core.xsl= handles both chunking and rendering.  Every rendering
+template carries =local:after-start= / =local:before-stop= boundary
+guards and declares tunnel parameters (=$start=, =$stop=, =$base-urn=)
+whether it uses them or not.  This coupling makes it impossible to reuse
+the rendering templates across different chunking strategies or different
+page layouts, and it makes adding TEI-customization-specific rendering a
+messy proposition.
+
+**** The separation principle
+
+Rendering templates should be completely ignorant of chunking.  A
+template for =tei:l= should know how to turn a verse line into HTML; it
+should not know whether it is inside a card-milestone chunk or a
+div-based chunk, or whether it is near a chunk boundary.
+
+The chunking infrastructure calls into the rendering library by invoking
+templates in a named mode (=tei-to-html=) and injecting whatever
+context it needs via tunnel parameters.  Rendering templates declare
+only the tunnel parameters they actually consume; templates that need
+nothing from the chunking layer declare nothing.
+
+**** The xml:base simplification
+
+The =$base-urn= tunnel parameter currently threaded through nearly every
+template in =chunker_core.xsl= is only consumed by the =tei:l= template
+(to construct =data-cts-urn= and =@id=).  Now that the TEI citation
+pipeline normalizes =@xml:base= on all citable elements, the =tei:l=
+template can read =@xml:base= directly from the element, eliminating
+=$base-urn= as a tunnel parameter entirely.  The precondition is that
+=@xml:base= must be present on =<body>= (required for =<citeStructure>=
+support); an error should be raised if it is absent.
+
+**** The ODD/stylesheet correspondence
+
+The Perseus schema family is a hierarchy of TEI ODD customizations:
+
+- =Perseus_base= :: elements common to all Perseus texts (prose,
+  verse, drama, lexica, …).  Chains from =tei_bare=.
+- =Perseus_drama= :: adds drama module elements (=sp=, =speaker=,
+  =stage=, etc.)
+- =Perseus_greek_tragedy= :: adds genre-specific div types
+  (=prologue=, =parados=, =stasimon=, =exodos=, …)
+- =Perseus_dict= :: adds TEI dictionary module elements
+- Further specializations as needed
+
+Each ODD has a corresponding XSL rendering library.  The element list
+in the ODD's =<schemaSpec>= is the manifest for the stylesheet: every
+included element needs a template.
+
+**** The stylesheet architecture
+
+*Rendering libraries* (one per ODD level):
+- =perseus_base.xsl= — templates for all elements in =Perseus_base=,
+  operating in =mode="tei-to-html"=.  No root template; no page shell.
+  Pure library.
+- =perseus_drama.xsl= — imports =perseus_base.xsl=; adds/overrides
+  templates for drama elements.
+- =perseus_greek_tragedy.xsl= — imports =perseus_drama.xsl=; adds
+  templates for tragedy-specific div types.
+- etc.
+
+*Chunking infrastructure* (unchanged in responsibility, revised in
+interface):
+- =chunker_core.xsl= — boundary logic (=local:before-stop=,
+  =local:after-start=), helper functions.  Calls rendering templates
+  via =<xsl:apply-templates mode="tei-to-html">=.
+
+*Driver files* (one per layout/parameter variant):
+- Import the appropriate rendering library for the text's schema.
+- Import the chunking infrastructure.
+- Define the root template, page shell, and global parameters.
+- Different drivers can produce different layouts (three-column reader,
+  print-oriented single page, etc.) while reusing the same rendering
+  chain.
+
+Example import graph for a milestone-chunked Greek tragedy reader:
+
+#+begin_example
+greek_tragedy_reader.xsl          ← driver: page layout, parameters
+  ├── perseus_greek_tragedy.xsl   ← rendering: tragedy div types
+  │     └── perseus_drama.xsl    ← rendering: sp, speaker, stage
+  │           └── perseus_base.xsl  ← rendering: p, l, div, hi, note…
+  └── chunker_core.xsl            ← chunking: before-stop, after-start
+#+end_example
+
+A print driver for the same text reuses the rendering chain entirely:
+
+#+begin_example
+greek_tragedy_print.xsl
+  ├── perseus_greek_tragedy.xsl   ← same chain
+  └── single_page_core.xsl       ← different pagination strategy
+#+end_example
+
+**** Open questions
+
+1. The =mode="tei-to-html"= name is a proposal.  Any objection to it?
+
+2. =chunker_core.xsl= currently uses =mode="chunk"=.  Should that be
+   renamed to =tei-to-html= (unifying the mode), or kept separate so
+   that the chunking infrastructure can distinguish its own structural
+   templates from the rendering templates it delegates to?
+
+3. What is the right scope for =Perseus_base=?  The current ODD draft
+   was built up to handle the /Poetics/ and may include unnecessary
+   elements or be missing others.  A corpus-wide survey of element
+   usage (analogous to the milestone survey) would give a principled
+   answer.  =tei:seg= and =tei:ab= are two candidates that may be needed
+   in the base.
+
+4. =att.metrical= is currently included in =Perseus_base=.  Should it
+   move to a =Perseus_verse= child schema, given that prose texts like
+   Thucydides have no use for it?
+
+   - Answer :: The Thucydides text does, in fact, encode a metrical
+     line: a quote from an oracle. This illustrates a general point:
+     the boundary between "base" and "verse" isn't purely genre-based.
+     The right heuristic isn't "does this text belong to a verse
+     genre?" but "can this element appear with this attribute in any
+     Perseus text regardless of genre?" By that test, =att.metrical= on
+     =tei:l= passes, because oracle quotations, epigraphs, and the like
+     show up everywhere.
+
+*** Research (continued)
+[2026-05-21]
+
+**** The mode boundary in detail
+
+The two-mode architecture settles into a precise contract:
+
+- =mode="chunk"= :: owned by =chunker_core.xsl=.  Traverses the
+  document tree, applies =local:before-stop= / =local:after-start=
+  boundary guards at each level, and suppresses nodes outside the
+  current chunk's range.  When a node passes the boundary test, it
+  delegates to =mode="tei-to-html"= for rendering.  Never produces
+  HTML element content directly; that is always the rendering library's
+  responsibility.
+
+- =mode="tei-to-html"= :: owned by =perseus_base.xsl= and its
+  descendants.  Transforms TEI elements into HTML elements.  Has no
+  knowledge of chunk boundaries, no =$start= / =$stop= parameters, and
+  no =local:before-stop= guards.  Receives a node and produces HTML,
+  full stop.
+
+The handoff is a single =<xsl:apply-templates mode="tei-to-html"/>= in
+each chunk-mode template that passes the boundary test.
+
+**** Why the straddling case requires Option B
+
+Pre-filtering a flat node sequence before rendering (Option A) cannot
+handle the case where a chunk boundary falls inside a structural
+element — a =tei:div= that straddles a milestone boundary, for
+instance.  The boundary check must happen recursively during tree
+traversal, which is why it lives in =mode="chunk"= templates rather
+than in a pre-pass.
+
+**** Tunnel parameters across the boundary
+
+The rendering library needs no tunnel parameters from the chunking
+layer.  Specifically:
+
+- =@xml:base= :: not needed as a tunnel parameter.  In the
+  =<citeStructure>= architecture, =@xml:base= is on =<body>=;
+  any rendering template that needs the base URN can reach it via
+  =ancestor::tei:body/@xml:base=.  An error should be raised at
+  compile time if =<body>= lacks =@xml:base=.
+
+- =$morph-url= and citation links :: not injected as tunnel
+  parameters.  External data needed by the rendering templates
+  (morphological analyses, citation link tables) will be compiled
+  during the build into XML or JSON sidecar files and loaded at
+  render time via the =document()= function.  This keeps the
+  static-site contract intact: no runtime server dependency baked
+  into the generated pages.
+
+- Pagination and breadcrumbs :: these are properties of the /page/,
+  not of any individual TEI element.  The driver's page-shell template
+  constructs them from chunk metadata (already pre-collected in
+  =$all-chunks= in the current =generate_chunks.xsl=) before
+  =mode="tei-to-html"= is ever invoked.  They do not cross the
+  mode boundary.
+
+**** Conclusion
+
+No tunnel parameters need cross from =mode="chunk"= into
+=mode="tei-to-html"=.  The two modes are genuinely independent.
+This contract should be stated explicitly in a comment block at the
+top of both =chunker_core.xsl= and =perseus_base.xsl=.
+
+
+*** Decision
+:PROPERTIES:
+:DATE_CREATED: [2026-05-15 Fri]
+:CUSTOM_ID: decision-to-fully-implement-tei-stylesheets
+:END:
+
+See [[#implement-tei-to-html-process]]
+
+
+
+** TEI Citation Normalization Pipeline
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline
 :SOURCE: chat/2026-04-30
@@ -783,7 +1104,7 @@ depends on stable, correctly-formed URN anchors.  This section
 records the design and implementation of a three-phase normalization
 pipeline to repair and extend these attributes across the corpus.
 
-** DONE Implement Phase 1: Structural Audit
+*** DONE Implement Phase 1: Structural Audit
 CLOSED: [2026-04-30 Wed]
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline/phase-1-audit
@@ -792,7 +1113,7 @@ CLOSED: [2026-04-30 Wed]
 :DISPOSITION: adopt
 :END:
 
-**** Research
+***** Research
 [2026-04-30] Designed and implemented as =src/python/tei_citation_pipeline.py=,
 Phase 1.
 
@@ -813,7 +1134,7 @@ Tested against three corpus files representing the main structural types:
 - =tlg0003.tlg001.perseus-grc2.xml= (Thucydides, =div-hierarchy= three levels deep)
 - =phi2331.phi013.perseus-lat2.xml= (Caracalla, =milestone-sections=, no =xml:base=)
 
-** DONE Implement Phase 2: xml:base Normalization
+*** DONE Implement Phase 2: xml:base Normalization
 CLOSED: [2026-04-30 Wed]
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline/phase-2-normalize
@@ -822,7 +1143,7 @@ CLOSED: [2026-04-30 Wed]
 :DISPOSITION: adopt
 :END:
 
-**** Research
+***** Research
 [2026-04-30] Implemented in =tei_citation_pipeline.py=, Phase 2.
 
 Repairs =xml:base= on every citable element by walking the ancestor axis
@@ -843,7 +1164,7 @@ Results against test corpus:
 - Thucydides: 4,512 div fixes (sections carrying chapter URN instead of section URN)
 - Caracalla: 11 =xml:base= attributes added from scratch
 
-** DONE Implement Phase 3: xml:id Addition
+*** DONE Implement Phase 3: xml:id Addition
 CLOSED: [2026-04-30 Wed]
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline/phase-3-ids
@@ -852,7 +1173,7 @@ CLOSED: [2026-04-30 Wed]
 :DISPOSITION: adopt
 :END:
 
-**** Research
+***** Research
 [2026-04-30] Implemented in =tei_citation_pipeline.py=, Phase 3.
 
 Adds =xml:id= to all citable elements, derived from the (corrected) =xml:base=
@@ -870,7 +1191,7 @@ Phase 3 always runs Phase 2 first (via a temp file), so the output of
 and stable =xml:id= on every citable element.  Existing =xml:id= values are
 never overwritten.
 
-**** Implementation
+***** Implementation
 [2026-04-30] File: =src/python/tei_citation_pipeline.py=
 
 CLI interface (after =pdm install=):
@@ -878,7 +1199,7 @@ CLI interface (after =pdm install=):
 tei-audit FILE [FILE ...] --phase {1,2,3} [--fix] [--output PATH | --output-dir DIR] [--verbose]
 #+end_example
 
-** DONE Resolve tool module path and register console script entrypoints
+*** DONE Resolve tool module path and register console script entrypoints
 CLOSED: [2026-04-30 Wed]
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline/entrypoints
@@ -887,20 +1208,20 @@ CLOSED: [2026-04-30 Wed]
 :DISPOSITION: adopt
 :END:
 
-**** Research
+***** Research
 [2026-04-30] The pipeline and existing runner scripts (=run_build.py=,
 =run_add_xml_ids.py=, =run_tokenize.py=, =run_annotation_pipeline.py=) were
 originally in =src/tools/=.  Investigation showed that pdm-backend's
 =package-dir= accepts only a single string, not a list; there is no
 declarative way to add a second source root without a custom build hook.
 
-**** Decision
+***** Decision
 [2026-04-30] Move all tool modules to =src/python/= (flat, alongside the
 =mvp/= package but not inside it).  Zero-friction: pdm-backend already
 covers this location, and =[project.scripts]= entrypoints work for any
 importable top-level module.  =src/tools/= is retained with =.gitkeep=.
 
-**** Implementation
+***** Implementation
 [2026-04-30] =pyproject.toml= updated:
 - =package-dir = "src/python"= (single string)
 - =[project.scripts]= added: =build-site = "run_build:main"=,
@@ -909,7 +1230,7 @@ importable top-level module.  =src/tools/= is retained with =.gitkeep=.
 Caution: an intermediate attempt left a =pdm_build.py= hook at the repo
 root.  This file must be deleted before =pdm install= will succeed.
 
-** DONE Mark prior xml:base TODO as DONE
+*** DONE Mark prior xml:base TODO as DONE
 CLOSED: [2026-04-30 Thu 20:07]
 :PROPERTIES:
 :CUSTOM_ID: tei-citation-pipeline/housekeeping
@@ -924,7 +1245,7 @@ The item "*** TODO use the xml:base attribute to create correct CTS urns
 for elements" under "Linguistic Annotation / Develop a tokenizer in XSLT 3"
 should be marked DONE and cross-referenced to
 =tei-citation-pipeline/phase-2-normalize=.
-** DONE Refactor TEI citation pipeline
+*** DONE Refactor TEI citation pipeline
 CLOSED: [2026-05-14 Wed]
 :PROPERTIES:
 :CUSTOM_ID: refactor-tei-citation-pipeline
@@ -933,11 +1254,11 @@ CLOSED: [2026-05-14 Wed]
 - State "DONE"       from "TODO"       [2026-05-14 Wed]
 :END:
 
-*** Overview
+**** Overview
 The module developed in [[#tei-citation-pipeline][the TEI citation pipeline work]] above must be refactored.
 The module is [[file:~/mvp/src/python/tei_citation_pipeline.py][here]].
 
-*** Critiques
+**** Critiques
 - It does too much :: Three "phases" are implemented in a single
   script. The phases should be broken out into separate functions or
   object methods. I prefer an object-oriented approach.
@@ -947,7 +1268,7 @@ The module is [[file:~/mvp/src/python/tei_citation_pipeline.py][here]].
   Services, so the reliance on xml:base and xml:id attributes might
   well go away.
 
-*** DONE Implement Auditors
+**** DONE Implement Auditors
 CLOSED: [2026-05-14 Wed]
 :PROPERTIES:
 :CUSTOM_ID: implement-auditors
@@ -987,12 +1308,12 @@ CLOSED: [2026-05-14 Wed]
 
     Be sure to ignore non_TEI files like __cts__.xml.
 
-* Citation Structures
+** Citation Structures
 :PROPERTIES:
 :CUSTOM_ID: citation-structures
 :END:
-** Discussion
-*** [2026-05-13 Wed]
+*** Discussion
+**** [2026-05-13 Wed]
 We have been studying CiteStructures (See [[id:4EA3889F-245B-4E85-862E-6BA7EE91F364][Citation Structure
 Implementation]]).  CiteStructures were introduced into the TEI after
 most of Perseus's texts had been encoded, but they seem perfectly
@@ -1007,7 +1328,7 @@ designed to handle our needs now:
   citeStructures. [[https://github.com/distributed-text-services/MyDapytains][MyDapytains]] is a reference implementation, and we
   should look at what they've done.
 
-*** Questions
+**** Questions
 How difficult would it be to convert Perseus's corpora from
 CRefPatterns and RefStates to CiteStructures?
 
@@ -1061,17 +1382,17 @@ Here is one possible declaration of =citeStructures=:
 #+end_src
 
 
-* 2026-05 SpaCy Integration Experiment
+** 2026-05 SpaCy Integration Experiment
 
-** Goal
+*** Goal
 
 Explore using SpaCy to attach morphological annotations (POS, lemma,
 dependency) to TEI text at the chunk level, with provenance back to
 TEI XPath locations.
 
-** What was built
+*** What was built
 
-*** Branch: =feat/indexer= (merged to dev via PR #47)
+**** Branch: =feat/indexer= (merged to dev via PR #47)
 
 Foundation work, independent of SpaCy:
 
@@ -1085,7 +1406,7 @@ Foundation work, independent of SpaCy:
   =ChunkIndex= (all in =models.py=, no SpaCy dependency)
 - 52 tests in =tests/test_indexers.py=
 
-*** Branch: =spacy-integration= (experimental, not yet merged)
+**** Branch: =spacy-integration= (experimental, not yet merged)
 
 Built on =feat/indexer=; adds the SpaCy bridge:
 
@@ -1104,7 +1425,7 @@ Built on =feat/indexer=; adds the SpaCy bridge:
 - 21 tests in =tests/test_spacy_bridge.py= (all pass; skip without SpaCy)
 - =docs/spacy-integration.org= — full setup guide
 
-** The Python / SpaCy version problem
+*** The Python / SpaCy version problem
 
 SpaCy does not build on Python 3.14 (=_PyLong_AsByteArray= was removed
 from the CPython C API). The project's main =.venv= targets Python 3.14,
@@ -1120,9 +1441,9 @@ The Greek and Latin models also require incompatible SpaCy versions:
 Both venvs are gitignored. See =docs/spacy-integration.org= for full
 setup instructions.
 
-** Installing the models
+*** Installing the models
 
-*** Greek (=grc_perseus_sm=, grecy project)
+**** Greek (=grc_perseus_sm=, grecy project)
 
 The wheel from HuggingFace uses =-any-= in place of a version number,
 which pip rejects. Download with curl under a corrected name:
@@ -1135,7 +1456,7 @@ curl -L -o /tmp/grc_perseus_sm-0.0.1-py3-none-any.whl \
 
 This also downgrades SpaCy to 3.7.5 to satisfy the model's pin.
 
-*** Latin (=la_core_web_sm=, LatinCy project)
+**** Latin (=la_core_web_sm=, LatinCy project)
 
 #+begin_src shell
 curl -L -o /tmp/la_core_web_sm-3.9.0-py3-none-any.whl \
@@ -1147,7 +1468,7 @@ curl -L -o /tmp/la_core_web_sm-3.9.0-py3-none-any.whl \
 The LatinCy wheel has a standard filename and installs cleanly, pulling
 in =latincy-preprocess= and =la-latincy-lookups= automatically.
 
-** What works
+*** What works
 
 - =grc_perseus_sm= annotates Argonautica lines correctly (POS, lemma)
 - =la_core_web_sm= annotates Latin prose correctly (POS, lemma, morph)
@@ -1156,7 +1477,7 @@ in =latincy-preprocess= and =la-latincy-lookups= automatically.
   TEI provenance: for every SpaCy token, =token._.tei_xpath= and
   =token._.tei_char_offset= point back into the source XML
 
-** What is deferred
+*** What is deferred
 
 - The two-venv situation is awkward. A future solution might find or train
   models compatible with the same SpaCy version, or package each language
@@ -1167,553 +1488,7 @@ in =latincy-preprocess= and =la-latincy-lookups= automatically.
 - =spacy-integration= has not been merged. It should be reviewed and
   rebased on =feat/indexer= once that branch lands in =dev=.
 
-* DONE [#A] Refactor tei_citation_pipeline.py
-CLOSED: [2026-05-14 Wed]
-:PROPERTIES:
-:CUSTOM_ID: refactor-citation-pipeline
-:ASSIGNEES: Claude Code
-:SOURCE: chat/2026-05-14
-:COMMIT: 0a75715, 751aa0d
-:END:
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2026-05-14 Wed]
-:END:
-
-Refactor =src/python/tei_citation_pipeline.py= into three modules with
-clear responsibilities, in preparation for the =ReferenceParser= work
-that depends on a clean auditing foundation.
-
-** Research
-[2026-05-14] Designed in consultation with Claude Chat.
-
-The existing module conflates three concerns: shared document utilities,
-structural auditing, and normalization/repair.  The refactoring separates
-these without rewriting any logic — the existing implementations are sound
-and should be preserved.
-
-*** Target module structure
-
-- =tei_document.py= :: Thin wrapper around a parsed TEI lxml tree.
-  Owns the shared utilities currently implemented as free functions:
-  =extract_base_urn()=, =parse_cref_patterns()=, and the namespace
-  constants (=TEI_NS=, =XML_NS=, =NS=, =XML_BASE=, =XML_ID=,
-  =XML_LANG=).  Both auditors and the future =ReferenceParser= take a
-  =TEIDocument= instance rather than a raw =etree._Element=.
-
-- =auditors.py= :: Defines =Auditor= (abstract base), =StructureAuditor=,
-  and =ReferenceAuditor=.  See below for details.
-
-- =normalizers.py= :: Receives phases 2 and 3 from the existing module
-  with no logic changes.  Functions =phase2_normalize()= and
-  =phase3_add_ids()= move here as-is, along with =_write_tree()= and
-  the =_expected_*= helpers they depend on.  The question of whether
-  these phases remain relevant given the shift to =citeStructure= is
-  deferred; they should compile and pass existing tests.
-
-- =tei_citation_pipeline.py= :: Reduced to a CLI entry point that
-  imports from the above modules.  Existing CLI behaviour (=--phase=,
-  =--fix=, =--output=, =--output-dir=, =--verbose=) is preserved
-  unchanged so no calling code breaks.
-
-*** =auditors.py= design
-
-*=Auditor= (base class)*
-
-Holds a =TEIDocument= reference.  Declares one abstract method:
-=audit() -> AuditReport=.
-
-*=StructureAuditor(Auditor)=*
-
-Absorbs the following from the existing module:
-- =classify_structure()= → =self._classify_structure()=
-- =get_citation_levels()= → =self._get_citation_levels()=
-- =_check_div_base_correctness()=, =_check_leaf_base_correctness()=,
-  =_expected_div_base()=, =_expected_leaf_base()=,
-  =_ancestor_ns()= → private methods
-- =propose_cite_structure()= → =self._propose_cite_structure()=
-- =phase1_audit()= → =self.audit()=
-
-Returns a =StructureAuditReport= dataclass.  Fields are those currently
-on =AuditReport= that pertain to structure: =path=, =base_urn=,
-=citation_levels=, =milestones=, =structural_type=, =issues=,
-=proposed_cite_structure=.
-
-*=ReferenceAuditor(Auditor)=*
-
-New class.  Analyses the =<refsDecl>= elements in the =<teiHeader>=:
-- Detects and parses any =<citeStructure>= elements, reporting their
-  unit hierarchy and =@default= status.
-- Detects legacy =<cRefPattern>= elements and reports them.
-- Reports whether a =default="true"= =refsDecl= is present.
-- Issues are classified as =CRITICAL= / =WARNING= / =INFO= following
-  the existing convention.
-
-Returns a =ReferenceAuditReport= dataclass with fields: =path=,
-=base_urn=, =refsDecls= (list of =RefsDecl= dataclass instances),
-=has_cite_structure= (bool), =has_default= (bool), =issues= (list of
-str).
-
-*** Report rendering
-
-Each report dataclass should have two methods:
-- =render_text() -> str= :: human-readable prose, replacing the current
-  =print_audit_report()= free function.
-- =to_json() -> str= :: JSON serialization via =dataclasses.asdict()= +
-  =json.dumps()=.  =Path= fields should serialize as strings.
-
-*** Corpus runner script
-
-Write =src/tools/run_audit.py= with entry point =run-audit=.  Accepts
-one or more TEI files or a corpus root directory (traversing the
-=data/textgroup/work/edition/= structure, skipping =__cts__.xml= files).
-Runs both auditors on each file and writes one JSON report per file to
-an output directory.  Prints a summary table to stdout.
-
-*** =CitationLevel= and =MilestoneInfo= dataclasses
-
-These currently live in =tei_citation_pipeline.py=.  Move them to
-=auditors.py= alongside the classes that use them.
-
-** Implementation
-[2026-05-14] Implemented as three modules under =src/python/mvp/=:
-
-- =tei_document.py= — =TEIDocument= (eager parse, recover mode), namespace
-  constants, and semi-public helpers =expected_div_base()= /
-  =expected_leaf_base()= (leading underscore dropped per review).
-
-- =auditors.py= — =Auditor[T]= generic ABC; =StructureAuditor= (absorbs
-  Phase 1 logic); =ReferenceAuditor= (new: parses =<refsDecl>=,
-  =<citeStructure>=, legacy =<cRefPattern>=); dataclasses
-  =StructureAuditReport=, =ReferenceAuditReport=, =CitationLevel=,
-  =MilestoneInfo=, =RefsDecl=; each report exposes =render_text()= and
-  =to_json()=.
-
-- =normalizers.py= — Phases 2 and 3 moved verbatim; duplicate
-  =_extract_base_urn= removed in favour of =TEIDocument.extract_base_urn()=
-  per review.
-
-Also: =src/python/run_audit.py= (corpus runner; entry point =run-audit=);
-=tei_citation_pipeline.py= reduced to a thin CLI wrapper.
-
-Review fixes (commit =751aa0d=): made =Auditor= generic (=Auditor[T]=);
-removed duplicate private function from normalizers; renamed helpers
-to drop leading underscore.
-
-** Open questions
-- Should =TEIDocument= parse lazily (parse on first access) or eagerly
-  (parse in =__init__=)?  Lazy is friendlier for corpus-scale iteration
-  where many documents may be skipped after a header-only check; eager
-  is simpler.  Suggest eager for now with a note to revisit.
-- The =_ancestor_ns()= helper name appears to be a typo for
-  =_ancestor_ns()= (it returns ancestors, not namespaces).  Rename to
-  =_textpart_ancestors()= for clarity.
-*** FIX NEEDED
-The ReferenceParser will assume the base URN will be in the @n
-attribute of the <body> element.  If it is not, be sure to note its
-absence in the audit.
-** Review
-:PROPERTIES:
-:CUSTOM_ID: refactor-citation-pipeline-review
-:END:
-[2026-05-14] Reviewer: Claude Chat
-
-Overall: clean refactoring, spec followed faithfully.  Three items to
-address, one before ReferenceParser work begins:
-
-BEFORE proceeding:
-- =Auditor= ABC return type :: The abstract =audit()= signature declares
-  =StructureAuditReport | ReferenceAuditReport= as its return type.
-  This weakens the abstraction and will produce mypy warnings.  Make
-  =Auditor= generic (=Auditor[T]=) or drop the union and let concrete
-  subclasses carry their own precise return types.
-
-BEFORE closing:
-- =normalizers.py= has a private =_extract_base_urn= that duplicates
-  =TEIDocument.extract_base_urn()=.  Normalizers should accept a
-  =TEIDocument= or call =TEIDocument(path).extract_base_urn()= rather
-  than maintaining a parallel implementation.
-- =_expected_div_base= and =_expected_leaf_base= in =tei_document.py=
-  carry a leading underscore but are imported across modules.  Either
-  remove the underscore (acknowledging semi-public status) or move them
-  to a =_helpers.py=.
-
-NOTE for ReferenceParser implementor:
-- =RefsDecl.cite_units= is a flat list of unit names, losing hierarchy.
-  Do not use it as input to the parser; parse the =<citeStructure>= tree
-  directly from the lxml element.
-* DONE Implement ReferenceParser
-:PROPERTIES:
-:CUSTOM_ID: implement-reference-parser
-:ASSIGNEES: Claude Code
-:SOURCE: chat/2026-05-14
-:DEPENDS: refactor-citation-pipeline
-:COMMIT: f8b2f3a
-:PR: 53
-:END:
-:LOGBOOK:
-- State "DONE"       from "WAITING"    [2026-05-16 Sat] \\
-  Review feedback addressed; PR #53 open to dev
-- State "WAITING"    from "DONE"       [2026-05-16 Sat 14:25] \\
-  Waiting for review
-- State "DONE"       from "TODO"       [2026-05-16 Fri]
-:END:
-
-Implement =src/python/mvp/reference_parser.py=, a module that resolves
-CTS URNs to TEI elements and generates CTS URNs from TEI elements, using
-=<citeStructure>= declarations in the =<teiHeader>=.
-
-** Research
-[2026-05-14] Designed in consultation with Claude Chat.
-
-See also: Cayless, Clérice, and Robie, "Introducing Citation Structures,"
-Balisage 2021 (=docs/Cayless_et_al_-_Introducing_Citation_Structures.pdf=);
-TEI Guidelines §SA.SACRCS; and the =#citation-structures= section of this
-forum.
-
-*** Document encoding requirements
-:PROPERTIES:
-:CUSTOM_ID: document-encoding-requirements
-:END:
-
-=ReferenceParser= requires the following encoding conventions, which
-differ from the current Perseus corpus defaults and must be enforced by
-the =StructureAuditor=:
-
-1. The CTS base URN must appear in =@xml:base= on =<body>=, not on
-   =<div type="edition">=:
-   #+begin_src xml
-   <body xml:base="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2">
-   #+end_src
-
-2. The root =<citeStructure>= must use =use="@xml:base"= to pick up that value:
-   #+begin_src xml
-   <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
-     <citeStructure unit="chapter" delim=":" match="tei:div" use="@n">
-       <citeStructure unit="subchapter" delim="." match="tei:p" use="@n"/>
-     </citeStructure>
-   </citeStructure>
-   #+end_src
-
-3. The =<refsDecl>= containing the canonical CTS =<citeStructure>= must
-   carry =default="true"=.  A document may have multiple =<refsDecl>=
-   elements representing incommensurable citation systems (e.g. CTS
-   chapter/subchapter and Bekker page/column/line); =default="true"=
-   identifies the primary one.
-
-*** Class interface
-
-#+begin_src python
-class ConfigurationError(Exception):
-    """Raised when no usable citeStructure can be found or selected."""
-
-class CitationError(Exception):
-    """Raised when a URN is syntactically invalid or resolves to nothing."""
-
-class ReferenceParser:
-    def __init__(
-        self,
-        tei_doc: TEIDocument,
-        refsDecl_id: str | None = None,
-    ) -> None: ...
-
-    def resolve(self, urn: str) -> etree._Element:
-        """Return the element identified by the full CTS URN.
-
-        Partial citations (e.g. book only, when book/chapter/section is
-        the full hierarchy) are valid and resolve to the element at that
-        level.  Raises CitationError if the URN is malformed or matches
-        nothing.
-        """
-
-    def generate(self, element: etree._Element) -> str:
-        """Return the full CTS URN for a citable element.
-
-        Raises CitationError if the element is not reachable from any
-        level of the active citeStructure.
-        """
-
-    def citations(self, depth: int = -1) -> Iterator[str]:
-        """Yield every resolvable CTS URN in document order.
-
-        depth=-1 (default): yield citations at every level of the
-            hierarchy (suitable for TOC generation).
-        depth=0: yield only root-level citations.
-        depth=N (positive): yield citations up to and including level N
-            (0-based), suitable for feeding the chunkers with leaf-level
-            citations only.
-        """
-#+end_src
-
-*** =__init__= and =refsDecl= selection
-
-Selection order when =refsDecl_id= is not supplied:
-
-1. The =<refsDecl>= with =default="true"= that contains a
-   =<citeStructure>=.
-2. The first =<refsDecl>= containing a =<citeStructure>=, if exactly
-   one exists.
-3. =ConfigurationError= — caller must supply =refsDecl_id= explicitly.
-
-When =refsDecl_id= is supplied, raise =ConfigurationError= if no
-=<refsDecl>= with that =@xml:base= exists or if it contains no
-=<citeStructure>=.
-
-Do not attempt to interpret legacy =<cRefPattern>= elements.  If a
-document has only =<cRefPattern>= and no =<citeStructure>=, raise
-=ConfigurationError= with a message directing the caller to run the
-conversion tooling first.
-
-*** Namespace handling
-
-Hardcode the TEI namespace map throughout:
-#+begin_src python
-NS = {"tei": "http://www.tei-c.org/ns/1.0"}
-#+end_src
-This is already the project convention.  Do not accept a namespace map
-from the caller.
-
-*** Resolution algorithm
-
-Given a full CTS URN such as
-=urn:cts:greekLit:tlg0086.tlg034.perseus-grc2:1.3=:
-
-1. Split on the first =:= that follows the version identifier to
-   separate the base URN from the passage component.  The base URN is
-   everything up to and including the version token
-   (=urn:cts:greekLit:tlg0086.tlg034.perseus-grc2=); the passage
-   component is everything after the separating =:= (=1.3=).
-
-2. Verify the base URN matches =body/@xml:base=.  Raise =CitationError= if not.
-
-3. Walk the =<citeStructure>= tree level by level.  At each level:
-   a. Take the next passage token (splitting on the =@delim= declared
-      at that level).
-   b. Evaluate the level's =@match= XPath relative to the element
-      matched at the previous level (or relative to the document root
-      for the root =<citeStructure>=).
-   c. Among the matched elements, find the one whose =@use= value
-      equals the current token.
-   d. If no element matches, raise =CitationError=.
-
-4. Stop when passage tokens are exhausted.  The element matched at the
-   last consumed level is the result.  Partial citations are valid:
-   =urn:…:1= resolves to the chapter div, =urn:…:1.3= to the paragraph.
-
-5. Multiple =<citeStructure>= children at the same level (the Ovid
-   case — structural irregularity within a work): try each sibling in
-   document order and take the first whose =@match= XPath yields a
-   result for the current token.  If none match, raise =CitationError=.
-
-*** Generation algorithm
-
-Given an =etree._Element=:
-
-1. Walk the =<citeStructure>= tree to find the level whose =@match=
-   XPath, evaluated from the appropriate ancestor, yields this element.
-2. Collect =@use= values walking from the root level down to the matched
-   level, assembling the passage component by joining with =@delim=
-   values.
-3. Prepend the base URN (from =body/@xml:base=) with a =:= separator.
-4. Raise =CitationError= if the element is not reachable from any level.
-
-*** =citations()= implementation
-
-Recursive walk of the =<citeStructure>= tree.  At each level, evaluate
-the =@match= XPath relative to each element matched at the parent level,
-and yield a URN for every match.  Recurse into children unless the
-current depth equals the =depth= parameter.  Yield in document order.
-
-*** Tests
-
-Write =tests/test_reference_parser.py=.
-
-**** Primary development fixture: the Apology
-
-Use Plato's /Apology/ (=tlg0059.tlg002.perseus-grc2.xml=) as the
-primary fixture.  It has a single-level CTS citation hierarchy
-(section only), making it the simplest real corpus document to work
-with.  Its existing =<refsDecl>= uses =<cRefPattern>=, not
-=<citeStructure>=, so the fixture must be constructed programmatically
-— do not modify the corpus file.
-
-The fixture should be an in-memory lxml tree (built with
-=etree.fromstring= or equivalent) that reproduces the Apology's
-structure with the following modifications applied:
-
-1. Add =@xml:base= to =<body>= carrying the base URN:
-   #+begin_src xml
-   <body n="urn:cts:greekLit:tlg0059.tlg002.perseus-grc2">
-   #+end_src
-
-2. Replace the existing =<refsDecl n="CTS">= with a conformant one:
-   #+begin_src xml
-   <refsDecl xml:id="cite_by_section" default="true">
-     <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
-       <citeStructure unit="section" delim=":" match="tei:div[@type='textpart']" use="@n"/>
-     </citeStructure>
-   </refsDecl>
-   #+end_src
-
-Note: the Apology also contains three parallel milestone systems
-inside each section div (=unit="page"=, =unit="section" resp="Stephanus"=,
-=unit="para"=).  These are intentionally ignored by the primary
-=citeStructure= and should not interfere with resolution or generation.
-A second =<refsDecl>= for Stephanus citations is deferred (see
-Deferred section in forum item =#citation-structures=).
-
-**** Secondary stress-test fixture: Thucydides
-
-Once the Apology tests pass, add a second fixture based on Thucydides
-(=tlg0003.tlg001.perseus-grc2.xml=).  Thucydides has a three-level
-hierarchy (book/chapter/section) and is Greg Crane's primary test
-case for citation correctness.  Apply the same fixture construction
-approach: in-memory tree with =body/@xml:base= added and =<cRefPattern>=
-replaced by a conformant =<citeStructure>=:
-
-#+begin_src xml
-<refsDecl xml:id="cite_by_section" default="true">
-  <citeStructure match="/tei:TEI/tei:text/tei:body" use="xml:base">
-    <citeStructure unit="book" delim=":" match="tei:div[@subtype='book']" use="@n">
-      <citeStructure unit="chapter" delim="." match="tei:div[@subtype='chapter']" use="@n">
-        <citeStructure unit="section" delim="." match="tei:div[@subtype='section']" use="@n"/>
-      </citeStructure>
-    </citeStructure>
-  </citeStructure>
-</refsDecl>
-#+end_src
-
-Verify the actual =<div>= =@subtype= values in the Thucydides file
-before writing the fixture — the values above are based on the
-forum's earlier analysis but should be confirmed against the source.
-
-**** Required test cases
-
-Using the Apology fixture:
-- =resolve()= with a single-level citation (=urn:…:17=) returns the
-  correct =<div type="textpart">= element.
-- =resolve()= with a URN whose base does not match =body/@n= raises
-  =CitationError=.
-- =resolve()= with a valid base URN but non-existent section token
-  raises =CitationError=.
-- =generate()= on a known section =<div>= returns the expected URN
-  string (e.g. =urn:cts:greekLit:tlg0059.tlg002.perseus-grc2:17=).
-- =citations(depth=-1)= yields the correct total count of section URNs
-  (one per =<div type="textpart">=).
-- =citations(depth=0)= also yields the same count (single-level
-  hierarchy: root and leaf are the same level).
-- Constructor with no =default="true"= and a single =<citeStructure>=
-  succeeds.
-- Constructor with no =<citeStructure>= raises =ConfigurationError=.
-- Constructor with =refsDecl_id= pointing to a non-existent id raises
-  =ConfigurationError=.
-
-Using the Thucydides fixture (once Apology tests pass):
-- =resolve()= with a full three-level citation (=urn:…:1.2.3=) returns
-  the correct section =<div>=.
-- =resolve()= with a partial one-level citation (=urn:…:1=) returns the
-  book =<div>=.
-- =resolve()= with a partial two-level citation (=urn:…:1.2=) returns
-  the chapter =<div>=.
-- =generate()= on a section =<div>= returns the full three-part URN.
-- =generate()= on a book =<div>= returns a one-part URN.
-- =citations(depth=0)= yields only book-level URNs.
-- =citations(depth=1)= yields book and chapter URNs but not sections.
-- =citations(depth=-1)= yields URNs at all three levels.
-
-** Implementation
-[2026-05-16] Implemented as =src/python/mvp/reference_parser.py=.
-
-=ReferenceParser.__init__= selects a =<refsDecl>= containing a
-=<citeStructure>=, preferring =default="true"=; falls back to the sole
-candidate if exactly one exists; raises =ConfigurationError= otherwise
-(including the case where only legacy =<cRefPattern>= elements are
-present).
-
-=resolve(urn)= strips the base URN prefix and walks the
-=<citeStructure>= tree level by level, splitting the passage string on
-each child's =@delim= via =str.partition=.  Partial citations are
-valid: a URN shorter than the full hierarchy resolves to the element at
-the deepest matched level.
-
-=generate(element)= does a DFS through the citeStructure tree using
-element identity (=is=) to locate the target, then assembles the
-passage by concatenating =@delim= + =@use= values level by level.
-
-=citations(depth)= yields all resolvable URNs in document order;
-=depth=-1= yields every level, =depth=0= yields only the root level,
-=depth=N= yields up to and including level N (0-based).
-
-21 tests in =tests/test_reference_parser.py=, covering Apology
-(single-level) and Thucydides (three-level) synthetic fixtures.
-Merged to =dev= via PR #49.
-
-** Open questions
-- The connection between =ReferenceParser.citations()= and the XSLT
-  chunkers is not yet designed.  The chunkers currently operate purely
-  on document structure; feeding CTS URNs into them for navigation link
-  generation is deferred to a subsequent forum item.
-** Review
-[2026-05-16] Reviewer: Claude Chat
-
-Overall: clean implementation, spec followed faithfully, tests are
-thorough and well-structured.  Three items to address before this is
-considered fully closed; none are blockers for proceeding to the next
-task.
-
-MINOR — fix before next use of this code in production:
-
-1. Default delimiter in =generate()= :: =cs.get("delim", ":")= uses
-   =":"= as the fallback for child nodes, but =":"= is the
-   root-level separator; child nodes use =".".  If any child
-   =<citeStructure>= omits =@delim=, this would silently produce a
-   malformed URN.  Change the default to ="."= or raise an explicit
-   error when =@delim= is absent on a non-root node.
-
-2. Document the root =<citeStructure>= skip in =resolve()= ::
-   The method correctly starts its walk from the root's children
-   rather than the root itself, but this is implicit.  Add a brief
-   comment explaining that the root =<citeStructure>= serves only
-   as an anchor (providing =<body>= as context and the base URN)
-   and is not itself a citation level.
-
-3. Same for =generate()= / =_find_path_to()= :: The root node's
-   =@match= is never evaluated during generation — correct, but
-   undocumented.  A comment here would help the next reader.
-
-NOTE for future work:
-- The connection between =citations()= and the XSLT chunkers remains
-  undesigned (recorded in Open Questions).
-- The =delim= handling assumes the passage component uses a consistent
-  delimiter at each level.  Range citations (e.g. =1.1-1.3=) are not
-  yet handled and will require a separate design pass.
-
-Approved for DONE pending the three minor fixes above.
-
-[2026-05-16] Fixes applied (commit =51119e7=, PR #53 to =dev=):
-- =generate()=: raise =ConfigurationError= when =@delim= absent on a child
-  =<citeStructure>=, replacing the silent =":"= fallback that would have
-  produced malformed URNs.
-- =resolve()=: added comment explaining the root =<citeStructure>= is an
-  anchor only; resolution begins with its children.
-- =_find_path_to()=: added comment explaining the root node's =@match= is
-  never evaluated during generation.
-
-All 21 tests pass.
-
-** UPDATE [2026-05-19 Tue]
-Based on the TEI specification, we should be using =xml:base= on the <body> tag to encode the base CTS urn, not the =n= attribute. The [[#document-encoding-requirements][document encoding requirements]] section has been revised to reflect this change.
-
-*** DONE Update reference_parser.py and applicable tests to reflect this change
-CLOSED: [2026-05-19 Tue 13:34]
-:PROPERTIES:
-:CUSTOM_ID: update-reference-parser
-:ASSIGNEES: Claude Code
-:END:
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2026-05-19 Tue 13:34]
-:END:
-
-* Decide fate of normalizers.py
+** Decide fate of normalizers.py
 :PROPERTIES:
 :CUSTOM_ID: decide-normalizers-fate
 :ASSIGNEES: Cliff
@@ -1729,7 +1504,7 @@ Now that =ReferenceParser= uses =<citeStructure>= as its primary
 mechanism, and =xml:base= / =xml:id= are no longer required inputs to
 citation resolution or generation, the normalizers' role is unclear.
 
-** Research
+*** Research
 [2026-05-16] Analyzed in consultation with Claude Chat.
 
 Two options:
@@ -1750,7 +1525,7 @@ The =ReferenceAuditor= already reports which documents have =<cRefPattern>=
 and their pattern structure — this is the data a future converter would
 consume.
 
-** Decision
+*** Decision
 :PROPERTIES:
 :DISPOSITION: adopt
 :END:
@@ -1776,7 +1551,7 @@ The citation index generator can then read =@xml:id= directly from
 the document rather than computing it separately.
 
 
-* Design: Citation Index and Chunker Integration
+** Design: Citation Index and Chunker Integration
 :PROPERTIES:
 :CUSTOM_ID: design-citation-index-chunker
 :ASSIGNEES: Claude Chat, Cliff
@@ -1789,7 +1564,7 @@ CTS URNs, no navigation links derived from citation structure, and no
 passage anchors.  This item designs the bridge between
 =ReferenceParser= and the compilation pipeline.
 
-** Research
+*** Research
 [2026-05-16] Initial analysis by Claude Chat.
 
 The core question is: at what point does a TEI element acquire its CTS
@@ -1823,7 +1598,7 @@ The citation index approach keeps the Python/XSLT boundary clean and
 allows the index to be used by other consumers (catalog generation,
 passage alignment, external services).
 
-*** Citation index format (strawman)
+**** Citation index format (strawman)
 
 #+begin_src json
 {
@@ -1843,11 +1618,11 @@ provides the canonical citation; =depth= supports TOC generation.
 
 (*NB*: The TEI documents don't have xml:id attributes (at least not
 uniformly). When should those be generated?
-** Decision
+*** Decision
 [2026-05-19] Adopt the citation index architecture.  Decisions on all
 open questions below.
 
-*** Pipeline order
+**** Pipeline order
 
 #+begin_example
 TEI source
@@ -1861,7 +1636,7 @@ TEI source
       consumes: TEI + JSON sidecar → HTML with anchors and nav links
 #+end_example
 
-*** Citation index format (revised)
+**** Citation index format (revised)
 
 The =xml_id= field is read directly from =@xml:id= on the matched
 element (placed there by the normalizer); it is not computed by the
@@ -1881,7 +1656,7 @@ index generator.
 }
 #+end_src
 
-*** Answers to open questions
+**** Answers to open questions
 
 - *Per-document or aggregated?* Per-document for the build pipeline:
   one JSON sidecar per TEI file, named
@@ -1905,7 +1680,7 @@ index generator.
   how it owns all other output paths.  A =citations_path(doc)= method
   should be added to =SiteMap=.
 
-*** Implementation items (for Claude Code)
+**** Implementation items (for Claude Code)
 
 The following TODO items should be created as children of this forum
 entry or as top-level items with =DEPENDS= set to
@@ -1931,7 +1706,7 @@ entry or as top-level items with =DEPENDS= set to
    fail gracefully if a document has no =<citeStructure>= (skip with a
    warning rather than aborting the whole run).
 
-** Open questions
+*** Open questions
 - Should the citation index be per-document or aggregated across the
   corpus?
 - How should the XSLT consume the index — as an =xsl:param=, a
@@ -1943,7 +1718,7 @@ entry or as top-level items with =DEPENDS= set to
 - Should =SiteMap= (=site_map.py=) own the citation index path, by
   analogy with how it owns other output paths?
 
-* Design: End-to-End Integration
+** Design: End-to-End Integration
 :PROPERTIES:
 :CUSTOM_ID: design-end-to-end-integration
 :ASSIGNEES: Claude Chat, Cliff
@@ -1978,31 +1753,7 @@ There are several workflows to think about:
 - Deployment :: work with Tufts IT to develop a deployment workflow
   that builds the site when the main branch changes.
 
-* TODO Validate output of TEI-cleanup stylesheets
-:PROPERTIES:
-:CUSTOM_ID: tooling/validate-cleanup-stylesheets
-:ASSIGNEES: Claude Code
-:SOURCE: adhoc
-:END:
-
-The corpus cleanup work (=canonical-greekLit/editing/transform1.xsl= and
-siblings) transforms existing TEI files — hoisting subtypes to types,
-moving the CTS URN to =<body @xml:base>=, replacing =cRefPattern= with
-=citeStructure=, and stripping legacy attributes.  There is currently no
-automatic check that the output is well-formed and correct.
-
-Write one or more scripts that validate the output of these stylesheets
-against the encoding requirements that =ReferenceParser= and =ReferenceAuditor=
-now enforce: =<body @xml:base>= carries a valid CTS URN, the =<refsDecl>=
-contains a =<citeStructure>=, =default="true"= is set, and the structure
-matches the document's actual div hierarchy.
-
-=run_audit.py= already produces machine-readable JSON; a thin wrapper that
-parses those reports and exits non-zero on any CRITICAL or FIX NEEDED
-issue would suffice as a first pass and could be integrated into a
-post-transform pipeline.
-
-* Design: Milestone-Based Citation and Chunking
+** Design: Milestone-Based Citation and Chunking
 :PROPERTIES:
 :CUSTOM_ID: design-milestone-citation
 :ASSIGNEES: Claude Chat, Cliff
@@ -2018,10 +1769,10 @@ and the citation index / chunker integration designed in
 item extends that design to milestone-based texts.  It should not be
 implemented until the div-based pipeline is working end-to-end.
 
-** Research
+*** Research
 [2026-05-19] Analysis by Claude Chat and Cliff.
 
-*** The structural problem
+**** The structural problem
 
 =<citeStructure>= is designed around containment: each level matches
 elements that contain the next level.  Milestones are different in
@@ -2038,7 +1789,7 @@ unit.  The existing =generate_chunks.xsl= already does this via
 =local:before-stop= and =local:after-start=; the design task is to
 connect that mechanism to the citation index.
 
-*** Two distinct cases
+**** Two distinct cases
 
 1. *Milestones as the primary citation unit* (Argonautica cards,
    Bekker pages in Aristotle).  The =<div>= structure in these texts
@@ -2053,7 +1804,7 @@ connect that mechanism to the citation index.
    =default="false"= (see =#citation-structures= for the multi-refsDecl
    design).
 
-*** Proposed =<citeStructure>= for case 1
+**** Proposed =<citeStructure>= for case 1
 
 #+begin_src xml
 <refsDecl xml:id="cite_by_card" default="true">
@@ -2074,7 +1825,7 @@ documented and, if necessary, reflected in the citation index format
 (e.g. a boolean =is_anchor= flag, or a =citation_type= field with values
 =container= / =anchor=).
 
-*** On =@spanTo=
+**** On =@spanTo=
 
 The TEI provides =@spanTo= (=att.spanning=) as an explicit mechanism for
 marking the endpoint of a span beginning at an empty element:
@@ -2101,7 +1852,7 @@ citation design.  Use document-order traversal as the default.
 milestone structure is ambiguous, but the pipeline should not depend
 on it.
 
-*** Relationship to the normalizer
+**** Relationship to the normalizer
 
 The normalizer (revised in =#decide-normalizers-fate=) must handle
 milestone elements in addition to div and leaf elements:
@@ -2110,7 +1861,7 @@ milestone elements in addition to div and leaf elements:
 - Derived the same way as for other elements: from the passage
   component of the CTS URN returned by =ReferenceParser.generate()=.
 
-** Open questions
+*** Open questions
 
 - Does =ReferenceParser= need an explicit =citation_type= property
   (=container= vs =anchor=) on returned elements, or is it sufficient
@@ -2129,7 +1880,7 @@ milestone elements in addition to div and leaf elements:
   =@n=?  These may differ if milestones are not strictly sequential
   in the source.
 
-** DONE Refactor StrategySelector to use structural heuristics
+*** DONE Refactor StrategySelector to use structural heuristics
 CLOSED: [2026-05-20 Wed 16:42]
 :PROPERTIES:
 :CUSTOM_ID: refactor-strategy-selector
@@ -2151,7 +1902,7 @@ The fix is to replace the hardcoded ordered list with a structural
 heuristic in =StrategySelector=, and to clean up related debris in
 =TEIDocument=.
 
-*** Changes to =mvp/document.py=
+**** Changes to =mvp/document.py=
 
 1. Remove =chunk_hint()= entirely.  Its only caller is
    =StrategySelector.select()=; that logic moves into the selector
@@ -2160,7 +1911,7 @@ heuristic in =StrategySelector=, and to clean up related debris in
 2. Remove =_extract_chunk_unit()= and the =chunk_unit= field from
    =TEIMetadata=.  Audit for any other callers before deleting.
 
-*** Changes to =mvp/strategy.py=
+**** Changes to =mvp/strategy.py=
 
 Replace =StrategySelector= with a new implementation.  The public
 interface =select(doc)= is preserved; add =select_all(doc)= returning
@@ -2204,7 +1955,7 @@ The new =select()= should:
 
 4. *Hard fallback*: if nothing matches, raise =ValueError= as before.
 
-*** Test coverage
+**** Test coverage
 
 Cliff will place representative TEI files in =tests/data/=:
 - a div-based prose text with no card milestones (e.g. the /Politics/)
@@ -2218,7 +1969,7 @@ Write tests in =tests/test_strategy.py= covering:
   valid chunking axes
 - =ValueError= is raised for a document that matches nothing
 
-*** Open questions for Cliff
+**** Open questions for Cliff
 
 - The "direct text content only" definition of mean char length (item
   2 above) is an approximation.  If it proves inaccurate in practice
@@ -2231,7 +1982,7 @@ Write tests in =tests/test_strategy.py= covering:
   specificity, or a richer object?  For now a plain list is fine;
   can be revisited when the multiple-chunking UI is designed.
 
-*** Implementation
+**** Implementation
 [2026-05-20]
 
 *Files changed* (commit =5cf39b2=):
@@ -2341,3 +2092,584 @@ Ready for review:
 
 - (b) the =MAX_SUBTYPES_PER_DIV_TYPE = 5= threshold for flat-drama
   detection has not been tested beyond the Aristophanes fixture.
+
+* Implementations
+
+** TEI Structure
+
+*** DONE Implement milestone analysis script
+CLOSED: [2026-04-16 Thu 10:36]
+:PROPERTIES:
+:CUSTOM_ID: analyze-milestones-implementation
+:ASSIGNEES: Claude Code
+:END:
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2026-04-16 Thu 10:36]
+:END:
+
+The programming task here is to write one or more Python scripts that
+will traverse each of the corpus directories in the data/ directory
+and compile a report of div, pb, and milestone use in each
+document. These reports will be collected in a milestone-reports/
+directory, where they may be used for analysis.
+
+**** Analysis
+[2026-04-15] Implemented in the new =perseus-tools= repo at
+=PerseusDLCode/perseus-tools= (local:
+=/Users/wulfmanc/repos/gh/PerseusDLCode/perseus-tools=).
+
+The script is a proper PDM package (src layout, same conventions as MVP).
+Entry point: =analyze-milestones --source_dir PATH --output_dir PATH=.
+
+JSON shape adopted:
+#+begin_src json
+{
+  "filename": "<stem>",
+  "milestones": [{"unit": "<unit-attr>", "frequency": N}],
+  "divs": [{"div_type": "<type>", "subtypes": [{"subtype": "<subtype>|null", "frequency": N}]}]
+}
+#+end_src
+
+The forum spec used ={"milestone": ..., "frequency": ...}= but the key name
+was ambiguous (the value is the =@unit= attribute). Normalized to =unit= for
+clarity.
+
+Verified against =canonical-greekLit=: 1,615 files processed successfully.
+Sophocles Ajax (tlg0011.tlg001) shows 65 =card= milestones and the expected
+=textpart= div subtypes (strophe/antistrophe, episode, etc.).
+
+**** Components
+- *analyze_milestones(tei_doc:Path, target_dir:Path) -> None:*
+
+  A function that traverses a TEI document, using lxml, and compiles
+  several lists:
+
+  - a list of milestone types : organized by unit attribute.  Record the
+    frequency of each type.
+
+  - a list of div types, organized by type and subtype attributes.
+    Record the frequency of each type and subtype.
+
+   The output of this function is a JSON object:
+   { "filename" : name ,
+     "milestones" : [{"milestone" : milestone, "frequency" :
+   frequency}],
+     "divs" : [{"div_type" : [{ "subtype" : subtype "frequency"}] }]
+     }
+
+  The object should be serialized to target_dir/filename.json.
+
+- *analyze-milestones.py --source_dir --output_dir*
+  A script that traverses source_dir, applying =analyze_milestones()=
+  to each TEI document (be sure to skip __cts__.xml files).
+
+**** Implementation
+[2026-04-15] Created =perseus-tools= repo with the following structure:
+
+#+begin_example
+perseus-tools/
+├── pyproject.toml
+├── README.md
+├── src/python/perseus_tools/
+│   ├── __init__.py
+│   └── analyze_milestones.py
+└── tests/
+#+end_example
+
+Key files:
+- =src/python/perseus_tools/analyze_milestones.py= — =analyze_milestones()=
+  function + =main()= CLI entry point
+- =pyproject.toml= — PDM package, entry point =analyze-milestones=
+
+Tested against =canonical-greekLit= (1,615 files). GitHub repo not yet
+created; local only at =/Users/wulfmanc/repos/gh/PerseusDLCode/perseus-tools=.
+
+
+*** DONE Implement ReferenceParser
+:PROPERTIES:
+:CUSTOM_ID: implement-reference-parser
+:ASSIGNEES: Claude Code
+:SOURCE: chat/2026-05-14
+:DEPENDS: refactor-citation-pipeline
+:COMMIT: f8b2f3a
+:PR: 53
+:END:
+:LOGBOOK:
+- State "DONE"       from "WAITING"    [2026-05-16 Sat] \\
+  Review feedback addressed; PR #53 open to dev
+- State "WAITING"    from "DONE"       [2026-05-16 Sat 14:25] \\
+  Waiting for review
+- State "DONE"       from "TODO"       [2026-05-16 Fri]
+:END:
+
+Implement =src/python/mvp/reference_parser.py=, a module that resolves
+CTS URNs to TEI elements and generates CTS URNs from TEI elements, using
+=<citeStructure>= declarations in the =<teiHeader>=.
+
+**** Research
+[2026-05-14] Designed in consultation with Claude Chat.
+
+See also: Cayless, Clérice, and Robie, "Introducing Citation Structures,"
+Balisage 2021 (=docs/Cayless_et_al_-_Introducing_Citation_Structures.pdf=);
+TEI Guidelines §SA.SACRCS; and the =#citation-structures= section of this
+forum.
+
+***** Document encoding requirements
+:PROPERTIES:
+:CUSTOM_ID: document-encoding-requirements
+:END:
+
+=ReferenceParser= requires the following encoding conventions, which
+differ from the current Perseus corpus defaults and must be enforced by
+the =StructureAuditor=:
+
+1. The CTS base URN must appear in =@xml:base= on =<body>=, not on
+   =<div type="edition">=:
+   #+begin_src xml
+   <body xml:base="urn:cts:greekLit:tlg0086.tlg034.perseus-grc2">
+   #+end_src
+
+2. The root =<citeStructure>= must use =use="@xml:base"= to pick up that value:
+   #+begin_src xml
+   <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
+     <citeStructure unit="chapter" delim=":" match="tei:div" use="@n">
+       <citeStructure unit="subchapter" delim="." match="tei:p" use="@n"/>
+     </citeStructure>
+   </citeStructure>
+   #+end_src
+
+3. The =<refsDecl>= containing the canonical CTS =<citeStructure>= must
+   carry =default="true"=.  A document may have multiple =<refsDecl>=
+   elements representing incommensurable citation systems (e.g. CTS
+   chapter/subchapter and Bekker page/column/line); =default="true"=
+   identifies the primary one.
+
+***** Class interface
+
+#+begin_src python
+class ConfigurationError(Exception):
+    """Raised when no usable citeStructure can be found or selected."""
+
+class CitationError(Exception):
+    """Raised when a URN is syntactically invalid or resolves to nothing."""
+
+class ReferenceParser:
+    def __init__(
+        self,
+        tei_doc: TEIDocument,
+        refsDecl_id: str | None = None,
+    ) -> None: ...
+
+    def resolve(self, urn: str) -> etree._Element:
+        """Return the element identified by the full CTS URN.
+
+        Partial citations (e.g. book only, when book/chapter/section is
+        the full hierarchy) are valid and resolve to the element at that
+        level.  Raises CitationError if the URN is malformed or matches
+        nothing.
+        """
+
+    def generate(self, element: etree._Element) -> str:
+        """Return the full CTS URN for a citable element.
+
+        Raises CitationError if the element is not reachable from any
+        level of the active citeStructure.
+        """
+
+    def citations(self, depth: int = -1) -> Iterator[str]:
+        """Yield every resolvable CTS URN in document order.
+
+        depth=-1 (default): yield citations at every level of the
+            hierarchy (suitable for TOC generation).
+        depth=0: yield only root-level citations.
+        depth=N (positive): yield citations up to and including level N
+            (0-based), suitable for feeding the chunkers with leaf-level
+            citations only.
+        """
+#+end_src
+
+***** =__init__= and =refsDecl= selection
+
+Selection order when =refsDecl_id= is not supplied:
+
+1. The =<refsDecl>= with =default="true"= that contains a
+   =<citeStructure>=.
+2. The first =<refsDecl>= containing a =<citeStructure>=, if exactly
+   one exists.
+3. =ConfigurationError= — caller must supply =refsDecl_id= explicitly.
+
+When =refsDecl_id= is supplied, raise =ConfigurationError= if no
+=<refsDecl>= with that =@xml:base= exists or if it contains no
+=<citeStructure>=.
+
+Do not attempt to interpret legacy =<cRefPattern>= elements.  If a
+document has only =<cRefPattern>= and no =<citeStructure>=, raise
+=ConfigurationError= with a message directing the caller to run the
+conversion tooling first.
+
+***** Namespace handling
+
+Hardcode the TEI namespace map throughout:
+#+begin_src python
+NS = {"tei": "http://www.tei-c.org/ns/1.0"}
+#+end_src
+This is already the project convention.  Do not accept a namespace map
+from the caller.
+
+***** Resolution algorithm
+
+Given a full CTS URN such as
+=urn:cts:greekLit:tlg0086.tlg034.perseus-grc2:1.3=:
+
+1. Split on the first =:= that follows the version identifier to
+   separate the base URN from the passage component.  The base URN is
+   everything up to and including the version token
+   (=urn:cts:greekLit:tlg0086.tlg034.perseus-grc2=); the passage
+   component is everything after the separating =:= (=1.3=).
+
+2. Verify the base URN matches =body/@xml:base=.  Raise =CitationError= if not.
+
+3. Walk the =<citeStructure>= tree level by level.  At each level:
+   a. Take the next passage token (splitting on the =@delim= declared
+      at that level).
+   b. Evaluate the level's =@match= XPath relative to the element
+      matched at the previous level (or relative to the document root
+      for the root =<citeStructure>=).
+   c. Among the matched elements, find the one whose =@use= value
+      equals the current token.
+   d. If no element matches, raise =CitationError=.
+
+4. Stop when passage tokens are exhausted.  The element matched at the
+   last consumed level is the result.  Partial citations are valid:
+   =urn:…:1= resolves to the chapter div, =urn:…:1.3= to the paragraph.
+
+5. Multiple =<citeStructure>= children at the same level (the Ovid
+   case — structural irregularity within a work): try each sibling in
+   document order and take the first whose =@match= XPath yields a
+   result for the current token.  If none match, raise =CitationError=.
+
+***** Generation algorithm
+
+Given an =etree._Element=:
+
+1. Walk the =<citeStructure>= tree to find the level whose =@match=
+   XPath, evaluated from the appropriate ancestor, yields this element.
+2. Collect =@use= values walking from the root level down to the matched
+   level, assembling the passage component by joining with =@delim=
+   values.
+3. Prepend the base URN (from =body/@xml:base=) with a =:= separator.
+4. Raise =CitationError= if the element is not reachable from any level.
+
+***** =citations()= implementation
+
+Recursive walk of the =<citeStructure>= tree.  At each level, evaluate
+the =@match= XPath relative to each element matched at the parent level,
+and yield a URN for every match.  Recurse into children unless the
+current depth equals the =depth= parameter.  Yield in document order.
+
+***** Tests
+
+Write =tests/test_reference_parser.py=.
+
+****** Primary development fixture: the Apology
+
+Use Plato's /Apology/ (=tlg0059.tlg002.perseus-grc2.xml=) as the
+primary fixture.  It has a single-level CTS citation hierarchy
+(section only), making it the simplest real corpus document to work
+with.  Its existing =<refsDecl>= uses =<cRefPattern>=, not
+=<citeStructure>=, so the fixture must be constructed programmatically
+— do not modify the corpus file.
+
+The fixture should be an in-memory lxml tree (built with
+=etree.fromstring= or equivalent) that reproduces the Apology's
+structure with the following modifications applied:
+
+1. Add =@xml:base= to =<body>= carrying the base URN:
+   #+begin_src xml
+   <body n="urn:cts:greekLit:tlg0059.tlg002.perseus-grc2">
+   #+end_src
+
+2. Replace the existing =<refsDecl n="CTS">= with a conformant one:
+   #+begin_src xml
+   <refsDecl xml:id="cite_by_section" default="true">
+     <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
+       <citeStructure unit="section" delim=":" match="tei:div[@type='textpart']" use="@n"/>
+     </citeStructure>
+   </refsDecl>
+   #+end_src
+
+Note: the Apology also contains three parallel milestone systems
+inside each section div (=unit="page"=, =unit="section" resp="Stephanus"=,
+=unit="para"=).  These are intentionally ignored by the primary
+=citeStructure= and should not interfere with resolution or generation.
+A second =<refsDecl>= for Stephanus citations is deferred (see
+Deferred section in forum item =#citation-structures=).
+
+****** Secondary stress-test fixture: Thucydides
+
+Once the Apology tests pass, add a second fixture based on Thucydides
+(=tlg0003.tlg001.perseus-grc2.xml=).  Thucydides has a three-level
+hierarchy (book/chapter/section) and is Greg Crane's primary test
+case for citation correctness.  Apply the same fixture construction
+approach: in-memory tree with =body/@xml:base= added and =<cRefPattern>=
+replaced by a conformant =<citeStructure>=:
+
+#+begin_src xml
+<refsDecl xml:id="cite_by_section" default="true">
+  <citeStructure match="/tei:TEI/tei:text/tei:body" use="xml:base">
+    <citeStructure unit="book" delim=":" match="tei:div[@subtype='book']" use="@n">
+      <citeStructure unit="chapter" delim="." match="tei:div[@subtype='chapter']" use="@n">
+        <citeStructure unit="section" delim="." match="tei:div[@subtype='section']" use="@n"/>
+      </citeStructure>
+    </citeStructure>
+  </citeStructure>
+</refsDecl>
+#+end_src
+
+Verify the actual =<div>= =@subtype= values in the Thucydides file
+before writing the fixture — the values above are based on the
+forum's earlier analysis but should be confirmed against the source.
+
+****** Required test cases
+
+Using the Apology fixture:
+- =resolve()= with a single-level citation (=urn:…:17=) returns the
+  correct =<div type="textpart">= element.
+- =resolve()= with a URN whose base does not match =body/@n= raises
+  =CitationError=.
+- =resolve()= with a valid base URN but non-existent section token
+  raises =CitationError=.
+- =generate()= on a known section =<div>= returns the expected URN
+  string (e.g. =urn:cts:greekLit:tlg0059.tlg002.perseus-grc2:17=).
+- =citations(depth=-1)= yields the correct total count of section URNs
+  (one per =<div type="textpart">=).
+- =citations(depth=0)= also yields the same count (single-level
+  hierarchy: root and leaf are the same level).
+- Constructor with no =default="true"= and a single =<citeStructure>=
+  succeeds.
+- Constructor with no =<citeStructure>= raises =ConfigurationError=.
+- Constructor with =refsDecl_id= pointing to a non-existent id raises
+  =ConfigurationError=.
+
+Using the Thucydides fixture (once Apology tests pass):
+- =resolve()= with a full three-level citation (=urn:…:1.2.3=) returns
+  the correct section =<div>=.
+- =resolve()= with a partial one-level citation (=urn:…:1=) returns the
+  book =<div>=.
+- =resolve()= with a partial two-level citation (=urn:…:1.2=) returns
+  the chapter =<div>=.
+- =generate()= on a section =<div>= returns the full three-part URN.
+- =generate()= on a book =<div>= returns a one-part URN.
+- =citations(depth=0)= yields only book-level URNs.
+- =citations(depth=1)= yields book and chapter URNs but not sections.
+- =citations(depth=-1)= yields URNs at all three levels.
+
+**** Implementation
+[2026-05-16] Implemented as =src/python/mvp/reference_parser.py=.
+
+=ReferenceParser.__init__= selects a =<refsDecl>= containing a
+=<citeStructure>=, preferring =default="true"=; falls back to the sole
+candidate if exactly one exists; raises =ConfigurationError= otherwise
+(including the case where only legacy =<cRefPattern>= elements are
+present).
+
+=resolve(urn)= strips the base URN prefix and walks the
+=<citeStructure>= tree level by level, splitting the passage string on
+each child's =@delim= via =str.partition=.  Partial citations are
+valid: a URN shorter than the full hierarchy resolves to the element at
+the deepest matched level.
+
+=generate(element)= does a DFS through the citeStructure tree using
+element identity (=is=) to locate the target, then assembles the
+passage by concatenating =@delim= + =@use= values level by level.
+
+=citations(depth)= yields all resolvable URNs in document order;
+=depth=-1= yields every level, =depth=0= yields only the root level,
+=depth=N= yields up to and including level N (0-based).
+
+21 tests in =tests/test_reference_parser.py=, covering Apology
+(single-level) and Thucydides (three-level) synthetic fixtures.
+Merged to =dev= via PR #49.
+
+**** Open questions
+- The connection between =ReferenceParser.citations()= and the XSLT
+  chunkers is not yet designed.  The chunkers currently operate purely
+  on document structure; feeding CTS URNs into them for navigation link
+  generation is deferred to a subsequent forum item.
+**** Review
+[2026-05-16] Reviewer: Claude Chat
+
+Overall: clean implementation, spec followed faithfully, tests are
+thorough and well-structured.  Three items to address before this is
+considered fully closed; none are blockers for proceeding to the next
+task.
+
+MINOR — fix before next use of this code in production:
+
+1. Default delimiter in =generate()= :: =cs.get("delim", ":")= uses
+   =":"= as the fallback for child nodes, but =":"= is the
+   root-level separator; child nodes use =".".  If any child
+   =<citeStructure>= omits =@delim=, this would silently produce a
+   malformed URN.  Change the default to ="."= or raise an explicit
+   error when =@delim= is absent on a non-root node.
+
+2. Document the root =<citeStructure>= skip in =resolve()= ::
+   The method correctly starts its walk from the root's children
+   rather than the root itself, but this is implicit.  Add a brief
+   comment explaining that the root =<citeStructure>= serves only
+   as an anchor (providing =<body>= as context and the base URN)
+   and is not itself a citation level.
+
+3. Same for =generate()= / =_find_path_to()= :: The root node's
+   =@match= is never evaluated during generation — correct, but
+   undocumented.  A comment here would help the next reader.
+
+NOTE for future work:
+- The connection between =citations()= and the XSLT chunkers remains
+  undesigned (recorded in Open Questions).
+- The =delim= handling assumes the passage component uses a consistent
+  delimiter at each level.  Range citations (e.g. =1.1-1.3=) are not
+  yet handled and will require a separate design pass.
+
+Approved for DONE pending the three minor fixes above.
+
+[2026-05-16] Fixes applied (commit =51119e7=, PR #53 to =dev=):
+- =generate()=: raise =ConfigurationError= when =@delim= absent on a child
+  =<citeStructure>=, replacing the silent =":"= fallback that would have
+  produced malformed URNs.
+- =resolve()=: added comment explaining the root =<citeStructure>= is an
+  anchor only; resolution begins with its children.
+- =_find_path_to()=: added comment explaining the root node's =@match= is
+  never evaluated during generation.
+
+All 21 tests pass.
+
+**** UPDATE [2026-05-19 Tue]
+Based on the TEI specification, we should be using =xml:base= on the <body> tag to encode the base CTS urn, not the =n= attribute. The [[#document-encoding-requirements][document encoding requirements]] section has been revised to reflect this change.
+
+***** DONE Update reference_parser.py and applicable tests to reflect this change
+CLOSED: [2026-05-19 Tue 13:34]
+:PROPERTIES:
+:CUSTOM_ID: update-reference-parser
+:ASSIGNEES: Claude Code
+:END:
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2026-05-19 Tue 13:34]
+:END:
+
+
+*** TODO Validate output of TEI-cleanup stylesheets
+:PROPERTIES:
+:CUSTOM_ID: tooling/validate-cleanup-stylesheets
+:ASSIGNEES: Claude Code
+:SOURCE: adhoc
+:END:
+
+The corpus cleanup work (=canonical-greekLit/editing/transform1.xsl= and
+siblings) transforms existing TEI files — hoisting subtypes to types,
+moving the CTS URN to =<body @xml:base>=, replacing =cRefPattern= with
+=citeStructure=, and stripping legacy attributes.  There is currently no
+automatic check that the output is well-formed and correct.
+
+Write one or more scripts that validate the output of these stylesheets
+against the encoding requirements that =ReferenceParser= and =ReferenceAuditor=
+now enforce: =<body @xml:base>= carries a valid CTS URN, the =<refsDecl>=
+contains a =<citeStructure>=, =default="true"= is set, and the structure
+matches the document's actual div hierarchy.
+
+=run_audit.py= already produces machine-readable JSON; a thin wrapper that
+parses those reports and exits non-zero on any CRITICAL or FIX NEEDED
+issue would suffice as a first pass and could be integrated into a
+post-transform pipeline.
+
+** Citation and Reference
+
+** HTML-Generation Work
+
+*** TODO Implement TEI -> HTML Process
+:PROPERTIES:
+:DATE_CREATED: [2026-05-15 Fri]
+:SOURCE:   [[#tei-html-stylesheet-family]]
+:CUSTOM_ID: implement-tei-to-html-process
+:END:
+**** Existing files
+
+The current stylesheets live in =src/xslt/html/=:
+
+- =chunker_core.xsl= — chunking infrastructure and rendering, currently
+  conflated.
+- =generate_chunks.xsl= — milestone-based chunker; calls into
+  =chunker_core.xsl=.
+- =generate_div_chunks.xsl= — division-based chunker; calls into
+  =chunker_core.xsl=.
+- =driver.xsl= — sample driver (stub).
+- =tei/core.xsl= — stub rendering library (empty).
+- =tei/textstructure.xsl= — stub (=tei:TEI= root template only).
+- =tei/variables.xsl= — shared variables.
+
+**** Work to be done
+
+***** 1. Create =src/xslt/html/tei/perseus_base.xsl=
+
+A pure rendering library.  Extract all rendering templates from
+=chunker_core.xsl= and move them here, operating in
+=mode="tei-to-html"=.  This file must have:
+
+- No root template (=/= or =tei:TEI=).
+- No page shell.
+- No =mode="chunk"= templates.
+- No =$start= / =$stop= parameters.
+- No =local:before-stop= / =local:after-start= guards.
+
+Templates to extract (at minimum): =tei:body=, =tei:div=, =tei:head=,
+=tei:p=, =tei:l=, =tei:lg=, =tei:sp=, =tei:speaker=, =tei:stage=,
+=tei:quote=, =tei:hi=, =tei:foreign=, =tei:note=, =tei:gap=,
+=tei:supplied=, =tei:unclear=, the catch-all =tei:*= and =text()=.
+
+For =tei:l=: construct =data-cts-urn= from
+=ancestor::tei:body/@xml:base= and the element's citation coordinates.
+If =ancestor::tei:body/@xml:base= is absent, emit an =xsl:message=
+with =terminate="yes"=.
+
+***** 2. Refactor =chunker_core.xsl=
+
+Strip all rendering templates; they now live in =perseus_base.xsl=.
+=chunker_core.xsl= retains only:
+
+- The =local:before-stop= and =local:after-start= boundary functions.
+- The =mode="chunk"= catch-all template, which applies the boundary
+  guards and, for nodes that pass, calls
+  =<xsl:apply-templates mode="tei-to-html"/>=.
+- The =$start= / =$stop= tunnel parameters, scoped to =mode="chunk"=
+  only.
+
+Add a comment block at the top of the file stating the contract:
+=mode="chunk"= owns boundary logic; =mode="tei-to-html"= owns
+rendering.  No tunnel parameters cross the boundary.
+
+***** 3. Update the driver
+
+Update =driver.xsl= to import both =tei/perseus_base.xsl= and
+=chunker_core.xsl=, define the root template and page shell, and
+invoke the chunkers.  The driver is the only file that knows about
+both modes.
+
+***** 4. Verify
+
+Run the existing test corpus (Argonautica, Poetics, Iliad,
+Aristophanes, Politics) through the refactored pipeline and confirm
+output is identical to the pre-refactoring baseline.  Note any
+deviations.
+
+**** Constraints
+
+- Do not alter chunking behavior.
+- Do not alter HTML output structure.
+- =mode="tei-to-html"= templates must not reference =$start=, =$stop=,
+  =local:before-stop=, or =local:after-start=.
+- =mode="chunk"= templates must not produce HTML element content
+  directly.
+
+** Schema Work
+
+** General
