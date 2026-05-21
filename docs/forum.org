@@ -2586,12 +2586,15 @@ post-transform pipeline.
 
 ** HTML-Generation Work
 
-*** TODO Implement TEI -> HTML Process
+*** DOING Implement TEI -> HTML Process
 :PROPERTIES:
 :DATE_CREATED: [2026-05-15 Fri]
 :SOURCE:   [[#tei-html-stylesheet-family]]
 :CUSTOM_ID: implement-tei-to-html-process
 :END:
+Before starting, create a branch from the dev branch named
+implement-tei-to-html-process and work from there.
+
 **** Existing files
 
 The current stylesheets live in =src/xslt/html/=:
