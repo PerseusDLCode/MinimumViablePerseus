@@ -2586,7 +2586,7 @@ post-transform pipeline.
 
 ** HTML-Generation Work
 
-*** DOING Implement TEI -> HTML Process
+*** PR Implement TEI -> HTML Process
 :PROPERTIES:
 :DATE_CREATED: [2026-05-15 Fri]
 :SOURCE:   [[#tei-html-stylesheet-family]]
@@ -2759,6 +2759,63 @@ entry point.  The key detail is that =set_base_output_uri= must be
 called with the output directory URI before invoking the transformer,
 or =xsl:result-document= outputs are written to the wrong location.
 
+**** Review
+[2026-05-21] Reviewer: Claude Chat
+
+Overall: clean implementation, spec followed faithfully, mode contract
+correctly stated and observed throughout.  One issue requires a fix
+before this item can be marked DONE.
+
+FIX NEEDED before closing:
+
+=local:extract-base-urn= in =chunker_core.xsl= (line 88) still reads
+the base URN from =tei:div[@type='edition']/@n= — the old encoding
+convention.  Now that the canonical location for the base CTS URN is
+=tei:body/@xml:base=, this function will silently return the empty
+sequence on any document that has been migrated to the new convention.
+The consequence is that =local:chunk-cts-range()= will produce no CTS
+range chip in the passage header for those documents.
+
+Fix: replace the =select= expression with:
+
+#+begin_src xml
+<xsl:sequence select="($root//tei:body/@xml:base/string())[1]"/>
+#+end_src
+
+Also update the function's doc-comment to reflect the new source
+attribute.
+
+NOTE for future work:
+
+The =text()= template in =perseus_base.xsl= declares =$morph-url= as a
+tunnel parameter, which technically crosses the mode boundary we
+established (no tunnel parameters from =mode="chunk"= into
+=mode="tei-to-html"=).  This is an acceptable temporary inconsistency:
+the live-URL morphological linking mechanism is already identified as
+interim, pending the compiled-links-via-=document()= design.  Add a
+TODO comment near the =$morph-url= declaration in =perseus_base.xsl=
+acknowledging this.
+** Driver/Chunker Architecture
+:PROPERTIES:
+:CUSTOM_ID: driver-chunker-architecture
+:SOURCE: chat/2026-05-21
+:END:
+
+The =driver.xsl= concept was designed but never implemented: the page
+shell currently lives inside the chunkers (=generate_div_chunks.xsl=,
+=generate_chunks.xsl=), and =driver.xsl= remains a stub.  This was
+discovered during PR review of [[#implement-tei-to-html-process]]: the
+=morph-url= parameter has no clean home, and =generate-html-from-tei=
+documentation points to a chunker rather than a driver as the XSL
+entry point.
+
+This needs a design pass before any further implementation:
+- What is the driver→chunker interface?
+- Where does the page shell live?
+- How does =$morph-url= (and future parameters like it) get declared once?
+
+*** Research
+*** Decision
 ** Schema Work
 
 ** General
