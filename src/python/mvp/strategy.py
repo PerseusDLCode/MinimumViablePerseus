@@ -63,6 +63,12 @@ class ChunkingStrategy(ABC):
 
     @property
     @abstractmethod
+    def chunk_strategy(self) -> str:
+        """Value of the chunk-strategy parameter passed to driver.xsl."""
+        ...
+
+    @property
+    @abstractmethod
     def chunk_unit(self) -> str:
         """The unit value passed to the XSLT stylesheet."""
         ...
@@ -85,7 +91,11 @@ class MilestoneStrategy(ChunkingStrategy):
 
     @property
     def xslt_stylesheet(self) -> str:
-        return "html/generate_chunks.xsl"
+        return "html/driver.xsl"
+
+    @property
+    def chunk_strategy(self) -> str:
+        return "milestone"
 
     def describes(self, doc: TEIDocument) -> bool:
         root = doc.tree.getroot()
@@ -113,7 +123,11 @@ class DivisionStrategy(ChunkingStrategy):
 
     @property
     def xslt_stylesheet(self) -> str:
-        return "html/generate_div_chunks.xsl"
+        return "html/driver.xsl"
+
+    @property
+    def chunk_strategy(self) -> str:
+        return "div"
 
     def describes(self, doc: TEIDocument) -> bool:
         root = doc.tree.getroot()

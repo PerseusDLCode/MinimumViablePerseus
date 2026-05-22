@@ -198,6 +198,12 @@ class TestMilestoneStrategyDescribes:
         assert MilestoneStrategy(unit="section").chunk_unit == "section"
         assert MilestoneStrategy(unit="line").chunk_unit == "line"
 
+    def test_xslt_stylesheet_returns_driver(self):
+        assert MilestoneStrategy(unit="card").xslt_stylesheet == "html/driver.xsl"
+
+    def test_chunk_strategy_returns_milestone(self):
+        assert MilestoneStrategy(unit="card").chunk_strategy == "milestone"
+
 
 class TestDivisionStrategyDescribes:
 
@@ -237,9 +243,12 @@ class TestDivisionStrategyDescribes:
         assert not DivisionStrategy(div_type="textpart",
                                     subtype="scene").describes(doc)
 
-    def test_xslt_stylesheet_returns_generate_div_chunks(self):
+    def test_xslt_stylesheet_returns_driver(self):
         assert DivisionStrategy(div_type="textpart").xslt_stylesheet == \
-            "html/generate_div_chunks.xsl"
+            "html/driver.xsl"
+
+    def test_chunk_strategy_returns_div(self):
+        assert DivisionStrategy(div_type="textpart").chunk_strategy == "div"
 
 
 class TestChunkingStrategyIsAbstract:
