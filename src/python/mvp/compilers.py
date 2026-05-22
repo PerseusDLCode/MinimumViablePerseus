@@ -141,6 +141,10 @@ class PageCompiler:
                     proc.make_string_value(self._strategy.chunk_unit)
                 )
                 transformer.set_parameter(
+                    "chunk-strategy",
+                    proc.make_string_value(self._strategy.chunk_strategy)
+                )
+                transformer.set_parameter(
                     "output-dir",
                     proc.make_string_value(str(output_path))
                 )

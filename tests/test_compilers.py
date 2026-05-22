@@ -153,6 +153,17 @@ class TestPageCompilerCompile:
         calls = [str(c) for c in transformer.set_parameter.call_args_list]
         assert any("chunk-unit" in c for c in calls)
 
+    def test_sets_chunk_strategy_parameter(self, tmp_path, seneca_doc,
+                                           card_strategy, mock_saxon):
+        mock_cls, mock_proc = mock_saxon
+        transformer = mock_proc.new_xslt30_processor().compile_stylesheet()
+
+        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler.compile(seneca_doc, tmp_path / "out")
+
+        calls = [str(c) for c in transformer.set_parameter.call_args_list]
+        assert any("chunk-strategy" in c for c in calls)
+
     def test_sets_output_dir_parameter(self, tmp_path, seneca_doc,
                                        card_strategy, mock_saxon):
         mock_cls, mock_proc = mock_saxon
