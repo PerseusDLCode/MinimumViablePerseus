@@ -100,7 +100,7 @@ def make_pipeline(tmp_path, corpus, selector_side_effect=None,
         pl = BuildPipeline(
             corpora=[corpus],
             site_map=site_map,
-            xslt_root=tmp_path / "xslt",
+            driver=tmp_path / "driver.xsl",
         )
         mock_selector = mock_selector_cls.return_value
 
@@ -130,7 +130,7 @@ class TestBuildPipelineConstruction:
             pl = BuildPipeline(
                 corpora=[corpus_a, corpus_b],
                 site_map=SiteMap(tmp_path / "output"),
-                xslt_root=tmp_path / "xslt",
+                driver=tmp_path / "driver.xsl",
             )
         assert pl is not None
 
@@ -251,7 +251,7 @@ class TestBuildPipelineSuccess:
             pl = BuildPipeline(
                 corpora=[corpus_a, corpus_b],
                 site_map=site_map,
-                xslt_root=tmp_path / "xslt",
+                driver=tmp_path / "driver.xsl",
             )
 
         with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \

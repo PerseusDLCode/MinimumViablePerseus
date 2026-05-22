@@ -89,21 +89,22 @@ class PageCompiler:
     generation to an XSLT 3.0 stylesheet via Saxon.
 
     Args:
-        strategy:   ChunkingStrategy determining how the document is
-                    divided into chunks.
-        xslt_root:  Directory containing XSLT stylesheets.
+        strategy:  ChunkingStrategy determining how the document is
+                   divided into chunks.
+        driver:    Full path to the XSLT driver stylesheet (e.g.
+                   Path("src/xslt/html/driver.xsl")).
 
     Usage::
 
-        compiler = PageCompiler(strategy, xslt_root=Path("src/xslt"))
+        compiler = PageCompiler(strategy, driver=Path("src/xslt/html/driver.xsl"))
         compiler.compile(doc, output_path=site_map.chunk_dir(doc.metadata.urn))
     """
 
     def __init__(self, strategy: ChunkingStrategy,
-                 xslt_root: Path,
+                 driver: Path,
                  morph_url: str = "") -> None:
         self._strategy = strategy
-        self._xslt_root = Path(xslt_root)
+        self._driver = Path(driver)
         self._morph_url = morph_url
 
     def compile(self, doc: TEIDocument, output_path: Path,
@@ -124,7 +125,7 @@ class PageCompiler:
                               any reason.
         """
         output_path.mkdir(parents=True, exist_ok=True)
-        stylesheet = self._xslt_root / self._strategy.xslt_stylesheet
+        stylesheet = self._driver
 
         if catalog_url is None:
             lang = doc.metadata.language

@@ -35,15 +35,15 @@ class BuildPipeline:
     Args:
         corpus:    The TEI source corpus.
         site_map:  URL/path scheme for compiled artifacts.
-        xslt_root: Directory containing XSLT stylesheets.
+        driver:    Full path to the XSLT driver stylesheet.
     """
 
     def __init__(self, corpora: list[Corpus], site_map: SiteMap,
-                 xslt_root: Path,
+                 driver: Path,
                  morph_url: str = "") -> None:
         self._corpora = corpora
         self._site_map = site_map
-        self._xslt_root = xslt_root
+        self._driver = Path(driver)
         self._morph_url = morph_url
         self._selector = StrategySelector()
 
@@ -66,7 +66,7 @@ class BuildPipeline:
                     strategy = self._selector.select(doc)
                     compiler = PageCompiler(
                         strategy=strategy,
-                        xslt_root=self._xslt_root,
+                        driver=self._driver,
                         morph_url=self._morph_url,
                     )
                     output_path = self._site_map.chunk_dir(doc.metadata.urn)

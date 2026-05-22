@@ -107,12 +107,12 @@ class TestCompilationError:
 
 class TestPageCompilerConstruction:
 
-    def test_accepts_strategy_and_xslt_root(self, tmp_path, card_strategy):
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+    def test_accepts_strategy_and_driver(self, tmp_path, card_strategy):
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         assert compiler is not None
 
-    def test_xslt_root_coerced_to_path(self, tmp_path, card_strategy):
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=str(tmp_path))
+    def test_driver_coerced_to_path(self, tmp_path, card_strategy):
+        compiler = PageCompiler(strategy=card_strategy, driver=str(tmp_path / "driver.xsl"))
         # No public accessor, but construction must not raise
         assert compiler is not None
 
@@ -124,7 +124,7 @@ class TestPageCompilerCompile:
         output_path = tmp_path / "output" / "deep" / "path"
         assert not output_path.exists()
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         compiler.compile(seneca_doc, output_path)
 
         assert output_path.is_dir()
@@ -132,14 +132,13 @@ class TestPageCompilerCompile:
     def test_invokes_saxon_with_correct_stylesheet(self, tmp_path, seneca_doc,
                                                    card_strategy, mock_saxon):
         mock_cls, mock_proc = mock_saxon
-        xslt_root = tmp_path / "xslt"
-        xslt_root.mkdir()
+        driver = tmp_path / "html" / "driver.xsl"
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=xslt_root)
+        compiler = PageCompiler(strategy=card_strategy, driver=driver)
         compiler.compile(seneca_doc, tmp_path / "out")
 
         mock_proc.new_xslt30_processor().compile_stylesheet.assert_called_once_with(
-            stylesheet_file=str(xslt_root / card_strategy.xslt_stylesheet)
+            stylesheet_file=str(driver)
         )
 
     def test_sets_chunk_unit_parameter(self, tmp_path, seneca_doc,
@@ -147,7 +146,7 @@ class TestPageCompilerCompile:
         mock_cls, mock_proc = mock_saxon
         transformer = mock_proc.new_xslt30_processor().compile_stylesheet()
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         compiler.compile(seneca_doc, tmp_path / "out")
 
         calls = [str(c) for c in transformer.set_parameter.call_args_list]
@@ -158,7 +157,7 @@ class TestPageCompilerCompile:
         mock_cls, mock_proc = mock_saxon
         transformer = mock_proc.new_xslt30_processor().compile_stylesheet()
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         compiler.compile(seneca_doc, tmp_path / "out")
 
         calls = [str(c) for c in transformer.set_parameter.call_args_list]
@@ -170,7 +169,7 @@ class TestPageCompilerCompile:
         transformer = mock_proc.new_xslt30_processor().compile_stylesheet()
         output_path = tmp_path / "out"
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         compiler.compile(seneca_doc, output_path)
 
         calls = [str(c) for c in transformer.set_parameter.call_args_list]
@@ -178,7 +177,7 @@ class TestPageCompilerCompile:
 
     def test_returns_none_on_success(self, tmp_path, seneca_doc,
                                      card_strategy, mock_saxon):
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
         result = compiler.compile(seneca_doc, tmp_path / "out")
         assert result is None
 
@@ -190,7 +189,7 @@ class TestPageCompilerCompile:
         mock_proc.new_xslt30_processor().compile_stylesheet(
         ).transform_to_string.side_effect = RuntimeError("Saxon exploded")
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
 
         with pytest.raises(CompilationError) as exc_info:
             compiler.compile(seneca_doc, tmp_path / "out")
@@ -206,7 +205,7 @@ class TestPageCompilerCompile:
         mock_proc.new_xslt30_processor().compile_stylesheet(
         ).transform_to_string.side_effect = RuntimeError("oops")
 
-        compiler = PageCompiler(strategy=card_strategy, xslt_root=tmp_path)
+        compiler = PageCompiler(strategy=card_strategy, driver=tmp_path / "driver.xsl")
 
         with pytest.raises(CompilationError) as exc_info:
             compiler.compile(seneca_doc, tmp_path / "out")
@@ -382,7 +381,7 @@ class TestCatalogCompilerIndex:
 # PageCompiler integration tests (require real Saxon + XSLT)
 # ---------------------------------------------------------------------------
 
-XSLT_ROOT = Path(__file__).parent.parent / "src" / "xslt"
+DRIVER = Path(__file__).parent.parent / "src" / "xslt" / "html" / "driver.xsl"
 DTD_FIXTURE_PATH = DATA_DIR / "dtd_entity_test.xml"
 
 
@@ -398,7 +397,7 @@ class TestPageCompilerIntegration:
     def test_seneca_produces_chunks(self, tmp_path):
         doc = TEIDocument.from_path(SENECA_PATH)
         strategy = MilestoneStrategy(unit="card")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         assert (tmp_path / "card_1.html").exists(), \
@@ -412,7 +411,7 @@ class TestPageCompilerIntegration:
     def test_seneca_chunk_contains_html_structure(self, tmp_path):
         doc = TEIDocument.from_path(SENECA_PATH)
         strategy = MilestoneStrategy(unit="card")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         html = (tmp_path / "card_1.html").read_text(encoding="utf-8")
@@ -428,7 +427,7 @@ class TestPageCompilerIntegration:
         """generate_chunks.xsl must write a toc.html alongside index.json."""
         doc = TEIDocument.from_path(SENECA_PATH)
         strategy = MilestoneStrategy(unit="card")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         assert (tmp_path / "toc.html").exists(), "Expected toc.html to be produced"
@@ -440,7 +439,7 @@ class TestPageCompilerIntegration:
         """Documents with DOCTYPE references compile after the DTD parser fix."""
         doc = TEIDocument.from_path(DTD_FIXTURE_PATH)
         strategy = MilestoneStrategy(unit="section")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         assert (tmp_path / "section_1.html").exists()
@@ -458,7 +457,7 @@ class TestPageCompilerIntegration:
         from mvp.strategy import DivisionStrategy
         doc = TEIDocument.from_path(DATA_DIR / "phi2331.phi013.perseus-lat2.xml")
         strategy = DivisionStrategy(div_type="textpart", subtype="chapter")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         assert (tmp_path / "chapter_1.html").exists()
@@ -474,7 +473,7 @@ class TestPageCompilerIntegration:
         """PageCompiler.compile() must inject author and language into index.json."""
         doc = TEIDocument.from_path(DATA_DIR / "phi1017.phi007.perseus-lat2.xml")
         strategy = MilestoneStrategy(unit="card")
-        compiler = PageCompiler(strategy=strategy, xslt_root=XSLT_ROOT)
+        compiler = PageCompiler(strategy=strategy, driver=DRIVER)
         compiler.compile(doc, tmp_path)
 
         manifest = json.loads((tmp_path / "index.json").read_text())
