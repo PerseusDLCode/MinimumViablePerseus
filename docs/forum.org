@@ -2743,12 +2743,17 @@ post-transform pipeline.
 
 ** HTML-Generation Work
 
-*** PR Implement TEI -> HTML Process
+*** DONE Implement TEI -> HTML Process
+CLOSED: [2026-05-22 Fri]
 :PROPERTIES:
 :DATE_CREATED: [2026-05-15 Fri]
 :SOURCE:   [[#tei-html-stylesheet-family]]
 :CUSTOM_ID: implement-tei-to-html-process
 :END:
+:LOGBOOK:
+- State "DONE"       from "PR"         [2026-05-22 Fri]
+:END:
+Implemented via PRs #66 (closed/superseded), #71, #72.
 Before starting, create a branch from the dev branch named
 implement-tei-to-html-process and work from there.
 
