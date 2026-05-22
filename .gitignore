@@ -234,8 +234,8 @@ local/
 src/morph-server/*.morph.xml
 
 
-# The top-level data just contains submodules
-data/
+corpora/
+
 
 # The wiki is a submodule; don't track
 wiki
