@@ -5,21 +5,30 @@ generate_html_from_tei.py — Transform a TEI document to HTML using an XSL driv
 Usage:
   generate-html-from-tei TEI_FILE XSL_FILE --output-dir DIR [--param NAME=VALUE ...]
 
+XSL_FILE should be a driver stylesheet (e.g. src/xslt/html/driver.xsl), not a
+chunker directly.  The driver imports the appropriate chunker, owns the page
+shell, and declares all enrichment parameters (morph-url, citation-table, etc.).
+
 Runs the XSLT transformation via SaxonC (saxonche) and writes all output
 files to the specified output directory, which is created if absent.
 
 The output directory is passed to the stylesheet as both the Saxon base
 output URI (governing xsl:result-document output) and the `output-dir`
-XSLT parameter (accepted by all MVP chunker stylesheets).  Additional
-stylesheet parameters can be supplied with repeated --param options.
+XSLT parameter.  Additional stylesheet parameters can be supplied with
+repeated --param options.
 
 Examples:
-  generate-html-from-tei my-argonautica.xml src/xslt/html/generate_chunks.xsl \\
+  generate-html-from-tei my-argonautica.xml src/xslt/html/driver.xsl \\
       --output-dir /tmp/argo --param chunk-unit=card
 
-  generate-html-from-tei poetics.xml src/xslt/html/generate_div_chunks.xsl \\
+  generate-html-from-tei poetics.xml src/xslt/html/driver.xsl \\
       --output-dir /tmp/poetics \\
       --param chunk-unit=chapter \\
+      --param chunk-strategy=div
+
+  generate-html-from-tei my-argonautica.xml src/xslt/html/driver.xsl \\
+      --output-dir /tmp/argo-morph \\
+      --param chunk-unit=card \\
       --param morph-url=http://localhost:5000
 """
 

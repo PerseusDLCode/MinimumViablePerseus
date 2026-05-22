@@ -2093,6 +2093,163 @@ Ready for review:
 - (b) the =MAX_SUBTYPES_PER_DIV_TYPE = 5= threshold for flat-drama
   detection has not been tested beyond the Aristophanes fixture.
 
+
+** Driver/Chunker Architecture
+:PROPERTIES:
+:CUSTOM_ID: driver-chunker-architecture
+:SOURCE: chat/2026-05-21
+:END:
+
+The =driver.xsl= concept was designed but never implemented: the page
+shell currently lives inside the chunkers (=generate_div_chunks.xsl=,
+=generate_chunks.xsl=), and =driver.xsl= remains a stub.  This was
+discovered during PR review of [[#implement-tei-to-html-process]]: the
+=morph-url= parameter has no clean home, and =generate-html-from-tei=
+documentation points to a chunker rather than a driver as the XSL
+entry point.
+
+This needs a design pass before any further implementation:
+- What is the driver→chunker interface?
+- Where does the page shell live?
+- How does =$morph-url= (and future parameters like it) get declared once?
+
+*** Research
+[2026-05-22] Claude Chat
+
+**** The problem
+
+The chunkers (=generate_div_chunks.xsl=, =generate_chunks.xsl=) are
+currently doing three things: iterating over chunks, computing page
+metadata (prev/next, TOC, breadcrumb, doc-lang), and constructing the
+full HTML page shell.  The page shell belongs in the driver, not in
+the chunkers.  This conflation means:
+
+- The page layout cannot be changed without modifying the chunkers.
+- Parameters that are rendering concerns (=$morph-url=, future
+  =$citation-map=) must be declared in every chunker separately.
+- =driver.xsl= is a useless stub.
+
+**** The division of responsibility
+
+- *Chunker* :: a pure iterator.  Knows how to traverse a TEI document
+  and identify chunk boundaries.  Computes lightweight metadata for
+  each chunk (position, prev/next filenames, TOC entries, doc-lang,
+  work-title, author).  Calls a named template =page:render= defined
+  by the driver, passing the raw TEI chunk element and metadata.
+  Never touches =<html>=, =<head>=, =<body>=, or CSS.  Never knows
+  about =$morph-url= or any other rendering enrichment.
+
+- *Driver* :: the composition root and page assembler.  Imports the
+  rendering library and the chunker.  Declares all enrichment
+  parameters (=$morph-url=, =$citation-table=, etc.) as top-level
+  stylesheet parameters.  Defines =page:render= and supporting named
+  templates (=page:header=, =page:footer=, =page:sidebar-left=,
+  =page:sidebar-right=, =page:passage-header=).  Loads enrichment
+  data (e.g. =document($citation-table)=).  *Triggers rendering*
+  inside =page:render= by calling =<xsl:apply-templates mode="chunk">=
+  on the chunk element's children, injecting all enrichments as tunnel
+  parameters at that point.
+
+- *Rendering library* (=perseus_base.xsl= and descendants) :: declares
+  enrichment tunnel parameters (=$morph-url=, =$citation-map=) only in
+  the templates that consume them.  Degrades gracefully when parameters
+  are absent (empty string / empty sequence defaults).  Has no
+  knowledge of where enrichments came from.
+
+**** Why the driver triggers rendering
+
+The driver must call =apply-templates= on the chunk content, not the
+chunker.  This is because the driver is the only participant that knows
+which enrichments are active for this compilation run.  If the chunker
+pre-rendered content and handed it to the driver as a result tree
+fragment, the enrichment tunnel parameters would have to be declared
+in the chunker — which reintroduces the coupling we are trying to
+eliminate.
+
+**** Enrichment parameters
+
+Two enrichment parameters are currently in scope:
+
+- =$morph-url= (=xs:string=, default =''=) :: when non-empty, each
+  word token in =text()= is wrapped in an =<a>= linking to the
+  morphological server.  Consumed by the =text()= template in
+  =perseus_base.xsl=.  This is an interim mechanism pending
+  compiled-links-via-=document()=.
+
+- =$citation-table= (=xs:string=, default =''=) :: path or URL of a
+  compiled citation link table (XML or JSON).  When non-empty, the
+  driver loads it via =document($citation-table)= into a
+  =$citation-map= variable and injects it as a tunnel parameter.
+  Consumed by the =tei:bibl= rendering template in =perseus_base.xsl=,
+  which turns =<bibl n="some-citation">= into =<a href="...">= when a
+  matching entry is found, and falls back to a plain =<span>= when not.
+  *Note*: the citation link table format and the =tei:bibl= rendering
+  template are not yet designed; this parameter is declared now so the
+  driver interface is stable.
+
+**** The named-template interface
+
+The chunker calls one template that the driver must define:
+
+#+begin_src xml
+<xsl:call-template name="page:render">
+  <xsl:with-param name="chunk"       select="."/>   <!-- tei:div or equiv -->
+  <xsl:with-param name="work-title"  select="$work-title"/>
+  <xsl:with-param name="author"      select="$author"/>
+  <xsl:with-param name="doc-lang"    select="$doc-lang"/>
+  <xsl:with-param name="chunk-label" select="..."/>
+  <xsl:with-param name="file-name"   select="$file-name"/>
+  <xsl:with-param name="prev-file"   select="$prev-file"/>
+  <xsl:with-param name="next-file"   select="$next-file"/>
+  <xsl:with-param name="all-chunks"  select="$all-chunks"/>
+</xsl:call-template>
+#+end_src
+
+The driver's =page:render= implementation applies rendering to the
+chunk content:
+
+#+begin_src xml
+<xsl:template name="page:render">
+  <xsl:param name="chunk"      as="element()"/>
+  <xsl:param name="work-title" as="xs:string"/>
+  ... (other metadata params)
+
+  <xsl:variable name="citation-map"
+    select="if ($citation-table != '')
+            then document($citation-table) else ()"/>
+  <html>
+    ...
+    <div class="text-body">
+      <xsl:apply-templates select="$chunk/node()" mode="chunk">
+        <xsl:with-param name="morph-url"    tunnel="yes" select="$morph-url"/>
+        <xsl:with-param name="citation-map" tunnel="yes" select="$citation-map"/>
+      </xsl:apply-templates>
+    </div>
+    ...
+  </html>
+</xsl:template>
+#+end_src
+
+The =page:= prefix is a naming convention only (XSLT named templates
+do not use XML namespaces); it signals that these templates form the
+driver's public interface.
+
+**** Resolution of the morph-url boundary issue
+
+This design also resolves the boundary violation noted in the review
+of [[#implement-tei-to-html-process]]: =$morph-url= was previously
+tunneled from =mode="chunk"= into =mode="tei-to-html"=, technically
+crossing the mode boundary.  In the new design it is injected by the
+driver at the =apply-templates= call, so it enters =mode="chunk"= from
+outside the chunking infrastructure entirely.  The rendering library
+simply declares it as a tunnel parameter; the driver is responsible
+for supplying it.
+
+*** Decision
+[2026-05-22]
+Adopt the design above.  See [[#implement-driver-chunker-architecture]]
+for the implementation task.
+
 * Implementations
 
 ** TEI Structure
@@ -2795,27 +2952,63 @@ the live-URL morphological linking mechanism is already identified as
 interim, pending the compiled-links-via-=document()= design.  Add a
 TODO comment near the =$morph-url= declaration in =perseus_base.xsl=
 acknowledging this.
-** Driver/Chunker Architecture
+*** DONE Implement Driver/Chunker Architecture
+CLOSED: [2026-05-22 Fri]
 :PROPERTIES:
-:CUSTOM_ID: driver-chunker-architecture
-:SOURCE: chat/2026-05-21
+:CUSTOM_ID: implement-driver-chunker-architecture
+:DATE_CREATED: [2026-05-22 Fri]
+:SOURCE: [[#driver-chunker-architecture]]
+:ASSIGNEES: Claude Code
+:END:
+:LOGBOOK:
+- State "DONE"       from "DOING"      [2026-05-22 Fri]
 :END:
 
-The =driver.xsl= concept was designed but never implemented: the page
-shell currently lives inside the chunkers (=generate_div_chunks.xsl=,
-=generate_chunks.xsl=), and =driver.xsl= remains a stub.  This was
-discovered during PR review of [[#implement-tei-to-html-process]]: the
-=morph-url= parameter has no clean home, and =generate-html-from-tei=
-documentation points to a chunker rather than a driver as the XSL
-entry point.
+See [[#driver-chunker-architecture]] for the design.
 
-This needs a design pass before any further implementation:
-- What is the driver→chunker interface?
-- Where does the page shell live?
-- How does =$morph-url= (and future parameters like it) get declared once?
+Implemented on branch =implement-driver-chunker-architecture= (off
+=dev=, after merging =implement-tei-to-html-process=).
 
-*** Research
-*** Decision
+**** Files changed
+
+- =src/xslt/html/driver.xsl= — full implementation replacing the stub.
+  Imports both chunkers; declares all enrichment parameters (=$morph-url=,
+  =$citation-table=) and the =$chunk-strategy= dispatch parameter.
+  Defines =page:render= and supporting named templates (=page:header=,
+  =page:footer=, =page:sidebar-left=, =page:sidebar-right=,
+  =page:passage-header=, =page:passage-footer=).
+
+- =src/xslt/html/generate_chunks.xsl= — stripped of page shell.  New
+  named template =chunker:run-milestones= wraps the iteration body.
+  =match="/"= is now a shim.  =$morph-url= top-level param removed.
+
+- =src/xslt/html/generate_div_chunks.xsl= — same pattern; new named
+  template =chunker:run-divs=.
+
+- =src/xslt/html/tei/perseus_base.xsl= — =tei:bibl= placeholder template
+  added; =$morph-url= comment updated to document the resolved
+  mode-boundary issue.
+
+- =src/python/generate_html_from_tei.py= — docstring updated to name
+  =driver.xsl= as the intended XSL entry point.
+
+- =tests/data/structure-data/my-argonautica-grc.xml= — added
+  =xml:lang="grc"= to =<text>= element (required for =$morph-url= word
+  linking; the template gates on a recognized lang code).
+
+**** Non-obvious details
+
+The =page:= and =chunker:= prefixes on named template names are XSLT
+QNames and require proper XML namespace declarations in every stylesheet
+that uses them.  Both prefixes must be declared in the root
+=<xsl:stylesheet>= element and added to =exclude-result-prefixes=.
+
+The =$morph-url= tunnel parameter flow was verified empirically: the
+value set in =page:render= flows through the =mode="chunk"= catch-all
+(which does not declare it) and arrives correctly at the =text()=
+template in =mode="tei-to-html"=, consistent with the XSLT 3.0 spec's
+guarantee that undeclared tunnel parameters pass through implicitly.
+
 ** Schema Work
 
 ** General

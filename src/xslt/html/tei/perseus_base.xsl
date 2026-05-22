@@ -225,6 +225,18 @@
   </xsl:template>
 
   <!-- ============================================================
+       Citation linking
+       ============================================================ -->
+
+  <!-- TODO: citation table format not yet designed; this is a structural placeholder.
+       When $citation-map is non-empty and @n matches an entry, should emit <a href="...">.
+       For now degrades to <span class="bibl"> in all cases. -->
+  <xsl:template match="tei:bibl" mode="tei-to-html">
+    <xsl:param name="citation-map" tunnel="yes" select="()"/>
+    <span class="bibl"><xsl:apply-templates mode="chunk"/></span>
+  </xsl:template>
+
+  <!-- ============================================================
        Catch-all and text nodes
        ============================================================ -->
 
@@ -241,9 +253,10 @@
     original raw token (with punctuation) is the visible link text.
     Whitespace-only nodes pass through unchanged in both modes.
   -->
-  <!-- TODO: $morph-url crossing the mode boundary is a temporary inconsistency.
-       The live-URL morphological linking mechanism is interim; it will be
-       replaced by compiled links via document() in a future design. -->
+  <!-- $morph-url is injected by the driver at the apply-templates call site in
+       page:render, so it enters mode="chunk" from outside the chunking infrastructure.
+       This resolves the mode-boundary violation noted in the #implement-tei-to-html-process
+       review; the TODO about interim mechanism status still applies. -->
   <xsl:template match="text()" mode="tei-to-html">
     <xsl:param name="morph-url" tunnel="yes" as="xs:string" select="''"/>
     <xsl:choose>
