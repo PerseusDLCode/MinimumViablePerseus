@@ -1,0 +1,8246 @@
+[
+  {
+    "abbrev": "abr.",
+    "full": "abridged/abridgement"
+  },
+  {
+    "abbrev": "adesp.",
+    "full": "adespota"
+  },
+  {
+    "abbrev": "Akkad.",
+    "full": "Akkadian"
+  },
+  {
+    "abbrev": "app.",
+    "full": "appendix"
+  },
+  {
+    "abbrev": "app. crit.",
+    "full": "apparatus criticus"
+  },
+  {
+    "abbrev": "Aeol.",
+    "full": "Aeolic"
+  },
+  {
+    "abbrev": "art.",
+    "full": "article"
+  },
+  {
+    "abbrev": "Att.",
+    "full": "Attic"
+  },
+  {
+    "abbrev": "b.",
+    "full": "born"
+  },
+  {
+    "abbrev": "Bab.",
+    "full": "Babylonian"
+  },
+  {
+    "abbrev": "beg.",
+    "full": "at/nr. beginning"
+  },
+  {
+    "abbrev": "bibliog.",
+    "full": "bibliography"
+  },
+  {
+    "abbrev": "bk.",
+    "full": "book"
+  },
+  {
+    "abbrev": "cent.",
+    "full": "century"
+  },
+  {
+    "abbrev": "cm.",
+    "full": "centimetre/s"
+  },
+  {
+    "abbrev": "comm.",
+    "full": "commentary"
+  },
+  {
+    "abbrev": "corr.",
+    "full": "corrected"
+  },
+  {
+    "abbrev": "d.",
+    "full": "died"
+  },
+  {
+    "abbrev": "Diss.",
+    "full": "Dissertation"
+  },
+  {
+    "abbrev": "Dor.",
+    "full": "Doric"
+  },
+  {
+    "abbrev": "end",
+    "full": "at/nr. end"
+  },
+  {
+    "abbrev": "ed.",
+    "full": "editor, edited by"
+  },
+  {
+    "abbrev": "ed. maior/minor",
+    "full": "major/minor edition of critical text"
+  },
+  {
+    "abbrev": "edn.",
+    "full": "edition"
+  },
+  {
+    "abbrev": "Einzelschr.",
+    "full": "Einzelschrift"
+  },
+  {
+    "abbrev": "El.",
+    "full": "Elamite"
+  },
+  {
+    "abbrev": "Eng.",
+    "full": "English"
+  },
+  {
+    "abbrev": "c.",
+    "full": "circa"
+  },
+  {
+    "abbrev": "esp.",
+    "full": "especially"
+  },
+  {
+    "abbrev": "Etr.",
+    "full": "Etruscan"
+  },
+  {
+    "abbrev": "exhib. cat.",
+    "full": "exhibition catalogue"
+  },
+  {
+    "abbrev": "fem.",
+    "full": "feminine"
+  },
+  {
+    "abbrev": "g.",
+    "full": "gure"
+  },
+  {
+    "abbrev": ".",
+    "full": "oruit"
+  },
+  {
+    "abbrev": "Fr.",
+    "full": "French"
+  },
+  {
+    "abbrev": "fr.",
+    "full": "fragment"
+  },
+  {
+    "abbrev": "ft.",
+    "full": "foot/feet"
+  },
+  {
+    "abbrev": "g.",
+    "full": "gram/s"
+  },
+  {
+    "abbrev": "Ger.",
+    "full": "German"
+  },
+  {
+    "abbrev": "Gk.",
+    "full": "Greek"
+  },
+  {
+    "abbrev": "ha.",
+    "full": "hectare/s"
+  },
+  {
+    "abbrev": "Hebr.",
+    "full": "Hebrew"
+  },
+  {
+    "abbrev": "HS",
+    "full": "sesterces"
+  },
+  {
+    "abbrev": "hyp.",
+    "full": "hypothesis"
+  },
+  {
+    "abbrev": "i.a.",
+    "full": "inter alia"
+  },
+  {
+    "abbrev": "ibid.",
+    "full": "f., ff."
+  },
+  {
+    "abbrev": "and following",
+    "full": "ibidem, in the same work"
+  },
+  {
+    "abbrev": "IE",
+    "full": "Indo-European"
+  },
+  {
+    "abbrev": "imp.",
+    "full": "impression"
+  },
+  {
+    "abbrev": "in.",
+    "full": "inch/es"
+  },
+  {
+    "abbrev": "Ion.",
+    "full": "Ionic"
+  },
+  {
+    "abbrev": "It.",
+    "full": "Italian"
+  },
+  {
+    "abbrev": "kg.",
+    "full": "kilogram/s"
+  },
+  {
+    "abbrev": "km.",
+    "full": "kilometre/s"
+  },
+  {
+    "abbrev": "lb.",
+    "full": "pound/s"
+  },
+  {
+    "abbrev": "l., ll.",
+    "full": "line, lines"
+  },
+  {
+    "abbrev": "lit.",
+    "full": "literally"
+  },
+  {
+    "abbrev": "lt.",
+    "full": "litre/s"
+  },
+  {
+    "abbrev": "L.",
+    "full": "Linnaeus"
+  },
+  {
+    "abbrev": "Lat.",
+    "full": "Latin"
+  },
+  {
+    "abbrev": "m.",
+    "full": "metre/s"
+  },
+  {
+    "abbrev": "masc.",
+    "full": "masculine"
+  },
+  {
+    "abbrev": "mi.",
+    "full": "mile/s"
+  },
+  {
+    "abbrev": "ml.",
+    "full": "millilitre/s"
+  },
+  {
+    "abbrev": "introd.",
+    "full": "introduction"
+  },
+  {
+    "abbrev": "mod.",
+    "full": "modern"
+  },
+  {
+    "abbrev": "MS(S)",
+    "full": "manuscript(s)"
+  },
+  {
+    "abbrev": "Mt.",
+    "full": "Mount"
+  },
+  {
+    "abbrev": "n., nn.",
+    "full": "note, notes"
+  },
+  {
+    "abbrev": "neut.",
+    "full": "neuter"
+  },
+  {
+    "abbrev": "no.",
+    "full": "number"
+  },
+  {
+    "abbrev": "ns",
+    "full": "new series"
+  },
+  {
+    "abbrev": "NT",
+    "full": "New Testament"
+  },
+  {
+    "abbrev": "OE",
+    "full": "Old English"
+  },
+  {
+    "abbrev": "Ol.",
+    "full": "Olympiad"
+  },
+  {
+    "abbrev": "ON",
+    "full": "Old Norse"
+  },
+  {
+    "abbrev": "OP",
+    "full": "Old Persian"
+  },
+  {
+    "abbrev": "orig.",
+    "full": "original (e.g. Ger./Fr. orig. [edn.])"
+  },
+  {
+    "abbrev": "OT",
+    "full": "Old Testament"
+  },
+  {
+    "abbrev": "oz.",
+    "full": "ounce/s"
+  },
+  {
+    "abbrev": "p.a.",
+    "full": "per annum"
+  },
+  {
+    "abbrev": "PIE",
+    "full": "Proto-Indo-European"
+  },
+  {
+    "abbrev": "pl.",
+    "full": "plate"
+  },
+  {
+    "abbrev": "n.d.",
+    "full": "no date"
+  },
+  {
+    "abbrev": "plur.",
+    "full": "plural"
+  },
+  {
+    "abbrev": "pref.",
+    "full": "preface"
+  },
+  {
+    "abbrev": "Proc.",
+    "full": "Proceedings"
+  },
+  {
+    "abbrev": "prol.",
+    "full": "prologue"
+  },
+  {
+    "abbrev": "Pt.",
+    "full": "part"
+  },
+  {
+    "abbrev": "ref.",
+    "full": "reference"
+  },
+  {
+    "abbrev": "repr.",
+    "full": "reprint, reprinted"
+  },
+  {
+    "abbrev": "rev.",
+    "full": "revised/by"
+  },
+  {
+    "abbrev": "sel.",
+    "full": "selected"
+  },
+  {
+    "abbrev": "ser.",
+    "full": "series"
+  },
+  {
+    "abbrev": "sing.",
+    "full": "singular"
+  },
+  {
+    "abbrev": "Skt.",
+    "full": "Sanskrit"
+  },
+  {
+    "abbrev": "Sp.",
+    "full": "Spanish"
+  },
+  {
+    "abbrev": "str.",
+    "full": "strophe"
+  },
+  {
+    "abbrev": "Suppl.",
+    "full": "Supplement"
+  },
+  {
+    "abbrev": "T",
+    "full": "testimonium (i.e. piece of ancient evidence about an author)"
+  },
+  {
+    "abbrev": "trans.",
+    "full": "translation, translated by"
+  },
+  {
+    "abbrev": "v., vv.",
+    "full": "verse, verses"
+  },
+  {
+    "abbrev": "ps.",
+    "full": "pseudo-"
+  },
+  {
+    "abbrev": "Ven.",
+    "full": "Venetic"
+  },
+  {
+    "abbrev": "A&A",
+    "full": "Antike und Abendland"
+  },
+  {
+    "abbrev": "AAA",
+    "full": "Athens Annals of Archaeology"
+  },
+  {
+    "abbrev": "AAHG",
+    "full": "Anzeiger für Altertumswissenschaft"
+  },
+  {
+    "abbrev": "AAWM",
+    "full": "Abhandlungen der Akademie der Wissenschaften in Mainz, geistes-und sozialwissenschaftliche Klasse"
+  },
+  {
+    "abbrev": "A2H",
+    "full": "Inscription of Artaxerxes II at Hamadan"
+  },
+  {
+    "abbrev": "A2S",
+    "full": "Inscription of Artaxerxes II at Susa"
+  },
+  {
+    "abbrev": "AB",
+    "full": "C. Austin and G. Bastiniani (eds.), Posidippi quae supersunt omnia (2002)"
+  },
+  {
+    "abbrev": "ABC",
+    "full": "A. K. Grayson, Assyrian and Babylonian Chronicles (1975)"
+  },
+  {
+    "abbrev": "Abh. followed by name of Academy or Society",
+    "full": "Abhandlungen"
+  },
+  {
+    "abbrev": "Abh. sächs. Ges. Wiss.",
+    "full": "Abhandlungen der sächsischen Gesellschaft der Wissenschaften"
+  },
+  {
+    "abbrev": "Abh. zu Gesch. d. Math.",
+    "full": "Abhandlungen zur Geschichte der mathematischen Wissenschaften"
+  },
+  {
+    "abbrev": "Abh. zu Gesch. d. Med.",
+    "full": "Abhandlungen zur Geschichte der Naturwissenschaften und d. Medizin"
+  },
+  {
+    "abbrev": "AC",
+    "full": "Acta Classica"
+  },
+  {
+    "abbrev": "Acad. index Herc.",
+    "full": "Academicorum philosophorum index Herculanensis editus a F. Buechelero (1869)"
+  },
+  {
+    "abbrev": "Acad. post.",
+    "full": "Academica posteriora"
+  },
+  {
+    "abbrev": "AA",
+    "full": "see Syme, AA"
+  },
+  {
+    "abbrev": "Ach. Tat.",
+    "full": "Achilles Tatius"
+  },
+  {
+    "abbrev": "Act.Ir.",
+    "full": "Acta Iranica: Encyclopédie permanente des études iraniennes"
+  },
+  {
+    "abbrev": "ΑΔ",
+    "full": "Αρχαιολογικόν Δελτίον"
+  },
+  {
+    "abbrev": "AE",
+    "full": "L'Année Épigraphique, published in Revue Archéologique and separately (1888– )"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "NA",
+    "full": "De natura animalium"
+  },
+  {
+    "abbrev": "VH",
+    "full": "Varia Historia"
+  },
+  {
+    "abbrev": "ΑΕΜΘ",
+    "full": "Archaiologiko Ergo ste Makedonia kai Thrake"
+  },
+  {
+    "abbrev": "Aen. Tact.",
+    "full": "Aeneas Tacticus"
+  },
+  {
+    "abbrev": "Aesch.",
+    "full": "Aeschylus"
+  },
+  {
+    "abbrev": "Ag.",
+    "full": "Agamemnon"
+  },
+  {
+    "abbrev": "Cho.",
+    "full": "Choephoroe"
+  },
+  {
+    "abbrev": "Eum.",
+    "full": "Eumenides"
+  },
+  {
+    "abbrev": "Pers.",
+    "full": "Persae"
+  },
+  {
+    "abbrev": "PV",
+    "full": "Prometheus Vinctus"
+  },
+  {
+    "abbrev": "Sept.",
+    "full": "Septem contra Thebas"
+  },
+  {
+    "abbrev": "Supp.",
+    "full": "Supplices"
+  },
+  {
+    "abbrev": "Aeschin.",
+    "full": "Aeschines"
+  },
+  {
+    "abbrev": "Ael.",
+    "full": "Aelianus"
+  },
+  {
+    "abbrev": "In Ctes.",
+    "full": "Against Ctesiphon"
+  },
+  {
+    "abbrev": "In Tim.",
+    "full": "Against Timarchus"
+  },
+  {
+    "abbrev": "Aët",
+    "full": "Aëtius"
+  },
+  {
+    "abbrev": "AGM",
+    "full": "Sudhoffs Archiv für Geschichte der Medizin und der Naturwissenschaften"
+  },
+  {
+    "abbrev": "AIV",
+    "full": "Atti dell'Istituto Veneto di Scienze, Lettere ed Arti, Classe di scienze morali e lettere"
+  },
+  {
+    "abbrev": "AJAH",
+    "full": "American Journal of Ancient History"
+  },
+  {
+    "abbrev": "AJArch.",
+    "full": "American Journal of Archaeology"
+  },
+  {
+    "abbrev": "AJPhil.",
+    "full": "American Journal of Philology"
+  },
+  {
+    "abbrev": "AK",
+    "full": "Antike Kunst"
+  },
+  {
+    "abbrev": "Alc.",
+    "full": "Alcaeus"
+  },
+  {
+    "abbrev": "Alcidamas, Soph.",
+    "full": "Alcidamas, Περὶ σοφιστῶν"
+  },
+  {
+    "abbrev": "Alcm.",
+    "full": "Alcman"
+  },
+  {
+    "abbrev": "Alexander, Trials",
+    "full": "M. C. Alexander, Trials in the Late Roman Republic, 149–50 BC (1990)"
+  },
+  {
+    "abbrev": "Alex. Polyh.",
+    "full": "Alexander Polyhistor"
+  },
+  {
+    "abbrev": "ALLP",
+    "full": "T. Reinhardt, M. Lapidge, and J. N. Adams, Aspects of the Language of Latin Prose (2005)"
+  },
+  {
+    "abbrev": "Altheim, Hist. Rom. Rel.",
+    "full": "F. Altheim, Römische Religionsgeschichte, trans. H. Mattingly (1938; 2nd edn. (Ger.), 1956)"
+  },
+  {
+    "abbrev": "AM",
+    "full": "see MDAI (A)"
+  },
+  {
+    "abbrev": "AMB 1",
+    "full": "Agora"
+  },
+  {
+    "abbrev": "The Athenian Agora 16 (1997)",
+    "full": "L'Arabie et ses mers bordières 1: Itinéraires et voisinages, ed. J. F. Salles (1988)"
+  },
+  {
+    "abbrev": "Amer. Acad. Rome",
+    "full": "Memoirs of the American Academy at Rome"
+  },
+  {
+    "abbrev": "Amer. Hist. Rev.",
+    "full": "American Historical Review"
+  },
+  {
+    "abbrev": "AMI",
+    "full": "Archäologische Mitteilungen aus Iran, ns (1968– )"
+  },
+  {
+    "abbrev": "Ammon.",
+    "full": "Ammonius grammaticus"
+  },
+  {
+    "abbrev": "Diff.",
+    "full": "Περὶ ὁμοίων καὶ διαφόρων λέξεων"
+  },
+  {
+    "abbrev": "Anac.",
+    "full": "Anacreon"
+  },
+  {
+    "abbrev": "Anat. St.",
+    "full": "Anatolian Studies"
+  },
+  {
+    "abbrev": "Anc. Soc.",
+    "full": "Ancient Society"
+  },
+  {
+    "abbrev": "Andoc.",
+    "full": "Andocides"
+  },
+  {
+    "abbrev": "Anecd. Bach.",
+    "full": "Anecdota Graeca, ed. L. Bachmann (1828–9)"
+  },
+  {
+    "abbrev": "Anecd. Bekk.",
+    "full": "Anecdota Graeca, ed. I. Bekker, 3 vols. (1814–21)"
+  },
+  {
+    "abbrev": "Anecd. Ox.",
+    "full": "Anecdota Graeca e codd. MSS Bibl. Oxon., ed. J. A. Cramer, 4 vols. (1835–7)"
+  },
+  {
+    "abbrev": "Anecd. Par.",
+    "full": "Anecdota Graeca e codd. MSS Bibl. Reg. Parisiensis, ed. J. A. Cramer, 4 vols. (1839–41)"
+  },
+  {
+    "abbrev": "Ann. Ist.",
+    "full": "Annali del Istituto di Corrispondenza Archaeologica (1829– )"
+  },
+  {
+    "abbrev": "Anon. De com.",
+    "full": "Anonymus De Comoedia"
+  },
+  {
+    "abbrev": "ANRW",
+    "full": "Aufstieg und Niedergang der römischen Welt (1972– )"
+  },
+  {
+    "abbrev": "Ant. Af.",
+    "full": "Antiquités africaines"
+  },
+  {
+    "abbrev": "Amm. Marc.",
+    "full": "Ammianus Marcellinus"
+  },
+  {
+    "abbrev": "Ant. Class.",
+    "full": "L'Antiquité classique"
+  },
+  {
+    "abbrev": "Anth. Lat.",
+    "full": "Anthologia Latina, ed. A. Riese, F. Buecheler, and E. Lommatzsch (1869–1926); ed. D. R. Shackleton Bailey, 1:"
+  },
+  {
+    "abbrev": "Carmina in codicibus scripta (1982)",
+    "full": "Anth. Lyr. Graec."
+  },
+  {
+    "abbrev": "see Diehl",
+    "full": "Anth. Pal."
+  },
+  {
+    "abbrev": "Anthologia Palatina",
+    "full": "Antig. Car."
+  },
+  {
+    "abbrev": "Antigonus Carystius",
+    "full": "Antiph."
+  },
+  {
+    "abbrev": "Antiphon",
+    "full": "Antip. Sid."
+  },
+  {
+    "abbrev": "Antipater Sidonius",
+    "full": "Ant. Journ."
+  },
+  {
+    "abbrev": "Antiquaries Journal",
+    "full": "Ant. Lib."
+  },
+  {
+    "abbrev": "Antoninus Liberalis",
+    "full": "Met."
+  },
+  {
+    "abbrev": "Metamorphoses",
+    "full": "Anz. followed by name of Academy or Society"
+  },
+  {
+    "abbrev": "Anzeiger or Anzeigen",
+    "full": "AO"
+  },
+  {
+    "abbrev": "see Develin, AO",
+    "full": "APF"
+  },
+  {
+    "abbrev": "see Davies, APF",
+    "full": "Apollod."
+  },
+  {
+    "abbrev": "Apollodorus mythographus",
+    "full": "Bibl."
+  },
+  {
+    "abbrev": "Bibliotheca",
+    "full": "Epit."
+  },
+  {
+    "abbrev": "Epitome",
+    "full": "Apollonius"
+  },
+  {
+    "abbrev": "Apollonius paradoxographus",
+    "full": "Mir."
+  },
+  {
+    "abbrev": "Anth. Plan.",
+    "full": "Anthologia Planudea"
+  },
+  {
+    "abbrev": "Mirabilia",
+    "full": "Apollonius Dyscolus"
+  },
+  {
+    "abbrev": "Pron.",
+    "full": "De pronominibus"
+  },
+  {
+    "abbrev": "App.",
+    "full": "Appian"
+  },
+  {
+    "abbrev": "Hann.",
+    "full": "Ἀννιβαλική"
+  },
+  {
+    "abbrev": "Hisp.",
+    "full": "Ἰβηρική"
+  },
+  {
+    "abbrev": "Ill.",
+    "full": "Ἰλλνρική"
+  },
+  {
+    "abbrev": "Mac.",
+    "full": "Μακεονική"
+  },
+  {
+    "abbrev": "Mith.",
+    "full": "Μιθριδάτειος"
+  },
+  {
+    "abbrev": "Pun.",
+    "full": "Λιβυκή"
+  },
+  {
+    "abbrev": "Sam.",
+    "full": "Σαυνιτική"
+  },
+  {
+    "abbrev": "Syr.",
+    "full": "Συριακή"
+  },
+  {
+    "abbrev": "App. Verg.",
+    "full": "Appendix Vergiliana"
+  },
+  {
+    "abbrev": "Apsines, Rhet.",
+    "full": "Apsines, Ars rhetorica"
+  },
+  {
+    "abbrev": "Apth. Prog.",
+    "full": "Aphthonius, Progymnasmata"
+  },
+  {
+    "abbrev": "Apul.",
+    "full": "Apuleius"
+  },
+  {
+    "abbrev": "Apol.",
+    "full": "Apologia"
+  },
+  {
+    "abbrev": "Asclep.",
+    "full": "Asclepius"
+  },
+  {
+    "abbrev": "B Civ.",
+    "full": "Bella civilia"
+  },
+  {
+    "abbrev": "De deo Soc.",
+    "full": "De deo Socratico"
+  },
+  {
+    "abbrev": "De dog. Plat.",
+    "full": "De dogmate Platonis"
+  },
+  {
+    "abbrev": "Flor.",
+    "full": "Florida"
+  },
+  {
+    "abbrev": "Met.",
+    "full": "Metamorphoses"
+  },
+  {
+    "abbrev": "Argon.",
+    "full": "Argonautica"
+  },
+  {
+    "abbrev": "Ar.",
+    "full": "Aristophanes"
+  },
+  {
+    "abbrev": "Ach.",
+    "full": "Acharnenses"
+  },
+  {
+    "abbrev": "Av.",
+    "full": "Aves"
+  },
+  {
+    "abbrev": "Eccl.",
+    "full": "Ecclesiazusae"
+  },
+  {
+    "abbrev": "Eq.",
+    "full": "Equites"
+  },
+  {
+    "abbrev": "Lys.",
+    "full": "Lysistrata"
+  },
+  {
+    "abbrev": "Nub.",
+    "full": "Nubes"
+  },
+  {
+    "abbrev": "Plut.",
+    "full": "Plutarch"
+  },
+  {
+    "abbrev": "Ran.",
+    "full": "Ranae"
+  },
+  {
+    "abbrev": "Thesm.",
+    "full": "Thesmophoriazusae"
+  },
+  {
+    "abbrev": "Vesp.",
+    "full": "Vespae"
+  },
+  {
+    "abbrev": "Aratus, Phaen.",
+    "full": "Aratus, Phaenomena"
+  },
+  {
+    "abbrev": "Progn.",
+    "full": "Prognostica"
+  },
+  {
+    "abbrev": "Ap. Rhod.",
+    "full": "Apollonius Rhodius"
+  },
+  {
+    "abbrev": "Ar. Byz.",
+    "full": "Aristophanes Byzantinus"
+  },
+  {
+    "abbrev": "Arch. Ael.",
+    "full": "Archaeologia Aeliana (Newcastle-upon-Tyne)"
+  },
+  {
+    "abbrev": "Arch. Anz.",
+    "full": "Archäologischer Anzeiger in Jahrbuch des [kaiserlichen] deutschen archäologischen Instituts (JDAI)"
+  },
+  {
+    "abbrev": "Arch. Class.",
+    "full": "Archaeologia Classica"
+  },
+  {
+    "abbrev": "’Αρχαιολογική Ἐφημερίς",
+    "full": "Archil."
+  },
+  {
+    "abbrev": "Archilochus",
+    "full": "Archim. Method"
+  },
+  {
+    "abbrev": "Archimedes, Method of Mechanical Theorems",
+    "full": "Arch. Journ."
+  },
+  {
+    "abbrev": "Archaeological Journal",
+    "full": "Arch. Laz."
+  },
+  {
+    "abbrev": "Archeologia Laziale",
+    "full": "Arch. Pap."
+  },
+  {
+    "abbrev": "Archiv für Papyrusforschung",
+    "full": "Arch. Rep."
+  },
+  {
+    "abbrev": "Archaeological Reports published by the Hellenic Society",
+    "full": "Arist."
+  },
+  {
+    "abbrev": "Aristotle",
+    "full": "An. post."
+  },
+  {
+    "abbrev": "Analytica posteriora",
+    "full": "An. pr."
+  },
+  {
+    "abbrev": "Analytica priora",
+    "full": "[Ath. Pol.]"
+  },
+  {
+    "abbrev": "Ἀθηναίων πολιτεία",
+    "full": "Cael."
+  },
+  {
+    "abbrev": "De caelo",
+    "full": "Cat."
+  },
+  {
+    "abbrev": "Categoriae",
+    "full": "[Col.]"
+  },
+  {
+    "abbrev": "De coloribus",
+    "full": "De an."
+  },
+  {
+    "abbrev": ". .",
+    "full": "Ἀρχ Ἐφ"
+  },
+  {
+    "abbrev": "De anima",
+    "full": "[De audib.]"
+  },
+  {
+    "abbrev": "De audibilibus",
+    "full": "De motu an."
+  },
+  {
+    "abbrev": "De motu animalium",
+    "full": "Div. somn."
+  },
+  {
+    "abbrev": "De divinatione per somnia",
+    "full": "Eth. Nic."
+  },
+  {
+    "abbrev": "Ethica Nicomachea",
+    "full": "Gen. an."
+  },
+  {
+    "abbrev": "De generatione animalium",
+    "full": "Gen. corr."
+  },
+  {
+    "abbrev": "De generatione et corruptione",
+    "full": "Hist. an."
+  },
+  {
+    "abbrev": "Historia animalium",
+    "full": "IA"
+  },
+  {
+    "abbrev": "De incessu animalium",
+    "full": "Int."
+  },
+  {
+    "abbrev": "De interpretatione",
+    "full": "[Lin. Ins.]"
+  },
+  {
+    "abbrev": "De lineis insecabilibus",
+    "full": "[Mag. mor.]"
+  },
+  {
+    "abbrev": "Magna moralia",
+    "full": "[Mech.]"
+  },
+  {
+    "abbrev": "Mechanica",
+    "full": "Mem."
+  },
+  {
+    "abbrev": "De memoria",
+    "full": "Metaph."
+  },
+  {
+    "abbrev": "Metaphysica",
+    "full": "Mete."
+  },
+  {
+    "abbrev": "Meteorologica",
+    "full": "[Mir. ausc.]"
+  },
+  {
+    "abbrev": "see Mir. ausc. under M",
+    "full": "[Mund.]"
+  },
+  {
+    "abbrev": "De mundo",
+    "full": "Eth. Eud."
+  },
+  {
+    "abbrev": "Ethica Eudemia",
+    "full": "[Oec.]"
+  },
+  {
+    "abbrev": "Oeconomica",
+    "full": "Part. an."
+  },
+  {
+    "abbrev": "De partibus animalium",
+    "full": "Parv. nat."
+  },
+  {
+    "abbrev": "Parva naturalia",
+    "full": "Ph."
+  },
+  {
+    "abbrev": "Physica",
+    "full": "Poet."
+  },
+  {
+    "abbrev": "Poetica",
+    "full": "Pol."
+  },
+  {
+    "abbrev": "Politica",
+    "full": "[Pr.]"
+  },
+  {
+    "abbrev": "Problemata",
+    "full": "Resp."
+  },
+  {
+    "abbrev": "De respiratione",
+    "full": "Rh."
+  },
+  {
+    "abbrev": "Rhetorica",
+    "full": "[Rh. Al.]"
+  },
+  {
+    "abbrev": "Rhetorica ad Alexandrum",
+    "full": "Sens."
+  },
+  {
+    "abbrev": "De sensu",
+    "full": "Soph. el."
+  },
+  {
+    "abbrev": "Sophistici elenchi",
+    "full": "Top."
+  },
+  {
+    "abbrev": "Topica",
+    "full": "[Xen.]"
+  },
+  {
+    "abbrev": "De Xenophane",
+    "full": "Aristid. Or."
+  },
+  {
+    "abbrev": "Aristides, Orationes",
+    "full": "Aristid. Quint."
+  },
+  {
+    "abbrev": "Aristides Quintilianus",
+    "full": "Aristox."
+  },
+  {
+    "abbrev": "Aristoxenus",
+    "full": "Fr. hist."
+  },
+  {
+    "abbrev": "Fragmenta historica",
+    "full": "[Phgn.]"
+  },
+  {
+    "abbrev": "Physiognomonica",
+    "full": "Harm."
+  },
+  {
+    "abbrev": "Harmonica",
+    "full": "Rhythm."
+  },
+  {
+    "abbrev": "Rhythmica",
+    "full": "Arn."
+  },
+  {
+    "abbrev": "Arnobius",
+    "full": "Adv. nat."
+  },
+  {
+    "abbrev": "Adversus nationes",
+    "full": "Arr."
+  },
+  {
+    "abbrev": "Arrian",
+    "full": "Anab."
+  },
+  {
+    "abbrev": "Anabasis",
+    "full": "Cyn."
+  },
+  {
+    "abbrev": "Cynegeticus",
+    "full": "Epict. diss."
+  },
+  {
+    "abbrev": "Epicteti dissertationes",
+    "full": "Parth."
+  },
+  {
+    "abbrev": "Parthica",
+    "full": "Peripl. M. Eux."
+  },
+  {
+    "abbrev": "Periplus Maris Euxini",
+    "full": "Tact."
+  },
+  {
+    "abbrev": "Tactica",
+    "full": "ARTA"
+  },
+  {
+    "abbrev": "Achaemenid Research on Texts and Archaeology (http://www.achemenet.com/ressources/enligne)",
+    "full": "Artem."
+  },
+  {
+    "abbrev": "Artemidorus Daldianus",
+    "full": "ARV"
+  },
+  {
+    "abbrev": "J. D. Beazley, Attic Red-Figure Vase- Painters , 2nd edn. (1963)",
+    "full": "ARV Add"
+  },
+  {
+    "abbrev": "T. Carpenter, T. Mannack, and M. Mendonça, Beazley Addenda, 2nd edn. (1990)",
+    "full": "ARV Para"
+  },
+  {
+    "abbrev": "J. D. Beazley, Paralipomena Additions to Attic Black-Figure Vase-Painters and to Attic Red-Figure Vase-Painters",
+    "full": "(1971)"
+  },
+  {
+    "abbrev": "ARW",
+    "full": "Archiv für Religionswissenschaft"
+  },
+  {
+    "abbrev": "Arnim (von)",
+    "full": "see SVF"
+  },
+  {
+    "abbrev": "ASAA",
+    "full": "Annuario della Scuola archeologica di Atene e delle Missioni italiane in Oriente"
+  },
+  {
+    "abbrev": "ASAE",
+    "full": "Annales du service des antiquités de l'Égypte"
+  },
+  {
+    "abbrev": "Asc.",
+    "full": "Asconius"
+  },
+  {
+    "abbrev": "Corn.",
+    "full": "Commentary on Cicero, Pro Cornelio de maiestate"
+  },
+  {
+    "abbrev": "Pis.",
+    "full": "Commentary on Cicero, In Pisonem"
+  },
+  {
+    "abbrev": "Verr.",
+    "full": "Commentary on Cicero, In Verrem"
+  },
+  {
+    "abbrev": "Asc.… C",
+    "full": "Asconius, ed. A. C. Clark (OCT, 1907)"
+  },
+  {
+    "abbrev": "ASNP",
+    "full": "Annali della Scuola Normale Superiore di Pisa, Classe di Lettere e Filoso a"
+  },
+  {
+    "abbrev": "ASSR",
+    "full": "Archives des sciences sociales de religion"
+  },
+  {
+    "abbrev": "Astin, Scipio",
+    "full": "A. E. Astin, Scipio Aemilianus (1967)"
+  },
+  {
+    "abbrev": "Ath.",
+    "full": "Athenaeus"
+  },
+  {
+    "abbrev": "Athenaeum",
+    "full": "Athenaeum (Pavia). ns (1923– )"
+  },
+  {
+    "abbrev": "Athenagoras, Leg.",
+    "full": "Athenagoras, Legatio pro Christianis"
+  },
+  {
+    "abbrev": "pro Christ.",
+    "full": "Πρεσβεία περὶ"
+  },
+  {
+    "abbrev": "Xριστιανω̑ν",
+    "full": "Ath. pol."
+  },
+  {
+    "abbrev": "Athenaion politeia (Aristotelian); see also Xen. for ‘Old Oligarch’ i.e. Ps.-Xen. Ath. pol.",
+    "full": "ATL"
+  },
+  {
+    "abbrev": "B. D. Meritt, H. T. Wade-Gery, and M. F. McGregor, The Athenian Tribute Lists 1–4 (1939–53)",
+    "full": "Auct. ad Her."
+  },
+  {
+    "abbrev": "Auctor ad Herennium",
+    "full": "August."
+  },
+  {
+    "abbrev": "Augustine",
+    "full": "Mil."
+  },
+  {
+    "abbrev": "Commentary on Cicero, Pro Milone",
+    "full": "Ad Rom."
+  },
+  {
+    "abbrev": "Expositio of Epist. ad Romanos",
+    "full": "C. acad."
+  },
+  {
+    "abbrev": "Contra academicos",
+    "full": "Conf."
+  },
+  {
+    "abbrev": "Confessions",
+    "full": "De civ. D."
+  },
+  {
+    "abbrev": "De civitate Dei",
+    "full": "In Evang. Iohan."
+  },
+  {
+    "abbrev": "Tractatus in Evangelium Iohannis",
+    "full": "Ep."
+  },
+  {
+    "abbrev": "Epistulae",
+    "full": "Retract."
+  },
+  {
+    "abbrev": "Retractationes",
+    "full": "Serm."
+  },
+  {
+    "abbrev": "Sermones",
+    "full": "Aul. Gell."
+  },
+  {
+    "abbrev": "see Gell.",
+    "full": "Aur. Vict. Caes."
+  },
+  {
+    "abbrev": "Aurelius Victor, Caesares",
+    "full": "[Aur. Vict.] De vir. ill."
+  },
+  {
+    "abbrev": "[Aurelius Victor], De viris illustribus",
+    "full": "Auson."
+  },
+  {
+    "abbrev": "Ausonius (see Green)",
+    "full": "Cent. nupt."
+  },
+  {
+    "abbrev": "Cento nuptialis",
+    "full": "Grat. act."
+  },
+  {
+    "abbrev": "Gratiarum actio",
+    "full": "Mos."
+  },
+  {
+    "abbrev": "Mosella",
+    "full": "Ordo nob. urb."
+  },
+  {
+    "abbrev": "Ordo nobilium urbium",
+    "full": "Prof. Burd."
+  },
+  {
+    "abbrev": "Commemoratio professorum Burdigalensium",
+    "full": "Technop."
+  },
+  {
+    "abbrev": "Div. quaest.",
+    "full": "De diversis quaestionibus"
+  },
+  {
+    "abbrev": "Technopaegnion",
+    "full": "Austin"
+  },
+  {
+    "abbrev": "M. M. Austin, The Hellenistic World from Alexander to the Roman Conquest, 2nd edn. (2006)",
+    "full": "Austin, CGFP"
+  },
+  {
+    "abbrev": "C. Austin, Comicorum Graecorum fragmenta in papyris reperta (1973)",
+    "full": "BaBesch."
+  },
+  {
+    "abbrev": "Bulletin antieke Beschavung",
+    "full": "BAct."
+  },
+  {
+    "abbrev": "Bellum Actiacum: see B Aegypt.",
+    "full": "Badian, Stud. Gr."
+  },
+  {
+    "abbrev": "E. Badian, Studies in Greek and Roman History (1964)",
+    "full": "BAegypt."
+  },
+  {
+    "abbrev": "Carmen de Bello Aegyptiaco sive Actiaco (papyrus fragment)",
+    "full": "Baehr."
+  },
+  {
+    "abbrev": "E. Baehrens",
+    "full": "FPR"
+  },
+  {
+    "abbrev": "Fragmenta Poetarum Romanorum (1866)",
+    "full": "PLM"
+  },
+  {
+    "abbrev": "see PLM Vollmer/Morel",
+    "full": "BAfr."
+  },
+  {
+    "abbrev": "Bellum Africum",
+    "full": "Bagnall and Derow"
+  },
+  {
+    "abbrev": "R. S. Bagnall and P. Derow, Greek Historical Documents: The Hellenistic Period (1981)",
+    "full": "Balbo, Frammenti"
+  },
+  {
+    "abbrev": "A. Balbo, I frammenti degli oratori romani dell'età augustea e tiberiana 1 (2004)",
+    "full": "BAlex."
+  },
+  {
+    "abbrev": "Bellum Alexandrinum",
+    "full": "Barr."
+  },
+  {
+    "abbrev": "R. J. A. Talbert (ed.) Barrington Atlas of the Greek and Roman World (2000)",
+    "full": "Basil. De virg."
+  },
+  {
+    "abbrev": "Basilius, De virginitate",
+    "full": "BASP"
+  },
+  {
+    "abbrev": "Bulletin of the American Society of Papyrologists",
+    "full": "Bauman, WPAR"
+  },
+  {
+    "abbrev": "R. A. Bauman, Women and Politics in Ancient Rome (1992)",
+    "full": "Bacchyl."
+  },
+  {
+    "abbrev": "Bacchylides (ed. B. Snell and H. Maehler, 1970)",
+    "full": "BCAR"
+  },
+  {
+    "abbrev": "Bolletino della Commissione Archeologica Communale in Rome",
+    "full": "BCH"
+  },
+  {
+    "abbrev": "Bulletin de Correspondance Hellénique",
+    "full": "BCHP"
+  },
+  {
+    "abbrev": "I. L. Finkel and R. J. van der Spek, Babylonian Chronicles of the Hellenistic Period",
+    "full": "〈http://www.livius.org/babylonia.html〉"
+  },
+  {
+    "abbrev": "BÉ",
+    "full": "Bulletin épigraphique, pub. in Revue des études grecques"
+  },
+  {
+    "abbrev": "ARV2",
+    "full": "Attic Red- gure Vase Painters , 2nd edn. (1963)"
+  },
+  {
+    "abbrev": "Paralipomena",
+    "full": "Paralipomena: Additions to ABV and ARV2 (1971)"
+  },
+  {
+    "abbrev": "Beazley Addenda",
+    "full": "T. H. Carpenter, Beazley Addenda: Additional References to ABV, ARV2 and Paralipomena, 2nd edn. (1989)"
+  },
+  {
+    "abbrev": "BÉFEO",
+    "full": "Bulletin: École française d'Extrême Orient"
+  },
+  {
+    "abbrev": "Beitr.",
+    "full": "Beitrag, Beiträge"
+  },
+  {
+    "abbrev": "Beloch",
+    "full": "K. J. Beloch"
+  },
+  {
+    "abbrev": "Gr. Gesch.",
+    "full": "Griechische Geschichte, 2nd edn. (1912–27)"
+  },
+  {
+    "abbrev": "Röm. Gesch.",
+    "full": "Römische Geschichte bis zum Beginn der punischen Kriege (1926)"
+  },
+  {
+    "abbrev": "Bengtson, Strategie",
+    "full": "H. Bengtson, Die Strategie in der hellenistischen Zeit, Munchener Beiträge zur Papyrusforschung und"
+  },
+  {
+    "abbrev": "Rechtsgeschichte 26 (1937), 32 (1944), 36 (1952)",
+    "full": "Röm. Gesch."
+  },
+  {
+    "abbrev": "Grundriss der römischen Geschichte (1967)",
+    "full": "Bérard, Bibl. topogr."
+  },
+  {
+    "abbrev": "J. Bérard, Bibliographie topographique des principales cités grecques de l'Italie méridionale et de la Sicile dans",
+    "full": "l'antiquité (1941)"
+  },
+  {
+    "abbrev": "Berl. Abh.",
+    "full": "Abhandlungen der preuβ. Akademie d. Wissenschaften zu Berlin (1786–1907; 1908– )"
+  },
+  {
+    "abbrev": "Bernabé, PEG",
+    "full": "Beazley, ABV"
+  },
+  {
+    "abbrev": "J. D. Beazley, Attic Black- gure Vase Painters (1956)",
+    "full": "A. Bernabé, Poetae Epici Graeci 1 (1988)"
+  },
+  {
+    "abbrev": "Ber. Sächs. Ges. Wiss.",
+    "full": "Berichte über die Verhandlungen der [Kgl.] sächsischen Gesellschaft der Wissenschaften zu Leipzig (1848)"
+  },
+  {
+    "abbrev": "Berve, Alexanderreich",
+    "full": "H. Berve, Das Alexanderreich auf prosopographischer Grundlage (1927)"
+  },
+  {
+    "abbrev": "BGU",
+    "full": "Berliner Griechische Urkunden (Ägyptische Urkunden aus den Kgl. Museen zu Berlin)"
+  },
+  {
+    "abbrev": "Bibl. Éc. Franc.",
+    "full": "Bibliothèque des Écoles françaises d' Athénes et de Rome (1877– )"
+  },
+  {
+    "abbrev": "BICS",
+    "full": "Bulletin of the Institute of Classical Studies, London"
+  },
+  {
+    "abbrev": "Bidez–Cumont",
+    "full": "J. Bidez and F. Cumont, Les Mages hellénisés, 2 vols. (1938)"
+  },
+  {
+    "abbrev": "Bieber, Sculpt. Hellenist. Age",
+    "full": "M. Bieber, Sculpture of the Hellenistic Age, 2nd edn. (1961)"
+  },
+  {
+    "abbrev": "BIFAO",
+    "full": "Bulletin de l'Institut français d' Archéologie Orientale (Cairo)"
+  },
+  {
+    "abbrev": "BiOr",
+    "full": "Bibliotheca Orientalis"
+  },
+  {
+    "abbrev": "BKT",
+    "full": "Berliner Klassikertexte, herausgegeben von der Generalverwaltung der Kgl. Museen zu Berlin (1904– )"
+  },
+  {
+    "abbrev": "Blass, Att. Ber.",
+    "full": "F. Blass, Die Attische Beredsamkeit, 2nd edn. (1887–98)"
+  },
+  {
+    "abbrev": "BM",
+    "full": "British Museum"
+  },
+  {
+    "abbrev": "BMB",
+    "full": "Bulletin du Musée de Beyrouth"
+  },
+  {
+    "abbrev": "BMC",
+    "full": "British Museum Catalogue"
+  },
+  {
+    "abbrev": "BM Coins, Rom. Emp.",
+    "full": "British Museum Catalogue of Coins of the Roman Empire (1923– )"
+  },
+  {
+    "abbrev": "BN",
+    "full": "Beiträge zur Namenforschung, Heidelberg"
+  },
+  {
+    "abbrev": "BNJ",
+    "full": "I. Worthington (ed.), Brill's New Jacoby (2006– )"
+  },
+  {
+    "abbrev": "BHisp.",
+    "full": "Bellum Hispaniense"
+  },
+  {
+    "abbrev": "BNP",
+    "full": "Brill’s New Pauly"
+  },
+  {
+    "abbrev": "Boll. d'Arte",
+    "full": "Bollettino d'arte"
+  },
+  {
+    "abbrev": "Boll. Fil. Class.",
+    "full": "Bollettino di lologia classica (1894–1929); ns (1930– )"
+  },
+  {
+    "abbrev": "Bonner Jahrb.",
+    "full": "Bonner Jahrbücher (1895– )"
+  },
+  {
+    "abbrev": "Bouché-Leclerq, Hist. div.",
+    "full": "A. Bouché-Leclerq, Histoire de la divination dans l'antiquité, 4 vols. (1879–82)"
+  },
+  {
+    "abbrev": "Bowersock, AGW",
+    "full": "G.W. Bowersock, Augustus and the Greek World (1965)"
+  },
+  {
+    "abbrev": "B. phil. Woch.",
+    "full": "Berliner philologische Wochenschrift (1881–1920)"
+  },
+  {
+    "abbrev": "Bremer",
+    "full": "F. P. Bremer, Iurisprudentiae antehadrianae quae supersunt: 1 (1896); 2/1 (1898); 2/2 (1901)"
+  },
+  {
+    "abbrev": "Bresl. phil. Abh.",
+    "full": "Breslauer philologische Abhandlungen"
+  },
+  {
+    "abbrev": "BRGK",
+    "full": "Bericht der römisch-germanischen Kommission des deutschen archäologischen Instituts"
+  },
+  {
+    "abbrev": "Briant, HEA",
+    "full": "P. Briant, Histoire de l’Empire perse: de Cyrus à Alexandre (1996; Eng. trans. 2002)"
+  },
+  {
+    "abbrev": "Briscoe, Comm. 31–33",
+    "full": "J. Briscoe, A Commentary on Livy Books xxxi–xxxiii (1973)"
+  },
+  {
+    "abbrev": "Comm. 34–37",
+    "full": "A Commentary on Livy Books xxxiv–xxxvii (1981)"
+  },
+  {
+    "abbrev": "Comm. 38–40",
+    "full": "A Commentary on Livy Books xxxviii–xl (2008)"
+  },
+  {
+    "abbrev": "Brommer, Vasenlisten",
+    "full": "F. Brommer, Vasenlisten zur griechischen Heldensage (2nd edn. 1960; 3rd edn. 1973)"
+  },
+  {
+    "abbrev": "Broughton, MRR",
+    "full": "T. R. S. Broughton, The Magistrates of the Roman Republic (1951–2); Suppl. (1986: supersedes Suppl. 1960)"
+  },
+  {
+    "abbrev": "Bruns, Font.",
+    "full": "C. G. Bruns, Fontes iuris Romani antiqui, 7th edn. (1919)"
+  },
+  {
+    "abbrev": "Brunt, RIT",
+    "full": "Bosworth, HCA"
+  },
+  {
+    "abbrev": "A. B. Bosworth, Historical Commentary on Arrian's History of Alexander 1: Commentary on Books i–iii (1980); 2:",
+    "full": "Commentary on Books iv–v (1995)"
+  },
+  {
+    "abbrev": "P. A. Brunt, Roman Imperial Themes (1990)",
+    "full": "BSA"
+  },
+  {
+    "abbrev": "Annual of the British School at Athens (1895– )",
+    "full": "BTCGI"
+  },
+  {
+    "abbrev": "G. Nenci and G. Vallet (eds), Bibliogra a topogra ca della colonizzazione greca in Italia e nelle isole tirreniche",
+    "full": "Büchner, FPL"
+  },
+  {
+    "abbrev": "see Morel–Büchner, FPL",
+    "full": "Buecheler, Carm. Epigr."
+  },
+  {
+    "abbrev": "F. Buecheler, Carmina Latina Epigraphica, 2 vols. with Suppl. by E. Lommatzsch (1894–1930)",
+    "full": "Bull. Com. Arch."
+  },
+  {
+    "abbrev": "Bullettino della Commissione archeologica comunale in Roma",
+    "full": "Bull. Ist. Dir. Rom."
+  },
+  {
+    "abbrev": "Bullettino del Istituto di diritto romano",
+    "full": "Bull. Rylands Libr."
+  },
+  {
+    "abbrev": "Bulletin of John Rylands Library",
+    "full": "Burkert, GR"
+  },
+  {
+    "abbrev": "W. Burkert, trans. J. Raffan, Greek Religion (1985)",
+    "full": "Burkert, HN"
+  },
+  {
+    "abbrev": "W. Burkert, trans. P. Bing, Homo Necans (1983)",
+    "full": "Burnet, EGP"
+  },
+  {
+    "abbrev": "J. Burnet, Early Greek Philosophy, 4th edn. (1930)",
+    "full": "Bursian"
+  },
+  {
+    "abbrev": "C. Bursian, Geographie von Griechenland 2 (1872)",
+    "full": "Jahresb."
+  },
+  {
+    "abbrev": "Bursian's Jahresberichte über die Fortschritte der Altertumswissenschaft(1873– )",
+    "full": "Busolt, Gr. Gesch."
+  },
+  {
+    "abbrev": "G. Busolt, Griechische Geschichte, 4 vols., vols. 1 and 2 in 2nd edn. (1893–1904)",
+    "full": "Byz. Forsch."
+  },
+  {
+    "abbrev": "Byzantinische Forschungen",
+    "full": "Byz. und Neugr. Jahrb."
+  },
+  {
+    "abbrev": "Byzantinisch-neugriechische Jahrbücher",
+    "full": "Byz. Zeitschr."
+  },
+  {
+    "abbrev": "Byzantinische Zeitschrift",
+    "full": "C&M"
+  },
+  {
+    "abbrev": "Classica et Mediaevalia",
+    "full": "Budé"
+  },
+  {
+    "abbrev": "Collection des Univ. de France, publiée sous le patronage de l'Assoc. Guillaume Budé",
+    "full": "Cabrol–Leclerq, Dict. d'arch. chrétienne"
+  },
+  {
+    "abbrev": "F. Cabrol and H. Leclerq (eds.), Dictionnaire d'archéologie chrétienne et de liturgie, 15 vols. (1907–53)",
+    "full": "Caes."
+  },
+  {
+    "abbrev": "Caesar",
+    "full": "BAfr."
+  },
+  {
+    "abbrev": "Bellum Africum",
+    "full": "BCiv."
+  },
+  {
+    "abbrev": "Bellum Civile",
+    "full": "CAF"
+  },
+  {
+    "abbrev": "T. Kock, Comicorum Atticorum Fragmenta (1880–8)",
+    "full": "CAH"
+  },
+  {
+    "abbrev": "Cambridge Ancient History, 2nd edn. (1961– ; 1st edn. 1923–39)",
+    "full": "Cahiers de la DAFI"
+  },
+  {
+    "abbrev": "Cahiers de la délegation française en Iran",
+    "full": "Callim."
+  },
+  {
+    "abbrev": "Callimachus",
+    "full": "Aet."
+  },
+  {
+    "abbrev": "Aetia",
+    "full": "Epigr."
+  },
+  {
+    "abbrev": "Epigrammata",
+    "full": "Hymn 1"
+  },
+  {
+    "abbrev": "Hymn to Zeus",
+    "full": "” 2"
+  },
+  {
+    "abbrev": "” ” Apollo",
+    "full": "” 3"
+  },
+  {
+    "abbrev": "” ” Artemis",
+    "full": "” 4"
+  },
+  {
+    "abbrev": "” ” Delos",
+    "full": "” 5"
+  },
+  {
+    "abbrev": "” ” Athena",
+    "full": "” 6"
+  },
+  {
+    "abbrev": "” ” Demeter",
+    "full": "Ia."
+  },
+  {
+    "abbrev": "Iambics",
+    "full": "Calp. Ecl."
+  },
+  {
+    "abbrev": "Calpurnius Siculus, Eclogues",
+    "full": "BGall."
+  },
+  {
+    "abbrev": "Bellum Gallicum",
+    "full": "Carm. arv."
+  },
+  {
+    "abbrev": "Carmen arvale",
+    "full": "Carm. epigr."
+  },
+  {
+    "abbrev": "Carmina epigraphica (‘pars posterior’ of Anthologia Latina)",
+    "full": "Carm. pop."
+  },
+  {
+    "abbrev": "Carmina popularia in Diehl's Anth. Lyr. Graec.2, pp. 192–208",
+    "full": "Carm. Sal."
+  },
+  {
+    "abbrev": "Carmen Saliare",
+    "full": "Cary–Warmington, Explorers"
+  },
+  {
+    "abbrev": "M. Cary and E. H. Warmington, The Ancient Explorers (1929; Penguin/Pelican, 1963)",
+    "full": "Cass. Dio"
+  },
+  {
+    "abbrev": "Cassius Dio",
+    "full": "Cassiod."
+  },
+  {
+    "abbrev": "Cassiodorus",
+    "full": "Inst."
+  },
+  {
+    "abbrev": "Institutiones",
+    "full": "Var."
+  },
+  {
+    "abbrev": "Variae",
+    "full": "Castagnoli, Stud. urb."
+  },
+  {
+    "abbrev": "F. Castagnoli (ed.), Studi di urbanistica antica (1966)",
+    "full": "Cat. Lit. Pap."
+  },
+  {
+    "abbrev": "H. J. M. Milne, Catalogue of the Literary Papyri in the British Museum (1927)",
+    "full": "Cato, Agr."
+  },
+  {
+    "abbrev": "Cato, De agricultura or De re rustica",
+    "full": "Orig."
+  },
+  {
+    "abbrev": "Origines",
+    "full": "Catull."
+  },
+  {
+    "abbrev": "Catullus",
+    "full": "Caven, Punic Wars"
+  },
+  {
+    "abbrev": "B. Caven, The Punic Wars (1988)",
+    "full": "Cawkwell, Greek Wars"
+  },
+  {
+    "abbrev": "G. Cawkwell, The Greek Wars: The Failure of Persia (2005)",
+    "full": "CCAG"
+  },
+  {
+    "abbrev": "Catalogus Codicum Astrologorum Graecorum, ed. F. Cumont and others 9 vols.",
+    "full": "CCGS"
+  },
+  {
+    "abbrev": "Cary, Geographic Background",
+    "full": "M. Cary, The Geographic Background of Greek and Roman History (1949)"
+  },
+  {
+    "abbrev": "Corpus Christianorum, series Graeca (1977– )",
+    "full": "CCSL"
+  },
+  {
+    "abbrev": "Corpus Christianorum, series Latina (1953– )",
+    "full": "CDCC"
+  },
+  {
+    "abbrev": "G. Shipley, J. Vanderspoel, D. Mattingly, and L. Foxhall (eds.), The Cambridge Dictionary of Classical Civilization",
+    "full": "(2006)"
+  },
+  {
+    "abbrev": "CÉFR",
+    "full": "Collections de l'École française de Rome (1976– )"
+  },
+  {
+    "abbrev": "Celsus, Med.",
+    "full": "Celsus, De medicina"
+  },
+  {
+    "abbrev": "Censorinus, DN",
+    "full": "Censorinus, De die natali"
+  },
+  {
+    "abbrev": "CGF",
+    "full": "G. Kaibel, Comicorum Graecorum Fragmenta (1899)"
+  },
+  {
+    "abbrev": "CGL",
+    "full": "Corpus grammaticorum Latinorum"
+  },
+  {
+    "abbrev": "Chalcid. In Tim.",
+    "full": "Chalcidius, In Platonis Timaeum"
+  },
+  {
+    "abbrev": "Charisius, Gramm.",
+    "full": "Charisius, Ars grammatica"
+  },
+  {
+    "abbrev": "Chassignet",
+    "full": "Chassignet's Budé texts of L'annalistique romaine 1 (1996), 2 (1999), 3 (2004)"
+  },
+  {
+    "abbrev": "CHCL",
+    "full": "Cambridge History of Classical Literature, 1: Greek Literature, ed. P. E. Easterling and B. M. W. Knox (1985); 2:"
+  },
+  {
+    "abbrev": "Latin Literature, ed. E. J. Kenney and W. V. Clausen (1982)",
+    "full": "CHGRW"
+  },
+  {
+    "abbrev": "P. Sabin, H. van Wees, and M. Whitby (eds.), The Cambridge History of Greek and Roman Warfare, 2 vols. (2007)",
+    "full": "Chiron"
+  },
+  {
+    "abbrev": "Chiron: Mitteilungen der Kommission für alte Geschichte und Epigraphik des deutschen archäologischen Instituts",
+    "full": "CHJ"
+  },
+  {
+    "abbrev": "Cambridge Historical Journal",
+    "full": "CHLC"
+  },
+  {
+    "abbrev": "G. A. Kennedy (ed.), Cambridge History of Literary Criticism 1: Classical Criticism (1989)",
+    "full": "Christ–Schmid–Stählin"
+  },
+  {
+    "abbrev": "W. von Christ, Geschichte d. griechischen Literatur, rev. W. Schmid and O. Stählin, vol. 2/16. See also 2/26",
+    "full": "Schmid–Stählin"
+  },
+  {
+    "abbrev": "CEG",
+    "full": "P. A. Hansen, Carmina Epigraphica Graeca, 2 vols. (1983–9)"
+  },
+  {
+    "abbrev": "Chron. d'É",
+    "full": "Chroniques d'Égypte"
+  },
+  {
+    "abbrev": "Chron. Marcell.",
+    "full": "Marcellinus, Chronicon"
+  },
+  {
+    "abbrev": "Chron. min.",
+    "full": "Chronica minora"
+  },
+  {
+    "abbrev": "Chron. Pasch.",
+    "full": "Chronicon Paschale"
+  },
+  {
+    "abbrev": "Cic.",
+    "full": "Cicero (Marcus Tullius)"
+  },
+  {
+    "abbrev": "Acad.",
+    "full": "Academicae quaestiones"
+  },
+  {
+    "abbrev": "Acad. post.",
+    "full": "Academica posteriora (= Plasberg, Bk. 4)"
+  },
+  {
+    "abbrev": "Acad. Pr.",
+    "full": "Academica Priora (= Plasberg, Bk. 1)"
+  },
+  {
+    "abbrev": "Ad Brut.",
+    "full": "Epistulae ad Brutum"
+  },
+  {
+    "abbrev": "Amic.",
+    "full": "De amicitia"
+  },
+  {
+    "abbrev": "Arch.",
+    "full": "Pro Archia"
+  },
+  {
+    "abbrev": "Att.",
+    "full": "Epistulae ad Atticum"
+  },
+  {
+    "abbrev": "Balb.",
+    "full": "Pro Balbo"
+  },
+  {
+    "abbrev": "Brut.",
+    "full": "Brutus or De Claris Oratoribus"
+  },
+  {
+    "abbrev": "Caecin.",
+    "full": "Pro Caecina"
+  },
+  {
+    "abbrev": "Cael.",
+    "full": "Pro Caelio"
+  },
+  {
+    "abbrev": "Cat.",
+    "full": "In Catilinam"
+  },
+  {
+    "abbrev": "Clu.",
+    "full": "Pro Cluentio"
+  },
+  {
+    "abbrev": "CIA",
+    "full": "Corpus Inscriptionum Atticarum (1825– )"
+  },
+  {
+    "abbrev": "Corn.",
+    "full": "Pro Cornelio de maiestate (fragmentary)"
+  },
+  {
+    "abbrev": "De imp. Cn. Pomp.",
+    "full": "see Leg. Man."
+  },
+  {
+    "abbrev": "Deiot.",
+    "full": "Pro rege Deiotaro"
+  },
+  {
+    "abbrev": "De or.",
+    "full": "De oratore"
+  },
+  {
+    "abbrev": "Div. Caec.",
+    "full": "Divinatio in Caecilium"
+  },
+  {
+    "abbrev": "Dom.",
+    "full": "De domo sua"
+  },
+  {
+    "abbrev": "Fam.",
+    "full": "Epistulae ad familiares"
+  },
+  {
+    "abbrev": "Fat.",
+    "full": "De fato"
+  },
+  {
+    "abbrev": "Fin.",
+    "full": "De nibus"
+  },
+  {
+    "abbrev": "Flac.",
+    "full": "Pro Flacco"
+  },
+  {
+    "abbrev": "Font.",
+    "full": "Pro Fonteio"
+  },
+  {
+    "abbrev": "Har. resp.",
+    "full": "De haruspicum responso"
+  },
+  {
+    "abbrev": "Inv. rhet.",
+    "full": "De inventione rhetorica"
+  },
+  {
+    "abbrev": "Leg.",
+    "full": "De legibus"
+  },
+  {
+    "abbrev": "Leg. agr.",
+    "full": "De lege agraria"
+  },
+  {
+    "abbrev": "Leg. Man.",
+    "full": "Pro lege Manilia or De imperio Cn. Pompeii"
+  },
+  {
+    "abbrev": "Lig.",
+    "full": "Pro Ligario"
+  },
+  {
+    "abbrev": "Luc.",
+    "full": "Div."
+  },
+  {
+    "abbrev": "De divinatione",
+    "full": "Lucullus or Academica posteriora"
+  },
+  {
+    "abbrev": "Marcell.",
+    "full": "Pro Marcello"
+  },
+  {
+    "abbrev": "Mil.",
+    "full": "Pro Milone"
+  },
+  {
+    "abbrev": "Mur.",
+    "full": "Pro Murena"
+  },
+  {
+    "abbrev": "Off.",
+    "full": "De of ciis"
+  },
+  {
+    "abbrev": "Orat.",
+    "full": "Orator ad M. Brutum"
+  },
+  {
+    "abbrev": "Part. or.",
+    "full": "Partitiones oratoriae"
+  },
+  {
+    "abbrev": "Phil.",
+    "full": "Orationes Philippicae"
+  },
+  {
+    "abbrev": "Pis.",
+    "full": "In Pisonem"
+  },
+  {
+    "abbrev": "Planc.",
+    "full": "Pro Plancio"
+  },
+  {
+    "abbrev": "Prov. cons.",
+    "full": "De provinciis consularibus"
+  },
+  {
+    "abbrev": "QFr.",
+    "full": "Epistulae ad Quintum fratrem"
+  },
+  {
+    "abbrev": "QRosc.",
+    "full": "Pro Roscio comoedo"
+  },
+  {
+    "abbrev": "Quinct.",
+    "full": "Pro Quinctio"
+  },
+  {
+    "abbrev": "Rab. Post.",
+    "full": "Pro Rabirio Postumo"
+  },
+  {
+    "abbrev": "Red. pop.",
+    "full": "Post reditum ad populum"
+  },
+  {
+    "abbrev": "Red. sen.",
+    "full": "Post reditum in senatu"
+  },
+  {
+    "abbrev": "Rep.",
+    "full": "De republica"
+  },
+  {
+    "abbrev": "Nat. D.",
+    "full": "De natura deorum"
+  },
+  {
+    "abbrev": "Rosc. Am.",
+    "full": "Pro Sexto Roscio Amerino"
+  },
+  {
+    "abbrev": "Scaur.",
+    "full": "Pro Scauro"
+  },
+  {
+    "abbrev": "Sen.",
+    "full": "De senectute"
+  },
+  {
+    "abbrev": "Sest.",
+    "full": "Pro Sestio"
+  },
+  {
+    "abbrev": "Sull.",
+    "full": "Pro Sulla"
+  },
+  {
+    "abbrev": "Tog. cand.",
+    "full": "Oratio in senatu in toga candida (fragmentary)"
+  },
+  {
+    "abbrev": "Top.",
+    "full": "Topica"
+  },
+  {
+    "abbrev": "Tusc.",
+    "full": "Tusculanae disputationes"
+  },
+  {
+    "abbrev": "Vat.",
+    "full": "In Vatinium"
+  },
+  {
+    "abbrev": "Verr.",
+    "full": "In Verrem"
+  },
+  {
+    "abbrev": "Cicero, Comment. pet.",
+    "full": "Cicero (Quintus), Commentariolum petitionis"
+  },
+  {
+    "abbrev": "Cichorius, Röm. Stud.",
+    "full": "C. Cichorius, Römische Studien (1922; repr. 1961) (cited by chapter and section)"
+  },
+  {
+    "abbrev": "CIE",
+    "full": "Corpus Inscriptionum Etruscarum (1893– )"
+  },
+  {
+    "abbrev": "CIJ",
+    "full": "Corpus Inscriptionum Iudaicarum, ed. J.-B. Frey (1936–52)"
+  },
+  {
+    "abbrev": "CIL",
+    "full": "Corpus Inscriptionum Latinarum (1863– )"
+  },
+  {
+    "abbrev": "CISem.",
+    "full": "Corpus Inscriptionum Semiticarum (1881– )"
+  },
+  {
+    "abbrev": "CJ",
+    "full": "Classical Journal"
+  },
+  {
+    "abbrev": "Cl. Ant.",
+    "full": "Classical Antiquity"
+  },
+  {
+    "abbrev": "Somn.",
+    "full": "Somnium Scipionis"
+  },
+  {
+    "abbrev": "Claud.",
+    "full": "Claudianus"
+  },
+  {
+    "abbrev": "Cons. Hon.",
+    "full": "De consulatu Honorii"
+  },
+  {
+    "abbrev": "Cons. Stil.",
+    "full": "De consulatu Stilichonis"
+  },
+  {
+    "abbrev": "CLE",
+    "full": "F. Bücheler and E. Lommatzsch (eds.), Carmina Latina Epigraphica (1895–1926)"
+  },
+  {
+    "abbrev": "Protr.",
+    "full": "Protrepticus"
+  },
+  {
+    "abbrev": "Strom.",
+    "full": "Stromateis"
+  },
+  {
+    "abbrev": "Clinton, Iconography",
+    "full": "K. Clinton, Myth and Cult: The Iconography of the Eleusinian Mysteries (1992)"
+  },
+  {
+    "abbrev": "Sacred Of cials",
+    "full": "The Sacred Of cials of the Eleusinian Mysteries (1974)"
+  },
+  {
+    "abbrev": "CMG",
+    "full": "Corpus Medicorum Graecorum (1908– )"
+  },
+  {
+    "abbrev": "CML",
+    "full": "Corpus Medicorum Latinorum (1915– )"
+  },
+  {
+    "abbrev": "Coarelli, Roma",
+    "full": "F. Coarelli, Guida archeologica Laterza: Roma, 6th edn. (1989)"
+  },
+  {
+    "abbrev": "Cod.",
+    "full": "Codex"
+  },
+  {
+    "abbrev": "Codd. Lat. Ant. (Lowe)",
+    "full": "E. A. Lowe, Codices Latini Antiquiores (1934–66); Suppl. (1971); 2nd edn. of vol. 1 (1972)"
+  },
+  {
+    "abbrev": "Cod. Iust.",
+    "full": "Codex Iustinianus"
+  },
+  {
+    "abbrev": "Cod. Theod.",
+    "full": "Codex Theodosianus"
+  },
+  {
+    "abbrev": "Coll. Alex.",
+    "full": "see Powell"
+  },
+  {
+    "abbrev": "Collingwood–Myres, Roman Britain",
+    "full": "R. G. Collingwood and J. N. L. Myres, Roman Britain and the English Settlements, 2nd edn. (1937; repr. 1963)"
+  },
+  {
+    "abbrev": "Collingwood–Wright, RIB",
+    "full": "Clem. Al."
+  },
+  {
+    "abbrev": "Clemens Alexandrinus",
+    "full": "R. G. Collingwood, R. P. Wright, and others, The Roman Inscriptions of Britain (1965– )"
+  },
+  {
+    "abbrev": "Columella, Rust.",
+    "full": "Columella, De re rustica"
+  },
+  {
+    "abbrev": "Comm. in Arist. Graeca",
+    "full": "Commentaria in Aristotelem Graeca"
+  },
+  {
+    "abbrev": "Conon, Narr.",
+    "full": "Conon Mythographus, Διηγήσεις"
+  },
+  {
+    "abbrev": "Conway, Ital. Dial.",
+    "full": "R. S. Conway, Italic Dialects (1897)"
+  },
+  {
+    "abbrev": "Cook, Zeus",
+    "full": "A. B. Cook, Zeus: A Study in Ancient Religion, vol. 1 (1914), 2 (1925), 3 (1940)"
+  },
+  {
+    "abbrev": "Cornutus, Theol.",
+    "full": "Cornutus (L. Annaeus),"
+  },
+  {
+    "abbrev": "Graec.",
+    "full": "Ἐπιδρομὴ τῶν κατὰ τὴν Ἑλληνικὴν θΘεολογίαν παραδεδομένων"
+  },
+  {
+    "abbrev": "Corp. poes. ep. Graec. lud.",
+    "full": "Corpusculum poesis epicae Graecae ludibundae 1: Parodia et Archestratus, P. Brandt (1888); 2: Syllographi Graeci, C."
+  },
+  {
+    "abbrev": "Wachsmuth (1885)",
+    "full": "Cosmopoulos, Mysteries"
+  },
+  {
+    "abbrev": "M. B. Cosmopoulos, Greek Mysteries: The Archaeology of Ancient Greek Secret Cults (2003)",
+    "full": "Courtney, FLP"
+  },
+  {
+    "abbrev": "E. Courtney, The Fragmentary Latin Poets (1993)",
+    "full": "CPhil."
+  },
+  {
+    "abbrev": "Classical Philology",
+    "full": "CPL"
+  },
+  {
+    "abbrev": "Corpus Poetarum Latinorum (1894–1920)",
+    "full": "CQ"
+  },
+  {
+    "abbrev": "Classical Quarterly",
+    "full": "CR"
+  },
+  {
+    "abbrev": "Classical Review",
+    "full": "CR Acad. Inscr."
+  },
+  {
+    "abbrev": "Comptes rendus de l'Académie des Inscriptions et Belles-lettres",
+    "full": "Cramer, Anecd. Par."
+  },
+  {
+    "abbrev": "see Anecd. Par.",
+    "full": "CRF"
+  },
+  {
+    "abbrev": "see Ribbeck",
+    "full": "Const."
+  },
+  {
+    "abbrev": "Constitutio",
+    "full": "CronASA"
+  },
+  {
+    "abbrev": "Cronache di archeologia e di storia dell'arte",
+    "full": "Cron. Erc."
+  },
+  {
+    "abbrev": "Bolletino del Centro internazionale per lo studio dei papyri ercolanesi",
+    "full": "CT"
+  },
+  {
+    "abbrev": "S. Hornblower, Comm. Thucydides",
+    "full": "CTh"
+  },
+  {
+    "abbrev": "Cod. Theod.",
+    "full": "Cul."
+  },
+  {
+    "abbrev": "Culex (see appendix vergiliana)",
+    "full": "Cullen"
+  },
+  {
+    "abbrev": "T. Cullen (ed.), Aegean Prehistory: A review (2001)",
+    "full": "Cumont, Rel. or."
+  },
+  {
+    "abbrev": "F. Cumont, Les Religions orientales dans le paganisme romain, 4th edn. (1929)",
+    "full": "Curt."
+  },
+  {
+    "abbrev": "Q. Curtius Rufus",
+    "full": "CVA"
+  },
+  {
+    "abbrev": "Corpus Vasorum Antiquorum (1925– )",
+    "full": "CW"
+  },
+  {
+    "abbrev": "Classical World",
+    "full": "Cyprian De. idol. vanit."
+  },
+  {
+    "abbrev": "De idolorum vanitate",
+    "full": "Cyril. Adv. Iul."
+  },
+  {
+    "abbrev": "Cyrillus, Adversus Iulianum",
+    "full": "Dam. Isid."
+  },
+  {
+    "abbrev": "Damascius, Vita Isidori",
+    "full": "Dar.–Sag."
+  },
+  {
+    "abbrev": "C. Daremberg and E. Saglio, Dictionnaire des antiquités grecques et romaines d'après les textes et les monuments",
+    "full": "(1877–1919)"
+  },
+  {
+    "abbrev": "Davies, APF",
+    "full": "J. K. Davies, Athenian Propertied Families 600–300 bc (1971)"
+  },
+  {
+    "abbrev": "Davies, EGF",
+    "full": "M. Davies, Epicorum Graecorum Fragmenta (1988)"
+  },
+  {
+    "abbrev": "PMGF",
+    "full": "Poetarum Melicorum Graecorum Fragmenta (1991)"
+  },
+  {
+    "abbrev": "CSEL",
+    "full": "Corpus Scriptorum Ecclesiasticorum Latinorum (1866 ff.)"
+  },
+  {
+    "abbrev": "DB",
+    "full": "Inscription of Darius I at Bisutun"
+  },
+  {
+    "abbrev": "DCB",
+    "full": "Dictionary of Christian Biography and Literature, ed. H. Wace and W. C. Piercy (1911)"
+  },
+  {
+    "abbrev": "DCPP",
+    "full": "Dictionnaire de la civilisation phénicienne et punique (1992)"
+  },
+  {
+    "abbrev": "Déchelette, Manuel",
+    "full": "J. Déchelette, Manuel d'archéologie préhistorique, celtique et gallo-romaine (1908–14)"
+  },
+  {
+    "abbrev": "Def. tab. Audollent",
+    "full": "A. Audollent, De xionum Tabellae (1904)"
+  },
+  {
+    "abbrev": "Def. tab. Wünsch",
+    "full": "R. Wünsch, De xionum Tabellae (= IG 3/3) (1897)"
+  },
+  {
+    "abbrev": "Degrasi, ILLRP",
+    "full": "see ILLRP"
+  },
+  {
+    "abbrev": "Délos",
+    "full": "Explorations archéologiques de Délos (1909– )"
+  },
+  {
+    "abbrev": "Dem.",
+    "full": "Demosthenes"
+  },
+  {
+    "abbrev": "De cor.",
+    "full": "De corona"
+  },
+  {
+    "abbrev": "Epit.",
+    "full": "Epitaphius"
+  },
+  {
+    "abbrev": "Lept.",
+    "full": "Against Leptines"
+  },
+  {
+    "abbrev": "Meid.",
+    "full": "Against Meidias"
+  },
+  {
+    "abbrev": "Demetr. Eloc.",
+    "full": "Demetrius [Phalereus], De Elocutione=Περὶ έρμηνείας"
+  },
+  {
+    "abbrev": "Demiańczuk, Supp. Com.",
+    "full": "J. Demiańczuk, Supplementum Comicum (1912)"
+  },
+  {
+    "abbrev": "Democr.",
+    "full": "Democritus"
+  },
+  {
+    "abbrev": "De Sanctis, Stor. Rom.",
+    "full": "G. De Sanctis, Storia dei Romani, vols. 1–2 2 (1959–60), 32 (1967–8), 4/1 2 (1969), 4/2–3 (1953–64)"
+  },
+  {
+    "abbrev": "Dessau, ILS",
+    "full": "H. Dessau, Inscriptiones Latinae Selectae (1892–1916)"
+  },
+  {
+    "abbrev": "De Com.",
+    "full": "see Anon. De Com."
+  },
+  {
+    "abbrev": "Deubner, Attische Feste",
+    "full": "L. Deubner, Attische Feste (1932)"
+  },
+  {
+    "abbrev": "Develin, AO",
+    "full": "R. Develin, Athenian Of cials 684- 321 bc (1989)"
+  },
+  {
+    "abbrev": "De vir. ill.",
+    "full": "De viris illustribus (auctor ignotus)"
+  },
+  {
+    "abbrev": "DFA3",
+    "full": "A.W. Pickard-Cambridge, rev. J. Gould and D. M. Lewis, Dramatic Festivals of Athens, 3rd edn. (1988)"
+  },
+  {
+    "abbrev": "Dial. di Arch.",
+    "full": "Dialoghi di archeologia"
+  },
+  {
+    "abbrev": "Dict. Sci. Biogr.",
+    "full": "Dictionary of Scienti c Biography, ed. C. Gillespie (1970–80)"
+  },
+  {
+    "abbrev": "Dict. Spir.",
+    "full": "Dictionnaire de spiritualité ascétique et mystique (1933)"
+  },
+  {
+    "abbrev": "Did. Iul.",
+    "full": "Didius Iulianus, see SHA"
+  },
+  {
+    "abbrev": "Diehl. Anth. Lyr. Graec.",
+    "full": "E. Diehl, Anthologia Lyrica Graeca (1925; 2nd edn. 1942; 3rd edn. 1949–52)"
+  },
+  {
+    "abbrev": "Poet. Rom. vet.",
+    "full": "Poetarum Romanorum veterum reliquiae (1911)"
+  },
+  {
+    "abbrev": "Diels, Dox. Graec.",
+    "full": "H. Diels, Doxographi Graeci (1879)"
+  },
+  {
+    "abbrev": "Diels–Kranz, Vorsokr.",
+    "full": "see DK"
+  },
+  {
+    "abbrev": "Dig.",
+    "full": "Digesta"
+  },
+  {
+    "abbrev": "Din.",
+    "full": "Dinarchus"
+  },
+  {
+    "abbrev": "Dio Cass.",
+    "full": "Dio Cassius"
+  },
+  {
+    "abbrev": "Dio Chrys. Or.",
+    "full": "Dio Chrysostomus Orationes"
+  },
+  {
+    "abbrev": "Diocl. Magn.",
+    "full": "Diocles of Magnesia"
+  },
+  {
+    "abbrev": "Dio Cocc.",
+    "full": "DHA"
+  },
+  {
+    "abbrev": "Dialogues d'histoire ancienne",
+    "full": "Dio Cocceianus; see Dio Chrys."
+  },
+  {
+    "abbrev": "Diod. Sic.",
+    "full": "Diodorus Siculus"
+  },
+  {
+    "abbrev": "Diogenian.",
+    "full": "Diogenianus Paroemiographus"
+  },
+  {
+    "abbrev": "Diog. Laert.",
+    "full": "Diogenes Laertius"
+  },
+  {
+    "abbrev": "Dion. Calliphon.",
+    "full": "Dionysius Calliphontis lius"
+  },
+  {
+    "abbrev": "Dion. Hal.",
+    "full": "Dionysius Halicarnassensis"
+  },
+  {
+    "abbrev": "Ant. Rom.",
+    "full": "Antiquitates Romanae"
+  },
+  {
+    "abbrev": "Comp.",
+    "full": "De compositione verborum"
+  },
+  {
+    "abbrev": "De imit.",
+    "full": "De imitatione"
+  },
+  {
+    "abbrev": "Dem.",
+    "full": "De Demosthene"
+  },
+  {
+    "abbrev": "Isoc.",
+    "full": "De Isocrate"
+  },
+  {
+    "abbrev": "Lys.",
+    "full": "De Lysia"
+  },
+  {
+    "abbrev": "Pomp.",
+    "full": "Epistula ad Pompeium"
+  },
+  {
+    "abbrev": "Rhet.",
+    "full": "Ars rhetorica"
+  },
+  {
+    "abbrev": "Thuc.",
+    "full": "De Thucydide"
+  },
+  {
+    "abbrev": "Vett. cens.",
+    "full": "De veterum censura"
+  },
+  {
+    "abbrev": "Dion. Thrax",
+    "full": "Dionysius Thrax"
+  },
+  {
+    "abbrev": "Dionys. Per.",
+    "full": "Dionysius Periegeta"
+  },
+  {
+    "abbrev": "Diom.",
+    "full": "Diomedes Grammaticus"
+  },
+  {
+    "abbrev": "Diss. Pan.",
+    "full": "Dissertationes Pannonicae (1932– )"
+  },
+  {
+    "abbrev": "Dittenberg. Syll.3",
+    "full": "see Syll.3"
+  },
+  {
+    "abbrev": "Diz. Epigr.",
+    "full": "see Ruggiero"
+  },
+  {
+    "abbrev": "DK",
+    "full": "H. Diels and W. Kranz, Fragmente der Vorsokratiker, 6th edn. (1952)"
+  },
+  {
+    "abbrev": "Donat.",
+    "full": "Aelius Donatus"
+  },
+  {
+    "abbrev": "Vit. Verg.",
+    "full": "Vita Vergilii"
+  },
+  {
+    "abbrev": "DOP",
+    "full": "Dumbarton Oaks Papers"
+  },
+  {
+    "abbrev": "Dox. Graec.",
+    "full": "see Diels"
+  },
+  {
+    "abbrev": "D Serv.",
+    "full": "see Serv. Dan."
+  },
+  {
+    "abbrev": "DTC",
+    "full": "Dictionnaire de Théologie Catholique, ed. A. Vacant, E. Mangenot, and E. Amann, 15 vols. (1903–50)"
+  },
+  {
+    "abbrev": "Duff, Minor Lat. Poets",
+    "full": "J.W. and A. M. Duff, Minor Latin Poets (Loeb, 1935; repr. 1968, 1982)"
+  },
+  {
+    "abbrev": "Dumézil, ARR",
+    "full": "G. Dumézil, Archaic Roman Religion (1987; Fr. orig. 1974)"
+  },
+  {
+    "abbrev": "Dunbabin, Western Greeks",
+    "full": "T. J. Dunbabin, The Western Greeks (1948)"
+  },
+  {
+    "abbrev": "EA",
+    "full": "Epigraphica Anatolica"
+  },
+  {
+    "abbrev": "EAA",
+    "full": "Enciclopedia dell'arte antica (1958– )"
+  },
+  {
+    "abbrev": "Edmonds, FAC",
+    "full": "J. M. Edmonds, Fragments of Attic Comedy 3 vols. (1957–61)"
+  },
+  {
+    "abbrev": "EEC",
+    "full": "Encyclopaedia of the Early Church, 2 vols. (1992)"
+  },
+  {
+    "abbrev": "EGF",
+    "full": "G. Kinkel, Epicorum Graecorum Fragmenta (1877)"
+  },
+  {
+    "abbrev": "DNP",
+    "full": "Der Neue Pauly"
+  },
+  {
+    "abbrev": "EJ",
+    "full": "V. Ehrenberg and A. H. M. Jones, Documents Illustrating the Reigns of Augustus and Tiberius, 2nd edn. (1976)"
+  },
+  {
+    "abbrev": "EGM",
+    "full": "R. Fowler, Early Greek Mythography 1 (2000), 2 (2013)"
+  },
+  {
+    "abbrev": "Enc. Brit.",
+    "full": "Encyclopaedia Britannica"
+  },
+  {
+    "abbrev": "Enc. Ir.",
+    "full": "Enciclopedia Iranica, ed. E. Yar- Shater (1985– )"
+  },
+  {
+    "abbrev": "Enn. Ann.",
+    "full": "Ennius, Annales"
+  },
+  {
+    "abbrev": "Entretiens Hardt",
+    "full": "Fondation Hardt, Essais sur l'antiquité classique (1952– )"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistula"
+  },
+  {
+    "abbrev": "Eph. Epigr.",
+    "full": "Ephemeris Epigraphica, Corporis Inscriptionum Latinarum Supplementum (1872– )"
+  },
+  {
+    "abbrev": "Epicharm.",
+    "full": "Epicharmus"
+  },
+  {
+    "abbrev": "Epicurus",
+    "full": "Epicurus"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "Ep. Hdt.",
+    "full": "Epistula ad Herodotum"
+  },
+  {
+    "abbrev": "Ep. Men.",
+    "full": "Epistula ad Menoeceum"
+  },
+  {
+    "abbrev": "Ep. Pyth.",
+    "full": "Epistula ad Pythoclem"
+  },
+  {
+    "abbrev": "Sent. Vat.",
+    "full": "Vatican Sayings = Gnomologium Vaticanum"
+  },
+  {
+    "abbrev": "RS",
+    "full": "Ratae sententiae"
+  },
+  {
+    "abbrev": "Epigr. Gr.",
+    "full": "G. Kaibel, Epigrammata Graeca ex lapidibus conlecta (1878)"
+  },
+  {
+    "abbrev": "Epiph. Adv. haeres.",
+    "full": "Enc. Virg."
+  },
+  {
+    "abbrev": "Enciclopedia Virgiliana, 5 vols. (1984–90)",
+    "full": "Epiphanius, Adversus haereses"
+  },
+  {
+    "abbrev": "Epit.",
+    "full": "Epitome"
+  },
+  {
+    "abbrev": "Epit. de Caes.",
+    "full": "Epitome de Caesaribus (in Teubner Aur. Vict. Caes., ed. F. Pichlmayer (1911), 133–76)"
+  },
+  {
+    "abbrev": "Epit. Oxyrh.",
+    "full": "Epitome Oxyrhynchica of Livy"
+  },
+  {
+    "abbrev": "Eratosth.",
+    "full": "Eratosthenes"
+  },
+  {
+    "abbrev": "[Cat.]",
+    "full": "[Καταστερισμοί]"
+  },
+  {
+    "abbrev": "ERE",
+    "full": "see Hastings"
+  },
+  {
+    "abbrev": "Ἔργον",
+    "full": "Τὸ Ἔργον τῆς Ἀρχαιολογικῆς Ἑταιρείας"
+  },
+  {
+    "abbrev": "Ét. de Pap.",
+    "full": "Études de papyrologie (1932–74)"
+  },
+  {
+    "abbrev": "Etym. Magn.",
+    "full": "Etymologicum Magnum"
+  },
+  {
+    "abbrev": "Euc.",
+    "full": "Euclid"
+  },
+  {
+    "abbrev": "Eudem.",
+    "full": "Eudemus"
+  },
+  {
+    "abbrev": "Eunap.",
+    "full": "Eunapius"
+  },
+  {
+    "abbrev": "VS",
+    "full": "Vitae sophistarum"
+  },
+  {
+    "abbrev": "Eup.",
+    "full": "Eupolis"
+  },
+  {
+    "abbrev": "Eur.",
+    "full": "Euripides"
+  },
+  {
+    "abbrev": "Alc.",
+    "full": "Alcestis"
+  },
+  {
+    "abbrev": "Andr.",
+    "full": "Andromache"
+  },
+  {
+    "abbrev": "EPRO",
+    "full": "Études préliminaires aux religions orientales dans l'empire romain"
+  },
+  {
+    "abbrev": "Bacch.",
+    "full": "Bacchae"
+  },
+  {
+    "abbrev": "Beller.",
+    "full": "Bellerophon"
+  },
+  {
+    "abbrev": "Cyc.",
+    "full": "Cyclops"
+  },
+  {
+    "abbrev": "El.",
+    "full": "Electra"
+  },
+  {
+    "abbrev": "Hel.",
+    "full": "Helena"
+  },
+  {
+    "abbrev": "Heracl.",
+    "full": "Heraclidae"
+  },
+  {
+    "abbrev": "HF",
+    "full": "Hercules furens"
+  },
+  {
+    "abbrev": "Hipp.",
+    "full": "Hippolytus"
+  },
+  {
+    "abbrev": "Hyps.",
+    "full": "Hypsipyle"
+  },
+  {
+    "abbrev": "IA",
+    "full": "Iphigenia Aulidensis"
+  },
+  {
+    "abbrev": "IT",
+    "full": "Iphigenia Taurica"
+  },
+  {
+    "abbrev": "Med.",
+    "full": "Medea"
+  },
+  {
+    "abbrev": "Or.",
+    "full": "Orestes"
+  },
+  {
+    "abbrev": "Phoen.",
+    "full": "Phoenissae"
+  },
+  {
+    "abbrev": "Rhes.",
+    "full": "Rhesus"
+  },
+  {
+    "abbrev": "Sthen.",
+    "full": "Stheneboea"
+  },
+  {
+    "abbrev": "Supp.",
+    "full": "Supplices"
+  },
+  {
+    "abbrev": "Tro.",
+    "full": "Troades"
+  },
+  {
+    "abbrev": "Hec.",
+    "full": "Hecuba"
+  },
+  {
+    "abbrev": "Euseb.",
+    "full": "Eusebius"
+  },
+  {
+    "abbrev": "Chron.",
+    "full": "Chronica"
+  },
+  {
+    "abbrev": "Hist. eccl.",
+    "full": "Historia ecclesiastica"
+  },
+  {
+    "abbrev": "Praep. evang.",
+    "full": "Praeparatio evangelica"
+  },
+  {
+    "abbrev": "Eust.",
+    "full": "Eustathius"
+  },
+  {
+    "abbrev": "Il.",
+    "full": "Ad Iliadem"
+  },
+  {
+    "abbrev": "Od.",
+    "full": "Ad Odysseam"
+  },
+  {
+    "abbrev": "Prooem. ad Pind.",
+    "full": "Eustathii prooemium commentariorum Pindaricorum, ed. F. W. Schneidewin (1837)"
+  },
+  {
+    "abbrev": "Eutocius, In Arch. circ. dim.",
+    "full": "Eutocius, In Archimedis circuli dimensionem"
+  },
+  {
+    "abbrev": "Eutr.",
+    "full": "Eutropius"
+  },
+  {
+    "abbrev": "EW",
+    "full": "East and West"
+  },
+  {
+    "abbrev": "FAC",
+    "full": "see Edmonds"
+  },
+  {
+    "abbrev": "Facella",
+    "full": "M. Facella, La dinastia degli Orontidi nella Commagene ellenistico-romana (2006)"
+  },
+  {
+    "abbrev": "Farnell, Cults",
+    "full": "L. R. Farnell, The Cults of the Greek States (1896–1909)"
+  },
+  {
+    "abbrev": "Hero-Cults",
+    "full": "Greek Hero-Cults and Ideas of Immortality (1921)"
+  },
+  {
+    "abbrev": "Fasti sacerdotum",
+    "full": "J. Rüpke and others, Fasti sacerdotum: die Mitglieder der Priesterschaften und das sakrale Funktionspersonal"
+  },
+  {
+    "abbrev": "römischer, griechischer, orientalischer und jüdisch-christlicher Kulte in der Stadt Rom von 300 v. Chr. bis 499 n. Chr.,",
+    "full": "3 vols. (2005)"
+  },
+  {
+    "abbrev": "FCG",
+    "full": "see Meineke"
+  },
+  {
+    "abbrev": "Vit. Const.",
+    "full": "Vita Constantini"
+  },
+  {
+    "abbrev": "FCGM",
+    "full": "see Olivieri"
+  },
+  {
+    "abbrev": "FD",
+    "full": "Fouilles de Delphes"
+  },
+  {
+    "abbrev": "Festus, Gloss. Lat.",
+    "full": "W. M. Lindsay's second edn. of Festus in his Glossaria Latina, vol. 4"
+  },
+  {
+    "abbrev": "FGrH",
+    "full": "F. Jacoby, Fragmente der griechischen Historiker (1923– )"
+  },
+  {
+    "abbrev": "FIRA",
+    "full": "see Riccobono, FIRA"
+  },
+  {
+    "abbrev": "Firm. Mat.",
+    "full": "Firmicus Maternus"
+  },
+  {
+    "abbrev": "Err. prof. rel.",
+    "full": "De errore profanarum religionum"
+  },
+  {
+    "abbrev": "Fittschen and Zanker",
+    "full": "K. Fittschen and P. Zanker, Katalog der römischen Porträts in den capitolinischen Museen (1983– )"
+  },
+  {
+    "abbrev": "Fleck J. Suppl.",
+    "full": "Fleckeisens Jahrbücher für klassische Philologie, Suppl. 24 (1898)= Neue Jahrbücher f. d. klassische Altertum"
+  },
+  {
+    "abbrev": "Flor.",
+    "full": "L. Annaeus Florus"
+  },
+  {
+    "abbrev": "FLP",
+    "full": "see Courtney, FLP"
+  },
+  {
+    "abbrev": "FOR",
+    "full": "Forma Orbis Romanae. Carte archéologique de la Gaule romaine, ed. A. Blanchet (1931– )"
+  },
+  {
+    "abbrev": "Forbes, Stud. Anc. Technol.",
+    "full": "R. J. Forbes, Studies in Ancient Technology, 9 vols. (1957–64); 2nd edn., 9 vols. (1964–72)"
+  },
+  {
+    "abbrev": "Fornara",
+    "full": "C.W. Fornara (ed.), Archaic Times to the End of the Peloponnesian War, 2nd edn.: Translated Documents of Greece"
+  },
+  {
+    "abbrev": "and Rome 1 (1983)",
+    "full": "FPG"
+  },
+  {
+    "abbrev": "F. W. A. Mullach, Fragmenta Philosophorum Graecorum (1860–81)",
+    "full": "FPL"
+  },
+  {
+    "abbrev": "see Morel-Büchner, FPL",
+    "full": "FPR"
+  },
+  {
+    "abbrev": "see Baehr",
+    "full": "FHG"
+  },
+  {
+    "abbrev": "C. Müller, Fragmenta Historicorum Graecorum (1841–70)",
+    "full": "Frank, Econ. Survey"
+  },
+  {
+    "abbrev": "T. Frank (ed). An Economic Survey of Ancient Rome, 5 vols. (1933–40)",
+    "full": "Fraser, Cities"
+  },
+  {
+    "abbrev": "P. M. Fraser, Cities of Alexander the Great (1996)",
+    "full": "Fraser, GET"
+  },
+  {
+    "abbrev": "P. M. Fraser, Greek Ethnic Terminology (2009)",
+    "full": "Fraser, Ptol. Alex."
+  },
+  {
+    "abbrev": "P. M. Fraser, Ptolemaic Alexandria, 3 vols. (1972)",
+    "full": "FRH"
+  },
+  {
+    "abbrev": "H. Beck and U. Walter, Die Frühen Römischen Historiker (2001– )",
+    "full": "FRHist"
+  },
+  {
+    "abbrev": "T. J. Cornell (ed.), Fragments of the Roman Historians (forthcoming)",
+    "full": "Friedländer, Rom. Life"
+  },
+  {
+    "abbrev": "L. Friedländer, Darstellung aus der Sittengeschichte Roms9–10 (1921–3), rev. G.Wissowa 6; Roman Life and Manners",
+    "full": "under the Early Empire, Eng. trans. from 7th edn. (1908–13)"
+  },
+  {
+    "abbrev": "Frontin.",
+    "full": "Frontinus"
+  },
+  {
+    "abbrev": "Aq.",
+    "full": "De aquae ductu urbis Romae"
+  },
+  {
+    "abbrev": "Str.",
+    "full": "Strategemata"
+  },
+  {
+    "abbrev": "Fronto, Ep.",
+    "full": "Fronto, Epistulae"
+  },
+  {
+    "abbrev": "FRP",
+    "full": "A. S. Hollis, Fragments of Roman Poetry c. 60BC–AD 20 (2009)"
+  },
+  {
+    "abbrev": "Fulg.",
+    "full": "Fulgentius"
+  },
+  {
+    "abbrev": "Myth.",
+    "full": "Mitologiae tres libri"
+  },
+  {
+    "abbrev": "Funaioli, Gramm. Rom. Frag.",
+    "full": "H. Funaioli, Grammaticae Romanae fragmenta (1907), vol. 1 alone published."
+  },
+  {
+    "abbrev": "FUR",
+    "full": "Forma Urbis Romae, ed. G. Corettoni and others (1960)"
+  },
+  {
+    "abbrev": "G&R",
+    "full": "Greece and Rome, ns (1954/5– )"
+  },
+  {
+    "abbrev": "Gabba-Vallet, Sicilia antica",
+    "full": "Frere, Britannia"
+  },
+  {
+    "abbrev": "S. S. Frere, Britannia (1967; 3rd edn., extensively revised, 1987)",
+    "full": "E. Gabba and G. Vallet (eds.), La Sicilia antica, 2 vols. in 5 (1980)"
+  },
+  {
+    "abbrev": "GAC",
+    "full": "R. Hope Simpson and O. Dickinson, Gazetteer of Aegean Civilisation in the Bronze Age 1: The Mainland and"
+  },
+  {
+    "abbrev": "Islands (1979)",
+    "full": "Gai. Inst."
+  },
+  {
+    "abbrev": "Gaius, Institutiones",
+    "full": "Gal."
+  },
+  {
+    "abbrev": "Galen",
+    "full": "Libr. Propr."
+  },
+  {
+    "abbrev": "Περὶ τῶν ἰδίων βιβλίων",
+    "full": "Nat. Fac."
+  },
+  {
+    "abbrev": "Περὶ φυσικῶν δυνάάμεων",
+    "full": "Gantz, EGM"
+  },
+  {
+    "abbrev": "T. Gantz, Early Greek Myth (1993)",
+    "full": "GB"
+  },
+  {
+    "abbrev": "Grazer Beiträge: Zeitschrift für klassische Altertumswissenschaft",
+    "full": "GCS"
+  },
+  {
+    "abbrev": "Die griechischen christlichen Schriftsteller der erstern Jahrhunderte (1897– )",
+    "full": "GCN"
+  },
+  {
+    "abbrev": "Groningen Colloquia on the Greek and Roman Novel",
+    "full": "GDI"
+  },
+  {
+    "abbrev": "H. Collitz and others, Sammlung der griechischen Dialektinschriften (1884–1915)",
+    "full": "Gell."
+  },
+  {
+    "abbrev": "Aulus Gellius",
+    "full": "NA"
+  },
+  {
+    "abbrev": "Noctes Atticae",
+    "full": "Gerber, GLP"
+  },
+  {
+    "abbrev": "D. E. Gerber (ed.), A Companion to the Greek Lyric Poets (1997)",
+    "full": "German."
+  },
+  {
+    "abbrev": "Germanicus",
+    "full": "Arat."
+  },
+  {
+    "abbrev": "Aratea",
+    "full": "Gesch."
+  },
+  {
+    "abbrev": "Geschichte",
+    "full": "Gezähmte Götter"
+  },
+  {
+    "abbrev": "V. Rosenberger, Gezähmte Götter: das Prodigienwesen der römischen Republik (1998)",
+    "full": "De loc. aff."
+  },
+  {
+    "abbrev": "De locis affectis",
+    "full": "GGM"
+  },
+  {
+    "abbrev": "C. Müller, Geographici Graeci Minores (1855–61)",
+    "full": "GJ"
+  },
+  {
+    "abbrev": "Geographical Journal",
+    "full": "Gjerstad, Early Rome"
+  },
+  {
+    "abbrev": "E. Gjerstad, Early Rome, 6 vols. (1953–73)",
+    "full": "Gloss. Lat."
+  },
+  {
+    "abbrev": "see Lindsay",
+    "full": "GLP"
+  },
+  {
+    "abbrev": "see Page, GLP",
+    "full": "Gnomon"
+  },
+  {
+    "abbrev": "Gnomon, Kritische Zeitschrift für d. gesamte klassische Altertumswiss.",
+    "full": "Gomperz"
+  },
+  {
+    "abbrev": "T. Gomperz, Griechische Denker (1896); Eng. trans. (‘Greek Thinkers’), vols. 1–4 (1901–12)",
+    "full": "Gorg."
+  },
+  {
+    "abbrev": "Gorgias",
+    "full": "Hel."
+  },
+  {
+    "abbrev": "Helena",
+    "full": "Pal."
+  },
+  {
+    "abbrev": "Palamedes",
+    "full": "Gött. Anz."
+  },
+  {
+    "abbrev": "Göttingischer gelehrte Anzeigen",
+    "full": "Gött. Nachr."
+  },
+  {
+    "abbrev": "Nachrichten von der Gesellschaft der Wissenschaften zu Göttingen",
+    "full": "Gow–Page, GP"
+  },
+  {
+    "abbrev": "A. S. F. Gow and D. L. Page, The Greek Anthology: Garland of Philip and some Contemporary Epigrams, 2 vols.",
+    "full": "(1968)"
+  },
+  {
+    "abbrev": "Gow–Page, HE",
+    "full": "A. S. F. Gow and D. L. Page, The Greek Anthology: Hellenistic Epigrams, 2 vols. (1965)"
+  },
+  {
+    "abbrev": "Graf, Eleusis",
+    "full": "F. Graf, Eleusis und die orphische Dichtung: Athens in vorhellenistischer Zeit (1974)"
+  },
+  {
+    "abbrev": "Gramm. Lat.",
+    "full": "see Keil"
+  },
+  {
+    "abbrev": "Gramm. Rom. Frag.",
+    "full": "see Funaioli; Mazzarino"
+  },
+  {
+    "abbrev": "Glotz, Hist. grecque",
+    "full": "G. Glotz, R. Cohen, and P. Roussel, Histoire grecque vols. 1–4/1 (1925–38)"
+  },
+  {
+    "abbrev": "GRBS",
+    "full": "Greek, Roman and Byzantine Studies"
+  },
+  {
+    "abbrev": "Green",
+    "full": "R. P. H. Green, The Works of Ausonius (1991)"
+  },
+  {
+    "abbrev": "Greenidge, Clay, Gray, Sources",
+    "full": "A. H. J. Greenidge, A. M. Clay, and E. W. Gray, Sources for Roman History, 133–70 bc (1960; 2nd edn., corrected"
+  },
+  {
+    "abbrev": "and supplemented, 1986)",
+    "full": "Gregory of Tours, Hist."
+  },
+  {
+    "abbrev": "Gregory of Tours, Historiae",
+    "full": "Grenier, Manuel"
+  },
+  {
+    "abbrev": "A. Grenier, Manuel d'archéologie gallo-romaine (1931–4); = vol. of Déchelette's Manuel d'archéologie",
+    "full": "préhistorique"
+  },
+  {
+    "abbrev": "Grove Encyclopedia",
+    "full": "G. Campbell (ed.), The Grove Encyclopedia of Classical Art and Architecture (2007)"
+  },
+  {
+    "abbrev": "Gruen, LGRR",
+    "full": "E. S. Gruen, The Last Generation of the Roman Republic (1974)"
+  },
+  {
+    "abbrev": "Guthrie, Hist. Gk. Phil.",
+    "full": "W. K. C. Guthrie, History of Greek Philosophy (1965–81)"
+  },
+  {
+    "abbrev": "GVI",
+    "full": "W. Peek, Griechische Vers- Inschriften 1: Grab-Epigramme (1955)"
+  },
+  {
+    "abbrev": "Hainsworth, Iliad comm.",
+    "full": "B. Hainsworth, The Iliad: A Commentary 3: Books 9–12 (1993)"
+  },
+  {
+    "abbrev": "Hainsworth, Odyssey comm.",
+    "full": "A. Heubeck, S.West, and J. B. Hainsworth, A Commentary on Homer's Odyssey 1: Introduction and Books 1–8"
+  },
+  {
+    "abbrev": "(1988)",
+    "full": "Halm, Rhet. Lat. Min."
+  },
+  {
+    "abbrev": "K. Halm, Rhetores Latini Minores (1863)",
+    "full": "HAMA"
+  },
+  {
+    "abbrev": "O. Neugebauer, A History of Ancient Mathematical Astronomy, 3 vols. (1975)",
+    "full": "Hammond, Epirus"
+  },
+  {
+    "abbrev": "N.G. L. Hammond, Epirus (1967)",
+    "full": "Hist. G."
+  },
+  {
+    "abbrev": "History of Greece (2nd edn. 1967; 3rd edn. 1986)",
+    "full": "Hansen, Attalids"
+  },
+  {
+    "abbrev": "C. V. Hansen, The Attalids of Pergamum (1947)",
+    "full": "Harding"
+  },
+  {
+    "abbrev": "Glor. mart.",
+    "full": "Gloria martyrorum"
+  },
+  {
+    "abbrev": "P. Harding, From the End of the PeloponnesianWar to the Battle of Ipsus: Translated Documents of Greece and",
+    "full": "Rome 2 (1985)"
+  },
+  {
+    "abbrev": "Harp.",
+    "full": "Harpocration"
+  },
+  {
+    "abbrev": "Harv. Stud.",
+    "full": "Harvard Studies in Classical Philology"
+  },
+  {
+    "abbrev": "Harv. Theol. Rev.",
+    "full": "Harvard Theological Review"
+  },
+  {
+    "abbrev": "Haynes, Etr. civ.",
+    "full": "S. Haynes, Etruscan Civilization: A Cultural History (2000)"
+  },
+  {
+    "abbrev": "HCT",
+    "full": "A. W. Gomme, A. Andrewes, and K. J. Dover, A Historical Commentary on Thucydides, 5 vols. (1945–81)"
+  },
+  {
+    "abbrev": "Hdn.",
+    "full": "Herodianus"
+  },
+  {
+    "abbrev": "Hdt.",
+    "full": "Herodotus"
+  },
+  {
+    "abbrev": "Head, Hist. Num.",
+    "full": "B. V. Head, Historia Numorum, 2nd edn. (1911)"
+  },
+  {
+    "abbrev": "Heath, Hist. of Greek Maths.",
+    "full": "T. L. Heath, History of Greek Mathematics, 2 vols. (1921)"
+  },
+  {
+    "abbrev": "Heckel, Marshals",
+    "full": "W. Heckel, The Marshals of Alexander's Empire (1992)"
+  },
+  {
+    "abbrev": "Heckel, Who's Who",
+    "full": "W. Heckel, Who's Who in the Age of Alexander the Great (2006)"
+  },
+  {
+    "abbrev": "Heitsch, Griech. Dichterfr.",
+    "full": "E. Heitsch (ed.), Die griechischen Dichterfragmente der römischen Kaiserzeit 1, Abh. der Akad. der Wissenschaften"
+  },
+  {
+    "abbrev": "in Göttingen, phil.-hist. Kl. 3. Folge, 49 (1961;21963), 58 (1964)",
+    "full": "Heliod. Aeth."
+  },
+  {
+    "abbrev": "Heliodorus, Aethiopica",
+    "full": "Hell. Oxy."
+  },
+  {
+    "abbrev": "Hellenica Oxyrhynchia",
+    "full": "Heph."
+  },
+  {
+    "abbrev": "Hephaestion",
+    "full": "Heraclid. Pont."
+  },
+  {
+    "abbrev": "Heraclides Ponticus",
+    "full": "Hercher, Epistolog. Graec."
+  },
+  {
+    "abbrev": "Hastings, ERE",
+    "full": "J. Hastings, Encyclopaedia of Religion and Ethics, 12 vols. (1908–21); index vol. (1926)"
+  },
+  {
+    "abbrev": "R. Hercher, Epistolographi Graeci (1873)",
+    "full": "Hermes"
+  },
+  {
+    "abbrev": "Hermes, Zeitschrift für klassische Philologie",
+    "full": "Hermog."
+  },
+  {
+    "abbrev": "Hermogenes",
+    "full": "Id."
+  },
+  {
+    "abbrev": "Περὶ ἰδεῶν",
+    "full": "Inv."
+  },
+  {
+    "abbrev": "Prog.",
+    "full": "Προγυμνάσματα"
+  },
+  {
+    "abbrev": "Herod.",
+    "full": "Herodas"
+  },
+  {
+    "abbrev": "Heron, Pneum.",
+    "full": "Heron, Pneumatica"
+  },
+  {
+    "abbrev": "Herzog–Schmidt",
+    "full": "R. Herzog and P. Schmidt, Handbuch der lateinischen Literatur der Antike (1989– )"
+  },
+  {
+    "abbrev": "Hes.",
+    "full": "Hesiod"
+  },
+  {
+    "abbrev": "Cat.",
+    "full": "Catalogus mulierum"
+  },
+  {
+    "abbrev": "Op.",
+    "full": "Opera et Dies"
+  },
+  {
+    "abbrev": "[Sc.]",
+    "full": "Scutum"
+  },
+  {
+    "abbrev": "Theog.",
+    "full": "Theogonia"
+  },
+  {
+    "abbrev": "Hesp.",
+    "full": "Hesperia: Journal of the American School of Classical Studies at Athens"
+  },
+  {
+    "abbrev": "Hieron.",
+    "full": "Hieronymus, see Jerome"
+  },
+  {
+    "abbrev": "Hignett, Hist. Athen. Const.",
+    "full": "C. Hignett, A History of the Athenian Constitution (1952)"
+  },
+  {
+    "abbrev": "Himer. Ecl.",
+    "full": "Himerius, Eclogae"
+  },
+  {
+    "abbrev": "Or.",
+    "full": "Orationes"
+  },
+  {
+    "abbrev": "Περὶ εὑρέσεως",
+    "full": "Hippoc."
+  },
+  {
+    "abbrev": "Hippocrates",
+    "full": "Acut."
+  },
+  {
+    "abbrev": "De diaeta in morbis acutis",
+    "full": "Aer."
+  },
+  {
+    "abbrev": "De aera, aquis, locis",
+    "full": "Art."
+  },
+  {
+    "abbrev": "De articulis",
+    "full": "Epid."
+  },
+  {
+    "abbrev": "Epidemiae",
+    "full": "Morb."
+  },
+  {
+    "abbrev": "Περὶ νούσων",
+    "full": "(On Diseases)"
+  },
+  {
+    "abbrev": "Morb. sacr.",
+    "full": "De morbo sacro"
+  },
+  {
+    "abbrev": "Mul.",
+    "full": "De mulierum affectibus"
+  },
+  {
+    "abbrev": "Nat. mul.",
+    "full": "De natura muliebri"
+  },
+  {
+    "abbrev": "Nat. puer.",
+    "full": "Περὶ φύσιος παιδίου"
+  },
+  {
+    "abbrev": "(On the Nature of the Child)",
+    "full": "Off."
+  },
+  {
+    "abbrev": "De of cina medici",
+    "full": "Virg."
+  },
+  {
+    "abbrev": "De virginibus morbis",
+    "full": "VM"
+  },
+  {
+    "abbrev": "De vetere medicina",
+    "full": "Hippol."
+  },
+  {
+    "abbrev": "Hippolytus",
+    "full": "Haer."
+  },
+  {
+    "abbrev": "Refutatio omnium haeresium",
+    "full": "Hist."
+  },
+  {
+    "abbrev": "Historia, Zeitschrift für alte Geschichte",
+    "full": "Hist. Aug."
+  },
+  {
+    "abbrev": "Historia Augusta (see SHA)",
+    "full": "HLL"
+  },
+  {
+    "abbrev": "see Herzog-Schmidt; see also Schanz-Hosius",
+    "full": "[Ep.]"
+  },
+  {
+    "abbrev": "Epistulae",
+    "full": "HM"
+  },
+  {
+    "abbrev": "History of Macedonia 1, ed. N. G. L. Hammond (1972); 2, ed. N. G. L. Hammond and G. T. Grif th (1979); 3, ed. N.",
+    "full": "G. L. Hammond and F. W. Walbank (1988)"
+  },
+  {
+    "abbrev": "Hom.",
+    "full": "Homer"
+  },
+  {
+    "abbrev": "Il.",
+    "full": "Iliad"
+  },
+  {
+    "abbrev": "Hom. Hymn Dem.",
+    "full": "Homeric Hymn to Demeter"
+  },
+  {
+    "abbrev": "Homil. Clement.",
+    "full": "Clementine Homilies"
+  },
+  {
+    "abbrev": "Honoré 1962",
+    "full": "A. M. Honoré, Gaius: A Biography (1962)"
+  },
+  {
+    "abbrev": "Honoré 1981",
+    "full": "T. Honoré, Emperors and Lawyers (1981; 2nd edn. 1994)"
+  },
+  {
+    "abbrev": "Hor.",
+    "full": "Horace"
+  },
+  {
+    "abbrev": "Ars P.",
+    "full": "Ars poetica"
+  },
+  {
+    "abbrev": "Carm.",
+    "full": "Carmina or Odes"
+  },
+  {
+    "abbrev": "Carm. saec.",
+    "full": "Carmen saeculare"
+  },
+  {
+    "abbrev": "Epist.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "Epod.",
+    "full": "Epodi"
+  },
+  {
+    "abbrev": "Sat.",
+    "full": "Satirae or Sermones"
+  },
+  {
+    "abbrev": "Hornblower, Comm. on Thuc.",
+    "full": "S. Hornblower, Commentary on Thucydides 1: Books 1–3 (1991); 2: Books 4–5.24 (1996); 3: Books 5.26–8.109"
+  },
+  {
+    "abbrev": "(2008)",
+    "full": "HR"
+  },
+  {
+    "abbrev": "History of Religions",
+    "full": "HRRel."
+  },
+  {
+    "abbrev": "see under Peter",
+    "full": "Od."
+  },
+  {
+    "abbrev": "Odyssey",
+    "full": "Hsch."
+  },
+  {
+    "abbrev": "Hesychius",
+    "full": "Hyde, Greek Mariners"
+  },
+  {
+    "abbrev": "W. Hyde, Ancient Greek Mariners (1947)",
+    "full": "Hyg."
+  },
+  {
+    "abbrev": "Hyginus",
+    "full": "Fab."
+  },
+  {
+    "abbrev": "Fabulae",
+    "full": "Hymn. Hom. Ap."
+  },
+  {
+    "abbrev": "Hymnus Homericus ad Apollinem",
+    "full": "Bacch."
+  },
+  {
+    "abbrev": "” ”",
+    "full": "” Bacchum"
+  },
+  {
+    "abbrev": "Cer. (or Dem.)",
+    "full": "” ” ” Cererem"
+  },
+  {
+    "abbrev": "Mart.",
+    "full": "” ”"
+  },
+  {
+    "abbrev": "” Martem",
+    "full": "Merc."
+  },
+  {
+    "abbrev": "” ”",
+    "full": "” Mercurium"
+  },
+  {
+    "abbrev": "Pan.",
+    "full": "” ”"
+  },
+  {
+    "abbrev": "” Panem",
+    "full": "Ven."
+  },
+  {
+    "abbrev": "” ”",
+    "full": "” Venerem"
+  },
+  {
+    "abbrev": "Hymn. Mag.",
+    "full": "Hymni Magici"
+  },
+  {
+    "abbrev": "Hymn. Orph.",
+    "full": "Hymni Orphici"
+  },
+  {
+    "abbrev": "Hyp.",
+    "full": "Hyperides"
+  },
+  {
+    "abbrev": "Lyc.",
+    "full": "For Lycophron"
+  },
+  {
+    "abbrev": "IACP",
+    "full": "M. H. Hansen and T. H. Nielsen (eds.), An Inventory of Archaic and Classical Poleis (2004)"
+  },
+  {
+    "abbrev": "Iambl.",
+    "full": "Iamblichus"
+  },
+  {
+    "abbrev": "Myst.",
+    "full": "Poet. astr."
+  },
+  {
+    "abbrev": "Poetica astronomica",
+    "full": "De mysteriis"
+  },
+  {
+    "abbrev": "VP",
+    "full": "Vita Pythagorae"
+  },
+  {
+    "abbrev": "IBR",
+    "full": "D. and F. R. Ridgway (eds.), Italy before the Romans (1979)"
+  },
+  {
+    "abbrev": "Ibyc.",
+    "full": "Ibycus"
+  },
+  {
+    "abbrev": "ICS",
+    "full": "Illinois Classical Studies"
+  },
+  {
+    "abbrev": "IDélos",
+    "full": "F. Dürrbach (ed.), Inscriptions de Délos (1923–37)"
+  },
+  {
+    "abbrev": "IDidyma",
+    "full": "A. Rehm, Die Inschriften. Milet 3 (1914)"
+  },
+  {
+    "abbrev": "IE",
+    "full": "Indo-European"
+  },
+  {
+    "abbrev": "IEJ",
+    "full": "Israel Exploration Journal"
+  },
+  {
+    "abbrev": "IEleusis",
+    "full": "K. Clinton, Eleusis. The Inscriptions on Stone. Documents of the Sanctuary of the Two Goddesses and the Public"
+  },
+  {
+    "abbrev": "Documents of the Deme 1 (2005), 2 (2008)",
+    "full": "IG"
+  },
+  {
+    "abbrev": "Inscriptiones Graecae (1873– )",
+    "full": "IGBulg."
+  },
+  {
+    "abbrev": "G. Mihailov, Inscriptiones Graecae in Bulgaria repertae (1958–70)",
+    "full": "IGRom."
+  },
+  {
+    "abbrev": "Inscriptiones Graecae ad res Romanas pertinentes (1906– )",
+    "full": "IJCT"
+  },
+  {
+    "abbrev": "International Journal of the Classical Tradition",
+    "full": "IK"
+  },
+  {
+    "abbrev": "Inschriften griechischer Städte aus Kleinasien (1972– )",
+    "full": "ILabraunda"
+  },
+  {
+    "abbrev": "J. Crampa (ed.), Labraunda Swedish Excavations and Researches 3 (1 and 2): The Greek Inscriptions (1969 and",
+    "full": "1972)"
+  },
+  {
+    "abbrev": "ILAlg.",
+    "full": "Inscriptions latines de l'Algérie 1, ed. S. Gsell (1922); 2, ed. H.-G. P aum (1957)"
+  },
+  {
+    "abbrev": "Il.",
+    "full": "IC"
+  },
+  {
+    "abbrev": "M. Guarducci (ed.), Inscriptiones Creticae, 4 vols. (1935–50)",
+    "full": "Iliad"
+  },
+  {
+    "abbrev": "ILCV",
+    "full": "E. Diehl, Inscriptiones latinae Christianae veteres (1925–31); see ‘epigraphy, Latin’."
+  },
+  {
+    "abbrev": "I. l. de Gaule",
+    "full": "Inscriptions latines des trois Gaules, ed. P. Wuilleumier (1963)"
+  },
+  {
+    "abbrev": "ILLRP",
+    "full": "Inscriptiones Latinae Liberae Rei Republicae, ed. A. Degrassi, vol. 12 (1965), 2 (1963)"
+  },
+  {
+    "abbrev": "ILS",
+    "full": "see Dessau"
+  },
+  {
+    "abbrev": "IMagn.",
+    "full": "O. Kern (ed.), Die Inschriften von Magnesia am Maeander (1900)"
+  },
+  {
+    "abbrev": "IMU",
+    "full": "Italia medioevale e umanistica"
+  },
+  {
+    "abbrev": "IMylasa",
+    "full": "W. Blümel, Die Inschriften von Mylasa (2 vols., 1987–8)"
+  },
+  {
+    "abbrev": "In Dem.",
+    "full": "Against Demosthenes"
+  },
+  {
+    "abbrev": "Indo-Germ. Forsch.",
+    "full": "Indogermanische Forschungen"
+  },
+  {
+    "abbrev": "Ind. Stoic. Herc.",
+    "full": "J. Traversa, Index Stoicorum Herculanensis (1952)"
+  },
+  {
+    "abbrev": "Inscr. Ital.",
+    "full": "Inscriptiones Italiae (1931/2– )"
+  },
+  {
+    "abbrev": "Inst. Iust.",
+    "full": "Institutiones Iustiniani"
+  },
+  {
+    "abbrev": "Instrumenta sacra",
+    "full": "A. V. Siebert, Instrumenta sacra; Untersuchungen zu römischen Opfer-, Kult- und Priestergeräten (1999)"
+  },
+  {
+    "abbrev": "International Law in Archaic Rome",
+    "full": "A. Watson, International Law in Archaic Rome: War and Religion (1993)"
+  },
+  {
+    "abbrev": "IPE",
+    "full": "Inscriptiones orae septentrionalis Ponti Euxini (1885)"
+  },
+  {
+    "abbrev": "IrAnt",
+    "full": "Iranica Antiqua"
+  },
+  {
+    "abbrev": "Iron Age in S. Britain",
+    "full": "S. S. Frere (ed.), Problems of the Iron Age in Southern Britain"
+  },
+  {
+    "abbrev": "ILN",
+    "full": "Illustrated London News"
+  },
+  {
+    "abbrev": "Isae.",
+    "full": "Isaeus"
+  },
+  {
+    "abbrev": "ISestos",
+    "full": "J. Krauss, Die Inschriften von Sestos und der Thrakischen Chersones (1980)"
+  },
+  {
+    "abbrev": "Isid.",
+    "full": "Isidorus"
+  },
+  {
+    "abbrev": "De vir. ill.",
+    "full": "De viris illustribus"
+  },
+  {
+    "abbrev": "Isoc.",
+    "full": "Isocrates"
+  },
+  {
+    "abbrev": "Bus.",
+    "full": "Busiris"
+  },
+  {
+    "abbrev": "Antid.",
+    "full": "Antidosis"
+  },
+  {
+    "abbrev": "C. soph.",
+    "full": "Contra sophistas"
+  },
+  {
+    "abbrev": "Panath.",
+    "full": "Panathenaicus"
+  },
+  {
+    "abbrev": "Paneg.",
+    "full": "Panegyricus"
+  },
+  {
+    "abbrev": "Ist. Mitt.",
+    "full": "Istanbuler Mitteilungen"
+  },
+  {
+    "abbrev": "It. Alex.",
+    "full": "Itinerarium Alexandri"
+  },
+  {
+    "abbrev": "It. Ant.",
+    "full": "Itineraria Antonini Augusti"
+  },
+  {
+    "abbrev": "IVO",
+    "full": "Inschriften von Olympia, ed. W. Dittenberger and K. Purgold (1896)"
+  },
+  {
+    "abbrev": "JACT",
+    "full": "Joint Association of Classical Teachers"
+  },
+  {
+    "abbrev": "Jahrb.",
+    "full": "see [Neue] Jahrb."
+  },
+  {
+    "abbrev": "Jahrb. f. cl. Phil. Suppl.",
+    "full": "Jahrbücher für classische Philologie, Supplementband"
+  },
+  {
+    "abbrev": "Jahresb.",
+    "full": "see Bursian"
+  },
+  {
+    "abbrev": "Etym.",
+    "full": "Etymologiae"
+  },
+  {
+    "abbrev": "JCS",
+    "full": "Journal of Classical Studies"
+  },
+  {
+    "abbrev": "JDAI",
+    "full": "Jahrbuch des [kaiserlich] deutschen archäologischen Instituts (1886– ) (contains Archäologischer Anzeiger)"
+  },
+  {
+    "abbrev": "Jeffery, LSAG",
+    "full": "L. Jeffery, Local Scripts of Archaic Greece, 2nd edn., rev. A. Johnston (1990)"
+  },
+  {
+    "abbrev": "JEg. Arch.",
+    "full": "Journal of Egyptian Archaeology"
+  },
+  {
+    "abbrev": "Ab Abr.",
+    "full": "Ab Abraham, the chronological reckoning from the rst year of Abraham followed in Jerome's translation"
+  },
+  {
+    "abbrev": "and enlargement of Eusebius' Chronicle",
+    "full": "Adv. Iovinian."
+  },
+  {
+    "abbrev": "Adversus Iovinianum",
+    "full": "Chron."
+  },
+  {
+    "abbrev": "Chronica=Ab Abr.",
+    "full": "De script. eccles. proleg."
+  },
+  {
+    "abbrev": "De scriptoribus ecclesiasticis prolegomena",
+    "full": "De vir. ill."
+  },
+  {
+    "abbrev": "De viris illustribus",
+    "full": "Ep."
+  },
+  {
+    "abbrev": "Epistulae",
+    "full": "JHS"
+  },
+  {
+    "abbrev": "Journal of Hellenic Studies",
+    "full": "JJP"
+  },
+  {
+    "abbrev": "Journal of Juristic Papyrology",
+    "full": "JNES"
+  },
+  {
+    "abbrev": "Journal of Near Eastern Studies",
+    "full": "JÖAI"
+  },
+  {
+    "abbrev": "Jahreshefte des österreichischen archäologischen Instituts in Wien",
+    "full": "JÖB"
+  },
+  {
+    "abbrev": "Jahrbuch des österreichischen Byzantinistik (1951– )",
+    "full": "Jones, Cities E. Rom. Prov."
+  },
+  {
+    "abbrev": "A. H. M. Jones, The Cities of the Eastern Roman Provinces (1937; 2nd edn. 1971)",
+    "full": "Later Rom. Emp."
+  },
+  {
+    "abbrev": "The Later Roman Empire 284–602 (1964)",
+    "full": "Jer."
+  },
+  {
+    "abbrev": "Jerome",
+    "full": "Jord. Get."
+  },
+  {
+    "abbrev": "Jordanes, Getica",
+    "full": "Joseph."
+  },
+  {
+    "abbrev": "Josephus",
+    "full": "AJ"
+  },
+  {
+    "abbrev": "Antiquitates Judaicae",
+    "full": "Ap."
+  },
+  {
+    "abbrev": "Contra Apionem",
+    "full": "Vit."
+  },
+  {
+    "abbrev": "Vita",
+    "full": "Journ. Bib. Lit."
+  },
+  {
+    "abbrev": "Journal of Biblical Literature",
+    "full": "Journ. Hist. Bio."
+  },
+  {
+    "abbrev": "Journal of the History of Biology",
+    "full": "Journ. Hist. Med."
+  },
+  {
+    "abbrev": "Journal of the History of Medicine and Allied Sciences",
+    "full": "Journ. Phil."
+  },
+  {
+    "abbrev": "Journal of Philology (1868–1920); index (1923)",
+    "full": "Journ. Sav."
+  },
+  {
+    "abbrev": "Journal des savants, ns (1903– )",
+    "full": "JRA"
+  },
+  {
+    "abbrev": "Journal of Roman Archaeology",
+    "full": "JRGZM"
+  },
+  {
+    "abbrev": "Jahrbuch des römisch-germanischen Zentralmuseums",
+    "full": "JRS"
+  },
+  {
+    "abbrev": "Journal of Roman Studies",
+    "full": "JSGU"
+  },
+  {
+    "abbrev": "Jahrbuch der schweizerischen Gesellschaft für Ur- und Frühgeschichte",
+    "full": "JTS"
+  },
+  {
+    "abbrev": "Journal of Theological Studies",
+    "full": "Julian."
+  },
+  {
+    "abbrev": "Julianus imperator",
+    "full": "Apophth."
+  },
+  {
+    "abbrev": "Apophthegmata",
+    "full": "Ep."
+  },
+  {
+    "abbrev": "Epistulae (ps.-Julian.= Ep. wrongly attributed to Julian)",
+    "full": "BJ"
+  },
+  {
+    "abbrev": "Bellum Judaicum",
+    "full": "Mis."
+  },
+  {
+    "abbrev": "Misopogon",
+    "full": "Or."
+  },
+  {
+    "abbrev": "Orationes",
+    "full": "Just. Epit."
+  },
+  {
+    "abbrev": "Justinus, Epitome (of Trogus)",
+    "full": "Justin, Apol."
+  },
+  {
+    "abbrev": "Justin Martyr, Apologia",
+    "full": "JWI"
+  },
+  {
+    "abbrev": "Journal of the Warburg and Courtauld Institute",
+    "full": "κ"
+  },
+  {
+    "abbrev": "κατά",
+    "full": "KA"
+  },
+  {
+    "abbrev": "see Kassel-Austin",
+    "full": "Kaibel"
+  },
+  {
+    "abbrev": "see CGF and Epigr. Gr.",
+    "full": "Kassel–Austin, PCG"
+  },
+  {
+    "abbrev": "R. Kassel and C. Austin, Poetae Comici Graeci, vol. 1 (1983), 2 (1991)",
+    "full": "Kaster, Guardians"
+  },
+  {
+    "abbrev": "R. A. Kaster, Guardians of Language: The Grammarian and Society in Late Antiquity (1988)",
+    "full": "Kaster, Suetonius"
+  },
+  {
+    "abbrev": "R. A. Kaster, C. Suetonius Tranquillus, De Grammaticis et Rhetoribus (1995)",
+    "full": "Kearns, Heroes of Attica"
+  },
+  {
+    "abbrev": "E. Kearns, The Heroes of Attica, BICS Suppl. 57 (1989)",
+    "full": "Keil, Gramm. Lat."
+  },
+  {
+    "abbrev": "H. Keil, Grammatici Latini, 8 vols. (1855–1923; repr. 1961)",
+    "full": "Kern"
+  },
+  {
+    "abbrev": "O. Kern",
+    "full": "Orph. frag."
+  },
+  {
+    "abbrev": "Orphica Fragmenta (1922)",
+    "full": "Rel. d. Griech."
+  },
+  {
+    "abbrev": "Die Religion der Griechen, 3 vols. (1926–38)",
+    "full": "Kirk–Raven–Scho eld, Presocratic Philosophers"
+  },
+  {
+    "abbrev": "G. S. Kirk, J. E. Raven, and M. Scho eld, The Presocratic Philosophers, 2nd edn. (1983)",
+    "full": "Klass. phil. Stud."
+  },
+  {
+    "abbrev": "Juv.",
+    "full": "Juvenal"
+  },
+  {
+    "abbrev": "Klassische philologische Studien, ed. E. Bickel and C. Jensen",
+    "full": "Klio"
+  },
+  {
+    "abbrev": "Klio, Beiträge zur alten Geschichte",
+    "full": "Klotz, Scaen. Rom. Frag."
+  },
+  {
+    "abbrev": "A. Klotz (ed.), Scaenicorum Romanorum Fragmenta (1953)",
+    "full": "Kl. Pauly"
+  },
+  {
+    "abbrev": "Der kleine Pauly (1964–75)",
+    "full": "Körte, Men. Rel."
+  },
+  {
+    "abbrev": "A. Körte, Menandri Reliquiae",
+    "full": "Kroll, Rhet."
+  },
+  {
+    "abbrev": "W. Kroll, Rhetorik (1937): written as article for RE, but published separately",
+    "full": "Kron, Phylenheroen"
+  },
+  {
+    "abbrev": "U. Kron, Die zehn attischen Phylenheroen: MDAI(A) Suppl. 5 (1976)",
+    "full": "KRS"
+  },
+  {
+    "abbrev": "G. S. Kirk, J. E. Raven, and M. Scho eld, The Presocratic Philosophers: A Critical History with a Selection of Texts",
+    "full": "(1984)"
+  },
+  {
+    "abbrev": "Kühn",
+    "full": "K. G. Kühn, Medicorum Graecorum Opera"
+  },
+  {
+    "abbrev": "Kunkel 1967",
+    "full": "W. Kunkel, Herkunft und soziale Stellung der römischen Juristen, 2nd edn. (1967)"
+  },
+  {
+    "abbrev": "Lactant.",
+    "full": "Lactantius"
+  },
+  {
+    "abbrev": "De falsa relig.",
+    "full": "De falsa religione"
+  },
+  {
+    "abbrev": "De mort. pers.",
+    "full": "De mortibus persecutorum"
+  },
+  {
+    "abbrev": "Div. inst.",
+    "full": "Divinae institutiones"
+  },
+  {
+    "abbrev": "LACTOR",
+    "full": "London Association of Classical Teachers Original Records"
+  },
+  {
+    "abbrev": "La Mémoire perdue",
+    "full": "C. Moatti (ed.), La Mémoire perdue: recherches sur l'administration romaine (1998)"
+  },
+  {
+    "abbrev": "Lambrechts, Sénat",
+    "full": "P. Lambrechts, La Composition du Sénat romain 117–192 (1936)"
+  },
+  {
+    "abbrev": "Latte, RR",
+    "full": "K. Latte, Römische Religionsgeschichte (1960)"
+  },
+  {
+    "abbrev": "Kl. Schr.",
+    "full": "Kleine Schriften (of various authors)"
+  },
+  {
+    "abbrev": "Laur.",
+    "full": "Laurentian Library"
+  },
+  {
+    "abbrev": "LCM",
+    "full": "Liverpool Classical Monthly"
+  },
+  {
+    "abbrev": "LdÄ",
+    "full": "W. Helck, E. Otto, and W. Westendorf (eds.), Lexicon der Ägyptologie (1975–86)"
+  },
+  {
+    "abbrev": "LEC",
+    "full": "Les Études classiques"
+  },
+  {
+    "abbrev": "Leipz. Stud.",
+    "full": "Leipziger Studien zur klassischen Philosophie (1878–95)"
+  },
+  {
+    "abbrev": "Lenel, Pal.",
+    "full": "O. Lenel, Palingenesia Iuris Civilis, 2 vols. (1889)"
+  },
+  {
+    "abbrev": "Lex.",
+    "full": "Lexicon"
+  },
+  {
+    "abbrev": "Lexikon der historischen Stätten",
+    "full": "S. Lauffer (ed.), Lexikon der historischen Stätten von den Anfängen bis zur Gegenwart (1989)"
+  },
+  {
+    "abbrev": "Lex. Mess.",
+    "full": "Lexicon Messanense"
+  },
+  {
+    "abbrev": "LGPN 1, 3A, 3B, 4",
+    "full": "P. M. Fraser and E. Matthews (eds.), A Lexicon of Greek Personal Names 1 (1987) 3A (1997), 3B (2000), 4 (2005)"
+  },
+  {
+    "abbrev": "LGPN 2",
+    "full": "M. Osborne and S. Byrne (eds.), A Lexicon of Greek Personal Names 2 (1994)"
+  },
+  {
+    "abbrev": "LGPN 5A",
+    "full": "T. Corsten (ed.) A Lexicon of Greek Personal Names 5A (2010)"
+  },
+  {
+    "abbrev": "LH Citadels",
+    "full": "S. Iakovidis, Late Helladic Citadels on Mainland Greece (1983)"
+  },
+  {
+    "abbrev": "Lib.",
+    "full": "Libanius"
+  },
+  {
+    "abbrev": "Lib. colon.",
+    "full": "Libri coloniarum"
+  },
+  {
+    "abbrev": "Liebs 1987",
+    "full": "D. Liebs, Die Jurisprudenz im spätantiken Italien (1987)"
+  },
+  {
+    "abbrev": "LIMC",
+    "full": "Lexicon Iconographicum Mythologiae Classicae (1981– )"
+  },
+  {
+    "abbrev": "Le Collège ponti cal",
+    "full": "F. Van Haeperen, Le Collège ponti cal (3ème s.a.– 4ème s.p.C): contribution à l'étude de la religion publique"
+  },
+  {
+    "abbrev": "romaine (2002)",
+    "full": "Lindsay, Gloss. Lat."
+  },
+  {
+    "abbrev": "W. M. Lindsay, Glossaria Latina (1930)",
+    "full": "Lind. Temp. Chron."
+  },
+  {
+    "abbrev": "C. Blinkenberg, Die lindische Tempelchronik (1915)",
+    "full": "Lintott, Violence"
+  },
+  {
+    "abbrev": "A.W. Lintott, Violence in Republican Rome (1968)",
+    "full": "Lippold, Griech."
+  },
+  {
+    "abbrev": "G. Lippold, Die griechische",
+    "full": "Liv. Andron. Od."
+  },
+  {
+    "abbrev": "Livius Andronicus, Odyssia",
+    "full": "Livy, Epit."
+  },
+  {
+    "abbrev": "Livy, Epitomae",
+    "full": "Per."
+  },
+  {
+    "abbrev": "Periochae",
+    "full": "Lobeck, Aglaoph."
+  },
+  {
+    "abbrev": "C. A. Lobeck, Aglaophamus (1829)",
+    "full": "Loeb"
+  },
+  {
+    "abbrev": "Loeb Classical Library",
+    "full": "[Longinus], Subl."
+  },
+  {
+    "abbrev": "[Longinus], Περὶ ὕψους",
+    "full": "LP"
+  },
+  {
+    "abbrev": "E. Lobel and D. L. Page, Poetarum Lesbiorum Fragmenta (1955)",
+    "full": "LSAG"
+  },
+  {
+    "abbrev": "See Jeffery, LSAG",
+    "full": "LSAM"
+  },
+  {
+    "abbrev": "F. Sokolowski, Lois sacrées de l'Asie Mineure (1955)",
+    "full": "LSCG"
+  },
+  {
+    "abbrev": "F. Sokolowski, Lois sacrées des cités grecques (1969)",
+    "full": "LSJ"
+  },
+  {
+    "abbrev": "Liddell and Scott, Greek-English Lexicon , 9th edn., rev. H. Stuart Jones (1925–40); Suppl. by E. A. Barber and",
+    "full": "others (1968)"
+  },
+  {
+    "abbrev": "LSS",
+    "full": "F. Sokolowski, Lois sacrées des cités grecques: Supplément (1962)"
+  },
+  {
+    "abbrev": "LTUR",
+    "full": "M. Steinby (ed.), Lexicon Topographicum Urbis Romae, 6 vols. (1993–2000)"
+  },
+  {
+    "abbrev": "Luc.",
+    "full": "Plastik"
+  },
+  {
+    "abbrev": "Plastik (Handbuch der Archäologie, 1950): in part superseded by J. Floren, Die griechische Plastik 1 (1987)",
+    "full": "Lucan"
+  },
+  {
+    "abbrev": "Lucian",
+    "full": "Alex."
+  },
+  {
+    "abbrev": "Alexander",
+    "full": "Anach."
+  },
+  {
+    "abbrev": "Anacharsis",
+    "full": "Catapl."
+  },
+  {
+    "abbrev": "Cataplus",
+    "full": "Demon."
+  },
+  {
+    "abbrev": "Demonax",
+    "full": "De mort. Peregr."
+  },
+  {
+    "abbrev": "De morte Peregrini",
+    "full": "Dial. D."
+  },
+  {
+    "abbrev": "Dialogi deorum",
+    "full": "Dial. meret."
+  },
+  {
+    "abbrev": "Dialogi meretricii",
+    "full": "Dial. mort."
+  },
+  {
+    "abbrev": "Dialogi mortuorum",
+    "full": "Her."
+  },
+  {
+    "abbrev": "Herodotus",
+    "full": "Hermot."
+  },
+  {
+    "abbrev": "Hermotimus",
+    "full": "Hist. conscr."
+  },
+  {
+    "abbrev": "Quomodo historia conscribenda sit",
+    "full": "Ind."
+  },
+  {
+    "abbrev": "Adversus indoctum",
+    "full": "Iupp. trag."
+  },
+  {
+    "abbrev": "Iuppiter tragoedus",
+    "full": "Luct."
+  },
+  {
+    "abbrev": "De luctu",
+    "full": "Macr."
+  },
+  {
+    "abbrev": "Macrobii",
+    "full": "Nigr."
+  },
+  {
+    "abbrev": "Nigrinus",
+    "full": "Cal."
+  },
+  {
+    "abbrev": "Calumniae non temere credendum",
+    "full": "Philops."
+  },
+  {
+    "abbrev": "Philopseudes",
+    "full": "Pseudol."
+  },
+  {
+    "abbrev": "Pseudologista",
+    "full": "Salt."
+  },
+  {
+    "abbrev": "De saltatione",
+    "full": "Somn."
+  },
+  {
+    "abbrev": "Somnium",
+    "full": "Syr. D."
+  },
+  {
+    "abbrev": "De Syria dea",
+    "full": "Trag."
+  },
+  {
+    "abbrev": "Tragoedopodagra",
+    "full": "Ver. hist."
+  },
+  {
+    "abbrev": "Verae historiae 1, 2",
+    "full": "Vit. auct."
+  },
+  {
+    "abbrev": "Vitarum auctio",
+    "full": "Lucil."
+  },
+  {
+    "abbrev": "Lucilius",
+    "full": "Lucr."
+  },
+  {
+    "abbrev": "Lucretius",
+    "full": "Lugli, Fontes"
+  },
+  {
+    "abbrev": "G. Lugli, Fontes ad Topographiam Veteris Urbis Romanae Pertinentes, vols. 1–4 (1953–62) 8, 6/2 (1969)",
+    "full": "LXX"
+  },
+  {
+    "abbrev": "Septuagint",
+    "full": "Lycoph."
+  },
+  {
+    "abbrev": "Lycophron",
+    "full": "Alex."
+  },
+  {
+    "abbrev": "Alexandra",
+    "full": "Lycurg."
+  },
+  {
+    "abbrev": "Lycurgus",
+    "full": "Leoc."
+  },
+  {
+    "abbrev": "Against Leocrates",
+    "full": "Lydus, Mens."
+  },
+  {
+    "abbrev": "Lydus, De mensibus",
+    "full": "Mag."
+  },
+  {
+    "abbrev": "De magistratibus",
+    "full": "Symp."
+  },
+  {
+    "abbrev": "Symposium",
+    "full": "Ost."
+  },
+  {
+    "abbrev": "De ostentis",
+    "full": "Lys."
+  },
+  {
+    "abbrev": "Lysias",
+    "full": "MAAR"
+  },
+  {
+    "abbrev": "Memoirs of the American Academy in Rome",
+    "full": "Macrob."
+  },
+  {
+    "abbrev": "Macrobius",
+    "full": "Sat."
+  },
+  {
+    "abbrev": "Saturnalia",
+    "full": "Magie, Rom. Rule Asia Min."
+  },
+  {
+    "abbrev": "D. Magie, Roman Rule in Asia Minor",
+    "full": "Malcovati, ORF"
+  },
+  {
+    "abbrev": "H. Malcovati, Oratorum Romanorum Fragmenta (2nd edn. 1955; 4th edn. 1976)",
+    "full": "MAMA"
+  },
+  {
+    "abbrev": "Monumenta Asiae Minoris Antiquae (1928– )",
+    "full": "Manitius"
+  },
+  {
+    "abbrev": "M. Manitius, Gesch. der lat. Lit. des Mittelalters (1911–23)",
+    "full": "Marcellin."
+  },
+  {
+    "abbrev": "Marcellinus",
+    "full": "Marm. Par."
+  },
+  {
+    "abbrev": "Marmor Parium (IG 12 (5), 444)",
+    "full": "Marquardt"
+  },
+  {
+    "abbrev": "J. Marquardt",
+    "full": "Privatleben"
+  },
+  {
+    "abbrev": "Privatleben der Römer, 2nd edn. besorgt von A. Mau, 2 vols. (1886). These together make up vol. 7 of",
+    "full": "Handbuch der römischen Altertümer, by J. Marquardt and T. Mommsen"
+  },
+  {
+    "abbrev": "Staatsverw.",
+    "full": "Römische Staatsverwaltung, 2nd edn. (1881–5)"
+  },
+  {
+    "abbrev": "Marshall, Asconius Comm.",
+    "full": "B. A. Marshall, A Historical Commentary on Asconius (1985)"
+  },
+  {
+    "abbrev": "Mart.",
+    "full": "Martial"
+  },
+  {
+    "abbrev": "Spect.",
+    "full": "Spectacula"
+  },
+  {
+    "abbrev": "In Somn.",
+    "full": "Commentarius ex Cicerone in Somnium Scipionis"
+  },
+  {
+    "abbrev": "Mart. Cap.",
+    "full": "Martianus Capella"
+  },
+  {
+    "abbrev": "Marx",
+    "full": "F. Marx, C. Lucilii Carminum Reliquiae (1904–5)"
+  },
+  {
+    "abbrev": "Mattingly–Sydenham, RIC",
+    "full": "H. Mattingly, E. A. Sydenham, and others Roman Imperial Coinage (1923–67); rev. edn. of vol. 1 only, C. H. V."
+  },
+  {
+    "abbrev": "Sutherland and R. A. G. Carson (1984)",
+    "full": "M. Aur. Med."
+  },
+  {
+    "abbrev": "Marcus Aurelius, Meditations",
+    "full": "Mazzarino, Gramm. Rom. Frag."
+  },
+  {
+    "abbrev": "A. Mazzarino, Grammaticae Romanae Fragmenta Aetatis Caesarianae, 2nd edn. (1955)",
+    "full": "MD"
+  },
+  {
+    "abbrev": "Materiali e Discussioni",
+    "full": "MDAI"
+  },
+  {
+    "abbrev": "Mitteilungen des deutschen archäologischen Instituts (A): Athenische Abteilung (1876– ) (B): Baghdadische",
+    "full": "Abteilung (I): Istanbulische Abteilung (K): Kairoische Abteilung (R): Römische Abteilung (1886– )"
+  },
+  {
+    "abbrev": "MÉFRA",
+    "full": "Mélanges d'archéologie et d'histoire de l'École française de Rome"
+  },
+  {
+    "abbrev": "Meiggs, AE",
+    "full": "R. Meiggs, The Athenian Empire (1972)"
+  },
+  {
+    "abbrev": "Meineke, FCG",
+    "full": "A. Meineke, Fragmenta Comicorum Graecorum (1839–57)"
+  },
+  {
+    "abbrev": "Mél. Masp.",
+    "full": "Mélanges Maspéro (1934–7)"
+  },
+  {
+    "abbrev": "Mel. Steph.",
+    "full": "Meleager, Stephanus"
+  },
+  {
+    "abbrev": "Mem. dei Lincei",
+    "full": "Memorie: Atti della Academia Nazionale dei Lincei, Classe di scienze morali, storiche e logiche"
+  },
+  {
+    "abbrev": "Men.",
+    "full": "Menander"
+  },
+  {
+    "abbrev": "Dys.",
+    "full": "Dyskolos"
+  },
+  {
+    "abbrev": "Epit.",
+    "full": "Epitrepontes"
+  },
+  {
+    "abbrev": "Her.",
+    "full": "Hē rō s"
+  },
+  {
+    "abbrev": "Mazard",
+    "full": "J. Mazard, Corpus Nummorum Numidiae Mauretaniaeque (1955)"
+  },
+  {
+    "abbrev": "Pk.",
+    "full": "Perikeiromenē"
+  },
+  {
+    "abbrev": "Sam.",
+    "full": "Samia"
+  },
+  {
+    "abbrev": "Men. Rhet.",
+    "full": "Menander Rhetor"
+  },
+  {
+    "abbrev": "Mette",
+    "full": "H. J. Mette, Urkunden dramatischer Aufführungen in Griechenland, Texte und Kommentare no. 8 (1977)"
+  },
+  {
+    "abbrev": "MGH",
+    "full": "Monumenta Germaniae Historica, 15 vols. (1877–1919; repr. 1961)"
+  },
+  {
+    "abbrev": "AA",
+    "full": "Auctores Antiquissimi"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "MGR",
+    "full": "Miscellanea greca e romana"
+  },
+  {
+    "abbrev": "MH",
+    "full": "Museum Helveticum"
+  },
+  {
+    "abbrev": "Michel",
+    "full": "C. Michel, Recueil d'inscriptions grecques (1900–27)"
+  },
+  {
+    "abbrev": "Michell, Econom. Anc. Gr.",
+    "full": "H. Michell, The Economics of Ancient Greece, 2nd edn. (1957)"
+  },
+  {
+    "abbrev": "MIFAO",
+    "full": "Mémoires de l'Institut français d'archéologie orientale"
+  },
+  {
+    "abbrev": "Migne, PG",
+    "full": "Migne, Patrologiae Cursus, series Graeca"
+  },
+  {
+    "abbrev": "PL",
+    "full": "Patrologiae Cursus, series Latina"
+  },
+  {
+    "abbrev": "Milet.",
+    "full": "T. Wiegand (ed.), Milet: Ergebnisse der Ausgrabungen und Untersuchungen seit dem Jahre 1899 (1966– )"
+  },
+  {
+    "abbrev": "Millar, ERW",
+    "full": "F. Millar, The Emperor in the Roman World (1977; 2nd edn. 1992)"
+  },
+  {
+    "abbrev": "Min. Fel.",
+    "full": "Minucius Felix"
+  },
+  {
+    "abbrev": "Oct.",
+    "full": "Octavius"
+  },
+  {
+    "abbrev": "Meyer, Forschungen",
+    "full": "Meyer (ed.), Forschungen zur alten Geschichte, 2 vols., (1892–9)"
+  },
+  {
+    "abbrev": "Mir. ausc.",
+    "full": "De mirabilibus auscultationibus (auctor ignotus)"
+  },
+  {
+    "abbrev": "Mitteis, Chr.",
+    "full": "L. Mitteis and U. Wilcken, Grundzüge und Chrestomathie der Papyruskunde (1912)"
+  },
+  {
+    "abbrev": "ML",
+    "full": "R. Meiggs and D. Lewis, A Selection of Greek Historical Inscriptions to the End of the Fifth Century BC, rev. edn."
+  },
+  {
+    "abbrev": "(1988)",
+    "full": "Mnemos."
+  },
+  {
+    "abbrev": "Mnemosyne (1852– )",
+    "full": "MNIR"
+  },
+  {
+    "abbrev": "Mededelingen van het Nederlandsch historisch Institut te Rome",
+    "full": "Momigliano, Secondo contributo"
+  },
+  {
+    "abbrev": "A. Momigliano, Secondo contributo alla storia degli studi classici (1960)",
+    "full": "Terzo contributo"
+  },
+  {
+    "abbrev": "Terzo contributo alla storia degli studi classici (1966)",
+    "full": "Quarto contributo"
+  },
+  {
+    "abbrev": "Quarto contributo alla storia degli studi classici (1969)",
+    "full": "Quinto contributo"
+  },
+  {
+    "abbrev": "Quinto contributo alla storia degli studi classici (1975)",
+    "full": "Sesto contributo"
+  },
+  {
+    "abbrev": "Sesto contributo alla storia degli studi classici (1980)",
+    "full": "Mommsen"
+  },
+  {
+    "abbrev": "T. Mommsen",
+    "full": "Ges. Schr."
+  },
+  {
+    "abbrev": "Gesammelte Schriften, 8 vols. (1905–13)",
+    "full": "Röm. Forsch."
+  },
+  {
+    "abbrev": "Römische Forschungen, 2 vols. (1 in 2nd edn.) (1864–79)",
+    "full": "Röm. Staatsr."
+  },
+  {
+    "abbrev": "Römisches Staatsrecht, vols. 13, 23 (1887), (1888)",
+    "full": "Röm. Strafr."
+  },
+  {
+    "abbrev": "Römisches Strafrecht (1899); Stellenregister, ed. J. Malitz (1982)",
+    "full": "Mommsen–Marquardt, Manuel"
+  },
+  {
+    "abbrev": "Manuel des antiquités romaines (1887–1907): a Fr. trans. of Mommsen's Römisches Staatsrecht",
+    "full": "Mon. Anc."
+  },
+  {
+    "abbrev": "Monumentum Ancyranum",
+    "full": "MME"
+  },
+  {
+    "abbrev": "W. MacDonald and G. Rapp, The Minnesota Messenia Expedition (1972)",
+    "full": "Mon. Ant."
+  },
+  {
+    "abbrev": "Monumenti Antichi pubblicati per cura della Reale Accademia dei Lincei",
+    "full": "Mon. Piot"
+  },
+  {
+    "abbrev": "Monuments Piot",
+    "full": "Morel–Büchner, FPL"
+  },
+  {
+    "abbrev": "Fragmenta Poetarum Latinorum epicorum et lyricorum praeter Ennium et Lucilium, 1st edn., ed. W. Morel (1927);",
+    "full": "2nd edn., ed. C. Büchner (1982)"
+  },
+  {
+    "abbrev": "Mosch. Ep. Bion.",
+    "full": "Moschus, Epitaphios Bionis"
+  },
+  {
+    "abbrev": "Münzer, Röm. Adelsparteien",
+    "full": "F. Münzer, Römische Adelsparteien und Adelsfamilien (1920)"
+  },
+  {
+    "abbrev": "Musa Tragica",
+    "full": "B. Gauly, L. Käppel, and others (eds.), Musa Tragica: Die griechische Tragödie von Thespis bis Ezechiel (1991)"
+  },
+  {
+    "abbrev": "Mus. Belge",
+    "full": "Musée Belge"
+  },
+  {
+    "abbrev": "Muson.",
+    "full": "Musonius Rufus"
+  },
+  {
+    "abbrev": "MW",
+    "full": "M. McCrum and A. G. Woodhead, Select Documents of the Principates of the Flavian Emperors (1961)"
+  },
+  {
+    "abbrev": "M–W",
+    "full": "R. Merkelbach and M. L. West, Fragmenta Hesiodea (1967)"
+  },
+  {
+    "abbrev": "MycPot",
+    "full": "A. Furumark, Mycenaean Pottery (1941)"
+  },
+  {
+    "abbrev": "Myth. Vat.",
+    "full": "Mythographi Vaticani, ed. Bode (1834)"
+  },
+  {
+    "abbrev": "Nachr. Ges. d. Wiss. Gött.",
+    "full": "see Gött. Nachr."
+  },
+  {
+    "abbrev": "Naev. fr. com.",
+    "full": "Naevius, fragmenta comoediarum"
+  },
+  {
+    "abbrev": "Nash, Pict. Dict. Rome",
+    "full": "E. Nash, Pictorial Dictionary of Ancient Rome (1961–2; 2nd edn. 1989)"
+  },
+  {
+    "abbrev": "Nauck",
+    "full": "see TGF"
+  },
+  {
+    "abbrev": "Nauck/Snell",
+    "full": "see TGF"
+  },
+  {
+    "abbrev": "Nemes.",
+    "full": "MRR"
+  },
+  {
+    "abbrev": "see Broughton, MRR",
+    "full": "Nemesianus"
+  },
+  {
+    "abbrev": "Cyn.",
+    "full": "Cynegetica"
+  },
+  {
+    "abbrev": "Ecl.",
+    "full": "Eclogae"
+  },
+  {
+    "abbrev": "Nep.",
+    "full": "Nepos"
+  },
+  {
+    "abbrev": "Epam.",
+    "full": "Epaminondas"
+  },
+  {
+    "abbrev": "Milt.",
+    "full": "Miltiades"
+  },
+  {
+    "abbrev": "Timoth.",
+    "full": "Timotheus"
+  },
+  {
+    "abbrev": "[Neue] Jahrb.",
+    "full": "(1) [Neue] Jahrbücher für Philologie und Pädagogik (1826–97) (2) Neue Jahrbücher für d. klassische Altertum"
+  },
+  {
+    "abbrev": "(1898–1925) (3) Neue Jahrbücher für Wissenschaft und Jugendbildung, (1925–36) ((1), (2), and (3) form a",
+    "full": "continuous series)"
+  },
+  {
+    "abbrev": "New Pauly",
+    "full": "See BNP"
+  },
+  {
+    "abbrev": "New PEPP",
+    "full": "A. Preminger and T. V. F. Brogan (eds.), The New Princeton Encyclopedia of Poetry and Poetics (1993)"
+  },
+  {
+    "abbrev": "Nic.",
+    "full": "Nicander"
+  },
+  {
+    "abbrev": "Alex.",
+    "full": "Alexipharmaca"
+  },
+  {
+    "abbrev": "Ther.",
+    "full": "Theriaca"
+  },
+  {
+    "abbrev": "Nic. Dam.",
+    "full": "Nicolaus Damascenus"
+  },
+  {
+    "abbrev": "Nicolet, OE",
+    "full": "C. Nicolet, L'Ordre équestre (1974)"
+  },
+  {
+    "abbrev": "Nicom. Ench.",
+    "full": "Nicomachus, Manual of Harmonics"
+  },
+  {
+    "abbrev": "Nilsson, Feste",
+    "full": "M. P. Nilsson, Griechische Feste v. religiöser Bedeutung m. Ausschluss d. attischen (1906)"
+  },
+  {
+    "abbrev": "GGR",
+    "full": "Att."
+  },
+  {
+    "abbrev": "Atticus",
+    "full": "Geschichte der griechischen Religion, vol. 12 (1955), 13 (1967), 22 (1961)"
+  },
+  {
+    "abbrev": "MMR",
+    "full": "The Minoan-Mycenaean Religion and its Survival in Greek Religion , 2nd edn. (1950)"
+  },
+  {
+    "abbrev": "Non.",
+    "full": "Nonius"
+  },
+  {
+    "abbrev": "Nonnus, Dion.",
+    "full": "Nonnus, Dionysiaca"
+  },
+  {
+    "abbrev": "Not. Dign. [occ.] [or.]",
+    "full": "Notitia dignitatum in partibus occidentis/orientis"
+  },
+  {
+    "abbrev": "Not. Scav.",
+    "full": "Notizie degli scavi di antichità (1876– )"
+  },
+  {
+    "abbrev": "Nov.",
+    "full": "Novellae"
+  },
+  {
+    "abbrev": "Nov. Theod.",
+    "full": "Novellae Theodosianae"
+  },
+  {
+    "abbrev": "NP. Ant",
+    "full": "Brill’s New Pauly vols 1–15 (Antiquity)"
+  },
+  {
+    "abbrev": "NPNF",
+    "full": "Nicene and Post-Nicene Fathers"
+  },
+  {
+    "abbrev": "Num. Chron.",
+    "full": "Numismatic Chronicle (1861– )"
+  },
+  {
+    "abbrev": "Numen.",
+    "full": "Numenius"
+  },
+  {
+    "abbrev": "NZ",
+    "full": "Numismatische Zeitschrift"
+  },
+  {
+    "abbrev": "OCD1",
+    "full": "M. Cary and others (eds.), The Oxford Classical Dictionary, 1st edn. (1949)"
+  },
+  {
+    "abbrev": "OCD2",
+    "full": "N. G. L. Hammond and H. H. Scullard (eds.), The Oxford Classical Dictionary, 2nd edn. (1970)"
+  },
+  {
+    "abbrev": "OCT",
+    "full": "Oxford Classical Texts"
+  },
+  {
+    "abbrev": "Od.",
+    "full": "Odyssey"
+  },
+  {
+    "abbrev": "ODB",
+    "full": "Oxford Dictionary of Byzantium (1991)"
+  },
+  {
+    "abbrev": "Norden, Ant. Kunstpr.",
+    "full": "E. Norden, Die antike Kunstprosa, vom 6. Jahrh. v. Chr. bis in d. Zeit d. Renaissance (1898, repr. with supplements"
+  },
+  {
+    "abbrev": "1909; 3rd edn. 1915)",
+    "full": "ODCC"
+  },
+  {
+    "abbrev": "Oxford Dictionary of the Christian Church, ed. F. L. Cross and E. Livingstone, 2nd edn. (1974)",
+    "full": "Ogden, Companion"
+  },
+  {
+    "abbrev": "D. Ogden (ed.), A Companion to Greek Religion (2007)",
+    "full": "OGI"
+  },
+  {
+    "abbrev": "Orientis Graeci Inscriptiones Selectae",
+    "full": "Ogilvie, Comm. Livy 1–5"
+  },
+  {
+    "abbrev": "R. M. Ogilvie, Commentary on Livy, Books 1–5 (1965)",
+    "full": "‘Old Oligarch’"
+  },
+  {
+    "abbrev": "see Xen. for Ath. Pol. attributed to Xenophon (see entry old oligarch)",
+    "full": "Oliver"
+  },
+  {
+    "abbrev": "J. Oliver, Greek Constitutions of Early Roman Emperors (1989)",
+    "full": "Olivieri, FCGM"
+  },
+  {
+    "abbrev": "A. Olivieri, Frammenti della commedia greca e del mimo nella Sicilia e nella Magna Grecia, 2nd edn. (1946–7)",
+    "full": "OMS"
+  },
+  {
+    "abbrev": "see Robert, OMS",
+    "full": "Op. Arch."
+  },
+  {
+    "abbrev": "Opuscula Archaeologica (1935–52)",
+    "full": "Op. Ath."
+  },
+  {
+    "abbrev": "Opuscula Atheniensia (1953– )",
+    "full": "Or."
+  },
+  {
+    "abbrev": "Oratio",
+    "full": "ORF and ORF4"
+  },
+  {
+    "abbrev": "see Malcolvati, ORF",
+    "full": "Origen, C. Cels."
+  },
+  {
+    "abbrev": "Origen, Contra Celsum",
+    "full": "Oros."
+  },
+  {
+    "abbrev": "Orosius",
+    "full": "Orph."
+  },
+  {
+    "abbrev": "Orphica",
+    "full": "frs."
+  },
+  {
+    "abbrev": "see Kern",
+    "full": "Lith."
+  },
+  {
+    "abbrev": "Lithica",
+    "full": "Ostwald, Popular Sovereignty"
+  },
+  {
+    "abbrev": "OJA",
+    "full": "Oxford Journal of Archaeology"
+  },
+  {
+    "abbrev": "M. Ostwald, From Popular Sovereignty to the Sovereignty of Law (1986)",
+    "full": "Ov."
+  },
+  {
+    "abbrev": "Ovid",
+    "full": "Am."
+  },
+  {
+    "abbrev": "Amores",
+    "full": "Ars am."
+  },
+  {
+    "abbrev": "Ars amatoria",
+    "full": "Fast."
+  },
+  {
+    "abbrev": "Fasti",
+    "full": "Hal."
+  },
+  {
+    "abbrev": "Halieuticon liber",
+    "full": "Her."
+  },
+  {
+    "abbrev": "Heroides",
+    "full": "Ib."
+  },
+  {
+    "abbrev": "Ibis",
+    "full": "Medic."
+  },
+  {
+    "abbrev": "Medicamina faciei",
+    "full": "Met."
+  },
+  {
+    "abbrev": "Metamorphoses",
+    "full": "Pont."
+  },
+  {
+    "abbrev": "Epistulae ex Ponto",
+    "full": "Rem. am."
+  },
+  {
+    "abbrev": "Remedia amoris",
+    "full": "Tr."
+  },
+  {
+    "abbrev": "Tristia",
+    "full": "Overbeck"
+  },
+  {
+    "abbrev": "J. Overbeck, Die antiken Schriftquellen zur Geschichte d. bildenden Künste bei den Griechen (1868)",
+    "full": "P&P"
+  },
+  {
+    "abbrev": "Past and Present",
+    "full": "π"
+  },
+  {
+    "abbrev": "περί",
+    "full": "PA"
+  },
+  {
+    "abbrev": "J. Kirchner, Prosopographia Attica (1901–3)",
+    "full": "PACA"
+  },
+  {
+    "abbrev": "Proceedings of the African Classical Associations",
+    "full": "Epigr."
+  },
+  {
+    "abbrev": "Epigrammata",
+    "full": "ΠΑΕ"
+  },
+  {
+    "abbrev": "Πρακτικὰ τῆς ἐν Ἀθήναις Ἀρχαιολογικῆς Ἑταιρείας",
+    "full": "Page, FGE"
+  },
+  {
+    "abbrev": "D. L. Page, Further Greek Epigrams (1981)",
+    "full": "GLP"
+  },
+  {
+    "abbrev": "Greek Literary Papyri (Loeb, 1942)",
+    "full": "PMG"
+  },
+  {
+    "abbrev": "Poetae Melici Graeci (1962)",
+    "full": "PAmh."
+  },
+  {
+    "abbrev": "Amherst Papyri (1900–1)",
+    "full": "Pan. Lat."
+  },
+  {
+    "abbrev": "XII Panegyrici Latini",
+    "full": "PAntin."
+  },
+  {
+    "abbrev": "The Antinoe Papyrus of Theocritus",
+    "full": "PAntinoop."
+  },
+  {
+    "abbrev": "Antinoopolis Papyri (1950–67)",
+    "full": "Parker, ARH"
+  },
+  {
+    "abbrev": "R. Parker, Athenian Religion: A History (1996)",
+    "full": "Miasma"
+  },
+  {
+    "abbrev": "Miasma: Pollution and Puri cation in Early Greek Religion (1983)",
+    "full": "Polytheism"
+  },
+  {
+    "abbrev": "Polytheism and Society at Athens (2005)",
+    "full": "Parker, Roman Legions"
+  },
+  {
+    "abbrev": "H. M. D. Parker, The Roman Legions, 2nd edn. (1958)",
+    "full": "Parod. Epic. Gr. Rel."
+  },
+  {
+    "abbrev": "Parodorum Epicorum Graecorum reliquiae, vol. 1 of Corpusculum Poesis Epicae Graecae Ludibundae, P. Brandt and",
+    "full": "C. Wachsmuth (1888)"
+  },
+  {
+    "abbrev": "Paroemiogr.",
+    "full": "Corpus Paroemiographorum Graecorum, ed. E. L. Leutsch and P. G. Schneidewin (1839)"
+  },
+  {
+    "abbrev": "Parth.",
+    "full": "Parthenius"
+  },
+  {
+    "abbrev": "Amat. narr.",
+    "full": "Narrationum amatoriarum libellus (Ἐρωτικὰ παθήματα)"
+  },
+  {
+    "abbrev": "Paul. Fest.",
+    "full": "see Festus, Gloss. Lat."
+  },
+  {
+    "abbrev": "Paulus, Sent.",
+    "full": "SLG"
+  },
+  {
+    "abbrev": "Supplementum lyricis graecis (1974)",
+    "full": "Iulius Paulus, Sententiae"
+  },
+  {
+    "abbrev": "Paus.",
+    "full": "Pausanias"
+  },
+  {
+    "abbrev": "PB",
+    "full": "P. Poralla and A. S. Bradford, A Prosopography of Lacedaemonians from the Earliest Times to the Death of"
+  },
+  {
+    "abbrev": "Alexander the Great, 2nd edn. (1985; Ger. orig. 1913)",
+    "full": "PBA"
+  },
+  {
+    "abbrev": "Proceedings of the British Academy",
+    "full": "PBrem."
+  },
+  {
+    "abbrev": "Die Bremer Papyri, ed. U. Wilcken (1936; repr. 1970)",
+    "full": "PBrux."
+  },
+  {
+    "abbrev": "Papyri bruxellenses graeci 1: Papyrus du nome Prosopite, Nos. 1–21 , by G. Nachtergael (1984); 2: No. 22, by M. Huys",
+    "full": "(1991). For PBrux. 7616 see C. Préaux and M. Hombert, Recherches sur le recensement dans l'Égypte romaine,"
+  },
+  {
+    "abbrev": "Papyrologica Lugduno-Batava 5 (1952)",
+    "full": "PBSR"
+  },
+  {
+    "abbrev": "Papers of the British School at Rome",
+    "full": "P. Cairo Zeno"
+  },
+  {
+    "abbrev": "C. C. Edgar, Zenon Papyri, 4 vols. (1925–31)",
+    "full": "PCG"
+  },
+  {
+    "abbrev": "R. Kassel and C. Austin, Poetae Comici Graeci (1983– )",
+    "full": "PCharite"
+  },
+  {
+    "abbrev": "Das Aurelia Charite Archiv, ed. K. Worp (1980)",
+    "full": "PCIA"
+  },
+  {
+    "abbrev": "Popoli e civiltà dell'Italia antica 4 vols. (1974–89)",
+    "full": "PColon."
+  },
+  {
+    "abbrev": "Kölner Papyri (1976– )",
+    "full": "PCPS"
+  },
+  {
+    "abbrev": "Proceedings of the Cambridge Philological Society",
+    "full": "PDiog."
+  },
+  {
+    "abbrev": "Les Archives de Marcus Lucretius Diogenes et textes apparentés, ed. P. Schubert (1990)",
+    "full": "PDura"
+  },
+  {
+    "abbrev": "The Excavations at Dura-Europos conducted by Yale University and the French Academy of Inscriptions and Letters",
+    "full": "Final Report 5 pt. 1: The Parchments and Papyri, ed. C. B.Welles and others (1959)"
+  },
+  {
+    "abbrev": "Pearson, Lost Histories of Alexander",
+    "full": "L. Pearson, The Lost Histories of Alexander the Great (1960)"
+  },
+  {
+    "abbrev": "PECS",
+    "full": "PBerol."
+  },
+  {
+    "abbrev": "Berlin Papyri",
+    "full": "R. Stillwell and others, Princeton Encyclopedia of Classical Sites (1976)"
+  },
+  {
+    "abbrev": "PElph.",
+    "full": "Elephantine Papyri (1907)"
+  },
+  {
+    "abbrev": "Peripl. M. Rubr.",
+    "full": "Periplus Maris Rubri"
+  },
+  {
+    "abbrev": "Pers.",
+    "full": "Persius"
+  },
+  {
+    "abbrev": "Petron.",
+    "full": "Petronius"
+  },
+  {
+    "abbrev": "Sat.",
+    "full": "Satyrica"
+  },
+  {
+    "abbrev": "Pf.",
+    "full": "R. Pfeiffer"
+  },
+  {
+    "abbrev": "PF",
+    "full": "R. T. Hallock, Persepolis Forti cation Tablets (1969)"
+  },
+  {
+    "abbrev": "PFlor",
+    "full": "Papiri greco-egizii, papiri orentini, ed. D. Comparetti and G. Vitelli (1906–15; repr. 1962)"
+  },
+  {
+    "abbrev": "PFouad",
+    "full": "P. Jouguet and others, Les Papyrus Fouad I (1939)"
+  },
+  {
+    "abbrev": "PFT",
+    "full": "see PF"
+  },
+  {
+    "abbrev": "Pfuhl",
+    "full": "E. Pfuhl, Malerei u. Zeichnung d. Griechen, 3 vols. (1923)"
+  },
+  {
+    "abbrev": "PG",
+    "full": "see Migne"
+  },
+  {
+    "abbrev": "PGen.",
+    "full": "Les Papyrus de Genève (1896–1990)"
+  },
+  {
+    "abbrev": "PGhō ran",
+    "full": "P. Jouguet, BCH 1906, 103 ff."
+  },
+  {
+    "abbrev": "PGiess.",
+    "full": "Griechische Papyri im Museum des oberhessischen Geschichtsvereins zu Giessen (1910–12)"
+  },
+  {
+    "abbrev": "PGM",
+    "full": "K. Preisendanz and others (eds.), Papyri Graecae Magicae: Die griechischen Zauberpapyri, 2 vols., 2nd edn."
+  },
+  {
+    "abbrev": "(1973–4)",
+    "full": "PHal."
+  },
+  {
+    "abbrev": "Dikaiomata, ed. by the Graeca Halensis (1913)",
+    "full": "Peter, HRRel."
+  },
+  {
+    "abbrev": "H. Peter, Historicorum Romanorum Reliquiae, vol. 12 (1914), 2 (1906)",
+    "full": "Ph. Bel."
+  },
+  {
+    "abbrev": "Philon, Belopoeica",
+    "full": "PHeid."
+  },
+  {
+    "abbrev": "Veröffentlichungen aus der Heidelberger Papyrussammlung (1956–90)",
+    "full": "PHerc."
+  },
+  {
+    "abbrev": "Papyri Herculanenses; see Catalogo dei papyri ercolanesi (1979) and M. Capasso, Manuale di papirologia",
+    "full": "ercolanese (1991)"
+  },
+  {
+    "abbrev": "PHerm. Landl.",
+    "full": "Zwei Landlisten aus dem Hermupolites, ed. P. Sijpesteijn and K. Worp (1978)"
+  },
+  {
+    "abbrev": "PHib.",
+    "full": "Hibeh Papyri (1906–55)"
+  },
+  {
+    "abbrev": "Philo",
+    "full": "Philo Judaeus"
+  },
+  {
+    "abbrev": "CW",
+    "full": "Edition of Philo Judaeus by L. Cohn and P. Wendland (1896–1916)"
+  },
+  {
+    "abbrev": "In Flacc.",
+    "full": "In Flaccum"
+  },
+  {
+    "abbrev": "Leg.",
+    "full": "Legatio ad Gaium"
+  },
+  {
+    "abbrev": "Philoch.",
+    "full": "Philochorus"
+  },
+  {
+    "abbrev": "Philol.",
+    "full": "Philologus"
+  },
+  {
+    "abbrev": "Suppl.",
+    "full": "Philologus, Supplement"
+  },
+  {
+    "abbrev": "Philostr.",
+    "full": "Philostratus"
+  },
+  {
+    "abbrev": "Her.",
+    "full": "Heroicus"
+  },
+  {
+    "abbrev": "Imag.",
+    "full": "Imagines"
+  },
+  {
+    "abbrev": "VA",
+    "full": "Vita Apollonii"
+  },
+  {
+    "abbrev": "VS",
+    "full": "Vitae sophistarum"
+  },
+  {
+    "abbrev": "Pherec.",
+    "full": "Pherecydes"
+  },
+  {
+    "abbrev": "Phil. Unters.",
+    "full": "Philologische Untersuchungen"
+  },
+  {
+    "abbrev": "Phil. Wochenschr.",
+    "full": "Philologische Wochenschrift"
+  },
+  {
+    "abbrev": "Phld.",
+    "full": "Philodemus"
+  },
+  {
+    "abbrev": "Phlegon, Mir.",
+    "full": "Phlegon, Miracula"
+  },
+  {
+    "abbrev": "Phot.",
+    "full": "Photius"
+  },
+  {
+    "abbrev": "Bibl.",
+    "full": "Bibliotheca"
+  },
+  {
+    "abbrev": "PIand.",
+    "full": "Papyri Iandanae (1912–38)"
+  },
+  {
+    "abbrev": "Pickard-Cambridge–Webster, Dithyramb2",
+    "full": "A. W. Pickard-Cambridge, Dithyramb, Tragedy and Comedy, 2nd edn. rev. T. B. L. Webster (1962)"
+  },
+  {
+    "abbrev": "Pind.",
+    "full": "Pindar (ed. B. Snell and H. Maehler, 1987–8)"
+  },
+  {
+    "abbrev": "Isthm.",
+    "full": "Isthmian Odes"
+  },
+  {
+    "abbrev": "Nem.",
+    "full": "Nemean Odes"
+  },
+  {
+    "abbrev": "Ol.",
+    "full": "Olympian Odes"
+  },
+  {
+    "abbrev": "Pyth.",
+    "full": "Pythian Odes"
+  },
+  {
+    "abbrev": "Pae.",
+    "full": "Paeanes"
+  },
+  {
+    "abbrev": "Pindar's Poetry",
+    "full": "C. Morgan and S. Hornblower (eds.), Pindar's Poetry, Patrons and Festivals, from Archaic Greece to the Roman"
+  },
+  {
+    "abbrev": "Empire (2007)",
+    "full": "PIR"
+  },
+  {
+    "abbrev": "Prosopographia Imperii Romani Saeculi I, II, III, 1st edn. by E. Klebs and H. Dessau (1897–8); 2nd edn. by E.",
+    "full": "Groag, A. Stein, and others (1933– )"
+  },
+  {
+    "abbrev": "P-K, GL",
+    "full": "A. Philippson and E. Kirsten, Die griechischen Landschaften 1–4 (1950–9)"
+  },
+  {
+    "abbrev": "PHolm.",
+    "full": "Papyrus Graecus Holmiensis, ed. O. Lagercrantz (1913)"
+  },
+  {
+    "abbrev": "PL",
+    "full": "see Migne"
+  },
+  {
+    "abbrev": "Pl.",
+    "full": "Plato"
+  },
+  {
+    "abbrev": "Alc.",
+    "full": "Alcibiades"
+  },
+  {
+    "abbrev": "Ap.",
+    "full": "Apologia"
+  },
+  {
+    "abbrev": "Chrm.",
+    "full": "Charmides"
+  },
+  {
+    "abbrev": "Cra.",
+    "full": "Cratylus"
+  },
+  {
+    "abbrev": "Cri.",
+    "full": "Crito"
+  },
+  {
+    "abbrev": "Criti.",
+    "full": "Critias"
+  },
+  {
+    "abbrev": "Epin.",
+    "full": "Epinomis"
+  },
+  {
+    "abbrev": "Euthphr.",
+    "full": "Euthyphro"
+  },
+  {
+    "abbrev": "Euthyd.",
+    "full": "Euthydemus"
+  },
+  {
+    "abbrev": "Grg.",
+    "full": "Gorgias"
+  },
+  {
+    "abbrev": "[Hipparch.]",
+    "full": "Hipparchus"
+  },
+  {
+    "abbrev": "Hp. mai.",
+    "full": "Hippias maior"
+  },
+  {
+    "abbrev": "Hp. mi.",
+    "full": "Hippias Minor"
+  },
+  {
+    "abbrev": "La. or Lach.",
+    "full": "Laches"
+  },
+  {
+    "abbrev": "Leg.",
+    "full": "Leges"
+  },
+  {
+    "abbrev": "Menex.",
+    "full": "Menexenus"
+  },
+  {
+    "abbrev": "[Ax.]",
+    "full": "Axiochus"
+  },
+  {
+    "abbrev": "Phd.",
+    "full": "Phaedo"
+  },
+  {
+    "abbrev": "Phdr.",
+    "full": "Phaedrus"
+  },
+  {
+    "abbrev": "Phlb.",
+    "full": "Philebus"
+  },
+  {
+    "abbrev": "Plt.",
+    "full": "Politicus"
+  },
+  {
+    "abbrev": "Prt.",
+    "full": "Protagoras"
+  },
+  {
+    "abbrev": "Resp.",
+    "full": "Respublica"
+  },
+  {
+    "abbrev": "Symp.",
+    "full": "Symposium"
+  },
+  {
+    "abbrev": "Soph.",
+    "full": "Sophista"
+  },
+  {
+    "abbrev": "Tht.",
+    "full": "Theaetetus"
+  },
+  {
+    "abbrev": "Ti.",
+    "full": "Timaeus"
+  },
+  {
+    "abbrev": "Platner–Ashby",
+    "full": "S. B. Platner and T. Ashby, A Topographical Dictionary of Ancient Rome (1929)"
+  },
+  {
+    "abbrev": "Plato Com.",
+    "full": "Plato Comicus"
+  },
+  {
+    "abbrev": "Platon.",
+    "full": "Platonius"
+  },
+  {
+    "abbrev": "Diff. com.",
+    "full": "De differentia comoediarum"
+  },
+  {
+    "abbrev": "Plaut.",
+    "full": "Plautus"
+  },
+  {
+    "abbrev": "Amph.",
+    "full": "Amphitruo"
+  },
+  {
+    "abbrev": "Asin.",
+    "full": "Asinaria"
+  },
+  {
+    "abbrev": "Bacch.",
+    "full": "Prm."
+  },
+  {
+    "abbrev": "Parmenides",
+    "full": "Bacchides"
+  },
+  {
+    "abbrev": "Capt.",
+    "full": "Captivi"
+  },
+  {
+    "abbrev": "Cas.",
+    "full": "Casina"
+  },
+  {
+    "abbrev": "Cist.",
+    "full": "Cistellaria"
+  },
+  {
+    "abbrev": "Men.",
+    "full": "Menaechmi"
+  },
+  {
+    "abbrev": "Merc.",
+    "full": "Mercator"
+  },
+  {
+    "abbrev": "Mil.",
+    "full": "Miles gloriosus"
+  },
+  {
+    "abbrev": "Mostell.",
+    "full": "Mostellaria"
+  },
+  {
+    "abbrev": "Poen.",
+    "full": "Poenulus"
+  },
+  {
+    "abbrev": "Pseud.",
+    "full": "Pseudolus"
+  },
+  {
+    "abbrev": "Rud.",
+    "full": "Rudens"
+  },
+  {
+    "abbrev": "Stich.",
+    "full": "Stichus"
+  },
+  {
+    "abbrev": "Trin.",
+    "full": "Trinummus"
+  },
+  {
+    "abbrev": "Pleid.",
+    "full": "Papyri Graeci Musei Antiquarii Lugduni-Batavi , ed. C. Leemans (1843–85)"
+  },
+  {
+    "abbrev": "PLG",
+    "full": "T. Bergk, Poetae Lyrici Graeci (1882; repr. 1914–15)"
+  },
+  {
+    "abbrev": "PLille",
+    "full": "Papyrus grecs (Institut papyrologique de l'Université de Lille, 1907–12)"
+  },
+  {
+    "abbrev": "Plin.",
+    "full": "Pliny (the Elder)"
+  },
+  {
+    "abbrev": "HN",
+    "full": "Naturalis historia"
+  },
+  {
+    "abbrev": "Curc.",
+    "full": "Curculio"
+  },
+  {
+    "abbrev": "Plin.",
+    "full": "Pliny (the Younger)"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "Pan.",
+    "full": "Panegyricus"
+  },
+  {
+    "abbrev": "Tra.",
+    "full": "Epistulae ad Traianum"
+  },
+  {
+    "abbrev": "PLLS",
+    "full": "Papers of the Leeds Latin Seminar"
+  },
+  {
+    "abbrev": "PLM Vollmer/Morel",
+    "full": "Poetae Latini Minores ed. Vollmer, 1 (1909) emendavit Morel3 (1935)"
+  },
+  {
+    "abbrev": "PLond. Lit.",
+    "full": "Catalogue of the Literary Papyri in the British Museum, ed. H. Milne (1927)"
+  },
+  {
+    "abbrev": "PLondon",
+    "full": "Greek Papyri in the British Museum (1893– )"
+  },
+  {
+    "abbrev": "Plotinus, Enn.",
+    "full": "Plotinus, Enneades"
+  },
+  {
+    "abbrev": "PLRE",
+    "full": "Prosopography of the Later Roman Empire 1, ed. A. H. M. Jones and others (1970); 2 and 3, ed. J. R. Martindale"
+  },
+  {
+    "abbrev": "(1980–92)",
+    "full": "PLund."
+  },
+  {
+    "abbrev": "Papyri Lundenses (1934/5–1946/7)",
+    "full": "Plut."
+  },
+  {
+    "abbrev": "Plutarch",
+    "full": "Mor."
+  },
+  {
+    "abbrev": "Moralia",
+    "full": "Adv. Col."
+  },
+  {
+    "abbrev": "Adversus Coloten",
+    "full": "Amat."
+  },
+  {
+    "abbrev": "Amatorius",
+    "full": "Am. narr."
+  },
+  {
+    "abbrev": "Amatoriae narrationes",
+    "full": "An seni"
+  },
+  {
+    "abbrev": "An seni respublica gerenda sit",
+    "full": "Comm. not."
+  },
+  {
+    "abbrev": "PLips.",
+    "full": "Griechische Urkunden der Papyrussammlung zu Leipzig, ed. L. Mitteis (1906)"
+  },
+  {
+    "abbrev": "De communibus notitiis adversus Stoicos",
+    "full": "Comp. Ar. et Men."
+  },
+  {
+    "abbrev": "Comparatio Aristophanis et Menandri",
+    "full": "Conv. sept. sap."
+  },
+  {
+    "abbrev": "Convivium septem sapientium",
+    "full": "De Alex. fort."
+  },
+  {
+    "abbrev": "De fortuna Alexandri",
+    "full": "De exil."
+  },
+  {
+    "abbrev": "De exilio",
+    "full": "De fac."
+  },
+  {
+    "abbrev": "De facie in orbe lunae",
+    "full": "De fort. Rom."
+  },
+  {
+    "abbrev": "De fortuna Romanorum",
+    "full": "De frat. amor."
+  },
+  {
+    "abbrev": "De fraterno amore",
+    "full": "De garr."
+  },
+  {
+    "abbrev": "De garrulitate",
+    "full": "De gen."
+  },
+  {
+    "abbrev": "De genio Socratis",
+    "full": "De glor. Ath."
+  },
+  {
+    "abbrev": "De gloria Atheniensium",
+    "full": "De Is. et Os."
+  },
+  {
+    "abbrev": "De Iside et Osiride",
+    "full": "De lat. viv."
+  },
+  {
+    "abbrev": "De latenter vivendo",
+    "full": "De mul. vir."
+  },
+  {
+    "abbrev": "De mulierum virtutibus",
+    "full": "[De mus]"
+  },
+  {
+    "abbrev": "De musica",
+    "full": "De prof. virt."
+  },
+  {
+    "abbrev": "De profectu in virtute",
+    "full": "De Pyth. or."
+  },
+  {
+    "abbrev": "De Pythiae oraculis",
+    "full": "De sera"
+  },
+  {
+    "abbrev": "De sera numinis vindicta",
+    "full": "De def. or."
+  },
+  {
+    "abbrev": "De defectu oraculorum",
+    "full": "De soll. an."
+  },
+  {
+    "abbrev": "De sollertia animalium",
+    "full": "De superst."
+  },
+  {
+    "abbrev": "De superstitione",
+    "full": "De tranq. anim."
+  },
+  {
+    "abbrev": "De tranquillitate animi",
+    "full": "Prae. ger. reip."
+  },
+  {
+    "abbrev": "Praecepta gerendae reipublicae",
+    "full": "Quaest. Graec."
+  },
+  {
+    "abbrev": "” Graecae",
+    "full": "Quaest. Plat."
+  },
+  {
+    "abbrev": "” Platonicae",
+    "full": "Quaest. Rom."
+  },
+  {
+    "abbrev": "” Romanae",
+    "full": "Quomodo adul."
+  },
+  {
+    "abbrev": "Quomodo adulescens poetas audire debeat",
+    "full": "Vit."
+  },
+  {
+    "abbrev": "Vitae Parallelae",
+    "full": "Aem."
+  },
+  {
+    "abbrev": "Aemilius Paulus",
+    "full": "Ages."
+  },
+  {
+    "abbrev": "Agesilaus",
+    "full": "Alc."
+  },
+  {
+    "abbrev": "Alcibiades",
+    "full": "Alex."
+  },
+  {
+    "abbrev": "Alexander",
+    "full": "Ant."
+  },
+  {
+    "abbrev": "Antonius",
+    "full": "Arat."
+  },
+  {
+    "abbrev": "Aratus",
+    "full": "Arist."
+  },
+  {
+    "abbrev": "Aristides",
+    "full": "Artax."
+  },
+  {
+    "abbrev": "Artaxerxes",
+    "full": "Brut."
+  },
+  {
+    "abbrev": "Brutus",
+    "full": "Quaest. conv."
+  },
+  {
+    "abbrev": "Quaestiones convivales",
+    "full": "Caes."
+  },
+  {
+    "abbrev": "Caesar",
+    "full": "Cam."
+  },
+  {
+    "abbrev": "Camillus",
+    "full": "Cat. Mai., Min."
+  },
+  {
+    "abbrev": "Cato Maior, Minor",
+    "full": "C. Gracch."
+  },
+  {
+    "abbrev": "Gaius Gracchus",
+    "full": "Cim."
+  },
+  {
+    "abbrev": "Cimon",
+    "full": "Cleom."
+  },
+  {
+    "abbrev": "Cleomenes",
+    "full": "Crass."
+  },
+  {
+    "abbrev": "Crassus",
+    "full": "Dem."
+  },
+  {
+    "abbrev": "Demosthenes",
+    "full": "Demetr."
+  },
+  {
+    "abbrev": "Demetrius",
+    "full": "Eum."
+  },
+  {
+    "abbrev": "Eumenes",
+    "full": "Flam."
+  },
+  {
+    "abbrev": "Flamininus",
+    "full": "Galb."
+  },
+  {
+    "abbrev": "Galba",
+    "full": "Luc."
+  },
+  {
+    "abbrev": "Lucullus",
+    "full": "Lyc."
+  },
+  {
+    "abbrev": "Lycurgus",
+    "full": "Lys."
+  },
+  {
+    "abbrev": "Lysander",
+    "full": "Mar."
+  },
+  {
+    "abbrev": "Marius",
+    "full": "Marc."
+  },
+  {
+    "abbrev": "Marcellus",
+    "full": "Nic."
+  },
+  {
+    "abbrev": "Cic.",
+    "full": "Cicero"
+  },
+  {
+    "abbrev": "Nicias",
+    "full": "Num."
+  },
+  {
+    "abbrev": "Numa",
+    "full": "Pel."
+  },
+  {
+    "abbrev": "Pelopidas",
+    "full": "Per."
+  },
+  {
+    "abbrev": "Pericles",
+    "full": "Phoc."
+  },
+  {
+    "abbrev": "Phocion",
+    "full": "Pomp."
+  },
+  {
+    "abbrev": "Pompeius",
+    "full": "Pyrrh."
+  },
+  {
+    "abbrev": "Pyrrhus",
+    "full": "Rom."
+  },
+  {
+    "abbrev": "Romulus",
+    "full": "Sert."
+  },
+  {
+    "abbrev": "Sertorius",
+    "full": "Sol."
+  },
+  {
+    "abbrev": "Solon",
+    "full": "Sull."
+  },
+  {
+    "abbrev": "Sulla",
+    "full": "Them."
+  },
+  {
+    "abbrev": "Themistocles",
+    "full": "Thes."
+  },
+  {
+    "abbrev": "Theseus",
+    "full": "Ti. Gracch."
+  },
+  {
+    "abbrev": "Tiberius Gracchus",
+    "full": "Tim."
+  },
+  {
+    "abbrev": "Timoleon",
+    "full": "[Plut.] Cons. ad Apoll."
+  },
+  {
+    "abbrev": "[Plutarch], Consolatio ad Apollonium",
+    "full": "Vit. Hom."
+  },
+  {
+    "abbrev": "Vita Homeri",
+    "full": "X orat."
+  },
+  {
+    "abbrev": "Vitae decem oratorum",
+    "full": "Phil."
+  },
+  {
+    "abbrev": "Philopoemen",
+    "full": "PMG"
+  },
+  {
+    "abbrev": "see Page, PMG",
+    "full": "PMGF"
+  },
+  {
+    "abbrev": "see Davies, PMGF",
+    "full": "PMich."
+  },
+  {
+    "abbrev": "Michigan Papyri (1931– )",
+    "full": "PMilan."
+  },
+  {
+    "abbrev": "Papiri Milanesi (1928–67)",
+    "full": "PMonac."
+  },
+  {
+    "abbrev": "Byzantinische Papyri in der Papyrussammlung der K. Hof-und Staatsbibliothek zu München , 2nd edn. D.",
+    "full": "Hagedorn (1986)"
+  },
+  {
+    "abbrev": "PO",
+    "full": "Patrologia Orientalis (1904– )"
+  },
+  {
+    "abbrev": "Poet. Rom. Vet.",
+    "full": "see Diehl"
+  },
+  {
+    "abbrev": "Pöhlmann and West, Documents",
+    "full": "E. Pöhlmann and M. L. West, Documents of Ancient Greek Music (2001)"
+  },
+  {
+    "abbrev": "Poll.",
+    "full": "Pollux"
+  },
+  {
+    "abbrev": "Onom.",
+    "full": "Onomasticon"
+  },
+  {
+    "abbrev": "Polyaenus, Strat.",
+    "full": "Polyaenus, Strategemata"
+  },
+  {
+    "abbrev": "Polyb.",
+    "full": "Polybius"
+  },
+  {
+    "abbrev": "Pompon.",
+    "full": "Pomponius"
+  },
+  {
+    "abbrev": "Porph.",
+    "full": "Porphyry"
+  },
+  {
+    "abbrev": "Abst.",
+    "full": "De abstinentia"
+  },
+  {
+    "abbrev": "De antr. nymph.",
+    "full": "De antro nympharum"
+  },
+  {
+    "abbrev": "Plot.",
+    "full": "Vita Plotini"
+  },
+  {
+    "abbrev": "POsl.",
+    "full": "PMil. Vogl."
+  },
+  {
+    "abbrev": "Papri della R. Universitὰ degli Studi di Milano, Milan",
+    "full": "Papyri Osloenses (1925–36)"
+  },
+  {
+    "abbrev": "Pow.",
+    "full": "see Powell, Coll. Alex."
+  },
+  {
+    "abbrev": "Powell and Barber, New Chapters",
+    "full": "J. U. Powell and E. A. Barber, New Chapters in the History of Greek Literature (1921); Second Series (1929); Third"
+  },
+  {
+    "abbrev": "Series, J. U. Powell alone (1933)",
+    "full": "Powell, Coll. Alex."
+  },
+  {
+    "abbrev": "J. U. Powell, Collectanea Alexandrina (1925)",
+    "full": "PP"
+  },
+  {
+    "abbrev": "La parola del passato (1946– )",
+    "full": "PPF"
+  },
+  {
+    "abbrev": "H. Diels, Poetarum Philosophorum Graecorum Fragmenta (1901)",
+    "full": "praef."
+  },
+  {
+    "abbrev": "praefatio",
+    "full": "Pratin. Lyr."
+  },
+  {
+    "abbrev": "Pratinas, Fragmenta lyrica",
+    "full": "Preisendanz"
+  },
+  {
+    "abbrev": "see PGM",
+    "full": "Preller–Robert"
+  },
+  {
+    "abbrev": "L. Preller, Griechische Mythologie, 4th edn., rev. C. Robert (1894)",
+    "full": "Prisc. Inst."
+  },
+  {
+    "abbrev": "Priscian, Institutio de arte grammatica",
+    "full": "Pritchett, GSW"
+  },
+  {
+    "abbrev": "W. K. Pritchett, The Greek State at War 5 vols. (1971–91)",
+    "full": "Proc. Brit. Acad. or PBA"
+  },
+  {
+    "abbrev": "Proceedings of the British Academy (1903– )",
+    "full": "Procl."
+  },
+  {
+    "abbrev": "Proclus",
+    "full": "Hypotyp."
+  },
+  {
+    "abbrev": "Hypotyposis",
+    "full": "In R."
+  },
+  {
+    "abbrev": "In Platonis Rempublicam commentarii",
+    "full": "In Ti."
+  },
+  {
+    "abbrev": "In Platonis Timaeum commentarii",
+    "full": "Procop."
+  },
+  {
+    "abbrev": "Procopius",
+    "full": "POxy."
+  },
+  {
+    "abbrev": "Oxyrhynchus Papyri (1898– )",
+    "full": "Aed."
+  },
+  {
+    "abbrev": "De aedi ciis",
+    "full": "Goth."
+  },
+  {
+    "abbrev": "De bello Gothico",
+    "full": "Vand."
+  },
+  {
+    "abbrev": "De bello Vandalico",
+    "full": "Proc. Prehist. Soc."
+  },
+  {
+    "abbrev": "Proceedings of the Prehistoric Society",
+    "full": "Prop."
+  },
+  {
+    "abbrev": "Propertius",
+    "full": "Prudent."
+  },
+  {
+    "abbrev": "Prudentius",
+    "full": "Cath."
+  },
+  {
+    "abbrev": "Cathemerina",
+    "full": "C. Symm."
+  },
+  {
+    "abbrev": "Contra Symmachum",
+    "full": "Perist."
+  },
+  {
+    "abbrev": "Peristephanon",
+    "full": "PRyl."
+  },
+  {
+    "abbrev": "Catalogue of the Greek Papyri in the John Rylands Library at Manchester (1911–52)",
+    "full": "PSAS"
+  },
+  {
+    "abbrev": "Proceedings of the Society of Antiquaries, Scotland",
+    "full": "PSI"
+  },
+  {
+    "abbrev": "Papiri Greci e Latini, Pubblicazioni della Società italiana per la ricerca dei papiri greci e latini in Egitto (1912– )",
+    "full": "PSorbonn."
+  },
+  {
+    "abbrev": "Papyrus de la Sorbonne 1, nos. 1- 68, ed. H. Cadell (1966)",
+    "full": "PStras."
+  },
+  {
+    "abbrev": "Griechische Papyrus der Kaiserlichen Universitäts- und Landesbibliothek zu Strassburg (1912– )",
+    "full": "P Teb."
+  },
+  {
+    "abbrev": "Tebtunis Papyri (1902–76)",
+    "full": "Ptol."
+  },
+  {
+    "abbrev": "Ptolemaeus mathematicus",
+    "full": "Alm."
+  },
+  {
+    "abbrev": "Almagest",
+    "full": "Geog."
+  },
+  {
+    "abbrev": "Progr.",
+    "full": "Programm"
+  },
+  {
+    "abbrev": "Geographia",
+    "full": "Harm."
+  },
+  {
+    "abbrev": "Harmonica",
+    "full": "Tetr."
+  },
+  {
+    "abbrev": "Tetrabiblos",
+    "full": "PVat. II"
+  },
+  {
+    "abbrev": "Il Papiro Vaticano Greco II, ed. M. Norsa and G. Vitelli (1931)",
+    "full": "PVS"
+  },
+  {
+    "abbrev": "Proceedings of the Vergil Society",
+    "full": "PW"
+  },
+  {
+    "abbrev": "see Pöhlmann and West",
+    "full": "PYale"
+  },
+  {
+    "abbrev": "J. F. Oates, A. E. Samuel, C. B. Welles (eds.), Yale Papyri in the Beinecke Rare Book and Manuscript Library (1967)",
+    "full": "Quad. Ist. Top. Roma"
+  },
+  {
+    "abbrev": "Quaderni dell'Istituto di Topogra a antica della Università de Roma",
+    "full": "QAL"
+  },
+  {
+    "abbrev": "Quaderni di archeologia della Libia",
+    "full": "Quint."
+  },
+  {
+    "abbrev": "Quintilian",
+    "full": "Ep. ad Tryph."
+  },
+  {
+    "abbrev": "Epistula ad Tryphonem (introductory to the following)",
+    "full": "Inst."
+  },
+  {
+    "abbrev": "Institutio oratoria",
+    "full": "Quint. Smyrn."
+  },
+  {
+    "abbrev": "Quintus Smyrnaeus",
+    "full": "RAC"
+  },
+  {
+    "abbrev": "Reallexikon für Antike und Christentum, Stuttgart (1941– )",
+    "full": "Radke, Götter"
+  },
+  {
+    "abbrev": "G. Radke, Die Götter Altitaliens (1960; 2nd edn. 1979)",
+    "full": "Entwicklung"
+  },
+  {
+    "abbrev": "Zur Entwicklung der Gottesvorstellung und der Gottesverehrung in Rom (1987)",
+    "full": "Radt"
+  },
+  {
+    "abbrev": "see TrGF",
+    "full": "Rav. Cosm."
+  },
+  {
+    "abbrev": "Cosmographia Anonymi Ravennatis",
+    "full": "PVindob."
+  },
+  {
+    "abbrev": "Papyrus Vindobonensis",
+    "full": "RC"
+  },
+  {
+    "abbrev": "C. B. Welles, Royal Correspondence in the Hellenistic Period (1934)",
+    "full": "RCHM"
+  },
+  {
+    "abbrev": "Royal Commission on Historic Monuments",
+    "full": "RD"
+  },
+  {
+    "abbrev": "see RHDFÉ",
+    "full": "RDAC"
+  },
+  {
+    "abbrev": "Report of the Department of Antiquities of Cyprus",
+    "full": "RE"
+  },
+  {
+    "abbrev": "A. Pauly, G. Wissowa, and W. Kroll, Real-Encyclopädie d. klassischen Altertumswissenschaft (1893– )",
+    "full": "Reallexikon der Assyriologie"
+  },
+  {
+    "abbrev": "Reallexikon der Assyriologie (1932– )",
+    "full": "Rend. 1st. Lomb."
+  },
+  {
+    "abbrev": "Rendiconti d. R. Istituto Lombardo di scienze e lettere",
+    "full": "Rend. Linc."
+  },
+  {
+    "abbrev": "Rendiconti della reale accademia dei Lincei, 6th ser. (1892–1924); 7th ser. (1925– )",
+    "full": "Rend. Pont."
+  },
+  {
+    "abbrev": "Rendiconti della ponti cia accademia romana di archeologia",
+    "full": "Rer. nat. scr. Graec. min."
+  },
+  {
+    "abbrev": "O. Keller, Rerum naturalium scriptores Graeci minores (1877)",
+    "full": "Rev. Arch."
+  },
+  {
+    "abbrev": "Revue archéologique",
+    "full": "Rev. Bibl."
+  },
+  {
+    "abbrev": "Revue biblique",
+    "full": "Rev. Ét. Anc."
+  },
+  {
+    "abbrev": "Revue des études anciennes",
+    "full": "Rev. Ét. Grec."
+  },
+  {
+    "abbrev": "Revue des études grecques",
+    "full": "Rev. Ét. Lat."
+  },
+  {
+    "abbrev": "Revue des études latines",
+    "full": "Rev. Hist."
+  },
+  {
+    "abbrev": "Revue historique",
+    "full": "Rev. Hist. Rel."
+  },
+  {
+    "abbrev": "Revue de l'histoire des religions",
+    "full": "Rev. Phil."
+  },
+  {
+    "abbrev": "Revue de philologie ns (1877– )",
+    "full": "RDGE"
+  },
+  {
+    "abbrev": "R. E. Sherk, Roman Documents from the Greek East (1969)",
+    "full": "RG"
+  },
+  {
+    "abbrev": "see Mon. Anc.",
+    "full": "RGVV"
+  },
+  {
+    "abbrev": "Religionsgeschichtliche Versuche und Vorarbeiten, ed. A. Dieterich, R. Wünsch, L. Malten, O. Weinreich, L.",
+    "full": "Deubner (1903– )"
+  },
+  {
+    "abbrev": "RHDFÉ",
+    "full": "Revue historique de droit français et étranger"
+  },
+  {
+    "abbrev": "Rhet. Her.",
+    "full": "Rhetorica ad Herennium"
+  },
+  {
+    "abbrev": "Rhet. Lat. Min.",
+    "full": "see Halm"
+  },
+  {
+    "abbrev": "Rh. Mus.",
+    "full": "Rheinisches Museum für Philologie (1827– ), NS (1842– )"
+  },
+  {
+    "abbrev": "Rhodes, CAAP",
+    "full": "P. J. Rhodes, A Commentary on the Aristotelian Athenaion Politeia (1981; new edn. 1993)"
+  },
+  {
+    "abbrev": "Thuc. 2 comm.",
+    "full": "(ed.), Thucydides: History II (1988)"
+  },
+  {
+    "abbrev": "RIB",
+    "full": "see Collingwood-Wright"
+  },
+  {
+    "abbrev": "Ribbeck, CRF",
+    "full": "O. Ribbeck, Comicorum Romanorum Fragmenta"
+  },
+  {
+    "abbrev": "TRF",
+    "full": "Tragicorum Romanorum Fragmenta [both in Scaenicae Romanorum Poesis Fragmenta3, 1897–8] 2 (1962)"
+  },
+  {
+    "abbrev": "RIC",
+    "full": "see Mattingly-Sydenham, RIC"
+  },
+  {
+    "abbrev": "Riccobono, FIRA",
+    "full": "S. Riccobono, Fontes Iuris Romani AnteIustiniani (1941)"
+  },
+  {
+    "abbrev": "Richardson, Topog. Dict. Ancient Rome",
+    "full": "L. Richardson, A New Topographical Dictionary of Ancient Rome (1992)"
+  },
+  {
+    "abbrev": "RIDA",
+    "full": "Revue Internationale des Droits de l'Antiquité"
+  },
+  {
+    "abbrev": "Riv. d. Arch. Crist.",
+    "full": "Rivista di archeologia cristiana"
+  },
+  {
+    "abbrev": "Riv. Fil.",
+    "full": "Rivista di lologia"
+  },
+  {
+    "abbrev": "see Spengel",
+    "full": "Riv. ital. per le sc. giur."
+  },
+  {
+    "abbrev": "Rivista italiana per le scienze giuridiche",
+    "full": "RK"
+  },
+  {
+    "abbrev": "see Wissowa",
+    "full": "RLAC"
+  },
+  {
+    "abbrev": "see RAC",
+    "full": "RLÖ"
+  },
+  {
+    "abbrev": "Der römische Limes in Österreich (1900– )",
+    "full": "RO"
+  },
+  {
+    "abbrev": "P. J. Rhodes and R. Osborne, Greek Historical Inscriptions, 404–323 BC (2003; revised edn. 2007)",
+    "full": "Robert, OMS"
+  },
+  {
+    "abbrev": "L. Robert, Opera Minora Selecta, 7 vols. (1969–90)",
+    "full": "Robin"
+  },
+  {
+    "abbrev": "L. Robin, La Pensée grecque et l'origine de l'esprit scienti que, 2nd edn. (1932); Eng. trans. Greek Thought",
+    "full": "Rohde, Psyche"
+  },
+  {
+    "abbrev": "E. Rohde, Psyche, trans. W. Hillis (1925)",
+    "full": "Griech. Roman"
+  },
+  {
+    "abbrev": "Der griechische Roman u. s. Vorläufer, 3rd edn. (1914)",
+    "full": "Röm. Forsch."
+  },
+  {
+    "abbrev": "see Mommsen",
+    "full": "Röm. Gesch."
+  },
+  {
+    "abbrev": "see Beloch",
+    "full": "Röm. Mitt."
+  },
+  {
+    "abbrev": "see MDAI(R)",
+    "full": "ROR"
+  },
+  {
+    "abbrev": "M. Beard, J. North, and S. Price, Religions of Rome, 2 vols. (1998)",
+    "full": "Roscher, Lex."
+  },
+  {
+    "abbrev": "W. H. Roscher, Ausführliches Lexikon d. griechischen u. römischen Mythologie (1884–1937)",
+    "full": "Rose, Handb. Gk. Myth."
+  },
+  {
+    "abbrev": "H. J. Rose, Handbook of Greek Mythology, 6th edn. (1958)",
+    "full": "Rostovtzeff"
+  },
+  {
+    "abbrev": "M. Rostovtzeff",
+    "full": "HellenisticWorld"
+  },
+  {
+    "abbrev": "The Social and Economic History of the Hellenistic World, 3 vols., 2nd edn. (1953)",
+    "full": "Roman Empire2"
+  },
+  {
+    "abbrev": "The Social and Economic History of the Roman Empire, 2nd edn. (1957)",
+    "full": "RN"
+  },
+  {
+    "abbrev": "Revue numismatique",
+    "full": "RPAA"
+  },
+  {
+    "abbrev": "see Rend. Pont.",
+    "full": "RRC"
+  },
+  {
+    "abbrev": "M. H. Crawford, Roman Republican Coinage (1974)",
+    "full": "RSA"
+  },
+  {
+    "abbrev": "Rivista storica dell'antichità",
+    "full": "Ruggiero, Diz. Epigr."
+  },
+  {
+    "abbrev": "E. de Ruggiero, Dizionario epigra co di antichità romana (1886– )",
+    "full": "Rut. Namat."
+  },
+  {
+    "abbrev": "Rutilius Namatianus, De reditu",
+    "full": "RVV"
+  },
+  {
+    "abbrev": "Religionsgeschichtliche Versuche und Vorarbeiten",
+    "full": "Sachs-Hunger"
+  },
+  {
+    "abbrev": "A. Sachs and H. Hunger, Astronomical Diaries and Related Texts from Babylonia 2 (1989)",
+    "full": "Sall."
+  },
+  {
+    "abbrev": "Sallust",
+    "full": "[Ad Caes. sen.]"
+  },
+  {
+    "abbrev": "Epistulae ad Caesarem senem",
+    "full": "Cat."
+  },
+  {
+    "abbrev": "Bellum Catilinae or De Catilinae coniuratione",
+    "full": "Hist."
+  },
+  {
+    "abbrev": "Historiae",
+    "full": "Iug."
+  },
+  {
+    "abbrev": "Bellum Iugurthinum",
+    "full": "Satyr."
+  },
+  {
+    "abbrev": "Satyrus Historicus",
+    "full": "Vit. Eur."
+  },
+  {
+    "abbrev": "Vita Euripidis",
+    "full": "SB"
+  },
+  {
+    "abbrev": "F. Preisigke and others, Sammelbuch griechischen Urkunden aus Ägypten (1915– )",
+    "full": "SC"
+  },
+  {
+    "abbrev": "Sources chrétiennes",
+    "full": "SC"
+  },
+  {
+    "abbrev": "Senatus consultum",
+    "full": "SCE"
+  },
+  {
+    "abbrev": "Rumpf., Malerei u. Zeichn.",
+    "full": "A. Rumpf, Malerei und Zeichnung (1953)"
+  },
+  {
+    "abbrev": "Swedish Cyprus Expedition (1934–72)",
+    "full": "Schachter, Boiotia"
+  },
+  {
+    "abbrev": "A. Schachter, Cults of Boiotia (1981– )",
+    "full": "Schanz–Hosius"
+  },
+  {
+    "abbrev": "M. Schanz, Geschichte d. römischen Literatur, rev. 14 (1927) and 24 (1935) by C. Hosius; 33 (1922), Hosius and",
+    "full": "Krüger; 4/12 (1914) and 4/2 (1920), Schanz, Hosius, and Krüger; retitled Handbuch der lateinischen Literatur der"
+  },
+  {
+    "abbrev": "Antike from 1989 (see HLL)",
+    "full": "Schmitt, SdA"
+  },
+  {
+    "abbrev": "H. H. Schmitt (ed.), Die Staatsverträge des Altertums 3: Die Verträge der griechisch-römischen Welt von 338 bis 200",
+    "full": "v. Chr. (1969)"
+  },
+  {
+    "abbrev": "schol.",
+    "full": "scholiast or scholia"
+  },
+  {
+    "abbrev": "Schol. Bern.",
+    "full": "Scholia Bernensia ad Vergilii bucolica et georgica, ed. Hagen (1867)"
+  },
+  {
+    "abbrev": "Schol. Bob.",
+    "full": "Scholia Bobiensia"
+  },
+  {
+    "abbrev": "Schol. Cruq.",
+    "full": "Scholia Cruquiana"
+  },
+  {
+    "abbrev": "Schol. Dan.",
+    "full": "see Serv. Dan."
+  },
+  {
+    "abbrev": "Schol. Flor. Callim.",
+    "full": "Scholia Florentina in Callimachum"
+  },
+  {
+    "abbrev": "Schroeder, Nov. Com. Fragm.",
+    "full": "O. Schroeder, Novae Comoediae fragmenta in papyris reperta exceptis Menandreis (1915)"
+  },
+  {
+    "abbrev": "Schürer, History",
+    "full": "F. Schürer, History of the Jewish People in the Age of Jesus Christ, rev. and ed. G. Vermes, F. Millar, and M."
+  },
+  {
+    "abbrev": "Goodman (1973–87)",
+    "full": "SCI"
+  },
+  {
+    "abbrev": "Scripta Classica Israelica",
+    "full": "Scol. Anon."
+  },
+  {
+    "abbrev": "Scolia Anonyma in Diehl's Anth. Lyr. Graec. 2, pp. 181–92",
+    "full": "Scol. Att."
+  },
+  {
+    "abbrev": "Scolia Attica in Diehl's Anth. Lyr. Graec. 2, pp. 181–9",
+    "full": "Scullard, Rom. Pol."
+  },
+  {
+    "abbrev": "H. H. Scullard, Roman Politics 220–150 bc (1951; 2nd edn. 1973)",
+    "full": "Schmid–Stählin"
+  },
+  {
+    "abbrev": "W. Schmid and O. Stählin, Geschichte d. griechischen Literatur, vol. 1/1 (1929), 1/2 (1934), 1/3 (1940), 1/4 (1946), 1/5",
+    "full": "(1948). See also Christ-Schmid-Stählin"
+  },
+  {
+    "abbrev": "Etr. Cities",
+    "full": "The Etruscan Cities and Rome (1967)"
+  },
+  {
+    "abbrev": "Sc. J. Theol.",
+    "full": "see Stud. Theol."
+  },
+  {
+    "abbrev": "Scymn.",
+    "full": "Scymnus"
+  },
+  {
+    "abbrev": "SdA",
+    "full": "Die Staatsverträge des Altertums 22: Die Verträge der griechisch-römischen Welt von 700 bis 338 v. Chr ., ed. H."
+  },
+  {
+    "abbrev": "Bengtson (1975); 3: Die Verträge der griechisch-römischen Welt von 338 bis 200 v. Chr. , ed. H. H. Schmidt (1969)",
+    "full": "SEG"
+  },
+  {
+    "abbrev": "Supplementum epigraphicum Graecum (1923– )",
+    "full": "Semon."
+  },
+  {
+    "abbrev": "Semonides",
+    "full": "Sen."
+  },
+  {
+    "abbrev": "Seneca (the Elder)",
+    "full": "Con. ex."
+  },
+  {
+    "abbrev": "Controversiarum excerpta",
+    "full": "Controv."
+  },
+  {
+    "abbrev": "Controversiae",
+    "full": "Suas."
+  },
+  {
+    "abbrev": "Suasoriae",
+    "full": "Sen."
+  },
+  {
+    "abbrev": "Seneca (the Younger)",
+    "full": "Apocol."
+  },
+  {
+    "abbrev": "Apocolocyntosis",
+    "full": "Ben."
+  },
+  {
+    "abbrev": "De bene ciis",
+    "full": "Clem."
+  },
+  {
+    "abbrev": "De clementia",
+    "full": "Constant."
+  },
+  {
+    "abbrev": "De constantia sapientis",
+    "full": "Dial."
+  },
+  {
+    "abbrev": "Dialogi",
+    "full": "Ep."
+  },
+  {
+    "abbrev": "Epistulae",
+    "full": "Epigr."
+  },
+  {
+    "abbrev": "§",
+    "full": "section"
+  },
+  {
+    "abbrev": "Epigrammata super exilio",
+    "full": "Helv."
+  },
+  {
+    "abbrev": "Ad Helviam",
+    "full": "Med."
+  },
+  {
+    "abbrev": "Medea",
+    "full": "Prov."
+  },
+  {
+    "abbrev": "De providentia",
+    "full": "Tranq."
+  },
+  {
+    "abbrev": "De tranquillitate animi",
+    "full": "Serv."
+  },
+  {
+    "abbrev": "Servius",
+    "full": "Praef."
+  },
+  {
+    "abbrev": "Praefatio",
+    "full": "Serv. Dan."
+  },
+  {
+    "abbrev": "Scholia Danielis (Pierre Daniel, rst publisher in 1600 of supplements to Servius' commentary on Virgil)",
+    "full": "Sext. Emp."
+  },
+  {
+    "abbrev": "Sextus Empiricus",
+    "full": "Math."
+  },
+  {
+    "abbrev": "Adversus mathematicos",
+    "full": "Pyr."
+  },
+  {
+    "abbrev": "Πυρρώνειοι ὑποτυπώσεις",
+    "full": "SHA"
+  },
+  {
+    "abbrev": "Scriptores Historiae Augustae",
+    "full": "Ael."
+  },
+  {
+    "abbrev": "Aelius",
+    "full": "Alex. Sev."
+  },
+  {
+    "abbrev": "Alexander Severus",
+    "full": "Ant. Pius"
+  },
+  {
+    "abbrev": "Antoninus Pius",
+    "full": "Aurel."
+  },
+  {
+    "abbrev": "Aurelian",
+    "full": "Avid. Cass."
+  },
+  {
+    "abbrev": "Avidius Cassius",
+    "full": "Clod."
+  },
+  {
+    "abbrev": "Clodius",
+    "full": "QNat."
+  },
+  {
+    "abbrev": "Quaestiones naturales",
+    "full": "Comm."
+  },
+  {
+    "abbrev": "Commodus",
+    "full": "Did. Iul."
+  },
+  {
+    "abbrev": "Didius Iulianus",
+    "full": "Hadr."
+  },
+  {
+    "abbrev": "Hadrian",
+    "full": "Heliogab."
+  },
+  {
+    "abbrev": "Heliogabalus",
+    "full": "Marc."
+  },
+  {
+    "abbrev": "Marcus",
+    "full": "Max."
+  },
+  {
+    "abbrev": "Maximinus",
+    "full": "Pert."
+  },
+  {
+    "abbrev": "Pertinax",
+    "full": "Pesc. Nig."
+  },
+  {
+    "abbrev": "Pescennius Niger",
+    "full": "Prob."
+  },
+  {
+    "abbrev": "Probus",
+    "full": "Sev."
+  },
+  {
+    "abbrev": "Severus",
+    "full": "Tyr. Trig."
+  },
+  {
+    "abbrev": "Tyranni Triginta",
+    "full": "Verus"
+  },
+  {
+    "abbrev": "Lucius Verus",
+    "full": "Shackleton Bailey, Anth. Lat."
+  },
+  {
+    "abbrev": "D. R. Shackleton Bailey, Anthologia Latina 1: Carmina in codicibus scripta (1982)",
+    "full": "CLA"
+  },
+  {
+    "abbrev": "D. R. Shackleton Bailey (ed.), Cicero's Letters to Atticus, 7 vols. (1965–70)",
+    "full": "Sherk, Augustus"
+  },
+  {
+    "abbrev": "R. E. Sherk, Rome and the Greek East to the Death of Augustus, Translated Documents of Greece and Rome 4",
+    "full": "(1984)"
+  },
+  {
+    "abbrev": "Sherk, Hadrian",
+    "full": "The Roman Empire: Augustus to Hadrian, Translated Documents of Greece and Rome 6 (1988)"
+  },
+  {
+    "abbrev": "Sid. Apoll.",
+    "full": "Sidonius Apollinaris"
+  },
+  {
+    "abbrev": "Carm.",
+    "full": "M. Ant."
+  },
+  {
+    "abbrev": "Marcus Aurelius Antoninus (Caracalla)",
+    "full": "Carmina"
+  },
+  {
+    "abbrev": "Epist.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "SIFC",
+    "full": "see Stud. Ital."
+  },
+  {
+    "abbrev": "SIG",
+    "full": "see Syll.3"
+  },
+  {
+    "abbrev": "Pun.",
+    "full": "Punica"
+  },
+  {
+    "abbrev": "Simon.",
+    "full": "Simonides"
+  },
+  {
+    "abbrev": "Simpl.",
+    "full": "Simplicius"
+  },
+  {
+    "abbrev": "in Cael.",
+    "full": "in Aristotelis de Caelo Commentarii"
+  },
+  {
+    "abbrev": "in Phys.",
+    "full": "in Aristotelis de Physica Commentarii"
+  },
+  {
+    "abbrev": "Sitz. followed by name of Academy or Society",
+    "full": "Sitzungsberichte"
+  },
+  {
+    "abbrev": "Sitz. Kgl. pr. Ak. Wiss.",
+    "full": "Sitzungsberichte der Königlich Preussischen Akademie der Wissenschaften zu Berlin (1882–1918)"
+  },
+  {
+    "abbrev": "Sitz. Wien",
+    "full": "Sitzungsberichte der Akad. der Wissenschaften in Wien"
+  },
+  {
+    "abbrev": "SLG",
+    "full": "see Page"
+  },
+  {
+    "abbrev": "Smallwood, Docs.… Nerva",
+    "full": "E. M. Smallwood, Documents illustrating the Principates of Nerva, Trajan and Hadrian (1966)"
+  },
+  {
+    "abbrev": "Docs.… Gaius",
+    "full": "Documents illustrating the Principates of Gaius, Claudius and Nero (1967)"
+  },
+  {
+    "abbrev": "SMSR",
+    "full": "Studi e materiali di storia delle religioni"
+  },
+  {
+    "abbrev": "Snell–Maehler",
+    "full": "see Bacchyl. and Pind."
+  },
+  {
+    "abbrev": "Snell/Mannicht/Radt",
+    "full": "see TrGF"
+  },
+  {
+    "abbrev": "Sil.",
+    "full": "Silius Italicus"
+  },
+  {
+    "abbrev": "SNG",
+    "full": "Sylloge Numorum [sic] Graecorum"
+  },
+  {
+    "abbrev": "SÖAW",
+    "full": "Sitzungsberichte. Österreichische Akademie der Wissenschaften in Wien, phil.-hist. Kl. (1848– )"
+  },
+  {
+    "abbrev": "Socrates, Hist. eccl.",
+    "full": "Socrates, Historia ecclesiastica"
+  },
+  {
+    "abbrev": "Solin.",
+    "full": "Solinus"
+  },
+  {
+    "abbrev": "Aj.",
+    "full": "Ajax"
+  },
+  {
+    "abbrev": "Ant.",
+    "full": "Antigone"
+  },
+  {
+    "abbrev": "El.",
+    "full": "Electra"
+  },
+  {
+    "abbrev": "OC",
+    "full": "Oedipus Coloneus"
+  },
+  {
+    "abbrev": "OT",
+    "full": "Oedipus Tyrannus"
+  },
+  {
+    "abbrev": "Phil.",
+    "full": "Philoctetes"
+  },
+  {
+    "abbrev": "Trach.",
+    "full": "Trachiniae"
+  },
+  {
+    "abbrev": "Sor. Gyn.",
+    "full": "Soranus, Gynaeceia"
+  },
+  {
+    "abbrev": "Sozom.",
+    "full": "Sozomen"
+  },
+  {
+    "abbrev": "Hist. eccl.",
+    "full": "Historia ecclesiastica"
+  },
+  {
+    "abbrev": "SPCK",
+    "full": "Society for Promoting Christian Knowledge"
+  },
+  {
+    "abbrev": "Spengel–Hammer",
+    "full": "C. Hammer, Rhetores graeci ex recognitione Leonardi Spengel (1894): 2nd edn. of vol. 1/2 of Spengel, Rhet."
+  },
+  {
+    "abbrev": "Spengel, Rhet.",
+    "full": "L. Spengel, Rhetores Graeci, 3 vols.: 1/1 (1885), 2 (1854), 3 (1856)"
+  },
+  {
+    "abbrev": "SSR",
+    "full": "see SMSR"
+  },
+  {
+    "abbrev": "Soph.",
+    "full": "Sophocles"
+  },
+  {
+    "abbrev": "Stadiasmus = Periplus",
+    "full": "Stadiasmus Maris Magni (in GGM 1. 427)"
+  },
+  {
+    "abbrev": "Stat.",
+    "full": "Statius"
+  },
+  {
+    "abbrev": "Achil.",
+    "full": "Achilleis"
+  },
+  {
+    "abbrev": "Silv.",
+    "full": "Silvae"
+  },
+  {
+    "abbrev": "Steinby, Lexicon",
+    "full": "see LTUR"
+  },
+  {
+    "abbrev": "Steph. Byz.",
+    "full": "Stephanus Byzantius or Byzantinus, Ethnika"
+  },
+  {
+    "abbrev": "StIr",
+    "full": "Studia Iranica"
+  },
+  {
+    "abbrev": "Stith Thompson",
+    "full": "Stith Thompson, Motif-Index of Folk-Literature , 6 vols. in Indiana University Studies, 96–7, 100–1, 105–6, 108,"
+  },
+  {
+    "abbrev": "110-12; also published as FF Communication 106–9, 116- 17 (1932–6)",
+    "full": "Stob."
+  },
+  {
+    "abbrev": "Stobaeus",
+    "full": "Ecl."
+  },
+  {
+    "abbrev": "Ἐκλογαί",
+    "full": "Flor."
+  },
+  {
+    "abbrev": "Ἀνθολόγιον",
+    "full": "StPhoen"
+  },
+  {
+    "abbrev": "Collection Studia Phoenicia",
+    "full": "Strack, Reichsprägung"
+  },
+  {
+    "abbrev": "P. L. Strack, Untersuchungen zur römischen Reichsprägung des zweiten Jahrhunderts (1931)",
+    "full": "Stud. Doc. Hist. Iur."
+  },
+  {
+    "abbrev": "Studia et Documenta Historiae et Iuris",
+    "full": "Stud. Etr."
+  },
+  {
+    "abbrev": "Studi Etruschi",
+    "full": "Stud. Gesch. Kult. Alt."
+  },
+  {
+    "abbrev": "Studien zur Geschichte und Kultur des Altertums",
+    "full": "Stud. Ital."
+  },
+  {
+    "abbrev": "Studi italiani di lologia classica",
+    "full": "Theb."
+  },
+  {
+    "abbrev": "Thebais",
+    "full": "Stud. Theol."
+  },
+  {
+    "abbrev": "Studia Theologica",
+    "full": "Studi stor."
+  },
+  {
+    "abbrev": "Studi storici per l'antichità classica",
+    "full": "Suda"
+  },
+  {
+    "abbrev": "Greek Lexicon formerly known as Suidas",
+    "full": "Suet."
+  },
+  {
+    "abbrev": "Suetonius",
+    "full": "Calig."
+  },
+  {
+    "abbrev": "Gaius Caligula",
+    "full": "Claud."
+  },
+  {
+    "abbrev": "Divus Claudius",
+    "full": "Dom."
+  },
+  {
+    "abbrev": "Domitianus",
+    "full": "Galb."
+  },
+  {
+    "abbrev": "Galba",
+    "full": "Gram. et rhet."
+  },
+  {
+    "abbrev": "De grammaticis et rhetoribus",
+    "full": "Iul."
+  },
+  {
+    "abbrev": "Divus Iulius",
+    "full": "Ner."
+  },
+  {
+    "abbrev": "Nero",
+    "full": "Poet."
+  },
+  {
+    "abbrev": "De Poetis",
+    "full": "Rel. Reiff."
+  },
+  {
+    "abbrev": "Reliquiae, ed. Reifferscheid",
+    "full": "Tib."
+  },
+  {
+    "abbrev": "Tiberius",
+    "full": "Tit."
+  },
+  {
+    "abbrev": "Divus Titus",
+    "full": "Vesp."
+  },
+  {
+    "abbrev": "Divus Vespasianus",
+    "full": "Vit."
+  },
+  {
+    "abbrev": "Vitellius",
+    "full": "Vita Hor."
+  },
+  {
+    "abbrev": "Vita Horatii",
+    "full": "Aug."
+  },
+  {
+    "abbrev": "Divus Augustus",
+    "full": "Vita Luc."
+  },
+  {
+    "abbrev": "Vita Lucani",
+    "full": "Sumner, Orators"
+  },
+  {
+    "abbrev": "G. V. Sumner, The Orators in Cicero's Brutus (1973)",
+    "full": "Supp. Aesch."
+  },
+  {
+    "abbrev": "H. J. Mette, Supplementum Aeschyleum (1939)",
+    "full": "Supp. Com."
+  },
+  {
+    "abbrev": "see Demiańczuk",
+    "full": "Suppl. Mag."
+  },
+  {
+    "abbrev": "R. W. Daniel and F. Maltomini (eds.), Supplementum Magicum, Papyrologica Coloniensia 16/1–2, 2 vols. (1989–",
+    "full": "91)"
+  },
+  {
+    "abbrev": "Susemihl, Gesch. gr. Lit. Alex.",
+    "full": "F. Susemihl, Geschichte d. griechischen Literatur in d. Alexandriner-Zeit (1891–2; repr. 1965)"
+  },
+  {
+    "abbrev": "SVF",
+    "full": "H. von Arnim, Stoicorum Veterum Fragmenta (1903– )"
+  },
+  {
+    "abbrev": "Sydenham, CRR",
+    "full": "E. A. Sydenham, The Coinage of the Roman Republic (1952)"
+  },
+  {
+    "abbrev": "3",
+    "full": "W. Dittenberger, Sylloge Inscriptionum Graecarum, 3rd edn. (1915–24)"
+  },
+  {
+    "abbrev": "Syll. Graec.",
+    "full": "see Corp. poes. ep. Graec. lud."
+  },
+  {
+    "abbrev": "Symb.",
+    "full": "Symbolum"
+  },
+  {
+    "abbrev": "Symb. Osl.",
+    "full": "Symbolae Osloenses"
+  },
+  {
+    "abbrev": "Symb. Philol. Danielsson",
+    "full": "Symbolae Philologicae O. A. Danielsson octogenario dicatae (1932)"
+  },
+  {
+    "abbrev": "Syme",
+    "full": "R. Syme"
+  },
+  {
+    "abbrev": "AA",
+    "full": "The Augustan Aristocracy (1986)"
+  },
+  {
+    "abbrev": "Rom. Rev.",
+    "full": "The Roman Revolution (1939)"
+  },
+  {
+    "abbrev": "RP",
+    "full": "Roman Papers, 7 vols. (1979–91)"
+  },
+  {
+    "abbrev": "Suppl. Hell.",
+    "full": "H. Lloyd-Jones and P. Parsons (eds.), Supplementum Hellenisticum, Texte und Kommentare no. 11 (1983)"
+  },
+  {
+    "abbrev": "RR",
+    "full": "see Syme, Rom. Rev."
+  },
+  {
+    "abbrev": "Tacitus",
+    "full": "Tacitus, 2 vols. (1958)"
+  },
+  {
+    "abbrev": "Symm.",
+    "full": "Symmachus"
+  },
+  {
+    "abbrev": "Ep.",
+    "full": "Epistulae"
+  },
+  {
+    "abbrev": "Tab. Agn.",
+    "full": "Tabula Agnoniensis"
+  },
+  {
+    "abbrev": "TAPhS",
+    "full": "Transactions of the American Philosophical Society"
+  },
+  {
+    "abbrev": "Tac.",
+    "full": "Tacitus"
+  },
+  {
+    "abbrev": "Agr.",
+    "full": "Agricola"
+  },
+  {
+    "abbrev": "Ann.",
+    "full": "Annales"
+  },
+  {
+    "abbrev": "Dial.",
+    "full": "Dialogus de oratoribus"
+  },
+  {
+    "abbrev": "Germ.",
+    "full": "Germania"
+  },
+  {
+    "abbrev": "Hist.",
+    "full": "Historiae"
+  },
+  {
+    "abbrev": "TAM",
+    "full": "E. Kalinka and others, Tituli Asiae Minoris (1901– )"
+  },
+  {
+    "abbrev": "TAPA",
+    "full": "Transactions of the American Philological Association"
+  },
+  {
+    "abbrev": "Tarn, Alexander",
+    "full": "W. W. Tarn, Alexander the Great (1948; repr. 1979)"
+  },
+  {
+    "abbrev": "Tatianus, Ad Gr.",
+    "full": "Tatianus, Oratio ad Graecos"
+  },
+  {
+    "abbrev": "Taylor, Voting Districts",
+    "full": "L. R. Taylor, The Voting Districts of the Roman Republic (1960)"
+  },
+  {
+    "abbrev": "Ter.",
+    "full": "Terence"
+  },
+  {
+    "abbrev": "Relat.",
+    "full": "Relationes"
+  },
+  {
+    "abbrev": "Ad.",
+    "full": "Adelphoe"
+  },
+  {
+    "abbrev": "An.",
+    "full": "Andria"
+  },
+  {
+    "abbrev": "Eun.",
+    "full": "Eunuchus"
+  },
+  {
+    "abbrev": "Haut.",
+    "full": "H(e)autontimorumenos"
+  },
+  {
+    "abbrev": "Phorm.",
+    "full": "Phormio"
+  },
+  {
+    "abbrev": "Tert.",
+    "full": "Tertullian"
+  },
+  {
+    "abbrev": "Ad nat.",
+    "full": "Ad nationes"
+  },
+  {
+    "abbrev": "Adv. Valent.",
+    "full": "Adversus Valentinianos"
+  },
+  {
+    "abbrev": "Apol.",
+    "full": "Apologeticus"
+  },
+  {
+    "abbrev": "De anim.",
+    "full": "De testimonio animae"
+  },
+  {
+    "abbrev": "De bapt.",
+    "full": "De baptismo"
+  },
+  {
+    "abbrev": "De monog.",
+    "full": "De monogamia"
+  },
+  {
+    "abbrev": "De praescr. haeret.",
+    "full": "De praescriptione haereticorum"
+  },
+  {
+    "abbrev": "De spect.",
+    "full": "De spectaculis"
+  },
+  {
+    "abbrev": "Teubner",
+    "full": "Bibliotheca Scriptorum Graecorum et Romanorum Teubneriana (1849– )"
+  },
+  {
+    "abbrev": "Teuffel–Kroll",
+    "full": "W. S. Teuffel, Geschichte der römischen Literatur6, eds. W. Kroll and F. Skutsch (1910–26, vol. 2 7th edn. 1920)"
+  },
+  {
+    "abbrev": "Texts and Transmission",
+    "full": "L. Reynolds (ed.), Texts and Transmission: A Survey of the Latin Classics (1983)"
+  },
+  {
+    "abbrev": "TGF",
+    "full": "Hec."
+  },
+  {
+    "abbrev": "Hecyra",
+    "full": "A. Nauck, Tragicorum Graecorum Fragmenta, 2nd edn. (1889); Suppl. by B. Snell (1964)"
+  },
+  {
+    "abbrev": "Them. Or.",
+    "full": "Themistius, Orationes"
+  },
+  {
+    "abbrev": "Theoc.",
+    "full": "Theocritus"
+  },
+  {
+    "abbrev": "Epigr.",
+    "full": "Epigrammata"
+  },
+  {
+    "abbrev": "Theoph. Ad Autol.",
+    "full": "Theophilus, Ad Autolycum"
+  },
+  {
+    "abbrev": "Theophr.",
+    "full": "Theophrastus"
+  },
+  {
+    "abbrev": "Caus. pl.",
+    "full": "De causis plantarum"
+  },
+  {
+    "abbrev": "Char.",
+    "full": "Characteres"
+  },
+  {
+    "abbrev": "Hist. pl.",
+    "full": "Historia plantarum"
+  },
+  {
+    "abbrev": "Phys. op.",
+    "full": "Physicorum opiniones"
+  },
+  {
+    "abbrev": "Sens.",
+    "full": "De sensibus"
+  },
+  {
+    "abbrev": "Theopomp.",
+    "full": "Theopompus Historicus"
+  },
+  {
+    "abbrev": "ThesCRA",
+    "full": "Thesaurus Cultus et Rituum Antiquorum, I–V + index vol. (2004–2006)"
+  },
+  {
+    "abbrev": "Thgn.",
+    "full": "Theognis"
+  },
+  {
+    "abbrev": "Thomson, Hist. Anc. Geog.",
+    "full": "J. O. Thomson, A History of Ancient Geography (1948)"
+  },
+  {
+    "abbrev": "Thuc.",
+    "full": "Thucydides"
+  },
+  {
+    "abbrev": "Tib.",
+    "full": "Tibullus"
+  },
+  {
+    "abbrev": "Timoth.",
+    "full": "Timotheus"
+  },
+  {
+    "abbrev": "Id.",
+    "full": "Idylls"
+  },
+  {
+    "abbrev": "Pers.",
+    "full": "Persae"
+  },
+  {
+    "abbrev": "TIR",
+    "full": "Tabula Imperii Romani"
+  },
+  {
+    "abbrev": "TLG",
+    "full": "Thesaurus Linguae Graecae"
+  },
+  {
+    "abbrev": "TLL",
+    "full": "Thesaurus Linguae Latinae (1900– )"
+  },
+  {
+    "abbrev": "Trag. Adesp.",
+    "full": "Tragica Adespota in Nauck's Tragicorum Graecorum Fragmenta (TrGF), pp. 837- 958"
+  },
+  {
+    "abbrev": "TRF",
+    "full": "see Ribbeck"
+  },
+  {
+    "abbrev": "TrGF",
+    "full": "B. Snell, R. Kannicht, S. Radt (eds.) Tragicorum Graecorum Fragmenta, 6 vols. (1971–2004), vol. 1 2 (1986)"
+  },
+  {
+    "abbrev": "trib.",
+    "full": "tribunus"
+  },
+  {
+    "abbrev": "trib. pot.",
+    "full": "tribunicia potestas"
+  },
+  {
+    "abbrev": "Tyrrell and Purser",
+    "full": "R. Y. Tyrrell and L. C. Purser (eds.), The Correspondence of M. Tullius Cicero, 7 vols. (1886–1904 and later edns.)"
+  },
+  {
+    "abbrev": "Tzetz.",
+    "full": "Tzetzes"
+  },
+  {
+    "abbrev": "Chil.",
+    "full": "Historiarum variarum Chiliades"
+  },
+  {
+    "abbrev": "Ueberweg–Flashar",
+    "full": "F. Ueberweg, Grundriss der Geschichte der Philosophie, rev. edn.: vol. 3, Altere Akademie, Aristoteles-Peripatos , ed."
+  },
+  {
+    "abbrev": "H. Flashar (1983); vol. 4, Die hellenistische Philosophie, ed. H. Flashar (1994)",
+    "full": "Ueberweg–Praechter, Grundriss"
+  },
+  {
+    "abbrev": "F. Ueberweg, Grundriss der Geschichte der Philosophie, pt. 1: Das Altertum; 12th edn. by K. Praechter (1926)",
+    "full": "Ulpianus"
+  },
+  {
+    "abbrev": "UPZ",
+    "full": "U. Wilcken, Urkunden der Ptolemäerzeit 1 (1922–7), 2 (1957)"
+  },
+  {
+    "abbrev": "Val. Max.",
+    "full": "Valerius Maximus"
+  },
+  {
+    "abbrev": "Varro, Ling.",
+    "full": "Tod"
+  },
+  {
+    "abbrev": "M. N. Tod, Greek Historical Inscriptions vol. 12 (1946), 2 (1948)",
+    "full": "Varro, De lingua Latina"
+  },
+  {
+    "abbrev": "Rust.",
+    "full": "De re rustica"
+  },
+  {
+    "abbrev": "Sat. Men.",
+    "full": "Saturae Menippeae"
+  },
+  {
+    "abbrev": "Vatin.",
+    "full": "Vatinius"
+  },
+  {
+    "abbrev": "Veg. Mil.",
+    "full": "Vegetius, De re militari"
+  },
+  {
+    "abbrev": "Vell. Pat.",
+    "full": "Velleius Paterculus"
+  },
+  {
+    "abbrev": "Ventris–Chadwick, Docs.",
+    "full": "M. Ventris and J. Chadwick, Documents in Mycenaean Greece, 2nd edn. (1973)"
+  },
+  {
+    "abbrev": "Verg.",
+    "full": "Virgil"
+  },
+  {
+    "abbrev": "Aen.",
+    "full": "Aeneid"
+  },
+  {
+    "abbrev": "Catal.",
+    "full": "Catalepton"
+  },
+  {
+    "abbrev": "Ecl.",
+    "full": "Eclogues"
+  },
+  {
+    "abbrev": "G.",
+    "full": "Georgics"
+  },
+  {
+    "abbrev": "Vett. Val.",
+    "full": "Vettius Valens"
+  },
+  {
+    "abbrev": "Vig. Chr.",
+    "full": "Vigiliae Christianae"
+  },
+  {
+    "abbrev": "Viscogliosi, Lexicon",
+    "full": "A. Visciogliosi, Lexicon topographicum urbis Romae"
+  },
+  {
+    "abbrev": "Vit. Aesch.",
+    "full": "Vita Aeschyli (OCT of Aeschylus)"
+  },
+  {
+    "abbrev": "Vit. Eurip.",
+    "full": "Vita Euripidis (OCT of Euripides)"
+  },
+  {
+    "abbrev": "Vitr.",
+    "full": "Vitruvius"
+  },
+  {
+    "abbrev": "VCH",
+    "full": "Victoria County History"
+  },
+  {
+    "abbrev": "De arch.",
+    "full": "De architectura"
+  },
+  {
+    "abbrev": "Vopiscus, Cyn.",
+    "full": "Vopiscus, Cynegetica"
+  },
+  {
+    "abbrev": "Vorsokr.",
+    "full": "see DK"
+  },
+  {
+    "abbrev": "W",
+    "full": "see West, GLP and IE2"
+  },
+  {
+    "abbrev": "Philip V",
+    "full": "Philip V of Macedon (1940)"
+  },
+  {
+    "abbrev": "Walz",
+    "full": "C. Walz, Rhetores Graeci, 9 vols. (1832–6)"
+  },
+  {
+    "abbrev": "Warde Fowler, Rel. Exper.",
+    "full": "W. Warde Fowler, The Religious Experience of the Roman People (1911)"
+  },
+  {
+    "abbrev": "Warmington, Indian Commerce",
+    "full": "E. H. Warmington, The Commerce between the Roman Empire and India (1928)"
+  },
+  {
+    "abbrev": "Watson 1974",
+    "full": "A. Watson, Law Making in the Later Republic (1974)"
+  },
+  {
+    "abbrev": "WdF",
+    "full": "Wege der Forschung"
+  },
+  {
+    "abbrev": "Webster, Later Greek Comedy",
+    "full": "T. B. L. Webster, Studies in Later Greek Comedy (1953; 2nd edn. 1970)"
+  },
+  {
+    "abbrev": "Wegner, Herrscherbild. (1939)",
+    "full": "M. Wegner, Die Herrscherbildnisse in antoninischer Zeit (1939)"
+  },
+  {
+    "abbrev": "Herrscherbild (1956)",
+    "full": "(ed.) Das römische Herrscherbild (1956– )"
+  },
+  {
+    "abbrev": "Westd. Zeit.",
+    "full": "Westdeutsche Zeitschrift für Geschichte und Kunst"
+  },
+  {
+    "abbrev": "West, GEF",
+    "full": "M. L. West (ed.), Greek Epic Fragments (Loeb, 2003)"
+  },
+  {
+    "abbrev": "West, GLP",
+    "full": "M. L. West, Greek Lyric Poetry (1993)"
+  },
+  {
+    "abbrev": "GM",
+    "full": "Greek Metre (1982)"
+  },
+  {
+    "abbrev": "IE2",
+    "full": "Iambi et Elegi, 2nd edn. (1989–92)"
+  },
+  {
+    "abbrev": "Walbank, HCP",
+    "full": "F. W. Walbank, A Historical Commentary on Polybius, 3 vols. (1957–79)"
+  },
+  {
+    "abbrev": "Wieacker, RRG",
+    "full": "F. Wieacker, Römische Rechtsgeschichte 1–2 (1988– )"
+  },
+  {
+    "abbrev": "Wien. Stud.",
+    "full": "Wiener Studien"
+  },
+  {
+    "abbrev": "Wilamowitz",
+    "full": "U. von Wilamowitz-Moellendorff"
+  },
+  {
+    "abbrev": "Hell. Dicht.",
+    "full": "Hellenistische Dichtung in der Zeit des Kallimachos (1924)"
+  },
+  {
+    "abbrev": "Wilhelm, Urkunden",
+    "full": "A. Wilhelm, Urkunden dramatischer Aufführungen in Athen (1906)"
+  },
+  {
+    "abbrev": "Winter, KB",
+    "full": "F. Winter, Kunstgeschichte in Bildern (1935 ff.)"
+  },
+  {
+    "abbrev": "Wissowa, RK",
+    "full": "G. Wissowa, Religion und Kultus d. Römer, 2nd edn. (1912)"
+  },
+  {
+    "abbrev": "Ges. Abh.",
+    "full": "Gesammelte Abhandlungen zur römischen Religions- und Stadtgeschichte (1904)"
+  },
+  {
+    "abbrev": "WJA",
+    "full": "Würzburger Jahrbücher für die Altertumswissenschaft, ns (1975– )"
+  },
+  {
+    "abbrev": "Xen.",
+    "full": "Xenophon"
+  },
+  {
+    "abbrev": "Ages.",
+    "full": "Agesilaus"
+  },
+  {
+    "abbrev": "An.",
+    "full": "Anabasis"
+  },
+  {
+    "abbrev": "Ap.",
+    "full": "Apologia Socratis"
+  },
+  {
+    "abbrev": "[Ath. pol.]",
+    "full": "[Respublica Atheniensium; see entry old oligarch]"
+  },
+  {
+    "abbrev": "Cyn.",
+    "full": "Cynegeticus"
+  },
+  {
+    "abbrev": "Cyr.",
+    "full": "Cyropaedia"
+  },
+  {
+    "abbrev": "Eq.",
+    "full": "De equitandi ratione"
+  },
+  {
+    "abbrev": "Eq. mag.",
+    "full": "Wilcken, Chr."
+  },
+  {
+    "abbrev": "see Mitteis, Chr.",
+    "full": "De equitum magistro"
+  },
+  {
+    "abbrev": "Hell.",
+    "full": "Hellenica"
+  },
+  {
+    "abbrev": "Hier.",
+    "full": "Hiero"
+  },
+  {
+    "abbrev": "Lac.",
+    "full": "Respublica Lacedaemoniorum"
+  },
+  {
+    "abbrev": "Oec.",
+    "full": "Oeconomicus"
+  },
+  {
+    "abbrev": "Symp.",
+    "full": "Symposium"
+  },
+  {
+    "abbrev": "Vect.",
+    "full": "De vectigalibus"
+  },
+  {
+    "abbrev": "Xen Ephes",
+    "full": "Xenophon of Ephesus (see Xenophon (2))"
+  },
+  {
+    "abbrev": "XPf",
+    "full": "Inscription of Xerxes I at Persepolis (so-called ‘Harem Inscription’)"
+  },
+  {
+    "abbrev": "XPh",
+    "full": "Inscription of Xerxes I at Persepolis (so-called ‘Daiva Inscription’)"
+  },
+  {
+    "abbrev": "YClS",
+    "full": "Yale Classical Studies"
+  },
+  {
+    "abbrev": "ZÄS",
+    "full": "Zeitschrift für ägyptische Sprache und Altertumskunde"
+  },
+  {
+    "abbrev": "ZDPV",
+    "full": "Zeitschrift des deutschen Palästina-Vereins"
+  },
+  {
+    "abbrev": "Zeller, Phil. d. Gr.",
+    "full": "E. Zeller, Die Philosophie d. Griechen, 6th edn. (1920)"
+  },
+  {
+    "abbrev": "Zeller, Gesch. d. gr. Phil.",
+    "full": "Grundriss d. Geschichte d. griechischen Philosophie, 13th edn. (1928)"
+  },
+  {
+    "abbrev": "Plato, etc.",
+    "full": "Plato and the Older Academy, Eng. trans. (1888)"
+  },
+  {
+    "abbrev": "Zen.",
+    "full": "Zenobius"
+  },
+  {
+    "abbrev": "Z. für die öst. Gym.",
+    "full": "Zeitschrift für die österreichischen Gymnasien"
+  },
+  {
+    "abbrev": "Mem.",
+    "full": "Memorabilia"
+  },
+  {
+    "abbrev": "Ziolkowski, Temples",
+    "full": "A. Ziolkowski, The Temples of Mid-Republican Rome and their Historical Context (1993)"
+  },
+  {
+    "abbrev": "Zonar.",
+    "full": "Zonaras"
+  },
+  {
+    "abbrev": "Zos.",
+    "full": "Zosimus"
+  },
+  {
+    "abbrev": "ZPE",
+    "full": "Zeitschrift für Papyrologie und Epigraphik"
+  },
+  {
+    "abbrev": "ZRGG",
+    "full": "Zeitschrift für Religions- und Geistesgeschichte"
+  },
+  {
+    "abbrev": "ZSS",
+    "full": "Zeitschrift der Savigny-Stiftung für Rechtsgeschichte, romanistische Abteilung"
+  },
+  {
+    "abbrev": "ZRG",
+    "full": "Zeitschrift der Savigny-Stiftung für Rechtsgeschichte, romanistische Abteilung"
+  }
+]
