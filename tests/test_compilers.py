@@ -139,7 +139,7 @@ class TestPageCompilerCompile:
         compiler.compile(seneca_doc, tmp_path / "out")
 
         mock_proc.new_xslt30_processor().compile_stylesheet.assert_called_once_with(
-            stylesheet_file=str(xslt_root / card_strategy.xslt_stylesheet)
+            stylesheet_file=str(xslt_root / "html/driver.xsl")
         )
 
     def test_sets_chunk_unit_parameter(self, tmp_path, seneca_doc,

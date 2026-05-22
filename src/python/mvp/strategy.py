@@ -57,12 +57,6 @@ class ChunkingStrategy(ABC):
 
     @property
     @abstractmethod
-    def xslt_stylesheet(self) -> str:
-        """Filename of the XSLT stylesheet that implements this strategy."""
-        ...
-
-    @property
-    @abstractmethod
     def chunk_strategy(self) -> str:
         """Value of the chunk-strategy parameter passed to driver.xsl."""
         ...
@@ -88,10 +82,6 @@ class MilestoneStrategy(ChunkingStrategy):
     @property
     def chunk_unit(self) -> str:
         return self._unit
-
-    @property
-    def xslt_stylesheet(self) -> str:
-        return "html/driver.xsl"
 
     @property
     def chunk_strategy(self) -> str:
@@ -120,10 +110,6 @@ class DivisionStrategy(ChunkingStrategy):
     @property
     def chunk_unit(self) -> str:
         return self._subtype if self._subtype else self._div_type
-
-    @property
-    def xslt_stylesheet(self) -> str:
-        return "html/driver.xsl"
 
     @property
     def chunk_strategy(self) -> str:

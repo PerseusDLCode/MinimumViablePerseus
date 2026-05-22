@@ -22,6 +22,8 @@ from mvp.site_map import SiteMap
 from mvp.strategy import ChunkingStrategy
 
 # Human-readable names for BCP 47 / ISO 639-3 language codes.
+_DRIVER_STYLESHEET = "html/driver.xsl"
+
 _LANGUAGE_NAMES: dict[str, str] = {
     "lat": "Latin",
     "grc": "Greek",
@@ -124,7 +126,7 @@ class PageCompiler:
                               any reason.
         """
         output_path.mkdir(parents=True, exist_ok=True)
-        stylesheet = self._xslt_root / self._strategy.xslt_stylesheet
+        stylesheet = self._xslt_root / _DRIVER_STYLESHEET
 
         if catalog_url is None:
             lang = doc.metadata.language
