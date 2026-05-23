@@ -2327,6 +2327,74 @@ for supplying it.
 Adopt the design above.  See [[#implement-driver-chunker-architecture]]
 for the implementation task.
 
+** Adopt canonicalLit as development testbed
+:PROPERTIES:
+:CUSTOM_ID: adopt-canonicallit-testbed
+:ASSIGNEES: Cliff
+:SOURCE: chat/2026-05-23
+:DISPOSITION: adopt
+:END:
+
+For the next phase of development, we are working against a bounded
+subset of the Perseus corpora rather than the full canonical-greekLit
+and canonical-latinLit repos.  The subset lives at:
+
+  https://github.com/PerseusDLCode/canonicalLit
+
+Rationale is recorded in MVP discussion #56
+(https://github.com/PerseusDLCode/MinimumViablePerseus/discussions/56).
+
+*** Decision
+[2026-05-23] Use =canonicalLit= as the primary testbed for all
+pipeline development (migration stylesheets, citation index, XSLT
+chunker integration) until further notice.  Full-corpus runs remain
+available for audit and analysis work but are not the target for
+iteration.
+
+*** Structure of the testbed
+[2026-05-23] Audited and classified with =run_audit.py= +
+=classify_corpus.py=.  105 documents total:
+
+| Family                | greekLit | latinLit | Total |  % |
+|-----------------------+----------+----------+-------+----|
+| 1. Hierarchical div   |       50 |        7 |    57 | 54 |
+| 2. Verse with      |       17 |       10 |    27 | 26 |
+| 3. Milestone-primary  |       13 |        4 |    17 | 16 |
+| 4. Drama              |        2 |        1 |     3 |  3 |
+| 5. Parallel tradition |        0 |        0 |     0 |  0 |
+| 6. Unknown            |        1 |        0 |     1 |  1 |
+
+The testbed is well-stratified: all four active structural families
+are represented.  Family 5 (parallel tradition) is absent, which
+is a gap to address when adding Bekker/Stephanus texts.  The single
+unknown (family 6) should be identified and either fixed or excluded.
+
+Notable patterns in the testbed:
+
+- Family 1 is dominated by =verse / chapter= (40 of 57 documents) --
+  a pattern where the cRefPattern names "verse" and "chapter" but the
+  structure is div-based prose or mixed.  This suggests the pattern
+  name "verse" is used loosely in the corpus and does not reliably
+  indicate -leaf encoding.
+
+- Family 2 similarly shows =verse / chapter= (14 of 27).  The
+  classifier correctly distinguished these from family 1 by detecting
+   elements, confirming that pattern names alone are insufficient
+  for classification.
+
+- Family 3 includes =card / book= (4 documents) -- milestone-primary
+  texts chunked by card within a book structure.  The Argonautica
+  is the canonical example.
+
+- No family-5 texts are present.  To exercise the parallel-tradition
+  migration path, at least one Aristotle (Bekker) or Plato (Stephanus)
+  text should be added to the testbed.
+
+Open questions for Cliff:
+- Which document is the family-6 unknown?  Should it be fixed or
+  excluded from the testbed?
+- Should a family-5 text be added now, or deferred until the
+  div-based pipeline is working end-to-end?
 * Implementations
 
 ** TEI Structure
