@@ -1557,9 +1557,8 @@ the document rather than computing it separately.
 Nothing downstream reads =@xml:id= attributes on TEI elements.
 =ReferenceParser= resolves all citable elements from =<citeStructure>=
 at build time, so there is no value in pre-stamping attributes on the
-source document.  The =CitationIndexGenerator= (=mvp/citation_index.py=,
-not yet built) will compute the URN→xml_id mapping itself and write it
-to the JSON sidecar; the XSLT chunkers will receive that sidecar as an
+source document.  The =CitationIndexGenerator= (=mvp/citation_index.py=) computes the
+URN→xml_id mapping itself and writes it to the JSON sidecar; the XSLT chunkers will receive that sidecar as an
 =xsl:param= and generate HTML anchors during the transform.
 
 =mvp/normalizers.py= and =src/python/tei_citation_pipeline.py= have been
@@ -1711,15 +1710,15 @@ Corpus preparation (one-time, offline):
 
 Build pipeline (per document):
   prepared TEI
-    → CitationIndexGenerator  [mvp/citation_index.py — not yet built]
-        calls ReferenceParser.citations(depth=-1)
-        produces: <stem>.citations.json  (path via SiteMap.citations_path())
+    → CitationIndexGenerator  (mvp/citation_index.py — DONE)
+        calls ReferenceParser.citation_records(depth=-1)
+        produces: citations.json sidecar  (path via SiteMap.citations_path())
     → PageCompiler / XSLT chunkers
-        consumes TEI + JSON sidecar via json-doc($citations-path)
+        consumes TEI + JSON sidecar via json-doc($citations-path)  [TODO]
         produces HTML chunk pages with URN anchors and prev/next links
 #+end_example
 
-JSON sidecar format (=<stem>.citations.json=):
+JSON sidecar format (=citations.json=, written alongside the chunk pages):
 #+begin_src json
 {
   "base_urn": "urn:cts:greekLit:tlg0059.tlg002.perseus-grc2",
@@ -1732,25 +1731,63 @@ JSON sidecar format (=<stem>.citations.json=):
 }
 #+end_src
 
-=xml_id= is a slug derived from the passage component of the URN (colons
-replaced with hyphens), computed by =CitationIndexGenerator=, NOT
-read from a pre-stamped =@xml:id= on the TEI element.
+=xml_id= is a slug: ="{unit}-{passage}"= with dots in the passage
+replaced by hyphens (e.g. =section-1-1-3= for passage =1.1.3=).
+Computed by =CitationIndexGenerator=; NOT pre-stamped on TEI elements.
 
-**** Implementation items (for Claude Code)
+**** Implementation record [2026-05-23]
 
-1. Implement =CitationIndexGenerator= in =mvp/citation_index.py=: takes
-   a =TEIDocument= (post =transform1.xsl=), calls
-   =ReferenceParser.citations(depth=-1)=, and writes the JSON sidecar.
-   Add =citations_path(urn: str) -> Path= to =SiteMap=.
+Items 1 and 3 completed in this session; item 2 remains.
 
-2. Modify the XSLT chunkers to consume the sidecar via =json-doc()=:
-   add =@id= anchors to chunk =<div>= elements in the HTML output, and
-   replace the current structural prev/next links with URN-based links
-   from the index.
+***** DONE Implement CitationIndexGenerator and SiteMap.citations_path
+CLOSED: [2026-05-23 Fri]
 
-3. Wire up =CitationIndexGenerator= in =pipeline.py= before
-   =PageCompiler=.  Skip with a warning for documents that have no
-   =<citeStructure>=.
+- =mvp/citation_index.py=: =CitationIndexGenerator= takes a
+  =mvp.tei_document.TEIDocument= (post-migration), calls
+  =ReferenceParser.citation_records(depth=-1)=, and writes
+  =citations.json=.  =CitationError= is not possible here (we always
+  yield all levels); =ConfigurationError= propagates to the caller.
+- =mvp/models.py=: added =CitationRecord(urn, unit, depth)= frozen
+  dataclass.
+- =mvp/reference_parser.py=: added =base_urn= property and
+  =citation_records()= / =_records_recursive()= — mirrors =citations()=
+  but yields =CitationRecord= objects carrying =unit= and =depth=.
+- =mvp/site_map.py=: added =citations_path(urn: str) -> Path= returning
+  =<chunk_dir>/citations.json=.
+- 22 new tests in =tests/test_citation_index.py=; =citation_index.py=
+  at 100% coverage.
+
+***** DONE Wire CitationIndexGenerator into BuildPipeline
+CLOSED: [2026-05-23 Fri]
+
+- =mvp/pipeline.py=: per-document loop refactored into three separate
+  try/except stages: (1) strategy selection — =ValueError= skips the
+  document; (2) citation index — =ConfigurationError= logs a warning
+  but allows page compilation to proceed; (3) page compilation —
+  =CompilationError= collected for end-of-run report.
+- =CitationIndexGenerator= receives a fresh =mvp.tei_document.TEIDocument=
+  constructed from =doc.path=; this is separate from the
+  =mvp.document.TEIDocument= used by =PageCompiler=.
+- =tests/test_pipeline.py=: added =mock_runtime()= context manager
+  (patches =PageCompiler=, =CatalogCompiler=, =CitationIndexGenerator=,
+  and =TEIDocument= together); added
+  =TestBuildPipelineCitationIndex= with 5 tests covering generation
+  order, graceful degradation on =ConfigurationError=, and multi-doc
+  counts.
+
+***** TODO Modify XSLT chunkers to consume citation index
+
+Modify =src/xslt/html/generate_div_chunks.xsl= and
+=src/xslt/html/generate_chunks.xsl= to:
+1. Accept =citations-path= as an =xsl:param=.
+2. Load the sidecar with =json-doc($citations-path)=.
+3. Add =@id= anchors (from =xml_id=) to the outermost =<div>= of each
+   chunk in the HTML output.
+4. Replace the current structural prev/next links with URN-based links
+   derived from adjacent entries at the same depth in the citation index.
+
+The =PageCompiler= (=mvp/compilers.py=) will need to pass the sidecar
+path to Saxon as a stylesheet parameter.
 
 *** Open questions (resolved [2026-05-23])
 - /Per-document or aggregated?/ → Per-document sidecars.
