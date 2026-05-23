@@ -10,11 +10,14 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from mvp.citation_index import CitationIndexGenerator
 from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler
 from mvp.corpus import Corpus
 from mvp.models import TEIMetadata
+from mvp.reference_parser import ConfigurationError
 from mvp.site_map import SiteMap
 from mvp.strategy import StrategySelector
+from mvp.tei_document import TEIDocument
 
 
 class BuildPipeline:
@@ -64,6 +67,18 @@ class BuildPipeline:
                     continue
                 try:
                     strategy = self._selector.select(doc)
+                except ValueError as exc:
+                    print(f"  SKIPPED:  {doc.path}: {exc}")
+                    continue
+
+                try:
+                    CitationIndexGenerator(TEIDocument(doc.path)).write(
+                        self._site_map.citations_path(doc.metadata.urn)
+                    )
+                except ConfigurationError as exc:
+                    print(f"  WARNING:  {doc.path.name}: citation index skipped ({exc})")
+
+                try:
                     compiler = PageCompiler(
                         strategy=strategy,
                         driver=self._driver,
@@ -80,9 +95,6 @@ class BuildPipeline:
                 except CompilationError as exc:
                     errors.append(exc)
                     print(f"  FAILED:   {exc}")
-                except ValueError as exc:
-                    # StrategySelector found no matching strategy
-                    print(f"  SKIPPED:  {doc.path}: {exc}")
 
         print(f"\nCompiled {len(metadata)} documents, "
               f"{len(errors)} failures.")
