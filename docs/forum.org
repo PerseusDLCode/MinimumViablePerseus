@@ -1531,6 +1531,8 @@ consume.
 :END:
 [2026-05-19] Retain and rewrite the normalizers, with a narrowed scope.
 
+/Revised [2026-05-23]: see below./
+
 The old phases 2 and 3 (repairing =xml:base= on every citable element,
 adding =xml:id= from =xml:base=) are obsolete: =xml:base= on non-=<body>=
 elements is no longer part of the encoding convention, and the old
@@ -1549,6 +1551,20 @@ This gives every citable element a stable, URN-derived HTML anchor
 before the citation index is generated and before the XSLT runs.
 The citation index generator can then read =@xml:id= directly from
 the document rather than computing it separately.
+
+**** Revised decision [2026-05-23]: retire the normalizers entirely.
+
+Nothing downstream reads =@xml:id= attributes on TEI elements.
+=ReferenceParser= resolves all citable elements from =<citeStructure>=
+at build time, so there is no value in pre-stamping attributes on the
+source document.  The =CitationIndexGenerator= (=mvp/citation_index.py=,
+not yet built) will compute the URN→xml_id mapping itself and write it
+to the JSON sidecar; the XSLT chunkers will receive that sidecar as an
+=xsl:param= and generate HTML anchors during the transform.
+
+=mvp/normalizers.py= and =src/python/tei_citation_pipeline.py= have been
+deleted.  The =tei-audit= CLI entry point has been removed from
+=pyproject.toml=.  See branch =retire-normalizers=.
 
 
 ** Design: Citation Index and Chunker Integration
@@ -1673,50 +1689,74 @@ index generator.
 - *Previous/next navigation?* Adjacent URN at the same depth as the
   current chunk.  The chunker already knows the chunk sequence from its
   pre-collected metadata; the citation index provides the URN for each
-  position.  The XSLT joins on =@xml:id= to look up the URN, then
-  constructs the nav link.
+  position.  The XSLT joins on =xml_id= from the sidecar to construct
+  the nav link.
 
 - *Should =SiteMap= own the citation index path?* Yes, by analogy with
-  how it owns all other output paths.  A =citations_path(doc)= method
+  how it owns all other output paths.  A =citations_path(urn)= method
   should be added to =SiteMap=.
+
+**** Definitive pipeline workflow [2026-05-23]
+
+The =@xml:id=-on-element approach has been dropped (see
+=#decide-normalizers-fate=).  The =CitationIndexGenerator= computes the
+URN→xml_id mapping itself; the XSLT receives it via JSON sidecar.
+
+#+begin_example
+Corpus preparation (one-time, offline):
+  raw TEI
+    → src/xslt/transform1.xsl
+    produces: <body @xml:base="urn:cts:…">, <citeStructure>,
+              hoisted @type values, no element-level @xml:base
+
+Build pipeline (per document):
+  prepared TEI
+    → CitationIndexGenerator  [mvp/citation_index.py — not yet built]
+        calls ReferenceParser.citations(depth=-1)
+        produces: <stem>.citations.json  (path via SiteMap.citations_path())
+    → PageCompiler / XSLT chunkers
+        consumes TEI + JSON sidecar via json-doc($citations-path)
+        produces HTML chunk pages with URN anchors and prev/next links
+#+end_example
+
+JSON sidecar format (=<stem>.citations.json=):
+#+begin_src json
+{
+  "base_urn": "urn:cts:greekLit:tlg0059.tlg002.perseus-grc2",
+  "citations": [
+    { "urn":    "urn:cts:greekLit:tlg0059.tlg002.perseus-grc2:17",
+      "unit":   "section",
+      "xml_id": "section-17",
+      "depth":  0 }
+  ]
+}
+#+end_src
+
+=xml_id= is a slug derived from the passage component of the URN (colons
+replaced with hyphens), computed by =CitationIndexGenerator=, NOT
+read from a pre-stamped =@xml:id= on the TEI element.
 
 **** Implementation items (for Claude Code)
 
-The following TODO items should be created as children of this forum
-entry or as top-level items with =DEPENDS= set to
-=#design-citation-index-chunker=:
+1. Implement =CitationIndexGenerator= in =mvp/citation_index.py=: takes
+   a =TEIDocument= (post =transform1.xsl=), calls
+   =ReferenceParser.citations(depth=-1)=, and writes the JSON sidecar.
+   Add =citations_path(urn: str) -> Path= to =SiteMap=.
 
-1. Rewrite =normalizers.py= phase 2: replace the old =xml:base= repair
-   logic with =ReferenceParser=-based =@xml:id= generation and legacy
-   =xml:base= stripping.  Remove phase 3 (now subsumed).
+2. Modify the XSLT chunkers to consume the sidecar via =json-doc()=:
+   add =@id= anchors to chunk =<div>= elements in the HTML output, and
+   replace the current structural prev/next links with URN-based links
+   from the index.
 
-2. Implement =CitationIndexGenerator= in a new module
-   =mvp/citation_index.py=: takes a =TEIDocument= (post-normalization),
-   runs =ReferenceParser.citations(depth=-1)=, reads =@xml:id= from each
-   matched element, and writes the JSON sidecar.  Add =citations_path()=
-   to =SiteMap=.
+3. Wire up =CitationIndexGenerator= in =pipeline.py= before
+   =PageCompiler=.  Skip with a warning for documents that have no
+   =<citeStructure>=.
 
-3. Modify the XSLT chunkers to consume the citation index sidecar via
-   =json-doc()=: add =@xml:id= anchors to chunk =<div>= elements in the
-   HTML output, and replace the current structural prev/next links with
-   URN-based links derived from the index.
-
-4. Wire up the full pipeline in =pipeline.py=: normalizer → citation
-   index generator → XSLT chunkers, in that order.  The build should
-   fail gracefully if a document has no =<citeStructure>= (skip with a
-   warning rather than aborting the whole run).
-
-*** Open questions
-- Should the citation index be per-document or aggregated across the
-  corpus?
-- How should the XSLT consume the index — as an =xsl:param=, a
-  =doc()= call, or a secondary input document via Saxon's
-  =--s= / =--a= mechanism?
-- What does a "previous/next" navigation link look like in URN terms
-  — the adjacent URN at the same depth, or the adjacent chunk as
-  currently defined by the chunkers?
-- Should =SiteMap= (=site_map.py=) own the citation index path, by
-  analogy with how it owns other output paths?
+*** Open questions (resolved [2026-05-23])
+- /Per-document or aggregated?/ → Per-document sidecars.
+- /How does XSLT consume the index?/ → =json-doc($citations-path)= via Saxon.
+- /Previous/next in URN terms?/ → Adjacent URN at the same depth.
+- /Should =SiteMap= own the path?/ → Yes; =citations_path(urn)= to be added.
 
 ** Design: End-to-End Integration
 :PROPERTIES:

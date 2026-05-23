@@ -13,7 +13,6 @@ license = {text = "MIT"}
 
 [project.scripts]
 build-site = "run_build:main"
-tei-audit = "tei_citation_pipeline:main"
 run-audit = "run_audit:main"
 generate-html-from-tei = "generate_html_from_tei:main"
 
