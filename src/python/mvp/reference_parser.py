@@ -5,6 +5,7 @@ from typing import Optional
 
 from lxml import etree
 
+from mvp.models import CitationRecord
 from mvp.tei_document import TEIDocument, NS, XML_BASE, XML_ID
 
 
@@ -211,6 +212,47 @@ class ReferenceParser:
                     return [(cs, cand)] + result
 
         return None
+
+    @property
+    def base_urn(self) -> str:
+        return self._base_urn
+
+    def citation_records(self, depth: int = -1) -> Iterator[CitationRecord]:
+        """Like citations() but yields CitationRecord objects carrying unit and depth."""
+        children = list(self._root_cs.findall("tei:citeStructure", NS))
+        yield from self._records_recursive("", children, self._body, 0, depth)
+
+    def _records_recursive(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+        current_depth: int,
+        max_depth: int,
+    ) -> Iterator[CitationRecord]:
+        for cs in cs_list:
+            match_expr = cs.get("match", "")
+            use_attr = cs.get("use", "@n")
+            delim = cs.get("delim", ":")
+            unit = cs.get("unit", "")
+            children = list(cs.findall("tei:citeStructure", NS))
+            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
+
+            for cand in candidates:
+                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
+                new_suffix = suffix + delim + val
+
+                if max_depth == -1 or current_depth <= max_depth:
+                    yield CitationRecord(
+                        urn=self._base_urn + new_suffix,
+                        unit=unit,
+                        depth=current_depth,
+                    )
+
+                if (max_depth == -1 or current_depth < max_depth) and children:
+                    yield from self._records_recursive(
+                        new_suffix, children, cand, current_depth + 1, max_depth
+                    )
 
     def citations(self, depth: int = -1) -> Iterator[str]:
         """Yield every resolvable CTS URN in document order.
