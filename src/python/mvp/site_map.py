@@ -65,6 +65,10 @@ class SiteMap:
         """Return the output path for a document's index.json manifest."""
         return self.chunk_dir(urn) / "index.json"
 
+    def citations_path(self, urn: str) -> Path:
+        """Return the output path for a document's citation index JSON sidecar."""
+        return self.chunk_dir(urn) / "citations.json"
+
     def catalog_path(self, language: str) -> Path:
         """Return the output path for a language catalog page."""
         catalog_dir = self._root / "catalog"

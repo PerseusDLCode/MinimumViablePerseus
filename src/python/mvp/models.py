@@ -82,6 +82,14 @@ class ChunkManifestEntry:
     urn: str            # full CTS URN range for this chunk
 
 
+@dataclass(frozen=True)
+class CitationRecord:
+    """One citable location in a TEI document, derived from citeStructure."""
+    urn: str
+    unit: str
+    depth: int
+
+
 @dataclass
 class ChunkManifest:
     """The full manifest for a compiled document.
