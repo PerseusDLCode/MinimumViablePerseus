@@ -10,11 +10,10 @@
 #
 #   We mock:
 #     - Corpus.documents() — controls what documents the pipeline sees
-#     - mvp.pipeline.PageCompiler — controls compilation success/failure
-#       (PageCompiler is constructed inside run(), so we patch the class
-#       in the mvp.pipeline namespace)
-#     - mvp.pipeline.CatalogCompiler — controls catalog compilation
 #     - mvp.pipeline.StrategySelector — controls strategy selection
+#     - mvp.pipeline.CitationIndexGenerator — controls citation index generation
+#     - mvp.pipeline.PageCompiler — controls compilation success/failure
+#     - mvp.pipeline.CatalogCompiler — controls catalog compilation
 #
 #   NOTE on StrategySelector patching: BuildPipeline constructs
 #   StrategySelector() eagerly in __init__, storing it as self._selector.
@@ -24,17 +23,20 @@
 #   the pipeline, i.e. the pipeline must be constructed inside the patch
 #   context.  The make_pipeline() helper handles this.
 #
-#   NOTE on PageCompiler design: BuildPipeline also constructs PageCompiler
+#   NOTE on PageCompiler design: BuildPipeline constructs PageCompiler
 #   instances internally in run() rather than accepting a compiler factory
 #   via injection.  This makes patching the class in the mvp.pipeline
-#   namespace sufficient for controlling compilation behaviour.  If the
-#   pipeline becomes harder to test as it grows, consider refactoring to
-#   accept a compiler factory.
+#   namespace sufficient for controlling compilation behaviour.
+#
+#   NOTE on CitationIndexGenerator: same pattern as PageCompiler — patched in
+#   the mvp.pipeline namespace.  TEIDocument is also patched to avoid real
+#   file I/O when constructing the generator.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
 
@@ -42,6 +44,7 @@ from mvp.compilers import CompilationError
 from mvp.corpus import Corpus
 from mvp.models import TEIMetadata
 from mvp.pipeline import BuildPipeline
+from mvp.reference_parser import ConfigurationError
 from mvp.site_map import SiteMap
 from mvp.strategy import MilestoneStrategy
 
@@ -53,19 +56,14 @@ DATA_DIR = Path(__file__).parent / "data"
 
 
 def make_metadata(urn: str, language: str = "lat") -> TEIMetadata:
-    """Return a minimal TEIMetadata instance for use in pipeline tests."""
     return TEIMetadata(
-        urn=urn,
-        title="Test Title",
-        author="Test Author",
-        language=language,
-        text_type="prose",
+        urn=urn, title="Test Title", author="Test Author",
+        language=language, text_type="prose",
         source_path=Path(f"/fake/{urn}.xml"),
     )
 
 
 def make_mock_doc(urn: str, language: str = "lat") -> MagicMock:
-    """Return a mock TEIDocument with realistic metadata."""
     doc = MagicMock()
     doc.metadata = make_metadata(urn, language)
     doc.path = Path(f"/fake/{urn}.xml")
@@ -74,28 +72,15 @@ def make_mock_doc(urn: str, language: str = "lat") -> MagicMock:
 
 def make_pipeline(tmp_path, corpus, selector_side_effect=None,
                   selector_return_value=None):
-    """Construct a BuildPipeline with StrategySelector patched at init time.
-
-    Because BuildPipeline constructs StrategySelector() eagerly in __init__,
-    the patch must be active when the pipeline is constructed.  This helper
-    wraps that construction so callers don't have to manage the patch context
-    manually for every test.
-
-    Returns (pipeline, mock_selector_instance) so tests can make assertions
-    about selector calls if needed.
-    """
+    """Construct a BuildPipeline with StrategySelector patched at init time."""
     if selector_return_value is None and selector_side_effect is None:
         selector_return_value = MilestoneStrategy(unit="card")
 
     with patch("mvp.pipeline.StrategySelector") as mock_selector_cls:
         if selector_side_effect is not None:
-            mock_selector_cls.return_value.select.side_effect = (
-                selector_side_effect
-            )
+            mock_selector_cls.return_value.select.side_effect = selector_side_effect
         else:
-            mock_selector_cls.return_value.select.return_value = (
-                selector_return_value
-            )
+            mock_selector_cls.return_value.select.return_value = selector_return_value
         site_map = SiteMap(tmp_path / "output")
         pl = BuildPipeline(
             corpora=[corpus],
@@ -104,10 +89,26 @@ def make_pipeline(tmp_path, corpus, selector_side_effect=None,
         )
         mock_selector = mock_selector_cls.return_value
 
-    # The pipeline is constructed; the patch is no longer active, but
-    # mock_selector is the instance stored in pl._selector, so its
-    # configured side_effect / return_value remain in effect.
     return pl, site_map, mock_selector
+
+
+@contextmanager
+def mock_runtime(*, page_effect=None, cig_effect=None):
+    """Patch PageCompiler, CatalogCompiler, CitationIndexGenerator, and TEIDocument.
+
+    Yields (mock_page_cls, mock_catalog_cls, mock_cig_cls).
+    """
+    with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
+         patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls, \
+         patch("mvp.pipeline.CitationIndexGenerator") as mock_cig_cls, \
+         patch("mvp.pipeline.TEIDocument"):
+        if page_effect is not None:
+            mock_page_cls.return_value.compile.side_effect = page_effect
+        else:
+            mock_page_cls.return_value.compile.return_value = None
+        if cig_effect is not None:
+            mock_cig_cls.return_value.write.side_effect = cig_effect
+        yield mock_page_cls, mock_catalog_cls, mock_cig_cls
 
 
 # ---------------------------------------------------------------------------
@@ -147,14 +148,11 @@ class TestBuildPipelineSuccess:
         corpus.documents.return_value = [doc]
         pl, site_map, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            mock_compiler_cls.return_value.compile.return_value = None
+        with mock_runtime() as (mock_page_cls, _, _):
             pl.run()
 
-        mock_compiler_cls.return_value.compile.assert_called_once_with(
-            doc, site_map.chunk_dir(doc.metadata.urn),
-            catalog_url=ANY,
+        mock_page_cls.return_value.compile.assert_called_once_with(
+            doc, site_map.chunk_dir(doc.metadata.urn), catalog_url=ANY,
         )
 
     def test_run_returns_none_on_success(self, tmp_path):
@@ -163,23 +161,18 @@ class TestBuildPipelineSuccess:
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            mock_compiler_cls.return_value.compile.return_value = None
+        with mock_runtime():
             result = pl.run()
 
         assert result is None
 
-    def test_run_invokes_catalog_compiler_after_page_compilation(
-            self, tmp_path):
+    def test_run_invokes_catalog_compiler_after_page_compilation(self, tmp_path):
         corpus = MagicMock(spec=Corpus)
         doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_page_cls.return_value.compile.return_value = None
+        with mock_runtime() as (_, mock_catalog_cls, _):
             pl.run()
 
         mock_catalog_cls.return_value.compile.assert_called_once()
@@ -191,19 +184,14 @@ class TestBuildPipelineSuccess:
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_page_cls.return_value.compile.return_value = None
+        with mock_runtime() as (_, mock_catalog_cls, _):
             pl.run()
 
-        # compile() is called as compile(entries=..., output_path=...)
-        # or compile([...], path) depending on call site; handle both.
         call_args = mock_catalog_cls.return_value.compile.call_args
         entries = call_args[1].get("entries") if call_args[1] else call_args[0][0]
         assert doc.metadata in entries
 
     def test_catalog_grouped_by_language(self, tmp_path):
-        """Documents in different languages produce separate catalog calls."""
         corpus = MagicMock(spec=Corpus)
         lat_doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2",
                                 language="lat")
@@ -212,30 +200,24 @@ class TestBuildPipelineSuccess:
         corpus.documents.return_value = [lat_doc, grc_doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_page_cls.return_value.compile.return_value = None
+        with mock_runtime() as (_, mock_catalog_cls, _):
             pl.run()
 
         assert mock_catalog_cls.return_value.compile.call_count == 2
 
     def test_compile_index_called_after_catalogs(self, tmp_path):
-        """compile_index() is called once after all per-language catalogs."""
         corpus = MagicMock(spec=Corpus)
         doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2",
                             language="lat")
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_page_cls.return_value.compile.return_value = None
+        with mock_runtime() as (_, mock_catalog_cls, _):
             pl.run()
 
         mock_catalog_cls.return_value.compile_index.assert_called_once()
 
     def test_multiple_corpora_documents_all_compiled(self, tmp_path):
-        """Documents from all corpora are compiled before catalog is written."""
         corpus_a = MagicMock(spec=Corpus)
         corpus_b = MagicMock(spec=Corpus)
         doc_a = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2",
@@ -254,9 +236,7 @@ class TestBuildPipelineSuccess:
                 driver=tmp_path / "driver.xsl",
             )
 
-        with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_page_cls.return_value.compile.return_value = None
+        with mock_runtime() as (mock_page_cls, mock_catalog_cls, _):
             pl.run()
 
         assert mock_page_cls.return_value.compile.call_count == 2
@@ -267,11 +247,90 @@ class TestBuildPipelineSuccess:
         corpus.documents.return_value = []
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler"), \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
+        with mock_runtime() as (_, mock_catalog_cls, _):
             pl.run()
 
         mock_catalog_cls.return_value.compile.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Citation index generation
+# ---------------------------------------------------------------------------
+
+class TestBuildPipelineCitationIndex:
+
+    def test_citation_index_generated_for_each_document(self, tmp_path):
+        corpus = MagicMock(spec=Corpus)
+        doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        corpus.documents.return_value = [doc]
+        pl, site_map, _ = make_pipeline(tmp_path, corpus)
+
+        with mock_runtime() as (_, _, mock_cig_cls):
+            pl.run()
+
+        mock_cig_cls.return_value.write.assert_called_once_with(
+            site_map.citations_path(doc.metadata.urn)
+        )
+
+    def test_citation_index_generated_before_page_compilation(self, tmp_path):
+        """write() must be called before compile() for the same document."""
+        corpus = MagicMock(spec=Corpus)
+        doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        corpus.documents.return_value = [doc]
+        pl, _, _ = make_pipeline(tmp_path, corpus)
+
+        call_order = []
+
+        with mock_runtime() as (mock_page_cls, _, mock_cig_cls):
+            mock_cig_cls.return_value.write.side_effect = (
+                lambda *a, **kw: call_order.append("write")
+            )
+            mock_page_cls.return_value.compile.side_effect = (
+                lambda *a, **kw: call_order.append("compile")
+            )
+            pl.run()
+
+        assert call_order == ["write", "compile"]
+
+    def test_citation_index_config_error_does_not_prevent_compilation(
+            self, tmp_path):
+        """A ConfigurationError from CIG logs a warning but still compiles the page."""
+        corpus = MagicMock(spec=Corpus)
+        doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        corpus.documents.return_value = [doc]
+        pl, _, _ = make_pipeline(tmp_path, corpus)
+
+        with mock_runtime(
+            cig_effect=ConfigurationError("no citeStructure")
+        ) as (mock_page_cls, _, _):
+            pl.run()
+
+        mock_page_cls.return_value.compile.assert_called_once()
+
+    def test_citation_index_config_error_does_not_count_as_build_failure(
+            self, tmp_path):
+        corpus = MagicMock(spec=Corpus)
+        doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        corpus.documents.return_value = [doc]
+        pl, _, _ = make_pipeline(tmp_path, corpus)
+
+        with mock_runtime(cig_effect=ConfigurationError("no citeStructure")):
+            result = pl.run()  # must not raise SystemExit
+
+        assert result is None
+
+    def test_citation_index_generated_for_multiple_documents(self, tmp_path):
+        corpus = MagicMock(spec=Corpus)
+        doc_a = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        doc_b = make_mock_doc("urn:cts:greekLit:tlg0011.tlg001.perseus-grc2",
+                              language="grc")
+        corpus.documents.return_value = [doc_a, doc_b]
+        pl, _, _ = make_pipeline(tmp_path, corpus)
+
+        with mock_runtime() as (_, _, mock_cig_cls):
+            pl.run()
+
+        assert mock_cig_cls.return_value.write.call_count == 2
 
 
 # ---------------------------------------------------------------------------
@@ -286,16 +345,13 @@ class TestBuildPipelineErrorHandling:
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            mock_compiler_cls.return_value.compile.side_effect = (
-                CompilationError(document=doc, message="Saxon exploded")
-            )
+        with mock_runtime(
+            page_effect=CompilationError(document=doc, message="Saxon exploded")
+        ):
             with pytest.raises(SystemExit):
                 pl.run()
 
     def test_collects_all_errors_before_raising(self, tmp_path):
-        """All documents are attempted even if some fail (collect-all policy)."""
         corpus = MagicMock(spec=Corpus)
         doc_a = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
         doc_b = make_mock_doc("urn:cts:latinLit:phi1017.phi008.perseus-lat2")
@@ -308,17 +364,13 @@ class TestBuildPipelineErrorHandling:
             compile_calls.append(doc)
             raise CompilationError(document=doc, message="fail")
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            mock_compiler_cls.return_value.compile.side_effect = failing_compile
+        with mock_runtime(page_effect=failing_compile):
             with pytest.raises(SystemExit):
                 pl.run()
 
-        # Both documents must have been attempted despite the first failure
         assert len(compile_calls) == 2
 
     def test_skips_documents_with_no_matching_strategy(self, tmp_path):
-        """StrategySelector.ValueError causes a skip, not a failure."""
         corpus = MagicMock(spec=Corpus)
         doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
         corpus.documents.return_value = [doc]
@@ -327,25 +379,21 @@ class TestBuildPipelineErrorHandling:
             selector_side_effect=ValueError("No chunking strategy found"),
         )
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            # Should not raise SystemExit — skips are not failures
+        with mock_runtime() as (mock_page_cls, _, mock_cig_cls):
             pl.run()
 
-        mock_compiler_cls.return_value.compile.assert_not_called()
+        mock_page_cls.return_value.compile.assert_not_called()
+        mock_cig_cls.return_value.write.assert_not_called()
 
     def test_failed_documents_excluded_from_catalog(self, tmp_path):
-        """Metadata from failed compilations must not reach CatalogCompiler."""
         corpus = MagicMock(spec=Corpus)
         doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls:
-            mock_compiler_cls.return_value.compile.side_effect = (
-                CompilationError(document=doc, message="fail")
-            )
+        with mock_runtime(
+            page_effect=CompilationError(document=doc, message="fail")
+        ) as (_, mock_catalog_cls, _):
             with pytest.raises(SystemExit):
                 pl.run()
 
@@ -357,12 +405,26 @@ class TestBuildPipelineErrorHandling:
         corpus.documents.return_value = [doc]
         pl, _, _ = make_pipeline(tmp_path, corpus)
 
-        with patch("mvp.pipeline.PageCompiler") as mock_compiler_cls, \
-             patch("mvp.pipeline.CatalogCompiler"):
-            mock_compiler_cls.return_value.compile.side_effect = (
-                CompilationError(document=doc, message="fail")
-            )
+        with mock_runtime(
+            page_effect=CompilationError(document=doc, message="fail")
+        ):
             with pytest.raises(SystemExit) as exc_info:
                 pl.run()
 
         assert "1" in str(exc_info.value)
+
+    def test_strategy_skip_does_not_generate_citation_index(self, tmp_path):
+        """Skipped documents (no strategy) must not attempt CIG or PageCompiler."""
+        corpus = MagicMock(spec=Corpus)
+        doc = make_mock_doc("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        corpus.documents.return_value = [doc]
+        pl, _, _ = make_pipeline(
+            tmp_path, corpus,
+            selector_side_effect=ValueError("no strategy"),
+        )
+
+        with mock_runtime() as (mock_page_cls, _, mock_cig_cls):
+            pl.run()
+
+        mock_cig_cls.return_value.write.assert_not_called()
+        mock_page_cls.return_value.compile.assert_not_called()
