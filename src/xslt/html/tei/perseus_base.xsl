@@ -60,25 +60,6 @@
     <xsl:value-of select="'/' || string-join($parts, '/')"/>
   </xsl:function>
 
-  <!--
-    local:strip-punct($s) → xs:string
-    Remove leading and trailing punctuation from a token so the bare
-    surface form can be submitted to the morphological server.
-    Mirrors the same function in tokenize.xsl.
-  -->
-  <xsl:function name="local:strip-punct" as="xs:string">
-    <xsl:param name="s" as="xs:string"/>
-    <xsl:variable name="s1"
-      select="replace($s,
-                '^[.,;:!?·—–(){}\[\]&lt;&gt;⟨⟩&quot;]+', '')"/>
-    <xsl:variable name="s2"
-      select="replace($s1,
-                '[.,;:!?·—–(){}\[\]&lt;&gt;⟨⟩&quot;]+$', '')"/>
-    <xsl:variable name="s3" select="replace($s2, &quot;^'+&quot;, '')"/>
-    <xsl:variable name="s4" select="replace($s3, &quot;'+$&quot;,  '')"/>
-    <xsl:sequence select="$s4"/>
-  </xsl:function>
-
   <!-- ============================================================
        Structural elements
        ============================================================ -->
@@ -267,12 +248,14 @@
 
   <!--
     Text nodes (leaf).
-    When $annotations-map is non-empty, each whitespace-delimited token is
-    wrapped in a <span class="word"> carrying NLP data attributes (lemma, pos,
-    etc.) looked up from the pre-computed annotations sidecar.  The nearest
-    chunk ancestor's XPath is used as the sidecar key; within that chunk,
-    tokens are matched by surface form (punctuation stripped).
-    Whitespace-only nodes pass through unchanged in both modes.
+    When $annotations-map is non-empty, each token is wrapped in a
+    <span class="word"> carrying NLP data attributes (lemma, upos, etc.)
+    drawn directly from the pre-computed annotations sidecar.  The nearest
+    chunk ancestor's XPath is the sidecar key; the token slice for this
+    text node is located by counting whitespace-delimited tokens in all
+    preceding text nodes within the chunk.  Display text and inter-token
+    whitespace both come from the sidecar token, not from re-tokenizing
+    the source text.  Whitespace-only nodes pass through unchanged.
   -->
   <xsl:template match="text()" mode="tei-to-html">
     <xsl:param name="annotations-map" tunnel="yes" as="map(*)" select="map{}"/>
@@ -282,47 +265,36 @@
           select="(ancestor::*[local-name() = ('p','l','lg','ab')])[1]"/>
         <xsl:variable name="chunk-tokens" as="array(*)?">
           <xsl:if test="exists($chunk-elem)">
-            <xsl:variable name="chunk-xpath" select="local:xpath-for($chunk-elem)"/>
-            <xsl:sequence select="$annotations-map($chunk-xpath)?tokens"/>
+            <xsl:sequence select="$annotations-map(local:xpath-for($chunk-elem))?tokens"/>
           </xsl:if>
         </xsl:variable>
-        <xsl:variable name="normalized" select="normalize-space(.)"/>
-        <xsl:if test="$normalized != ''">
-          <xsl:if test="matches(., '^\s')">
-            <xsl:text> </xsl:text>
-          </xsl:if>
-          <xsl:for-each select="tokenize($normalized, '\s+')">
-            <xsl:variable name="raw"     select="."/>
-            <xsl:variable name="surface" select="local:strip-punct($raw)"/>
-            <xsl:variable name="token-data" as="map(*)?">
-              <xsl:if test="exists($chunk-tokens) and $surface != ''">
-                <xsl:sequence select="($chunk-tokens?*[?text = $surface])[1]"/>
+        <xsl:choose>
+          <xsl:when test="normalize-space(.) != '' and exists($chunk-tokens)">
+            <xsl:variable name="offset" as="xs:integer"
+              select="sum(
+                for $t in ($chunk-elem//text()[. &lt;&lt; current()])
+                return count(tokenize(normalize-space($t), '\s+')[. != ''])
+              )"/>
+            <xsl:variable name="n" as="xs:integer"
+              select="count(tokenize(normalize-space(.), '\s+')[. != ''])"/>
+            <xsl:for-each select="1 to $n">
+              <xsl:variable name="tok" select="$chunk-tokens($offset + .)"/>
+              <span class="word">
+                <xsl:if test="map:contains($tok, 'lemma')">
+                  <xsl:attribute name="data-lemma" select="$tok?lemma"/>
+                </xsl:if>
+                <xsl:if test="map:contains($tok, 'upos')">
+                  <xsl:attribute name="data-upos" select="$tok?upos"/>
+                </xsl:if>
+                <xsl:value-of select="$tok?text"/>
+              </span>
+              <xsl:if test="$tok?whitespace">
+                <xsl:text> </xsl:text>
               </xsl:if>
-            </xsl:variable>
-            <xsl:choose>
-              <xsl:when test="exists($token-data)">
-                <span class="word">
-                  <xsl:if test="map:contains($token-data, 'lemma')">
-                    <xsl:attribute name="data-lemma" select="$token-data?lemma"/>
-                  </xsl:if>
-                  <xsl:if test="map:contains($token-data, 'pos')">
-                    <xsl:attribute name="data-pos" select="$token-data?pos"/>
-                  </xsl:if>
-                  <xsl:value-of select="$raw"/>
-                </span>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="$raw"/>
-              </xsl:otherwise>
-            </xsl:choose>
-            <xsl:if test="position() != last()">
-              <xsl:text> </xsl:text>
-            </xsl:if>
-          </xsl:for-each>
-          <xsl:if test="matches(., '\s$')">
-            <xsl:text> </xsl:text>
-          </xsl:if>
-        </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise><xsl:copy/></xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:copy/>
