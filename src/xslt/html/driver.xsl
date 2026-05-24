@@ -12,11 +12,12 @@
   $citation-table, or any other rendering enrichment.
 
   Enrichment parameters declared here:
-    $morph-url       — when non-empty, word tokens are linked to a morphological
-                       server.  Consumed by the text() template in perseus_base.xsl.
-    $citation-table  — path/URL of a compiled citation link table.  Loaded via
-                       document() and injected as $citation-map.  Not yet designed;
-                       present to stabilise the driver interface.
+    $annotations-file — file URI of the pre-computed NLP annotations JSON sidecar.
+                        Loaded via json-doc() and passed as $annotations-map tunnel
+                        param.  Consumed by the text() template in perseus_base.xsl.
+    $citation-table   — path/URL of a compiled citation link table.  Loaded via
+                        document() and injected as $citation-map.  Not yet designed;
+                        present to stabilise the driver interface.
 
   Dispatch parameters:
     $chunk-strategy  — 'milestone' | 'div' | 'auto' (default).
@@ -53,8 +54,8 @@
        ============================================================ -->
 
   <!-- Enrichment parameters — owned exclusively by the driver -->
-  <xsl:param name="morph-url"      as="xs:string" select="''"/>
-  <xsl:param name="citation-table" as="xs:string" select="''"/>
+  <xsl:param name="annotations-file" as="xs:string" select="''"/>
+  <xsl:param name="citation-table"   as="xs:string" select="''"/>
 
   <!-- Structural parameters — redeclared here for documentation;
        the chunkers also declare these and will receive command-line values. -->
@@ -126,7 +127,9 @@
     <xsl:param name="next-file"   as="xs:string?"/>
     <xsl:param name="all-chunks"  as="map(*)*"/>
 
-    <!-- Load citation map if a table path was provided -->
+    <!-- Load annotations map and citation map if paths were provided -->
+    <xsl:variable name="annotations-map"
+      select="if ($annotations-file != '') then json-doc($annotations-file) else map{}"/>
     <xsl:variable name="citation-map"
       select="if ($citation-table != '') then document($citation-table) else ()"/>
 
@@ -177,8 +180,8 @@
                 <xsl:apply-templates select="$chunk" mode="chunk">
                   <xsl:with-param name="start"        tunnel="yes" select="$start"/>
                   <xsl:with-param name="stop"         tunnel="yes" select="$stop"/>
-                  <xsl:with-param name="morph-url"    tunnel="yes" select="$morph-url"/>
-                  <xsl:with-param name="citation-map" tunnel="yes" select="$citation-map"/>
+                  <xsl:with-param name="annotations-map" tunnel="yes" select="$annotations-map"/>
+                  <xsl:with-param name="citation-map"   tunnel="yes" select="$citation-map"/>
                 </xsl:apply-templates>
               </div>
               <xsl:call-template name="page:passage-footer"/>

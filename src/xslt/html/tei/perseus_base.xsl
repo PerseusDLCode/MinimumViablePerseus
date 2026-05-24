@@ -17,7 +17,7 @@
     rather than mode="tei-to-html". This keeps chunk-boundary filtering active
     for every child node, which is required to handle the straddling case: a
     container element that spans a chunk boundary must still suppress content
-    on the far side. Tunnel params ($start, $stop, $morph-url) flow through
+    on the far side. Tunnel params ($start, $stop, $annotations-map) flow through
     implicitly and are never declared by mode="tei-to-html" templates.
 
   Leaf templates (tei:gap, tei:lb, tei:pb|tei:milestone, text()) produce
@@ -30,15 +30,35 @@
   xmlns:xsl  ="http://www.w3.org/1999/XSL/Transform"
   xmlns:tei  ="http://www.tei-c.org/ns/1.0"
   xmlns:xs   ="http://www.w3.org/2001/XMLSchema"
+  xmlns:map  ="http://www.w3.org/2005/xpath-functions/map"
   xmlns:local="http://local.functions"
   version="3.0"
-  exclude-result-prefixes="tei xs local">
+  exclude-result-prefixes="tei xs map local">
 
   <xsl:import href="../variables.xsl"/>
 
   <!-- ============================================================
        Helper functions
        ============================================================ -->
+
+  <!--
+    local:xpath-for($node) → xs:string
+    Returns the XPath of $node using tei:-prefixed steps with positional
+    predicates, e.g. /tei:TEI[1]/tei:text[1]/tei:body[1]/tei:p[1].
+    Mirrors ChunkIndexer.xpath_for() in indexers.py so the keys produced
+    here match the keys in the annotations JSON sidecar.
+  -->
+  <xsl:function name="local:xpath-for" as="xs:string">
+    <xsl:param name="node" as="element()"/>
+    <xsl:variable name="parts" as="xs:string*">
+      <xsl:for-each select="$node/ancestor-or-self::*">
+        <xsl:variable name="name"  select="local-name(.)"/>
+        <xsl:variable name="index" select="count(preceding-sibling::*[local-name() = $name]) + 1"/>
+        <xsl:sequence select="concat('tei:', $name, '[', $index, ']')"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:value-of select="'/' || string-join($parts, '/')"/>
+  </xsl:function>
 
   <!--
     local:strip-punct($s) → xs:string
@@ -247,27 +267,25 @@
 
   <!--
     Text nodes (leaf).
-    When $morph-url is set, each whitespace-delimited token is wrapped in
-    an <a class="word"> linking to the morphological server.  The bare
-    surface form (punctuation stripped) is used as the lookup key; the
-    original raw token (with punctuation) is the visible link text.
+    When $annotations-map is non-empty, each whitespace-delimited token is
+    wrapped in a <span class="word"> carrying NLP data attributes (lemma, pos,
+    etc.) looked up from the pre-computed annotations sidecar.  The nearest
+    chunk ancestor's XPath is used as the sidecar key; within that chunk,
+    tokens are matched by surface form (punctuation stripped).
     Whitespace-only nodes pass through unchanged in both modes.
   -->
-  <!-- $morph-url is injected by the driver at the apply-templates call site in
-       page:render, so it enters mode="chunk" from outside the chunking infrastructure.
-       This resolves the mode-boundary violation noted in the #implement-tei-to-html-process
-       review; the TODO about interim mechanism status still applies. -->
   <xsl:template match="text()" mode="tei-to-html">
-    <xsl:param name="morph-url" tunnel="yes" as="xs:string" select="''"/>
+    <xsl:param name="annotations-map" tunnel="yes" as="map(*)" select="map{}"/>
     <xsl:choose>
-      <xsl:when test="$morph-url != ''">
-        <xsl:variable name="tei-lang"
-          select="(ancestor::*[@xml:lang])[1]/@xml:lang"/>
-        <xsl:variable name="morph-lang" select="
-          if      ($tei-lang = 'lat') then 'la'
-          else if ($tei-lang = 'grc') then 'grc'
-          else ''
-        "/>
+      <xsl:when test="map:size($annotations-map) gt 0">
+        <xsl:variable name="chunk-elem"
+          select="(ancestor::*[local-name() = ('p','l','lg','ab')])[1]"/>
+        <xsl:variable name="chunk-tokens" as="array(*)?">
+          <xsl:if test="exists($chunk-elem)">
+            <xsl:variable name="chunk-xpath" select="local:xpath-for($chunk-elem)"/>
+            <xsl:sequence select="$annotations-map($chunk-xpath)?tokens"/>
+          </xsl:if>
+        </xsl:variable>
         <xsl:variable name="normalized" select="normalize-space(.)"/>
         <xsl:if test="$normalized != ''">
           <xsl:if test="matches(., '^\s')">
@@ -276,10 +294,22 @@
           <xsl:for-each select="tokenize($normalized, '\s+')">
             <xsl:variable name="raw"     select="."/>
             <xsl:variable name="surface" select="local:strip-punct($raw)"/>
+            <xsl:variable name="token-data" as="map(*)?">
+              <xsl:if test="exists($chunk-tokens) and $surface != ''">
+                <xsl:sequence select="($chunk-tokens?*[?text = $surface])[1]"/>
+              </xsl:if>
+            </xsl:variable>
             <xsl:choose>
-              <xsl:when test="$morph-lang != '' and $surface != ''">
-                <a href="{$morph-url}/morph?form={encode-for-uri($surface)}&amp;lang={$morph-lang}"
-                   class="word"><xsl:value-of select="$raw"/></a>
+              <xsl:when test="exists($token-data)">
+                <span class="word">
+                  <xsl:if test="map:contains($token-data, 'lemma')">
+                    <xsl:attribute name="data-lemma" select="$token-data?lemma"/>
+                  </xsl:if>
+                  <xsl:if test="map:contains($token-data, 'pos')">
+                    <xsl:attribute name="data-pos" select="$token-data?pos"/>
+                  </xsl:if>
+                  <xsl:value-of select="$raw"/>
+                </span>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$raw"/>

@@ -13,7 +13,9 @@ from pathlib import Path
 from mvp.citation_index import CitationIndexGenerator
 from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler
 from mvp.corpus import Corpus
+from mvp.indexers import ChunkIndexer
 from mvp.models import TEIMetadata
+from mvp.nlp import write_annotations
 from mvp.reference_parser import ConfigurationError
 from mvp.site_map import SiteMap
 from mvp.strategy import StrategySelector
@@ -41,13 +43,15 @@ class BuildPipeline:
         driver:    Full path to the XSLT driver stylesheet.
     """
 
-    def __init__(self, corpora: list[Corpus], site_map: SiteMap,
-                 driver: Path,
-                 morph_url: str = "") -> None:
+    def __init__(
+        self,
+        corpora: list[Corpus],
+        site_map: SiteMap,
+        driver: Path,
+    ) -> None:
         self._corpora = corpora
         self._site_map = site_map
         self._driver = Path(driver)
-        self._morph_url = morph_url
         self._selector = StrategySelector()
 
     def run(self) -> None:
@@ -76,19 +80,30 @@ class BuildPipeline:
                         self._site_map.citations_path(doc.metadata.urn)
                     )
                 except ConfigurationError as exc:
-                    print(f"  WARNING:  {doc.path.name}: citation index skipped ({exc})")
+                    print(
+                        f"  WARNING:  {doc.path.name}: citation index skipped ({exc})"
+                    )
+
+                annotations_path = self._site_map.annotations_path(doc.metadata.urn)
+
+                try:
+                    write_annotations(
+                        ChunkIndexer(doc.path).generate_chunks(), annotations_path
+                    )
+                except Exception as exc:
+                    print(f"  WARNING: {doc.path.name}: NLP analysis skipped ({exc})")
 
                 try:
                     compiler = PageCompiler(
                         strategy=strategy,
                         driver=self._driver,
-                        morph_url=self._morph_url,
+                        annotations_file=annotations_path,
                     )
                     output_path = self._site_map.chunk_dir(doc.metadata.urn)
                     catalog_path = self._site_map.catalog_path(doc.metadata.language)
-                    catalog_url = os.path.relpath(
-                        catalog_path, output_path
-                    ).replace("\\", "/")
+                    catalog_url = os.path.relpath(catalog_path, output_path).replace(
+                        "\\", "/"
+                    )
                     compiler.compile(doc, output_path, catalog_url=catalog_url)
                     metadata.append(doc.metadata)
                     print(f"  compiled: {doc.metadata.urn}")
@@ -96,8 +111,7 @@ class BuildPipeline:
                     errors.append(exc)
                     print(f"  FAILED:   {exc}")
 
-        print(f"\nCompiled {len(metadata)} documents, "
-              f"{len(errors)} failures.")
+        print(f"\nCompiled {len(metadata)} documents, {len(errors)} failures.")
 
         if metadata:
             catalog_compiler = CatalogCompiler(site_map=self._site_map)

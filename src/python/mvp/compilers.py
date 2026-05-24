@@ -43,7 +43,9 @@ _SHARED_CSS = """
                font-size: .8em; color: #888; text-align: center }
 """
 
-_CATALOG_CSS = _SHARED_CSS + """
+_CATALOG_CSS = (
+    _SHARED_CSS
+    + """
 body         { font-family: serif; max-width: 60em; margin: 0 auto; padding: 1em 2em }
 h1           { margin-bottom: 0.25em }
 .summary     { color: #555; margin-bottom: 1.5em }
@@ -54,14 +56,18 @@ h1           { margin-bottom: 0.25em }
 .work-entry a { text-decoration: none }
 .work-entry a:hover { text-decoration: underline }
 """
+)
 
-_INDEX_CSS = _SHARED_CSS + """
+_INDEX_CSS = (
+    _SHARED_CSS
+    + """
 body  { font-family: serif; max-width: 40em; margin: 0 auto; padding: 2em }
 h1    { margin-bottom: 0.25em }
 .tagline { color: #555; margin-bottom: 1.5em }
 ul    { list-style: none; padding: 0 }
 li    { margin: .5em 0; font-size: 1.1em }
 """
+)
 
 
 @dataclass
@@ -71,6 +77,7 @@ class CompilationError(Exception):
     Carries enough context for the BuildPipeline to log clearly
     and decide whether to continue or abort.
     """
+
     document: TEIDocument
     message: str
     cause: Exception | None = None
@@ -89,26 +96,35 @@ class PageCompiler:
     generation to an XSLT 3.0 stylesheet via Saxon.
 
     Args:
-        strategy:  ChunkingStrategy determining how the document is
-                   divided into chunks.
-        driver:    Full path to the XSLT driver stylesheet (e.g.
-                   Path("src/xslt/html/driver.xsl")).
+        strategy:          ChunkingStrategy determining how the document is
+                           divided into chunks.
+        driver:            Full path to the XSLT driver stylesheet (e.g.
+                           Path("src/xslt/html/driver.xsl")).
+        annotations_file:  Path to the pre-computed NLP annotations JSON
+                           sidecar.  When provided, passed to the stylesheet
+                           as ``annotations-file`` so tokens can be annotated
+                           inline.  Omit to skip NLP annotation.
 
     Usage::
 
-        compiler = PageCompiler(strategy, driver=Path("src/xslt/html/driver.xsl"))
+        compiler = PageCompiler(strategy, driver=Path("src/xslt/html/driver.xsl"),
+                                annotations_file=site_map.annotations_path(urn))
         compiler.compile(doc, output_path=site_map.chunk_dir(doc.metadata.urn))
     """
 
-    def __init__(self, strategy: ChunkingStrategy,
-                 driver: Path,
-                 morph_url: str = "") -> None:
+    def __init__(
+        self,
+        strategy: ChunkingStrategy,
+        driver: Path,
+        annotations_file: Path | None = None,
+    ) -> None:
         self._strategy = strategy
         self._driver = Path(driver)
-        self._morph_url = morph_url
+        self._annotations_file = annotations_file
 
-    def compile(self, doc: TEIDocument, output_path: Path,
-                catalog_url: str | None = None) -> None:
+    def compile(
+        self, doc: TEIDocument, output_path: Path, catalog_url: str | None = None
+    ) -> None:
         """Compile doc into HTML chunk pages written to output_path.
 
         Args:
@@ -134,29 +150,24 @@ class PageCompiler:
         try:
             with PySaxonProcessor(license=False) as proc:
                 xslt = proc.new_xslt30_processor()
-                transformer = xslt.compile_stylesheet(
-                    stylesheet_file=str(stylesheet)
-                )
+                transformer = xslt.compile_stylesheet(stylesheet_file=str(stylesheet))
                 transformer.set_parameter(
-                    "chunk-unit",
-                    proc.make_string_value(self._strategy.chunk_unit)
+                    "chunk-unit", proc.make_string_value(self._strategy.chunk_unit)
                 )
                 transformer.set_parameter(
                     "chunk-strategy",
-                    proc.make_string_value(self._strategy.chunk_strategy)
+                    proc.make_string_value(self._strategy.chunk_strategy),
                 )
                 transformer.set_parameter(
-                    "output-dir",
-                    proc.make_string_value(str(output_path))
+                    "output-dir", proc.make_string_value(str(output_path))
                 )
                 transformer.set_parameter(
-                    "catalog-url",
-                    proc.make_string_value(catalog_url)
+                    "catalog-url", proc.make_string_value(catalog_url)
                 )
-                if self._morph_url:
+                if self._annotations_file:
                     transformer.set_parameter(
-                        "morph-url",
-                        proc.make_string_value(self._morph_url)
+                        "annotations-file",
+                        proc.make_string_value(self._annotations_file.as_uri()),
                     )
                 transformer.set_base_output_uri(output_path.as_uri() + "/")
                 transformer.transform_to_string(source_file=str(doc.path))
@@ -166,7 +177,7 @@ class PageCompiler:
             manifest = output_path / "index.json"
             if manifest.exists():
                 data = json.loads(manifest.read_text(encoding="utf-8"))
-                data["author"]   = doc.metadata.author
+                data["author"] = doc.metadata.author
                 data["language"] = doc.metadata.language
                 manifest.write_text(
                     json.dumps(data, indent=2, ensure_ascii=False),
@@ -197,8 +208,7 @@ class CatalogCompiler:
     def __init__(self, site_map: SiteMap) -> None:
         self._site_map = site_map
 
-    def compile(self, entries: list[TEIMetadata],
-                output_path: Path) -> None:
+    def compile(self, entries: list[TEIMetadata], output_path: Path) -> None:
         """Compile a per-language catalog page and write it to output_path.
 
         Args:
@@ -212,10 +222,14 @@ class CatalogCompiler:
             return
 
         language = entries[0].language
-        lang_name = _LANGUAGE_NAMES.get(language, language.upper() if language else "Unknown")
+        lang_name = _LANGUAGE_NAMES.get(
+            language, language.upper() if language else "Unknown"
+        )
 
         # Sort by author then title.
-        sorted_entries = sorted(entries, key=lambda e: (e.author.lower(), e.title.lower()))
+        sorted_entries = sorted(
+            entries, key=lambda e: (e.author.lower(), e.title.lower())
+        )
 
         # Group by author.
         authors: dict[str, list[TEIMetadata]] = {}
@@ -234,13 +248,13 @@ class CatalogCompiler:
                     rows.append(
                         f'      <div class="work-entry">'
                         f'<a href="{url}">{_escape(work.title)}</a>'
-                        f'</div>'
+                        f"</div>"
                     )
                 else:
                     rows.append(
                         f'      <div class="work-entry">{_escape(work.title)}</div>'
                     )
-            rows.append(f'    </div>')
+            rows.append(f"    </div>")
 
         body = "\n".join(rows)
         count = len(entries)
@@ -275,8 +289,9 @@ class CatalogCompiler:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
 
-    def compile_index(self, languages: dict[str, list[TEIMetadata]],
-                      output_path: Path) -> None:
+    def compile_index(
+        self, languages: dict[str, list[TEIMetadata]], output_path: Path
+    ) -> None:
         """Compile the root index.html linking to each language catalog.
 
         Args:
@@ -292,10 +307,10 @@ class CatalogCompiler:
                 self._site_map.catalog_path(lang), output_path.parent
             ).replace("\\", "/")
             items.append(
-                f'  <li>'
+                f"  <li>"
                 f'<a href="{catalog_url}">{_escape(lang_name)}</a>'
                 f' <span class="count">({count} {noun})</span>'
-                f'</li>'
+                f"</li>"
             )
 
         items_html = "\n".join(items)
@@ -360,8 +375,9 @@ class CatalogCompiler:
 
 def _escape(text: str) -> str:
     """Minimal HTML escaping for text content."""
-    return (text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;"))
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )

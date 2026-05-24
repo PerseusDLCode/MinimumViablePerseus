@@ -44,6 +44,9 @@ class SiteMap:
     def root(self) -> Path:
         return self._root
 
+    def annotations_path(self, urn: str) -> Path:
+        return self.chunk_dir(urn) / "annotations.json"
+
     def chunk_dir(self, urn: str) -> Path:
         """Return the output directory for chunk pages of a document.
 

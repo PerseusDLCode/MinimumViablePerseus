@@ -110,16 +110,6 @@ def main() -> None:
         help=f"Directory containing XSLT stylesheets (default: {_DEFAULT_XSLT_ROOT})",
     )
     parser.add_argument(
-        "--morph-url",
-        default="",
-        metavar="URL",
-        help=(
-            "Base URL of the morphological server (e.g. http://localhost:5000). "
-            "When set, every word in the output is linked to /morph?form=...&lang=... "
-            "on that server.  Omit for a plain static build."
-        ),
-    )
-    parser.add_argument(
         "paths",
         nargs="+",
         type=Path,
@@ -150,11 +140,11 @@ def main() -> None:
     print(f"XSLT:    {args.xslt_root}")
     print()
 
+    driver = args.xslt_root / "html" / "driver.xsl"
     pipeline = BuildPipeline(
         corpora=[Corpus(cp) for cp in corpus_paths],
         site_map=SiteMap(output_root),
-        xslt_root=args.xslt_root,
-        morph_url=args.morph_url,
+        driver=driver,
     )
     pipeline.run()
 
