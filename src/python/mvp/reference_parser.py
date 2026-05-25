@@ -6,7 +6,7 @@ from typing import Optional
 from lxml import etree
 
 from mvp.models import CitationRecord
-from mvp.tei_document import TEIDocument, NS, XML_BASE, XML_ID
+from mvp.tei_document import LenientTEIDocument, NS, XML_BASE, XML_ID
 
 
 class ConfigurationError(Exception):
@@ -20,7 +20,7 @@ class CitationError(Exception):
 class ReferenceParser:
     def __init__(
         self,
-        tei_doc: TEIDocument,
+        tei_doc: LenientTEIDocument,
         refsDecl_id: str | None = None,
     ) -> None:
         root = tei_doc.root
@@ -262,31 +262,4 @@ class ReferenceParser:
         depth=N (positive): yield citations up to and including level N (0-based).
         """
         children = list(self._root_cs.findall("tei:citeStructure", NS))
-        yield from self._citations_recursive("", children, self._body, 0, depth)
-
-    def _citations_recursive(
-        self,
-        suffix: str,
-        cs_list: list[etree._Element],
-        context: etree._Element,
-        current_depth: int,
-        max_depth: int,
-    ) -> Iterator[str]:
-        for cs in cs_list:
-            match_expr = cs.get("match", "")
-            use_attr = cs.get("use", "@n")
-            delim = cs.get("delim", ":")
-            children = list(cs.findall("tei:citeStructure", NS))
-            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
-
-            for cand in candidates:
-                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
-                new_suffix = suffix + delim + val
-
-                if max_depth == -1 or current_depth <= max_depth:
-                    yield self._base_urn + new_suffix
-
-                if (max_depth == -1 or current_depth < max_depth) and children:
-                    yield from self._citations_recursive(
-                        new_suffix, children, cand, current_depth + 1, max_depth
-                    )
+        yield from (r.urn for r in self._records_recursive("", children, self._body, 0, depth))

@@ -9,7 +9,7 @@ import pytest
 from mvp.citation_index import CitationIndexGenerator, _xml_id
 from mvp.models import CitationRecord
 from mvp.reference_parser import ConfigurationError, ReferenceParser
-from mvp.tei_document import TEIDocument
+from mvp.tei_document import LenientTEIDocument
 
 # ---------------------------------------------------------------------------
 # Shared XML fixtures (reuse patterns from test_reference_parser)
@@ -84,12 +84,12 @@ THUCYDIDES_XML = f"""\
 
 @pytest.fixture
 def apology_doc(tmp_path):
-    return TEIDocument(write_xml(tmp_path, APOLOGY_XML))
+    return LenientTEIDocument(write_xml(tmp_path, APOLOGY_XML))
 
 
 @pytest.fixture
 def thucydides_doc(tmp_path):
-    return TEIDocument(write_xml(tmp_path, THUCYDIDES_XML))
+    return LenientTEIDocument(write_xml(tmp_path, THUCYDIDES_XML))
 
 
 # ---------------------------------------------------------------------------
@@ -214,7 +214,7 @@ class TestCitationIndexGeneratorGenerate:
               </body></text>
             </TEI>
         """
-        doc = TEIDocument(write_xml(tmp_path, xml))
+        doc = LenientTEIDocument(write_xml(tmp_path, xml))
         with pytest.raises(ConfigurationError):
             CitationIndexGenerator(doc)
 

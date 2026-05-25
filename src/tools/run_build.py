@@ -153,7 +153,7 @@ def main() -> None:
     pipeline = BuildPipeline(
         corpora=[Corpus(cp) for cp in corpus_paths],
         site_map=SiteMap(output_root),
-        xslt_root=args.xslt_root,
+        driver=args.xslt_root / "html" / "driver.xsl",
         morph_url=args.morph_url,
     )
     pipeline.run()

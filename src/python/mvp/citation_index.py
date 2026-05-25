@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from mvp.reference_parser import ReferenceParser, ConfigurationError
-from mvp.tei_document import TEIDocument
+from mvp.tei_document import LenientTEIDocument
 
 
 def _xml_id(unit: str, passage: str) -> str:
@@ -29,7 +29,7 @@ class CitationIndexGenerator:
     properly prepared.
     """
 
-    def __init__(self, doc: TEIDocument) -> None:
+    def __init__(self, doc: LenientTEIDocument) -> None:
         self._parser = ReferenceParser(doc)
 
     def generate(self) -> dict[str, Any]:

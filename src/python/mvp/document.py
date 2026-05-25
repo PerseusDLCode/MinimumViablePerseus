@@ -14,8 +14,7 @@ from lxml import etree
 
 from mvp.models import TEIMetadata
 
-TEI_NS = "http://www.tei-c.org/ns/1.0"
-NS = {"tei": TEI_NS}
+from mvp.tei_constants import TEI_NS, NS
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:
@@ -92,6 +91,21 @@ def normalize_lang(code: str) -> str:
     if len(code) == 2:
         return _ISO_639_1_TO_3.get(code, code)
     return code
+
+
+# Human-readable names for BCP 47 / ISO 639-3 language codes.
+LANGUAGE_NAMES: dict[str, str] = {
+    "lat": "Latin",
+    "grc": "Greek",
+    "eng": "English",
+    "ara": "Arabic",
+    "per": "Persian",
+    "deu": "German",
+    "fra": "French",
+    "ita": "Italian",
+    "spa": "Spanish",
+    "rus": "Russian",
+}
 
 
 class TEIDocument:

@@ -17,7 +17,7 @@ from mvp.models import TEIMetadata
 from mvp.reference_parser import ConfigurationError
 from mvp.site_map import SiteMap
 from mvp.strategy import StrategySelector
-from mvp.tei_document import TEIDocument
+from mvp.tei_document import LenientTEIDocument
 
 
 class BuildPipeline:
@@ -72,7 +72,7 @@ class BuildPipeline:
                     continue
 
                 try:
-                    CitationIndexGenerator(TEIDocument(doc.path)).write(
+                    CitationIndexGenerator(LenientTEIDocument(doc.path)).write(
                         self._site_map.citations_path(doc.metadata.urn)
                     )
                 except ConfigurationError as exc:

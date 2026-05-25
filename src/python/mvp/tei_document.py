@@ -5,13 +5,9 @@ from typing import Optional
 
 from lxml import etree
 
-TEI_NS = "http://www.tei-c.org/ns/1.0"
-XML_NS = "http://www.w3.org/XML/1998/namespace"
-NS = {"tei": TEI_NS, "xml": XML_NS}
-
-XML_BASE = f"{{{XML_NS}}}base"
-XML_ID = f"{{{XML_NS}}}id"
-XML_LANG = f"{{{XML_NS}}}lang"
+from mvp.tei_constants import (  # noqa: F401  — re-exported for callers
+    TEI_NS, XML_NS, NS, XML_BASE, XML_ID, XML_LANG,
+)
 
 
 def expected_div_base(div: etree._Element, base_urn: str) -> str:
@@ -54,7 +50,7 @@ def expected_leaf_base(
     return f"{base_urn}:{'.'.join(chain)}"
 
 
-class TEIDocument:
+class LenientTEIDocument:
     """Thin wrapper around a parsed TEI lxml tree for the citation pipeline.
 
     Uses recover=True to tolerate the malformed XML present in the corpus.

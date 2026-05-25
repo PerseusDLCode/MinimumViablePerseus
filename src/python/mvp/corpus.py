@@ -42,16 +42,22 @@ class Corpus:
         Skips __cts__.xml catalog files, which describe collection
         structure rather than containing text to compile.
 
-        Skips files that cannot be parsed, logging a warning.
+        Files that cannot be parsed are skipped; a summary of all
+        failures is printed after the last file is processed.
         """
+        failures: list[tuple[Path, Exception]] = []
         for xml_path in sorted(self._root.rglob("*.xml")):
             if xml_path.name == "__cts__.xml":
                 continue
             try:
                 yield TEIDocument.from_path(xml_path)
             except Exception as exc:
-                # TODO: replace with structured logging
-                print(f"Warning: skipping {xml_path}: {exc}")
+                failures.append((xml_path, exc))
+
+        if failures:
+            print(f"Warning: skipped {len(failures)} file(s) due to parse errors:")
+            for path, exc in failures:
+                print(f"  {path}: {exc}")
 
     def document(self, urn: str) -> TEIDocument:
         """Return the TEIDocument whose metadata.urn matches urn.

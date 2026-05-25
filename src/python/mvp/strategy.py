@@ -27,11 +27,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from mvp.document import TEIDocument
 
-TEI_NS = "http://www.tei-c.org/ns/1.0"
-NS = {"tei": TEI_NS}
+from mvp.tei_constants import TEI_NS, NS
 
 # Thresholds for the structural heuristic (mean direct-text char length).
 # Defined as module constants so they are easy to tune after corpus testing.
@@ -159,7 +159,14 @@ def _is_edition_div(el) -> bool:
     return n.startswith("urn:cts:")
 
 
-def _collect_div_candidates(doc: TEIDocument) -> list[tuple[str, str | None, list]]:
+@dataclass
+class DivCandidate:
+    div_type: str
+    subtype: str | None
+    elements: list
+
+
+def _collect_div_candidates(doc: TEIDocument) -> list[DivCandidate]:
     """Return [(div_type, subtype_or_None, [element, ...]), ...] for content divs.
 
     Skips the outermost div whose @n is a CTS URN.  When a div type has more
@@ -187,18 +194,18 @@ def _collect_div_candidates(doc: TEIDocument) -> list[tuple[str, str | None, lis
     for (dt, st), els in by_pair.items():
         by_type.setdefault(dt, {})[st] = els
 
-    result: list[tuple[str, str | None, list]] = []
+    result: list[DivCandidate] = []
     for div_type, subtype_map in by_type.items():
         distinct = [st for st in subtype_map if st is not None]
         if len(distinct) > MAX_SUBTYPES_PER_DIV_TYPE:
             # Flat structure: collapse all elements to type-level chunking.
             all_els = [el for els in subtype_map.values() for el in els]
-            result.append((div_type, None, all_els))
+            result.append(DivCandidate(div_type, None, all_els))
         else:
             for subtype, els in subtype_map.items():
-                result.append((div_type, subtype, els))
+                result.append(DivCandidate(div_type, subtype, els))
 
-    result.sort(key=lambda g: (g[1] is None,))
+    result.sort(key=lambda g: (g.subtype is None,))
     return result
 
 
@@ -218,9 +225,10 @@ def _div_depth(doc: TEIDocument, div_type: str, subtype: str | None) -> int:
     if text_el is None:
         return 0
 
-    max_depth: list[int] = [0]
+    max_depth = 0
 
     def walk(el: object, div_depth: int = 0) -> None:
+        nonlocal max_depth
         for child in el:  # type: ignore[union-attr]
             tag = child.tag if isinstance(child.tag, str) else ""
             is_div = tag.endswith("}div") or tag == "div"
@@ -232,11 +240,20 @@ def _div_depth(doc: TEIDocument, div_type: str, subtype: str | None) -> int:
                     subtype is None or child_sub == subtype
                 )
                 if matches:
-                    max_depth[0] = max(max_depth[0], child_depth)
+                    max_depth = max(max_depth, child_depth)
             walk(child, child_depth)
 
     walk(text_el)
-    return max_depth[0]
+    return max_depth
+
+
+def _override_candidates(hint: str) -> list[ChunkingStrategy]:
+    """Return the ordered list of strategies to try for an editorial override hint."""
+    return [
+        MilestoneStrategy(unit=hint),
+        DivisionStrategy(div_type="textpart", subtype=hint),
+        DivisionStrategy(div_type=hint),
+    ]
 
 
 class StrategySelector:
@@ -261,11 +278,7 @@ class StrategySelector:
         # 1. Editorial override
         hint = _editorial_override(doc)
         if hint:
-            for candidate in [
-                MilestoneStrategy(unit=hint),
-                DivisionStrategy(div_type="textpart", subtype=hint),
-                DivisionStrategy(div_type=hint),
-            ]:
+            for candidate in _override_candidates(hint):
                 if candidate.describes(doc):
                     return candidate
 
@@ -296,21 +309,17 @@ class StrategySelector:
 
         hint = _editorial_override(doc)
         if hint:
-            for candidate in [
-                MilestoneStrategy(unit=hint),
-                DivisionStrategy(div_type="textpart", subtype=hint),
-                DivisionStrategy(div_type=hint),
-            ]:
+            for candidate in _override_candidates(hint):
                 if candidate.describes(doc) and candidate not in results:
                     results.append(candidate)
 
         groups = _collect_div_candidates(doc)
         ranked = sorted(
             groups,
-            key=lambda g: (g[1] is None, -_div_depth(doc, g[0], g[1])),
+            key=lambda g: (g.subtype is None, -_div_depth(doc, g.div_type, g.subtype)),
         )
-        for div_type, subtype, _ in ranked:
-            s = DivisionStrategy(div_type=div_type, subtype=subtype)
+        for group in ranked:
+            s = DivisionStrategy(div_type=group.div_type, subtype=group.subtype)
             if s not in results:
                 results.append(s)
 
@@ -327,7 +336,7 @@ class StrategySelector:
     def _pick_div_strategy(
         self,
         doc: TEIDocument,
-        groups: list[tuple[str, str | None, list]],
+        groups: list[DivCandidate],
     ) -> ChunkingStrategy | None:
         """Choose the best DivisionStrategy from the candidate groups.
 
@@ -340,31 +349,25 @@ class StrategySelector:
           fallback in select() can handle the document (a single enormous div
           is not a useful chunk boundary).
         """
-        def mean_length(els) -> float:
-            if not els:
+        def mean_length(g: DivCandidate) -> float:
+            if not g.elements:
                 return 0.0
-            return sum(_direct_text_length(e) for e in els) / len(els)
+            return sum(_direct_text_length(e) for e in g.elements) / len(g.elements)
 
         # Prefer subtype-bearing candidates; only consider no-subtype groups if
         # there are no subtype groups at all.
-        subtype_groups = [(dt, st, els) for dt, st, els in groups if st is not None]
+        subtype_groups = [g for g in groups if g.subtype is not None]
         pool = subtype_groups if subtype_groups else groups
 
-        passing = [
-            (dt, st, els) for dt, st, els in pool
-            if MIN_CHUNK_CHARS <= mean_length(els) <= MAX_CHUNK_CHARS
-        ]
+        passing = [g for g in pool if MIN_CHUNK_CHARS <= mean_length(g) <= MAX_CHUNK_CHARS]
         if passing:
-            best = max(passing, key=lambda g: _div_depth(doc, g[0], g[1]))
-            return DivisionStrategy(div_type=best[0], subtype=best[1])
+            best = max(passing, key=lambda g: _div_depth(doc, g.div_type, g.subtype))
+            return DivisionStrategy(div_type=best.div_type, subtype=best.subtype)
 
-        too_small = [
-            (dt, st, els) for dt, st, els in pool
-            if mean_length(els) < MIN_CHUNK_CHARS
-        ]
+        too_small = [g for g in pool if mean_length(g) < MIN_CHUNK_CHARS]
         if too_small:
-            best = max(too_small, key=lambda g: _div_depth(doc, g[0], g[1]))
-            return DivisionStrategy(div_type=best[0], subtype=best[1])
+            best = max(too_small, key=lambda g: _div_depth(doc, g.div_type, g.subtype))
+            return DivisionStrategy(div_type=best.div_type, subtype=best.subtype)
 
         # Only too-large candidates — let milestone fallback try.
         return None

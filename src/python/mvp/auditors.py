@@ -12,7 +12,7 @@ from mvp.tei_document import (
     NS,
     XML_BASE,
     XML_ID,
-    TEIDocument,
+    LenientTEIDocument,
     expected_div_base,
     expected_leaf_base,
 )
@@ -162,7 +162,7 @@ class ReferenceAuditReport:
 # ---------------------------------------------------------------------------
 
 class Auditor(ABC, Generic[_T]):
-    def __init__(self, doc: TEIDocument) -> None:
+    def __init__(self, doc: LenientTEIDocument) -> None:
         self._doc = doc
 
     @abstractmethod

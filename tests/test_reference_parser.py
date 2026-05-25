@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from mvp.tei_document import TEIDocument
+from mvp.tei_document import LenientTEIDocument
 from mvp.reference_parser import CitationError, ConfigurationError, ReferenceParser
 
 # ---------------------------------------------------------------------------
@@ -93,7 +93,7 @@ THUCYDIDES_XML = f"""\
 
 @pytest.fixture
 def apology_doc(tmp_path):
-    return TEIDocument(write_xml(tmp_path, APOLOGY_XML))
+    return LenientTEIDocument(write_xml(tmp_path, APOLOGY_XML))
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ def apology_parser(apology_doc):
 
 @pytest.fixture
 def thucydides_doc(tmp_path):
-    return TEIDocument(write_xml(tmp_path, THUCYDIDES_XML))
+    return LenientTEIDocument(write_xml(tmp_path, THUCYDIDES_XML))
 
 
 @pytest.fixture
@@ -138,7 +138,7 @@ class TestApologyConstructor:
               </text>
             </TEI>
         """
-        doc = TEIDocument(write_xml(tmp_path, xml))
+        doc = LenientTEIDocument(write_xml(tmp_path, xml))
         assert ReferenceParser(doc) is not None
 
     def test_no_cite_structure_raises(self, tmp_path):
@@ -162,7 +162,7 @@ class TestApologyConstructor:
               </text>
             </TEI>
         """
-        doc = TEIDocument(write_xml(tmp_path, xml))
+        doc = LenientTEIDocument(write_xml(tmp_path, xml))
         with pytest.raises(ConfigurationError):
             ReferenceParser(doc)
 
@@ -186,7 +186,7 @@ class TestApologyConstructor:
               </text>
             </TEI>
         """
-        doc = TEIDocument(write_xml(tmp_path, xml))
+        doc = LenientTEIDocument(write_xml(tmp_path, xml))
         with pytest.raises(ConfigurationError):
             ReferenceParser(doc)
 

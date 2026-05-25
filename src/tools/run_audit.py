@@ -22,7 +22,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from mvp.auditors import ReferenceAuditor, StructureAuditor
-from mvp.tei_document import TEIDocument
+from mvp.tei_document import LenientTEIDocument
 
 
 def _find_tei_files(root: Path) -> list[Path]:
@@ -33,7 +33,7 @@ def _find_tei_files(root: Path) -> list[Path]:
 
 
 def _audit_file(path: Path) -> dict:
-    doc = TEIDocument(path)
+    doc = LenientTEIDocument(path)
     s_report = StructureAuditor(doc).audit()
     r_report = ReferenceAuditor(doc).audit()
     return {

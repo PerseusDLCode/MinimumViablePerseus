@@ -16,24 +16,10 @@ from pathlib import Path
 
 from saxonche import PySaxonProcessor
 
-from mvp.document import TEIDocument
+from mvp.document import LANGUAGE_NAMES, TEIDocument
 from mvp.models import TEIMetadata
 from mvp.site_map import SiteMap
 from mvp.strategy import ChunkingStrategy
-
-# Human-readable names for BCP 47 / ISO 639-3 language codes.
-_LANGUAGE_NAMES: dict[str, str] = {
-    "lat": "Latin",
-    "grc": "Greek",
-    "eng": "English",
-    "ara": "Arabic",
-    "per": "Persian",
-    "deu": "German",
-    "fra": "French",
-    "ita": "Italian",
-    "spa": "Spanish",
-    "rus": "Russian",
-}
 
 _SHARED_CSS = """
 .site-header { border-bottom: 1px solid #ccc; margin-bottom: 1.5em;
@@ -194,6 +180,29 @@ class PageCompiler:
             )
 
 
+def _render_page(title: str, css: str, header_html: str, main_html: str) -> str:
+    """Render the shared HTML page shell used by all catalog pages."""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{title}</title>
+  <style>{css}</style>
+</head>
+<body>
+  <header class="site-header">
+    {header_html}
+  </header>
+  <main>
+{main_html}
+  </main>
+  <footer class="site-footer">Perseus Digital Library</footer>
+</body>
+</html>
+"""
+
+
 class CatalogCompiler:
     """Compiles TEIMetadata records into catalog HTML pages.
 
@@ -226,7 +235,7 @@ class CatalogCompiler:
             return
 
         language = entries[0].language
-        lang_name = _LANGUAGE_NAMES.get(language, language.upper() if language else "Unknown")
+        lang_name = LANGUAGE_NAMES.get(language, language.upper() if language else "Unknown")
 
         # Sort by author then title.
         sorted_entries = sorted(entries, key=lambda e: (e.author.lower(), e.title.lower()))
@@ -264,28 +273,21 @@ class CatalogCompiler:
             self._site_map.root / "index.html", output_path.parent
         ).replace("\\", "/")
 
-        html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perseus — {lang_name} Texts</title>
-  <style>{_CATALOG_CSS}</style>
-</head>
-<body>
-  <header class="site-header">
-    <a href="{index_url}">Perseus Digital Library</a>
-    <span> · All Languages</span>
-  </header>
-  <main>
-    <h1>{lang_name} Texts</h1>
-    <p class="summary">{count} {noun}</p>
-{body}
-  </main>
-  <footer class="site-footer">Perseus Digital Library</footer>
-</body>
-</html>
-"""
+        header_html = (
+            f'<a href="{index_url}">Perseus Digital Library</a>\n'
+            f'    <span> · All Languages</span>'
+        )
+        main_html = (
+            f'    <h1>{lang_name} Texts</h1>\n'
+            f'    <p class="summary">{count} {noun}</p>\n'
+            f'{body}'
+        )
+        html = _render_page(
+            title=f"Perseus — {lang_name} Texts",
+            css=_CATALOG_CSS,
+            header_html=header_html,
+            main_html=main_html,
+        )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
 
@@ -299,7 +301,7 @@ class CatalogCompiler:
         """
         items: list[str] = []
         for lang, entries in sorted(languages.items()):
-            lang_name = _LANGUAGE_NAMES.get(lang, lang.upper() if lang else "Unknown")
+            lang_name = LANGUAGE_NAMES.get(lang, lang.upper() if lang else "Unknown")
             count = len(entries)
             noun = "work" if count == 1 else "works"
             catalog_url = os.path.relpath(
@@ -313,31 +315,17 @@ class CatalogCompiler:
             )
 
         items_html = "\n".join(items)
-        html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perseus Digital Library</title>
-  <style>{_INDEX_CSS}
-.count {{ color: #888; font-size: .9em }}
-</style>
-</head>
-<body>
-  <header class="site-header">
-    <span class="site-name">Perseus Digital Library</span>
-  </header>
-  <main>
-    <h1>Perseus Digital Library</h1>
-    <p class="tagline">Texts from ancient Greece and Rome.</p>
-    <ul>
-{items_html}
-    </ul>
-  </main>
-  <footer class="site-footer">Perseus Digital Library</footer>
-</body>
-</html>
-"""
+        main_html = (
+            '    <h1>Perseus Digital Library</h1>\n'
+            '    <p class="tagline">Texts from ancient Greece and Rome.</p>\n'
+            f'    <ul>\n{items_html}\n    </ul>'
+        )
+        html = _render_page(
+            title="Perseus Digital Library",
+            css=_INDEX_CSS + "\n.count { color: #888; font-size: .9em }",
+            header_html='<span class="site-name">Perseus Digital Library</span>',
+            main_html=main_html,
+        )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
 

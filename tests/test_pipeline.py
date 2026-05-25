@@ -101,7 +101,7 @@ def mock_runtime(*, page_effect=None, cig_effect=None):
     with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
          patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls, \
          patch("mvp.pipeline.CitationIndexGenerator") as mock_cig_cls, \
-         patch("mvp.pipeline.TEIDocument"):
+         patch("mvp.pipeline.LenientTEIDocument"):
         if page_effect is not None:
             mock_page_cls.return_value.compile.side_effect = page_effect
         else:
