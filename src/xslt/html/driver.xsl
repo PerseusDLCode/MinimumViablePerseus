@@ -55,6 +55,7 @@
   <!-- Enrichment parameters — owned exclusively by the driver -->
   <xsl:param name="morph-url"      as="xs:string" select="''"/>
   <xsl:param name="citation-table" as="xs:string" select="''"/>
+  <xsl:param name="css-url"        as="xs:string" select="'/css/reader.css'"/>
 
   <!-- Structural parameters — redeclared here for documentation;
        the chunkers also declare these and will receive command-line values. -->
@@ -146,7 +147,7 @@
         <xsl:if test="exists($cts-range)">
           <meta name="dc.identifier" content="{$cts-range}"/>
         </xsl:if>
-        <style><xsl:value-of select="$page-css"/></style>
+        <link rel="stylesheet" href="{$css-url}"/>
       </head>
       <body>
         <div class="perseus-shell">

@@ -46,6 +46,7 @@
   <xsl:param name="chunk-unit"  as="xs:string" select="'chapter'"/>
   <xsl:param name="output-dir"  as="xs:string" select="'.'"/>
   <xsl:param name="catalog-url" as="xs:string" select="'/index.html'"/>
+  <xsl:param name="css-url"     as="xs:string" select="'/css/reader.css'"/>
 
 
   <!-- ============================================================
@@ -134,7 +135,7 @@
               <meta charset="utf-8"/>
               <meta name="viewport" content="width=device-width, initial-scale=1"/>
               <title><xsl:value-of select="$work-title"/> — Contents | Perseus</title>
-              <style><xsl:value-of select="$page-css"/></style>
+              <link rel="stylesheet" href="{$css-url}"/>
             </head>
             <body>
               <div class="perseus-shell">
