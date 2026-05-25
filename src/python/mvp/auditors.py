@@ -267,10 +267,9 @@ class StructureAuditor(Auditor[StructureAuditReport]):
             depth_map.setdefault(key, []).append(div)
 
         for (subtype, depth), divs in sorted(depth_map.items(), key=lambda x: x[0][1]):
-            with_n = sum(1 for d in divs if d.get("n"))
-            with_base = sum(1 for d in divs if d.get(XML_BASE))
-            with_id = sum(1 for d in divs if d.get(XML_ID))
-            correct, _, wrong_examples = self._check_div_base_correctness(divs, base_urn)
+            with_n, with_base, with_id, correct, wrong_examples = self._summarize_elements(
+                divs, base_urn, expected_div_base
+            )
             levels.append(CitationLevel(
                 element="div",
                 subtype=subtype,
@@ -287,10 +286,9 @@ class StructureAuditor(Auditor[StructureAuditReport]):
             elems = ed.xpath(f".//tei:{tag}", namespaces=NS)
             if not elems:
                 continue
-            with_n = sum(1 for e in elems if e.get("n"))
-            with_base = sum(1 for e in elems if e.get(XML_BASE))
-            with_id = sum(1 for e in elems if e.get(XML_ID))
-            correct, _, wrong_examples = self._check_leaf_base_correctness(elems, base_urn)
+            with_n, with_base, with_id, correct, wrong_examples = self._summarize_elements(
+                elems, base_urn, expected_leaf_base, require_n=True
+            )
             sample = elems[0]
             depth = 0
             parent = sample.getparent()
@@ -312,31 +310,19 @@ class StructureAuditor(Auditor[StructureAuditReport]):
 
         return levels
 
-    def _check_div_base_correctness(
-        self, divs: list[etree._Element], base_urn: str
+    def _check_base_correctness(
+        self,
+        elements: list[etree._Element],
+        base_urn: str,
+        expected_fn,
+        require_n: bool = False,
     ) -> tuple[int, int, list[tuple[str, str]]]:
         correct = wrong = 0
         wrong_examples: list[tuple[str, str]] = []
-        for div in divs:
-            expected = expected_div_base(div, base_urn)
-            actual = div.get(XML_BASE, "MISSING")
-            if actual == expected:
-                correct += 1
-            else:
-                wrong += 1
-                if len(wrong_examples) < 3:
-                    wrong_examples.append((expected, actual))
-        return correct, wrong, wrong_examples
-
-    def _check_leaf_base_correctness(
-        self, elems: list[etree._Element], base_urn: str
-    ) -> tuple[int, int, list[tuple[str, str]]]:
-        correct = wrong = 0
-        wrong_examples: list[tuple[str, str]] = []
-        for elem in elems:
-            if not elem.get("n"):
+        for elem in elements:
+            if require_n and not elem.get("n"):
                 continue
-            expected = expected_leaf_base(elem, base_urn)
+            expected = expected_fn(elem, base_urn)
             actual = elem.get(XML_BASE, "MISSING")
             if actual == expected:
                 correct += 1
@@ -345,6 +331,21 @@ class StructureAuditor(Auditor[StructureAuditReport]):
                 if len(wrong_examples) < 3:
                     wrong_examples.append((str(expected), actual))
         return correct, wrong, wrong_examples
+
+    def _summarize_elements(
+        self,
+        elements: list[etree._Element],
+        base_urn: str,
+        expected_fn,
+        require_n: bool = False,
+    ) -> tuple[int, int, int, int, list[tuple[str, str]]]:
+        with_n = sum(1 for e in elements if e.get("n"))
+        with_base = sum(1 for e in elements if e.get(XML_BASE))
+        with_id = sum(1 for e in elements if e.get(XML_ID))
+        correct, _, wrong_examples = self._check_base_correctness(
+            elements, base_urn, expected_fn, require_n=require_n
+        )
+        return with_n, with_base, with_id, correct, wrong_examples
 
     def _propose_cite_structure(
         self,
