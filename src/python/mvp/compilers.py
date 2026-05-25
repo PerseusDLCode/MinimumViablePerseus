@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,33 +22,7 @@ from mvp.models import TEIMetadata
 from mvp.site_map import SiteMap
 from mvp.strategy import ChunkingStrategy
 
-_SHARED_CSS = """
-.site-header { border-bottom: 1px solid #ccc; margin-bottom: 1.5em;
-               padding-bottom: .5em; font-size: .9em; color: #555 }
-.site-header a { text-decoration: none; font-weight: bold; color: inherit }
-.site-footer { border-top: 1px solid #eee; margin-top: 2em; padding-top: .5em;
-               font-size: .8em; color: #888; text-align: center }
-"""
-
-_CATALOG_CSS = _SHARED_CSS + """
-body         { font-family: serif; max-width: 60em; margin: 0 auto; padding: 1em 2em }
-h1           { margin-bottom: 0.25em }
-.summary     { color: #555; margin-bottom: 1.5em }
-.author-group { margin: 1.5em 0 }
-.author-name { font-size: 1.05em; font-weight: bold;
-               border-bottom: 1px solid #ccc; padding-bottom: .2em }
-.work-entry  { margin: .35em 0 .35em 1.5em }
-.work-entry a { text-decoration: none }
-.work-entry a:hover { text-decoration: underline }
-"""
-
-_INDEX_CSS = _SHARED_CSS + """
-body  { font-family: serif; max-width: 40em; margin: 0 auto; padding: 2em }
-h1    { margin-bottom: 0.25em }
-.tagline { color: #555; margin-bottom: 1.5em }
-ul    { list-style: none; padding: 0 }
-li    { margin: .5em 0; font-size: 1.1em }
-"""
+_CATALOG_CSS_URL = "/css/catalog.css"
 
 
 class XSLTCompiler:
@@ -180,17 +155,38 @@ class PageCompiler:
             )
 
 
-def _render_page(title: str, css: str, header_html: str, main_html: str) -> str:
+def copy_static_assets(src_static_dir: Path, output_root: Path) -> None:
+    """Copy src_static_dir/css/ to output_root/css/.
+
+    Called at the start of a build so catalog pages can reference
+    /css/catalog.css via a root-relative URL.  Safe to call multiple
+    times; dirs_exist_ok=True means existing files are overwritten.
+    Does nothing if src_static_dir/css/ does not exist.
+    """
+    src_css = Path(src_static_dir) / "css"
+    if not src_css.exists():
+        return
+    shutil.copytree(src_css, Path(output_root) / "css", dirs_exist_ok=True)
+
+
+def _render_page(
+    title: str,
+    css_url: str,
+    header_html: str,
+    main_html: str,
+    body_class: str = "",
+) -> str:
     """Render the shared HTML page shell used by all catalog pages."""
+    body_tag = f'<body class="{body_class}">' if body_class else "<body>"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{title}</title>
-  <style>{css}</style>
+  <link rel="stylesheet" href="{css_url}"/>
 </head>
-<body>
+{body_tag}
   <header class="site-header">
     {header_html}
   </header>
@@ -284,9 +280,10 @@ class CatalogCompiler:
         )
         html = _render_page(
             title=f"Perseus — {lang_name} Texts",
-            css=_CATALOG_CSS,
+            css_url=_CATALOG_CSS_URL,
             header_html=header_html,
             main_html=main_html,
+            body_class="catalog",
         )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
@@ -322,9 +319,10 @@ class CatalogCompiler:
         )
         html = _render_page(
             title="Perseus Digital Library",
-            css=_INDEX_CSS + "\n.count { color: #888; font-size: .9em }",
+            css_url=_CATALOG_CSS_URL,
             header_html='<span class="site-name">Perseus Digital Library</span>',
             main_html=main_html,
+            body_class="index",
         )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")

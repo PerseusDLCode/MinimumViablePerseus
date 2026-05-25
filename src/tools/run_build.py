@@ -33,7 +33,7 @@ from pathlib import Path
 # Allow running directly without installing the package
 sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
-from mvp.compilers import CatalogCompiler
+from mvp.compilers import CatalogCompiler, copy_static_assets
 from mvp.corpus import Corpus
 from mvp.models import TEIMetadata
 from mvp.pipeline import BuildPipeline
@@ -48,7 +48,7 @@ def _resolve_corpus_path(p: Path) -> Path:
     return data_subdir if data_subdir.is_dir() else p
 
 
-def _rebuild_catalog(output_root: Path) -> None:
+def _rebuild_catalog(output_root: Path, static_dir: Path | None = None) -> None:
     """Rebuild catalog pages from existing index.json manifests.
 
     Scans output_root recursively for index.json files, reads the author
@@ -56,6 +56,8 @@ def _rebuild_catalog(output_root: Path) -> None:
     pages.  No corpus or XSLT required.
     """
     site_map = SiteMap(output_root)
+    if static_dir is not None:
+        copy_static_assets(static_dir, output_root)
     entries: list[TEIMetadata] = []
 
     for manifest_path in sorted(output_root.rglob("index.json")):
@@ -135,7 +137,7 @@ def main() -> None:
         if len(args.paths) != 1:
             parser.error("--catalog-only takes exactly one argument: OUTPUT_ROOT")
         print(f"Rebuilding catalog in: {args.paths[0]}")
-        _rebuild_catalog(args.paths[0])
+        _rebuild_catalog(args.paths[0], static_dir=args.xslt_root.parent / "static")
         return
 
     if len(args.paths) < 2:

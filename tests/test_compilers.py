@@ -24,7 +24,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler, XSLTCompiler
+from mvp.compilers import (
+    CatalogCompiler, CompilationError, PageCompiler, XSLTCompiler,
+    copy_static_assets,
+)
 from mvp.document import TEIDocument
 from mvp.models import TEIMetadata
 from mvp.site_map import SiteMap
@@ -444,6 +447,46 @@ class TestCatalogCompilerIndex:
         assert 'class="tagline"' in html
         assert '<main' in html
         assert 'class="site-footer"' in html
+
+
+# ---------------------------------------------------------------------------
+# copy_static_assets
+# ---------------------------------------------------------------------------
+
+class TestCopyStaticAssets:
+
+    def test_copies_css_to_output(self, tmp_path):
+        src = tmp_path / "static" / "css"
+        src.mkdir(parents=True)
+        (src / "catalog.css").write_text("body {}", encoding="utf-8")
+        out = tmp_path / "output"
+        copy_static_assets(tmp_path / "static", out)
+        assert (out / "css" / "catalog.css").exists()
+
+    def test_noop_when_src_css_missing(self, tmp_path):
+        out = tmp_path / "output"
+        copy_static_assets(tmp_path / "nonexistent", out)
+        assert not out.exists()
+
+    def test_catalog_page_references_external_stylesheet(self, tmp_path):
+        site_map = SiteMap(tmp_path / "output")
+        compiler = CatalogCompiler(site_map=site_map)
+        entry = make_entry("urn:cts:latinLit:phi1017.phi007.perseus-lat2")
+        output_path = tmp_path / "catalog" / "lat.html"
+        compiler.compile([entry], output_path)
+        html = output_path.read_text(encoding="utf-8")
+        assert '<link rel="stylesheet"' in html
+        assert "<style>" not in html
+
+    def test_index_page_references_external_stylesheet(self, tmp_path):
+        site_map = SiteMap(tmp_path / "output")
+        compiler = CatalogCompiler(site_map=site_map)
+        languages = {"lat": [make_entry("urn:cts:latinLit:phi1017.phi007.test")]}
+        output_path = tmp_path / "index.html"
+        compiler.compile_index(languages, output_path)
+        html = output_path.read_text(encoding="utf-8")
+        assert '<link rel="stylesheet"' in html
+        assert "<style>" not in html
 
 
 # ---------------------------------------------------------------------------

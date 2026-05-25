@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 
 from mvp.citation_index import CitationIndexGenerator
-from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler
+from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler, copy_static_assets
 from mvp.corpus import Corpus
 from mvp.models import TEIMetadata
 from mvp.reference_parser import ConfigurationError
@@ -57,6 +57,10 @@ class BuildPipeline:
             SystemExit: If any documents failed to compile (after
                         all documents have been attempted).
         """
+        # src/static/ is two levels above the xslt/ directory that contains driver.xsl
+        static_dir = self._driver.parents[2] / "static"
+        copy_static_assets(static_dir, self._site_map.root)
+
         metadata: list[TEIMetadata] = []
         errors: list[CompilationError] = []
 
