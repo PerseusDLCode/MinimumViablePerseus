@@ -1,158 +1,16 @@
-# mvp/compilers.py
-#
-# PageCompiler and CatalogCompiler.
-#
-# Compilers follow the command pattern: compile() returns None on
-# success and raises CompilationError on failure.  All output is
-# written to paths obtained from SiteMap.  Compilers are agents that
-# produce artifacts; they are not functions that return values.
-
 from __future__ import annotations
 
 import json
 import os
 import shutil
-from dataclasses import dataclass
 from pathlib import Path
 
-from saxonche import PySaxonProcessor
-
-from mvp.document import LANGUAGE_NAMES, TEIDocument
+from mvp.compilers.base import Compiler
+from mvp.document import LANGUAGE_NAMES
 from mvp.models import TEIMetadata
 from mvp.site_map import SiteMap
-from mvp.strategy import ChunkingStrategy
 
 _CATALOG_CSS_URL = "/css/catalog.css"
-
-
-class XSLTCompiler:
-    """Generic XSLT 3.0 compiler via SaxonC.
-
-    Wraps the PySaxonProcessor lifecycle. Callers supply source,
-    stylesheet, output directory, and an arbitrary parameter dict.
-    """
-
-    def __init__(self, xsl_file: Path) -> None:
-        self._xsl_file = Path(xsl_file)
-
-    def compile(
-        self,
-        source: Path,
-        output_dir: Path,
-        params: dict[str, str] | None = None,
-    ) -> None:
-        """Transform source via the stylesheet, writing results to output_dir.
-
-        Raises:
-            RuntimeError: if Saxon reports an error.
-        """
-        output_dir.mkdir(parents=True, exist_ok=True)
-        with PySaxonProcessor(license=False) as proc:
-            xslt = proc.new_xslt30_processor()
-            transformer = xslt.compile_stylesheet(
-                stylesheet_file=str(self._xsl_file.resolve())
-            )
-            for name, value in (params or {}).items():
-                transformer.set_parameter(name, proc.make_string_value(value))
-            transformer.set_base_output_uri(output_dir.resolve().as_uri() + "/")
-            transformer.transform_to_string(source_file=str(source.resolve()))
-            if xslt.error_message:
-                raise RuntimeError(xslt.error_message)
-
-
-@dataclass
-class CompilationError(Exception):
-    """Raised when a compiler fails to produce its artifact.
-
-    Carries enough context for the BuildPipeline to log clearly
-    and decide whether to continue or abort.
-    """
-    document: TEIDocument
-    message: str
-    cause: Exception | None = None
-
-    def __str__(self) -> str:
-        base = f"Compilation failed for {self.document.path}: {self.message}"
-        if self.cause:
-            base += f" (caused by: {self.cause})"
-        return base
-
-
-class PageCompiler:
-    """Compiles a TEIDocument into a sequence of HTML chunk pages.
-
-    Delegates document segmentation to a ChunkingStrategy and HTML
-    generation to an XSLT 3.0 stylesheet via Saxon.
-
-    Args:
-        strategy:  ChunkingStrategy determining how the document is
-                   divided into chunks.
-        driver:    Full path to the XSLT driver stylesheet (e.g.
-                   Path("src/xslt/html/driver.xsl")).
-
-    Usage::
-
-        compiler = PageCompiler(strategy, driver=Path("src/xslt/html/driver.xsl"))
-        compiler.compile(doc, output_path=site_map.chunk_dir(doc.metadata.urn))
-    """
-
-    def __init__(self, strategy: ChunkingStrategy,
-                 driver: Path,
-                 morph_url: str = "") -> None:
-        self._strategy = strategy
-        self._xslt = XSLTCompiler(driver)
-        self._morph_url = morph_url
-
-    def compile(self, doc: TEIDocument, output_path: Path,
-                catalog_url: str | None = None) -> None:
-        """Compile doc into HTML chunk pages written to output_path.
-
-        Args:
-            doc:          The TEI source document to compile.
-            output_path:  Directory into which chunk HTML files and
-                          index.json are written.  Created if absent.
-            catalog_url:  URL for the "← Catalog" nav link rendered on
-                          every chunk page.  If omitted, a root-relative
-                          fallback is constructed from the document's
-                          language code.
-
-        Raises:
-            CompilationError: If the XSLT transformation fails for
-                              any reason.
-        """
-        if catalog_url is None:
-            lang = doc.metadata.language
-            catalog_url = f"/catalog/{lang}.html" if lang else "/index.html"
-
-        params: dict[str, str] = {
-            "chunk-unit":     self._strategy.chunk_unit,
-            "chunk-strategy": self._strategy.chunk_strategy,
-            "output-dir":     str(output_path),
-            "catalog-url":    catalog_url,
-        }
-        if self._morph_url:
-            params["morph-url"] = self._morph_url
-
-        try:
-            self._xslt.compile(doc.path, output_path, params)
-        except Exception as exc:
-            raise CompilationError(
-                document=doc,
-                message="XSLT transformation failed",
-                cause=exc,
-            ) from exc
-
-        # Enrich the XSLT-written index.json with author and language so
-        # the catalog can be rebuilt from manifests alone (no source TEI).
-        manifest = output_path / "index.json"
-        if manifest.exists():
-            data = json.loads(manifest.read_text(encoding="utf-8"))
-            data["author"]   = doc.metadata.author
-            data["language"] = doc.metadata.language
-            manifest.write_text(
-                json.dumps(data, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
 
 
 def copy_static_assets(src_static_dir: Path, output_root: Path) -> None:
@@ -199,7 +57,16 @@ def _render_page(
 """
 
 
-class CatalogCompiler:
+def _escape(text: str) -> str:
+    """Minimal HTML escaping for text content."""
+    return (text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+class CatalogCompiler(Compiler[list[TEIMetadata]]):
     """Compiles TEIMetadata records into catalog HTML pages.
 
     Produces one catalog page per language grouping, listing all
@@ -216,33 +83,30 @@ class CatalogCompiler:
     def __init__(self, site_map: SiteMap) -> None:
         self._site_map = site_map
 
-    def compile(self, entries: list[TEIMetadata],
-                output_path: Path) -> None:
+    def compile(self, source: list[TEIMetadata], output_path: Path,
+                **kwargs) -> None:
         """Compile a per-language catalog page and write it to output_path.
 
         Args:
-            entries:     Metadata records for all documents in one language.
+            source:      Metadata records for all documents in one language.
             output_path: Path of the catalog HTML file to write.
 
         The catalog page is always written, even if some entries have no
         compiled chunks (those entries appear as plain text without a link).
         """
-        if not entries:
+        if not source:
             return
 
-        language = entries[0].language
+        language = source[0].language
         lang_name = LANGUAGE_NAMES.get(language, language.upper() if language else "Unknown")
 
-        # Sort by author then title.
-        sorted_entries = sorted(entries, key=lambda e: (e.author.lower(), e.title.lower()))
+        sorted_entries = sorted(source, key=lambda e: (e.author.lower(), e.title.lower()))
 
-        # Group by author.
         authors: dict[str, list[TEIMetadata]] = {}
         for entry in sorted_entries:
             author = entry.author or "Anonymous"
             authors.setdefault(author, []).append(entry)
 
-        # Build the author/work HTML rows.
         rows: list[str] = []
         for author, works in authors.items():
             rows.append(f'    <div class="author-group">')
@@ -262,7 +126,7 @@ class CatalogCompiler:
             rows.append(f'    </div>')
 
         body = "\n".join(rows)
-        count = len(entries)
+        count = len(source)
         noun = "work" if count == 1 else "works"
 
         index_url = os.path.relpath(
@@ -327,20 +191,8 @@ class CatalogCompiler:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(html, encoding="utf-8")
 
-    # ------------------------------------------------------------------
-    # Private
-
     def _first_chunk_url(self, urn: str, from_dir: Path) -> str | None:
-        """Return a relative URL to the first chunk of urn, relative to from_dir.
-
-        Args:
-            urn:      CTS URN of the work to link to.
-            from_dir: Directory of the page that will contain the link
-                      (e.g. the catalog file's parent directory).
-        Returns:
-            A relative URL string suitable for an href attribute, or None
-            if no compiled manifest exists for the given URN.
-        """
+        """Return a relative URL to the first chunk of urn, relative to from_dir."""
         manifest_path = self._site_map.manifest_path(urn)
         if not manifest_path.exists():
             return None
@@ -356,12 +208,3 @@ class CatalogCompiler:
             return os.path.relpath(chunk_abs, from_dir).replace("\\", "/")
         except (json.JSONDecodeError, KeyError, ValueError):
             return None
-
-
-def _escape(text: str) -> str:
-    """Minimal HTML escaping for text content."""
-    return (text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;"))

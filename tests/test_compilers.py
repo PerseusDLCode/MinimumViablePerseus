@@ -63,7 +63,7 @@ def mock_saxon():
     error_message is set to None so the post-transform error check in
     XSLTCompiler.compile() does not raise on success paths.
     """
-    with patch("mvp.compilers.PySaxonProcessor") as mock_cls:
+    with patch("mvp.compilers.page_compiler.PySaxonProcessor") as mock_cls:
         mock_proc = MagicMock()
         mock_cls.return_value.__enter__ = MagicMock(return_value=mock_proc)
         mock_cls.return_value.__exit__ = MagicMock(return_value=False)
