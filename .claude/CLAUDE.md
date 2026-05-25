@@ -67,8 +67,8 @@ There are also several scripts that may be run to generate output:
 
 | Script | Role |
 |------------|------|
-| `run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
-| `run_build.py` | Builds the site |
+| `src/tools/run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
+| `src/tools/run_build.py` | Builds the site |
 
 
 ### Major Modules and Their Roles
@@ -98,30 +98,29 @@ Almost all source code lives under `src/python/`.  The primary package is
 | Module | Role |
 |--------|------|
 | `mvp/auditors.py` | `StructureAuditor`, `ReferenceAuditor` — analyze TEI document structure and `refsDecl` declarations |
-| `mvp/compilers.py` | PageCompiler and CatalogCompiler. Other compilation activities should get their own classes here. |
+| `mvp/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
+| `mvp/citation_resolver.py` | `CitationResolver` — resolves scholarly abbreviation strings (e.g. "Hom. Od. 1.1") to CTS URNs via OCD abbreviation data |
+| `mvp/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`) |
 | `mvp/corpus.py` | the Corpus object discovers and enumerates TEI source documents (TEIDocuments) under a root directory |
 | `mvp/document.py` | One version of the TEIDocument class, with extracted metadata |
 | `mvp/indexers.py` | `TEIIndexer`, `WordIndexer`, `ChunkIndexer` — extract word tokens and chunk elements with XPath provenance for NLP pipelines |
-| `mvp/linters.py` | Probably obsolete |
-| `mvp/tei_document.py` | Thin TEI wrapper with recover-mode parser; shared by auditors and normalizers |
-| `mvp/models.py`| Core data objects for the build pipeline |
-| `mvp/normalizers.py` | Phases 2 and 3 of the citation pipeline: repair `xml:base`, add `xml:id` (status: possibly superseded by `citeStructure` approach; retained pending decision) |
-| `mvp/pipeline.py` | BuildPipeline : orchestrates the site build |
+| `mvp/models.py` | Core data objects for the build pipeline |
+| `mvp/pipeline.py` | `BuildPipeline` — orchestrates the site build |
 | `mvp/reference_parser.py` | `ReferenceParser` — resolves CTS URNs to TEI elements and generates CTS URNs from elements via `<citeStructure>`; raises `ConfigurationError` / `CitationError` |
 | `mvp/site_map.py` | owns the output path and URL scheme for all compiled artifacts |
-| `mvp/strategy.py` | ChunkingStrategy and StrategySelector  |
-| `run_build.py` | Builds the site |
-| `run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
-| `tei_citation_pipeline.py` | CLI wrapper (legacy entry point; logic now in `auditors.py` and `normalizers.py`) |
+| `mvp/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
+| `mvp/tei_constants.py` | Shared XML namespace constants and TEI tag definitions |
+| `mvp/tei_document.py` | Thin TEI wrapper with recover-mode parser; shared by auditors and compilers |
 
 
-There is also code outside the `mvp` package.
+There is also code outside the `mvp` package, under `src/tools/`.
 
-| Module | Role |
+| Script | Role |
 |--------|------|
-|`src/python/run_audit.py` | commandline script to run audits on a Perseus corpus |
-|`src/python/tei_citation_pipeline.py`       | an older script that combined auditing, normalizing, and adding xml ids. `run_audit.py` has been refactored out of it; the other tasks have been moved to `mvp/normalizers.py`.  This is ripe for cleanup.     |
-|`/src/python/utils/*.py`       | Developed before the auditor tools; these scripts should be looked at to see if they are still needed.     |
+| `src/tools/run_audit.py` | Commandline script to run audits on a Perseus corpus |
+| `src/tools/run_build.py` | Builds the site |
+| `src/tools/classify_corpus.py` | Classifies corpus documents by structure type |
+| `src/tools/analyze_audit.py` | Analyzes audit output reports |
 
 
 There is also an implementation of a simple morphological server at

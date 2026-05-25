@@ -2395,6 +2395,122 @@ Open questions for Cliff:
   excluded from the testbed?
 - Should a family-5 text be added now, or deferred until the
   div-based pipeline is working end-to-end?
+
+** Architectural Reframing: Corpora and Annotations as First-Class Abstractions
+:PROPERTIES:
+:CUSTOM_ID: architectural-reframing-corpora-first-class
+:ASSIGNEES: Cliff
+:SOURCE: chat/2026-05-25
+:DISPOSITION: under-discussion
+:END:
+
+[2026-05-25] Discussion initiated in Claude Code session (cleanup branch).
+Cliff will develop the full architectural statement in Claude Chat and
+bring it back here.
+
+*** Context
+
+Two pressures are converging to make an architectural restatement urgent:
+
+1. *P4 retirement.*  Tufts IT is insisting that the current Perseus
+   site (=https://www.perseus.tufts.edu/hopper/=) be retired.  The
+   codebase and server infrastructure are badly out of date.  MVP's
+   original mandate was not to build Perseus 6 but to replace P4 with
+   something that can be maintained.
+
+2. *Team friction.*  The NLP specialist (Charles Pletcher) dislikes TEI
+   and XSLT and has framed their use as a "maintainability issue."  This
+   has created growing tension with the rest of the team, for whom
+   TEI-encoded texts are foundational, not negotiable.
+
+*** The architectural insight
+
+The high-level architecture of Perseus has three distinct layers with
+different statuses:
+
+1. *Primary — Corpora.*  TEI texts with their CTS-inspired structure
+   (text-groups, works, versions).  These /are/ Perseus.  They exist
+   independently of any interface.  Their quality and maintainability
+   are non-negotiable priorities.
+
+2. *Derived (peer) — Annotations.*  Morphological analyses, citations,
+   cross-references, glosses.  These enrich the corpus and are stored
+   and versioned separately.  NLP outputs (morphological analyses) are
+   annotations: they are derived /from/ the corpus and added /to/ it.
+
+3. *Derived (downstream) — Interfaces.*  Static websites, reading
+   environments, etc.  These are consequences of having a good corpus,
+   not the point of the project.
+
+This architecture has been obscured by the development focus on the
+static site generator.  Making it explicit resolves several problems:
+
+- It establishes that TEI/CTS is foundational and not subject to
+  negotiation over "maintainability."  TEI is the data; interfaces are
+  optional.
+
+- It clarifies the NLP team's role: they produce /annotations/ that
+  sit alongside the corpus.  Their code does not need to touch XSLT or
+  TEI encoding; they consume the corpus and emit structured outputs.
+  The architectural separation is load-bearing, not a gentleman's
+  agreement.
+
+- It reframes corpus quality as a first-order engineering concern, not
+  a cleanup task.  ~300 documents cannot be automatically migrated
+  because their citation metadata is absent or wrong.  That is a
+  primary-layer problem.
+
+*** Corpus quality and the full-corpus analysis
+
+An automated audit of 3,774 documents across four corpora
+(canonical-greekLit, first1kgreek, csel, canonical-latinLit) was run
+on 2026-05-23 using =run_audit.py= + =classify_corpus.py=.  Key findings:
+
+- Six structural families identified; five have defined migration paths.
+- Family 1 (hierarchical div): 2,002 docs (53%) — low migration effort.
+- Family 2 (verse, =<l>= leaf): 611 docs (16%) — low effort.
+- Family 3 (milestone-primary): 698 docs (18.5%) — medium effort;
+  216 have no citation declarations at all and require editorial work.
+- Family 4 (drama): 77 docs (2%) — low effort.
+- Family 5 (parallel tradition, Bekker/Stephanus/etc.): 289 docs (7.7%) — medium effort.
+- Family 6 (unknown): 97 docs (2.6%) — high effort, manual inspection required.
+- 45 latinLit documents excluded due to XML parse failures.
+- ~300 documents (families 3 and 6) have no effective citation
+  metadata and cannot be migrated automatically.
+
+Full report: =~/Downloads/corpus_structural_analysis.html=
+
+canonical-latinLit shows the most problems: 43% milestone-primary,
+11% unknown, 45 parse failures.  A dedicated audit pass for latinLit
+is advisable before committing to a migration timeline for that corpus.
+
+Known classifier fix needed: 42 texts with =Jebb_page= as their
+primary cref pattern are misclassified as family 1; they belong in
+family 5.  Fix: add =Jebb_page= to =PARALLEL_TRADITION_MILESTONES= in
+=classify_corpus.py=.
+
+*** Recommended sequencing (from corpus analysis)
+
+1. Families 1 and 4, greekLit and first1kgreek: highest volume, lowest effort.
+2. Family 2 (verse): extend =transform1.xsl= to emit =<l>=-level =<citeStructure>=.
+3. Family 5, Greek texts: text-specific companions (Aristotle, Plato, Sophocles).
+4. Family 3, Greek and first1kgreek: after editorial review of the 216 undeclared texts.
+5. latinLit (all families): after a dedicated audit pass.
+6. Family 6 and parse-error documents: after manual inspection.
+
+*** Open questions
+
+- Full architectural statement: Cliff to develop and return with a
+  draft for forum review.
+- Codebase reorganization: the existing =mvp/= flat module structure
+  does not reflect the three-layer architecture.  A domain-driven
+  reorganization (=corpus/=, =site/=, =revision/= packages, with
+  =citation/= spanning corpus and annotation layers) was discussed but
+  deferred pending the architectural statement.
+- SpaCy/NLP integration: decided OUT OF SCOPE for MVP.  NLP is its
+  own development track with its own developers.  The =spacy-integration=
+  branch is retained but will not be merged into MVP.
+
 * Implementations
 
 ** TEI Structure
