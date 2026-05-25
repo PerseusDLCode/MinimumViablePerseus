@@ -38,7 +38,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from saxonche import PySaxonProcessor
+from mvp.compilers import XSLTCompiler
 
 
 def _parse_params(raw: list[str]) -> dict[str, str]:
@@ -51,38 +51,6 @@ def _parse_params(raw: list[str]) -> dict[str, str]:
         name, _, value = item.partition("=")
         result[name.strip()] = value
     return result
-
-
-def transform(
-    tei_file: Path,
-    xsl_file: Path,
-    output_dir: Path,
-    params: dict[str, str] | None = None,
-) -> None:
-    """Run the XSLT transformation and write output to output_dir.
-
-    Raises:
-        RuntimeError: if the Saxon transformation fails.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    extra = params or {}
-
-    with PySaxonProcessor(license=False) as proc:
-        xslt = proc.new_xslt30_processor()
-        transformer = xslt.compile_stylesheet(stylesheet_file=str(xsl_file.resolve()))
-
-        transformer.set_parameter(
-            "output-dir",
-            proc.make_string_value(str(output_dir.resolve())),
-        )
-        for name, value in extra.items():
-            transformer.set_parameter(name, proc.make_string_value(value))
-
-        transformer.set_base_output_uri(output_dir.resolve().as_uri() + "/")
-        transformer.transform_to_string(source_file=str(tei_file.resolve()))
-
-        if xslt.error_message:
-            raise RuntimeError(xslt.error_message)
 
 
 def main() -> int:
@@ -115,8 +83,10 @@ def main() -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
+    params = {"output-dir": str(args.output_dir.resolve()), **extra}
+    compiler = XSLTCompiler(args.xsl_file)
     try:
-        transform(args.tei_file, args.xsl_file, args.output_dir, extra)
+        compiler.compile(args.tei_file, args.output_dir, params)
     except Exception as exc:
         print(f"ERROR: transformation failed: {exc}", file=sys.stderr)
         return 1

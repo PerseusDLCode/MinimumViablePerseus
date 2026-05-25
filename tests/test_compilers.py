@@ -24,7 +24,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler
+from mvp.compilers import CatalogCompiler, CompilationError, PageCompiler, XSLTCompiler
 from mvp.document import TEIDocument
 from mvp.models import TEIMetadata
 from mvp.site_map import SiteMap
@@ -56,11 +56,15 @@ def mock_saxon():
     The mock is configured so that the context-manager protocol works:
         with PySaxonProcessor(license=False) as proc: ...
     yields a mock proc object whose method calls are also mocks.
+
+    error_message is set to None so the post-transform error check in
+    XSLTCompiler.compile() does not raise on success paths.
     """
     with patch("mvp.compilers.PySaxonProcessor") as mock_cls:
         mock_proc = MagicMock()
         mock_cls.return_value.__enter__ = MagicMock(return_value=mock_proc)
         mock_cls.return_value.__exit__ = MagicMock(return_value=False)
+        mock_proc.new_xslt30_processor.return_value.error_message = None
         yield mock_cls, mock_proc
 
 
@@ -102,6 +106,71 @@ class TestCompilationError:
 
 
 # ---------------------------------------------------------------------------
+# XSLTCompiler
+# ---------------------------------------------------------------------------
+
+class TestXSLTCompiler:
+
+    def test_construction_does_not_raise(self, tmp_path):
+        compiler = XSLTCompiler(xsl_file=tmp_path / "driver.xsl")
+        assert compiler is not None
+
+    def test_accepts_string_path(self, tmp_path):
+        compiler = XSLTCompiler(xsl_file=str(tmp_path / "driver.xsl"))
+        assert compiler is not None
+
+    def test_creates_output_directory(self, tmp_path, mock_saxon):
+        output_path = tmp_path / "out" / "deep"
+        assert not output_path.exists()
+        compiler = XSLTCompiler(xsl_file=tmp_path / "driver.xsl")
+        source = tmp_path / "source.xml"
+        source.touch()
+        compiler.compile(source, output_path)
+        assert output_path.is_dir()
+
+    def test_invokes_stylesheet(self, tmp_path, mock_saxon):
+        mock_cls, mock_proc = mock_saxon
+        driver = tmp_path / "driver.xsl"
+        compiler = XSLTCompiler(xsl_file=driver)
+        source = tmp_path / "source.xml"
+        source.touch()
+        compiler.compile(source, tmp_path / "out")
+        mock_proc.new_xslt30_processor().compile_stylesheet.assert_called_once_with(
+            stylesheet_file=str(driver.resolve())
+        )
+
+    def test_passes_params_to_transformer(self, tmp_path, mock_saxon):
+        mock_cls, mock_proc = mock_saxon
+        transformer = mock_proc.new_xslt30_processor().compile_stylesheet()
+        compiler = XSLTCompiler(xsl_file=tmp_path / "driver.xsl")
+        source = tmp_path / "source.xml"
+        source.touch()
+        compiler.compile(source, tmp_path / "out", params={"foo": "bar", "baz": "qux"})
+        calls = [str(c) for c in transformer.set_parameter.call_args_list]
+        assert any("foo" in c for c in calls)
+        assert any("baz" in c for c in calls)
+
+    def test_raises_runtime_error_on_saxon_error(self, tmp_path, mock_saxon):
+        mock_cls, mock_proc = mock_saxon
+        mock_proc.new_xslt30_processor().compile_stylesheet(
+        ).transform_to_string.side_effect = RuntimeError("Saxon failed")
+        compiler = XSLTCompiler(xsl_file=tmp_path / "driver.xsl")
+        source = tmp_path / "source.xml"
+        source.touch()
+        with pytest.raises(RuntimeError):
+            compiler.compile(source, tmp_path / "out")
+
+    def test_raises_on_error_message(self, tmp_path, mock_saxon):
+        mock_cls, mock_proc = mock_saxon
+        mock_proc.new_xslt30_processor.return_value.error_message = "Saxon error"
+        compiler = XSLTCompiler(xsl_file=tmp_path / "driver.xsl")
+        source = tmp_path / "source.xml"
+        source.touch()
+        with pytest.raises(RuntimeError, match="Saxon error"):
+            compiler.compile(source, tmp_path / "out")
+
+
+# ---------------------------------------------------------------------------
 # PageCompiler
 # ---------------------------------------------------------------------------
 
@@ -138,7 +207,7 @@ class TestPageCompilerCompile:
         compiler.compile(seneca_doc, tmp_path / "out")
 
         mock_proc.new_xslt30_processor().compile_stylesheet.assert_called_once_with(
-            stylesheet_file=str(driver)
+            stylesheet_file=str(driver.resolve())
         )
 
     def test_sets_chunk_unit_parameter(self, tmp_path, seneca_doc,

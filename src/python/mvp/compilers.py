@@ -64,6 +64,41 @@ li    { margin: .5em 0; font-size: 1.1em }
 """
 
 
+class XSLTCompiler:
+    """Generic XSLT 3.0 compiler via SaxonC.
+
+    Wraps the PySaxonProcessor lifecycle. Callers supply source,
+    stylesheet, output directory, and an arbitrary parameter dict.
+    """
+
+    def __init__(self, xsl_file: Path) -> None:
+        self._xsl_file = Path(xsl_file)
+
+    def compile(
+        self,
+        source: Path,
+        output_dir: Path,
+        params: dict[str, str] | None = None,
+    ) -> None:
+        """Transform source via the stylesheet, writing results to output_dir.
+
+        Raises:
+            RuntimeError: if Saxon reports an error.
+        """
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with PySaxonProcessor(license=False) as proc:
+            xslt = proc.new_xslt30_processor()
+            transformer = xslt.compile_stylesheet(
+                stylesheet_file=str(self._xsl_file.resolve())
+            )
+            for name, value in (params or {}).items():
+                transformer.set_parameter(name, proc.make_string_value(value))
+            transformer.set_base_output_uri(output_dir.resolve().as_uri() + "/")
+            transformer.transform_to_string(source_file=str(source.resolve()))
+            if xslt.error_message:
+                raise RuntimeError(xslt.error_message)
+
+
 @dataclass
 class CompilationError(Exception):
     """Raised when a compiler fails to produce its artifact.
@@ -104,7 +139,7 @@ class PageCompiler:
                  driver: Path,
                  morph_url: str = "") -> None:
         self._strategy = strategy
-        self._driver = Path(driver)
+        self._xslt = XSLTCompiler(driver)
         self._morph_url = morph_url
 
     def compile(self, doc: TEIDocument, output_path: Path,
@@ -124,60 +159,39 @@ class PageCompiler:
             CompilationError: If the XSLT transformation fails for
                               any reason.
         """
-        output_path.mkdir(parents=True, exist_ok=True)
-        stylesheet = self._driver
-
         if catalog_url is None:
             lang = doc.metadata.language
             catalog_url = f"/catalog/{lang}.html" if lang else "/index.html"
 
-        try:
-            with PySaxonProcessor(license=False) as proc:
-                xslt = proc.new_xslt30_processor()
-                transformer = xslt.compile_stylesheet(
-                    stylesheet_file=str(stylesheet)
-                )
-                transformer.set_parameter(
-                    "chunk-unit",
-                    proc.make_string_value(self._strategy.chunk_unit)
-                )
-                transformer.set_parameter(
-                    "chunk-strategy",
-                    proc.make_string_value(self._strategy.chunk_strategy)
-                )
-                transformer.set_parameter(
-                    "output-dir",
-                    proc.make_string_value(str(output_path))
-                )
-                transformer.set_parameter(
-                    "catalog-url",
-                    proc.make_string_value(catalog_url)
-                )
-                if self._morph_url:
-                    transformer.set_parameter(
-                        "morph-url",
-                        proc.make_string_value(self._morph_url)
-                    )
-                transformer.set_base_output_uri(output_path.as_uri() + "/")
-                transformer.transform_to_string(source_file=str(doc.path))
+        params: dict[str, str] = {
+            "chunk-unit":     self._strategy.chunk_unit,
+            "chunk-strategy": self._strategy.chunk_strategy,
+            "output-dir":     str(output_path),
+            "catalog-url":    catalog_url,
+        }
+        if self._morph_url:
+            params["morph-url"] = self._morph_url
 
-            # Enrich the XSLT-written index.json with author and language so
-            # the catalog can be rebuilt from manifests alone (no source TEI).
-            manifest = output_path / "index.json"
-            if manifest.exists():
-                data = json.loads(manifest.read_text(encoding="utf-8"))
-                data["author"]   = doc.metadata.author
-                data["language"] = doc.metadata.language
-                manifest.write_text(
-                    json.dumps(data, indent=2, ensure_ascii=False),
-                    encoding="utf-8",
-                )
+        try:
+            self._xslt.compile(doc.path, output_path, params)
         except Exception as exc:
             raise CompilationError(
                 document=doc,
                 message="XSLT transformation failed",
                 cause=exc,
             ) from exc
+
+        # Enrich the XSLT-written index.json with author and language so
+        # the catalog can be rebuilt from manifests alone (no source TEI).
+        manifest = output_path / "index.json"
+        if manifest.exists():
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+            data["author"]   = doc.metadata.author
+            data["language"] = doc.metadata.language
+            manifest.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
 
 
 class CatalogCompiler:
