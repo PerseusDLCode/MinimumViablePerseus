@@ -69,6 +69,7 @@ There are also several scripts that may be run to generate output:
 |------------|------|
 | `src/tools/run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
 | `src/tools/run_build.py` | Builds the site |
+| `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
 
 
 ### Major Modules and Their Roles
@@ -93,25 +94,40 @@ XSLT stylesheets live under `src/xslt/`.
 
 #### Python
 Almost all source code lives under `src/python/`.  The primary package is
-`mvp/`.
+`mvp/`, organized into three architectural layers:
+
+**`mvp/corpus/` — TEI document model (foundational; no dependency on site or annotations)**
 
 | Module | Role |
 |--------|------|
-| `mvp/auditors.py` | `StructureAuditor`, `ReferenceAuditor` — analyze TEI document structure and `refsDecl` declarations |
-| `mvp/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
-| `mvp/citation_resolver.py` | `CitationResolver` — resolves scholarly abbreviation strings (e.g. "Hom. Od. 1.1") to CTS URNs via OCD abbreviation data |
-| `mvp/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`) |
-| `mvp/corpus.py` | the Corpus object discovers and enumerates TEI source documents (TEIDocuments) under a root directory |
-| `mvp/document.py` | One version of the TEIDocument class, with extracted metadata |
-| `mvp/indexers.py` | `TEIIndexer`, `WordIndexer`, `ChunkIndexer` — extract word tokens and chunk elements with XPath provenance for NLP pipelines |
-| `mvp/models.py` | Core data objects for the build pipeline |
-| `mvp/pipeline.py` | `BuildPipeline` — orchestrates the site build |
-| `mvp/reference_parser.py` | `ReferenceParser` — resolves CTS URNs to TEI elements and generates CTS URNs from elements via `<citeStructure>`; raises `ConfigurationError` / `CitationError` |
-| `mvp/site_map.py` | owns the output path and URL scheme for all compiled artifacts |
-| `mvp/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
-| `mvp/tei_constants.py` | Shared XML namespace constants and TEI tag definitions |
-| `mvp/tei_document.py` | Thin TEI wrapper with recover-mode parser; shared by auditors and compilers |
+| `mvp/corpus/tei_constants.py` | Shared XML namespace constants and TEI tag definitions |
+| `mvp/corpus/tei_document.py` | Thin TEI wrapper with recover-mode parser |
+| `mvp/corpus/models.py` | Core corpus data objects: `TEIMetadata`, `CitationRecord`, `Word*`/`Chunk*` index types |
+| `mvp/corpus/document.py` | `TEIDocument` — parses a TEI file and extracts metadata |
+| `mvp/corpus/corpus.py` | `Corpus` — discovers and enumerates `TEIDocument`s under a root directory |
+| `mvp/corpus/auditors.py` | `StructureAuditor`, `ReferenceAuditor` — analyze TEI structure and `refsDecl` declarations |
+| `mvp/corpus/indexers.py` | `TEIIndexer`, `WordIndexer`, `ChunkIndexer` — extract word tokens and chunk elements with XPath provenance for NLP pipelines |
+| `mvp/corpus/reference_parser.py` | `ReferenceParser` — resolves CTS URNs to TEI elements and generates CTS URNs from elements via `<citeStructure>`; raises `ConfigurationError` / `CitationError` |
 
+**`mvp/annotations/` — enrichments derived from the corpus**
+
+| Module | Role |
+|--------|------|
+| `mvp/annotations/citation_resolver.py` | `CitationResolver` — resolves scholarly abbreviation strings (e.g. "Hom. Od. 1.1") to CTS URNs via OCD abbreviation data |
+
+**`mvp/site/` — static site compilation (downstream consumer of corpus and annotations)**
+
+| Module | Role |
+|--------|------|
+| `mvp/site/models.py` | Site data objects: `ChunkManifestEntry`, `ChunkManifest` |
+| `mvp/site/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
+| `mvp/site/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
+| `mvp/site/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
+| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`) |
+| `mvp/site/pipeline.py` | `BuildPipeline` — orchestrates the site build |
+
+Each layer's public API is re-exported from its `__init__.py`.  The NLP
+team's integration point is the `annotations/` layer (not `site/`).
 
 There is also code outside the `mvp` package, under `src/tools/`.
 
@@ -119,6 +135,7 @@ There is also code outside the `mvp` package, under `src/tools/`.
 |--------|------|
 | `src/tools/run_audit.py` | Commandline script to run audits on a Perseus corpus |
 | `src/tools/run_build.py` | Builds the site |
+| `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
 | `src/tools/classify_corpus.py` | Classifies corpus documents by structure type |
 | `src/tools/analyze_audit.py` | Analyzes audit output reports |
 
