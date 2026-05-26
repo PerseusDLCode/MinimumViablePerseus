@@ -76,21 +76,27 @@ There are also several scripts that may be run to generate output:
 
 #### XSLT
 
-XSLT stylesheets live under `src/xslt/`.
+XSLT stylesheets live under `src/xslt/`, organized into two subdirectories.
+
+**`src/xslt/corpus-prep/` — TEI corpus preparation and migration**
 
 | Stylesheet | Role |
 |------------|------|
-| `xslt/add_xml_ids.xsl`         | Preparation pass: add stable `xml:id` to citable elements (obsolete) |
-| `xslt/tokenize.xsl`            | Extract word tokens as `<tokens>/<token>` document (obsolete) |
+| `corpus-prep/transform1.xsl` | Primary migration pass: replaces `<cRefPattern>` refsDecl with `<citeStructure>`, sets `@xml:base` on `<body>`, hoists div subtypes to types, strips legacy EpiDoc attributes |
+| `corpus-prep/fix_milestones_and_subchapters.xsl` | Aristotle/Bekker-specific preparation: normalizes Bekker page+column milestones, flattens subchapter divs |
+
+These stylesheets are run offline against the raw corpus before the build pipeline; they are not invoked by the build pipeline itself.
+
+**`src/xslt/html/` — HTML generation pipeline**
+
+| Stylesheet | Role |
+|------------|------|
+| `html/driver.xsl`              | Entry point: dispatches to the appropriate chunker via `$chunk-strategy`; defines the page shell and all enrichment parameters |
 | `html/generate_div_chunks.xsl` | Chunk TEI by `<div>` structure into HTML pages |
 | `html/generate_chunks.xsl`     | Chunk TEI by `<milestone>` elements into HTML pages |
-| `html/chunker_core.xsl`        | Shared CSS design system and templates imported by both chunkers |
-| `html/driver.xsl`              | A stub driver file for combining  TEI->HTML XSL stylesheets     |
-| `html/variables.xsl`           | The start of a file to hold variables common to all stylesheets     |
-| `html/tei/*.xsl`               | Stylesheets tailored to cover elements and attributes defined in Perseus TEI custom schemas     |
-
-
-`xslt/add_xml_ids.xsl` and `xslt/tokenize.xsl` are obsolete, because we are shifting to a new workflow that uses indexers.
+| `html/chunker_core.xsl`        | Chunking infrastructure (boundary logic) imported by both chunkers |
+| `html/variables.xsl`           | Shared variables (currently kept for future use; `$page-css` removed when CSS was externalized) |
+| `html/tei/*.xsl`               | Rendering library: templates for TEI elements in `mode="tei-to-html"`, organized by Perseus schema level |
 
 #### Python
 Almost all source code lives under `src/python/`.  The primary package is
