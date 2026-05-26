@@ -1,4 +1,4 @@
-# mvp/corpus.py
+# mvp/corpus/corpus.py
 #
 # Corpus: discovers and enumerates TEI source documents.
 #

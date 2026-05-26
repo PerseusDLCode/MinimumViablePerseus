@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 site/
+!src/python/mvp/site/
 build/
 develop-eggs/
 dist/
