@@ -76,7 +76,7 @@ def make_pipeline(tmp_path, corpus, selector_side_effect=None,
     if selector_return_value is None and selector_side_effect is None:
         selector_return_value = MilestoneStrategy(unit="card")
 
-    with patch("mvp.pipeline.StrategySelector") as mock_selector_cls:
+    with patch("mvp.site.pipeline.StrategySelector") as mock_selector_cls:
         if selector_side_effect is not None:
             mock_selector_cls.return_value.select.side_effect = selector_side_effect
         else:
@@ -98,10 +98,10 @@ def mock_runtime(*, page_effect=None, cig_effect=None):
 
     Yields (mock_page_cls, mock_catalog_cls, mock_cig_cls).
     """
-    with patch("mvp.pipeline.PageCompiler") as mock_page_cls, \
-         patch("mvp.pipeline.CatalogCompiler") as mock_catalog_cls, \
-         patch("mvp.pipeline.CitationIndexGenerator") as mock_cig_cls, \
-         patch("mvp.pipeline.LenientTEIDocument"):
+    with patch("mvp.site.pipeline.PageCompiler") as mock_page_cls, \
+         patch("mvp.site.pipeline.CatalogCompiler") as mock_catalog_cls, \
+         patch("mvp.site.pipeline.CitationIndexGenerator") as mock_cig_cls, \
+         patch("mvp.site.pipeline.LenientTEIDocument"):
         if page_effect is not None:
             mock_page_cls.return_value.compile.side_effect = page_effect
         else:
@@ -127,7 +127,7 @@ class TestBuildPipelineConstruction:
         corpus_b = MagicMock(spec=Corpus)
         corpus_a.documents.return_value = []
         corpus_b.documents.return_value = []
-        with patch("mvp.pipeline.StrategySelector"):
+        with patch("mvp.site.pipeline.StrategySelector"):
             pl = BuildPipeline(
                 corpora=[corpus_a, corpus_b],
                 site_map=SiteMap(tmp_path / "output"),
@@ -227,7 +227,7 @@ class TestBuildPipelineSuccess:
         corpus_a.documents.return_value = [doc_a]
         corpus_b.documents.return_value = [doc_b]
 
-        with patch("mvp.pipeline.StrategySelector") as mock_sel:
+        with patch("mvp.site.pipeline.StrategySelector") as mock_sel:
             mock_sel.return_value.select.return_value = MilestoneStrategy(unit="card")
             site_map = SiteMap(tmp_path / "output")
             pl = BuildPipeline(
