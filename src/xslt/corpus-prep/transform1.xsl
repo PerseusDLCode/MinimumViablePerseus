@@ -7,48 +7,45 @@
 
     version="4.0">
     <xsl:output method="xml" indent="yes" />
-    
+
+    <!-- CTS namespace component (greekLit, latinLit, …).
+         Pass as a stylesheet parameter; defaults to greekLit. -->
+    <xsl:param name="cts-namespace" as="xs:string" select="'greekLit'"/>
+
+    <!-- Derive the work stem from the source document's filename
+         (e.g. tlg0003.tlg001.perseus-grc2 from tlg0003.tlg001.perseus-grc2.xml).
+         This is reliable for every file in the corpus regardless of whether
+         idno[@type='filename'] is present. -->
+    <xsl:variable name="doc-stem" as="xs:string"
+        select="substring-before(tokenize(document-uri(/), '/')[last()], '.xml')"/>
+
+    <!-- Match the xml-model PI and replace the href -->
+    <xsl:template match="processing-instruction('xml-model')">
+        <xsl:processing-instruction name="xml-model">
+      <xsl:text>href="https://raw.githubusercontent.com/PerseusDLCode/perseus-schemas/main/perseus_base.rnc" type="application/xml" schematypens="http://relaxng.org"</xsl:text>
+    </xsl:processing-instruction>
+    </xsl:template>
+
     <!-- remove spurious extent -->
     <xsl:template match="tei:teiHeader/tei:extent" />
-    
-    <!-- Add a CTS identifier; it is the same as the filename 
-        identifer minus the .xml suffix. -->
+
+    <!-- Add a cts_urn idno alongside any existing filename idno. -->
     <xsl:template match="tei:idno[@type='filename']">
-        <xsl:variable name="stem" select="substring-before(., '.xml')"/>
-        <xsl:copy-of select="."></xsl:copy-of>
+        <xsl:copy-of select="."/>
         <xsl:copy>
             <xsl:attribute name="type">cts_urn</xsl:attribute>
-            <xsl:value-of select="concat('urn:cts:greekLit:', $stem)"/>
+            <xsl:value-of select="concat('urn:cts:', $cts-namespace, ':', $doc-stem)"/>
         </xsl:copy>
     </xsl:template>
-    
-    <!-- Replace cRefPattern-based CTS refsDecl with one using citeStructure-->
-    <xsl:template match="tei:refsDecl[@n='CTS']">
-        <xsl:copy>
-            <xsl:attribute name="xml:id">cite_by_cts_urn</xsl:attribute>
-            <xsl:attribute name="default">true</xsl:attribute>
-            <tei:citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
-                <tei:citeStructure unit="book" delim=":" match="tei:div[@type='book']" use="@n">
-                    <tei:citeStructure unit="chapter" delim="." match="tei:div[@type='chapter']" use="@n">
-                        <tei:citeStructure unit="section" delim="." match="tei:div[@type='section']" use="@n"/>
-                    </tei:citeStructure>
-                </tei:citeStructure>
-            </tei:citeStructure>
-        </xsl:copy>
-    </xsl:template>
-    
-    <!-- Suppress the refState RefsDecl; no longer used -->
-    <xsl:template match="tei:refsDecl" />
 
-    <!-- Put the cts urn base on the body element. -->
+    <!-- Put the CTS URN base on the body element.
+         refsDecl is left intact here; refsDeclTransform.xsl handles
+         the cRefPattern → citeStructure migration in a separate pass. -->
     <xsl:template match="tei:body">
-        <xsl:variable name="stem" select="substring-before(ancestor::TEI/teiHeader//idno[@type='filename'], '.xml')"/>
         <xsl:copy>
-        
-            <xsl:attribute name="xml:base">
-                <xsl:value-of select="concat('urn:cts:greekLit:', $stem)" />
-            </xsl:attribute>
-            <xsl:apply-templates />
+            <xsl:attribute name="xml:base"
+                select="concat('urn:cts:', $cts-namespace, ':', $doc-stem)"/>
+            <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
     
