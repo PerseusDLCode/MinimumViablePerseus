@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mvp.document import TEIDocument
+    from mvp.corpus.document import TEIDocument
 
 
 class Corpus:
@@ -47,10 +47,7 @@ class Corpus:
         Files that cannot be parsed are skipped; a summary of all
         failures is printed after the last file is processed.
         """
-        # Deferred import: mvp.document imports mvp.models which imports
-        # mvp.corpus.models, which would trigger this package's __init__
-        # before mvp.document is fully initialized.
-        from mvp.document import TEIDocument  # noqa: PLC0415
+        from mvp.corpus.document import TEIDocument  # noqa: PLC0415
 
         failures: list[tuple[Path, Exception]] = []
         for xml_path in sorted(self._root.rglob("*.xml")):
