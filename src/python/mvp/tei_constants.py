@@ -1,10 +1,3 @@
-"""Shared TEI and XML namespace constants for the mvp package."""
-
-TEI_NS = "http://www.tei-c.org/ns/1.0"
-XML_NS = "http://www.w3.org/XML/1998/namespace"
-
-NS = {"tei": TEI_NS, "xml": XML_NS}
-
-XML_BASE = f"{{{XML_NS}}}base"
-XML_ID   = f"{{{XML_NS}}}id"
-XML_LANG = f"{{{XML_NS}}}lang"
+# mvp/tei_constants.py — shim; to be removed in cleanup commit
+from mvp.corpus.tei_constants import *  # noqa: F401,F403
+from mvp.corpus.tei_constants import TEI_NS, XML_NS, NS, XML_BASE, XML_ID, XML_LANG  # noqa: F401
