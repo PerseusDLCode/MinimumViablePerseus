@@ -69,6 +69,7 @@ There are also several scripts that may be run to generate output:
 |------------|------|
 | `src/tools/run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
 | `src/tools/run_build.py` | Builds the site |
+| `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
 | `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
 
 
@@ -141,6 +142,7 @@ There is also code outside the `mvp` package, under `src/tools/`.
 |--------|------|
 | `src/tools/run_audit.py` | Commandline script to run audits on a Perseus corpus |
 | `src/tools/run_build.py` | Builds the site |
+| `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
 | `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
 | `src/tools/classify_corpus.py` | Classifies corpus documents by structure type |
 | `src/tools/analyze_audit.py` | Analyzes audit output reports |
