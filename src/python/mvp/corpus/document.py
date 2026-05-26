@@ -13,7 +13,7 @@ from pathlib import Path
 from lxml import etree
 
 from mvp.corpus.models import TEIMetadata
-from mvp.corpus.tei_constants import TEI_NS, NS
+from mvp.corpus.tei_constants import TEI_NS, NS, XML_BASE
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:
@@ -165,6 +165,11 @@ class TEIDocument:
         )
 
     def _extract_urn(self, root: etree._Element) -> str:
+        body = root.find(".//tei:text/tei:body", NS)
+        if body is not None:
+            xml_base = body.get(XML_BASE, "")
+            if xml_base.startswith("urn:cts:"):
+                return xml_base
         for div in root.findall(".//tei:text//tei:div", NS):
             n = div.get("n", "")
             if n.startswith("urn:cts:"):
