@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from mvp.document import TEIDocument
-from mvp.strategy import (
+from mvp.corpus.document import TEIDocument
+from mvp.site.strategy import (
     ChunkingStrategy,
     DivisionStrategy,
     MilestoneStrategy,

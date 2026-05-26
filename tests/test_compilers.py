@@ -24,14 +24,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mvp.compilers import (
+from mvp.site.compilers import (
     CatalogCompiler, CompilationError, PageCompiler, XSLTCompiler,
     copy_static_assets,
 )
-from mvp.document import TEIDocument
-from mvp.models import TEIMetadata
-from mvp.site_map import SiteMap
-from mvp.strategy import MilestoneStrategy
+from mvp.corpus.document import TEIDocument
+from mvp.corpus.models import TEIMetadata
+from mvp.site.site_map import SiteMap
+from mvp.site.strategy import MilestoneStrategy
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -43,7 +43,7 @@ SENECA_PATH = DATA_DIR / "phi1017.phi007.perseus-lat2.xml"
 
 @pytest.fixture
 def seneca_doc():
-    from mvp.document import TEIDocument
+    from mvp.corpus.document import TEIDocument
     return TEIDocument.from_path(SENECA_PATH)
 
 
@@ -566,7 +566,7 @@ class TestPageCompilerIntegration:
         generate_div_chunks.xsl.  Expect one file per chapter (~11 chapters)
         rather than one file per section (~100 sections).
         """
-        from mvp.strategy import DivisionStrategy
+        from mvp.site.strategy import DivisionStrategy
         doc = TEIDocument.from_path(DATA_DIR / "phi2331.phi013.perseus-lat2.xml")
         strategy = DivisionStrategy(div_type="textpart", subtype="chapter")
         compiler = PageCompiler(strategy=strategy, driver=DRIVER)

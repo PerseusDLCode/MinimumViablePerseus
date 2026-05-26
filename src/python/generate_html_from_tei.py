@@ -38,7 +38,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from mvp.compilers import XSLTCompiler
+from mvp.site.compilers import XSLTCompiler
 
 
 def _parse_params(raw: list[str]) -> dict[str, str]:

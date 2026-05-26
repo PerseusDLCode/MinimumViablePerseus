@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from mvp.citation_resolver import CitationResolver
+from mvp.annotations.citation_resolver import CitationResolver
 
 
 # ---------------------------------------------------------------------------

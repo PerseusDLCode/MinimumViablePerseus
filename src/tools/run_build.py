@@ -33,11 +33,11 @@ from pathlib import Path
 # Allow running directly without installing the package
 sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
-from mvp.compilers import CatalogCompiler, copy_static_assets
+from mvp.site.compilers import CatalogCompiler, copy_static_assets
 from mvp.corpus import Corpus
-from mvp.models import TEIMetadata
-from mvp.pipeline import BuildPipeline
-from mvp.site_map import SiteMap
+from mvp.corpus.models import TEIMetadata
+from mvp.site.pipeline import BuildPipeline
+from mvp.site.site_map import SiteMap
 
 _DEFAULT_XSLT_ROOT = Path(__file__).parent.parent / "xslt"
 

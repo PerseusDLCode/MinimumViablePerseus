@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from mvp.tei_document import LenientTEIDocument
-from mvp.reference_parser import CitationError, ConfigurationError, ReferenceParser
+from mvp.corpus.tei_document import LenientTEIDocument
+from mvp.corpus.reference_parser import CitationError, ConfigurationError, ReferenceParser
 
 # ---------------------------------------------------------------------------
 # Helpers and fixture XML

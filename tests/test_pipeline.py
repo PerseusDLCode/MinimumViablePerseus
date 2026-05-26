@@ -40,13 +40,13 @@ from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
 
-from mvp.compilers import CompilationError
+from mvp.site.compilers import CompilationError
 from mvp.corpus import Corpus
-from mvp.models import TEIMetadata
-from mvp.pipeline import BuildPipeline
-from mvp.reference_parser import ConfigurationError
-from mvp.site_map import SiteMap
-from mvp.strategy import MilestoneStrategy
+from mvp.corpus.models import TEIMetadata
+from mvp.site.pipeline import BuildPipeline
+from mvp.corpus.reference_parser import ConfigurationError
+from mvp.site.site_map import SiteMap
+from mvp.site.strategy import MilestoneStrategy
 
 # ---------------------------------------------------------------------------
 # Helpers

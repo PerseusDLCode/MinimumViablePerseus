@@ -21,8 +21,8 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from mvp.auditors import ReferenceAuditor, StructureAuditor
-from mvp.tei_document import LenientTEIDocument
+from mvp.corpus.auditors import ReferenceAuditor, StructureAuditor
+from mvp.corpus.tei_document import LenientTEIDocument
 
 
 def _find_tei_files(root: Path) -> list[Path]:
