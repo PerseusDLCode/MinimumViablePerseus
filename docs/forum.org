@@ -2510,7 +2510,58 @@ family 5.  Fix: add =Jebb_page= to =PARALLEL_TRADITION_MILESTONES= in
 - SpaCy/NLP integration: decided OUT OF SCOPE for MVP.  NLP is its
   own development track with its own developers.  The =spacy-integration=
   branch is retained but will not be merged into MVP.
+**** Resolving the citation-spanning question and models.py
+[2026-05-25] Discussed in Claude Chat session.
 
+The question of where citation-related modules belong was resolved by
+asking what each module /is/ rather than what it is /used by/.
+
+=ReferenceParser= reads =<citeStructure>= declarations and navigates
+the document's element tree.  It produces no output artifact.  It is a
+lens for reading a TEI document according to its own declared citation
+scheme — as fundamental to the document model as parsing its =<div>=
+hierarchy.  It belongs in =corpus/=.
+
+=CitationIndexGenerator= calls =ReferenceParser= and writes
+=citations.json= to disk.  It produces a compiler artifact consumed by
+the XSLT chunkers.  It belongs in =site/=.
+
+=CitationResolver= maps traditional scholarly abbreviations to CTS
+URNs via OCD data.  It is not about a document's internal structure; it
+is about locating external references in the CTS address space.  It
+belongs in =annotations/= when that package is created — and will be
+the first module in it.
+
+=models.py= splits cleanly across layers:
+
+- =TEIMetadata= and =CitationRecord= → =corpus/=.  Both model facts
+  about a TEI document; the compiler's use of them is a downstream
+  dependency, not a reason to locate them in =site/=.
+
+- =WordIndex=, =WordOccurrence=, =ChunkIndex=, =ChunkOccurrence= →
+  stay flat at =mvp/= for now, or move to =corpus/indexes.py=.  These
+  are the Corpus→Annotations interface objects; their permanent home is
+  =annotations/=, but that package does not yet exist.
+
+- =ChunkManifestEntry= and =ChunkManifest= → =site/=.  These are
+  compiler artifacts; nothing in Corpus or Annotations should depend on
+  them.
+
+The general principle that emerged: the direction of dependency is
+Corpus ← Views, not the other way around.  A module's layer identity
+is determined by what it /is/, not by who consumes it.  The fact that
+=compilers.py= imports =corpus.py= is correct and expected layered
+dependency; it does not make =corpus.py= a cross-cutting concern.
+
+The reorganization is less risky than initially assessed.  The modules
+have fairly clean layer identities already; the flat structure merely
+obscures them.  Import-graph complexity is real but mechanical — the
+dependencies are not tangled, there are simply many of them to update.
+This is a tractable refactoring task, not a design problem.
+
+Constraint: this reorganization should happen after the first milestone
+release, on a clean branch, unless CC identifies low-risk preparatory
+steps that can be taken earlier without touching the critical path.
 * Implementations
 
 ** TEI Structure
@@ -3278,3 +3329,100 @@ guarantee that undeclared tunnel parameters pass through implicitly.
 ** Schema Work
 
 ** General
+*** TODO Reorganize mvp/ package to reflect three-layer architecture
+:PROPERTIES:
+:CUSTOM_ID: reorganize-mvp-package
+:ASSIGNEES: Claude Code
+:SOURCE: [[#architectural-reframing-corpora-first-class]]
+:DEPENDS: first milestone release
+:END:
+
+Refactor the flat =mvp/= package into a structure that reflects the
+Corpus / Annotations / Views architecture defined in
+=mvp_architecture.org= and resolved in
+=[[#architectural-reframing-corpora-first-class]]=.
+
+***** Target package structure
+
+#+begin_src
+mvp/
+  corpus/         — TEI document model and corpus infrastructure
+  annotations/    — annotation formats, store interface, CitationResolver
+  site/           — compiler, pipeline, XSLT, site map
+#+end_src
+
+***** Module assignments
+
+| Current module           | Target package | Notes                                      |
+|--------------------------+----------------+--------------------------------------------|
+| =corpus.py=              | =corpus/=      |                                            |
+| =document.py=            | =corpus/=      |                                            |
+| =tei_document.py=        | =corpus/=      |                                            |
+| =tei_constants.py=       | =corpus/=      |                                            |
+| =auditors.py=            | =corpus/=      |                                            |
+| =indexers.py=            | =corpus/=      |                                            |
+| =reference_parser.py=    | =corpus/=      |                                            |
+| =models.TEIMetadata=     | =corpus/=      | Split from =models.py=                     |
+| =models.CitationRecord=  | =corpus/=      | Split from =models.py=                     |
+| =citation_resolver.py=   | =annotations/= | First module in new package                |
+| =citation_index.py=      | =site/=        |                                            |
+| =compilers/=             | =site/=        |                                            |
+| =pipeline.py=            | =site/=        |                                            |
+| =site_map.py=            | =site/=        |                                            |
+| =strategy.py=            | =site/=        |                                            |
+| =models.ChunkManifest=   | =site/=        | Split from =models.py=                     |
+| =models.ChunkManifestEntry= | =site/=     | Split from =models.py=                     |
+| =models.WordIndex= etc.  | =corpus/= (interim) | Move to =annotations/= once that package exists |
+
+***** Planning tasks (CC to complete before execution)
+
+1. Audit the full import graph and identify any circular dependencies
+   that would be introduced by the target structure.
+2. Confirm that =models.py= can be split without breaking anything that
+   imports the whole module.
+3. Assess test suite impact: which test files will need import updates,
+   and are there any fixtures or mocks that assume the flat structure?
+4. Identify any external entry points (=pyproject.toml= scripts,
+   =run_audit.py=, =run_build.py=, =generate_html_from_tei.py=) that
+   will need updating.
+5. Propose a migration order that keeps the build green at each step.
+
+***** Constraints
+
+- Work on a dedicated branch off =dev=.
+- The build must pass at each commit; no "big bang" reorganization.
+- Do not begin until after the first milestone release unless a
+  preparatory step is clearly isolated and low-risk.
+- The =annotations/= package may be stubbed (=__init__.py= only) to
+  receive =citation_resolver.py=; full build-out of that package is
+  deferred.
+**** Deferred: auditors, corpus tooling, and the corpus library question
+
+The following questions are explicitly out of scope for this
+reorganization task and are deferred to a post-milestone design
+review:
+
+1. *Auditors.* =auditors.py= and the scripts in =src/tools/= (=run_audit.py=,
+   =classify_corpus.py=, =analyze_audit.py=) are corpus stewardship
+   tools, not compiler components.  Their relationship to MVP is
+   accidental rather than essential.  Whether they migrate to a
+   =perseus-tools= repo (as a consumer of MVP's corpus infrastructure)
+   or to a standalone corpus library is an open design question.
+
+2. *=perseus-tools= repo.* The local =perseus-tools= repo (containing
+   =analyze_milestones.py= and =consolidate_reports.py=) has no upstream
+   GitHub presence.  Publishing it and deciding its relationship to MVP
+   is a separate task.
+
+3. *Standalone corpus library.* There is a credible argument that the
+   Corpus layer (=corpus/=, =tei_document.py=, =tei_constants.py=,
+   =reference_parser.py=, and companions) should be a separately
+   installable package, independent of the site-generation machinery.
+   Editors and researchers working programmatically with Perseus texts
+   should not need to install Saxon and the XSLT pipeline to do so.
+   This question requires input from Greg and is deferred.
+
+Do not let these questions delay or complicate the package
+reorganization.  The reorganization should proceed as specified above,
+treating =auditors.py= as a =corpus/= module for now and leaving the
+larger questions for the design review.
