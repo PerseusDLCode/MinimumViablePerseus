@@ -72,6 +72,8 @@ There are also several scripts that may be run to generate output:
 | `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
 | `src/tools/run_index.py` | Builds `chunks.json` and `words.jsonl` index files from TEI documents |
 | `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
+| `src/tools/generate_protopages.py` | Step 1 of proto-page pipeline: TEI → proto-page XML (via Saxon) |
+| `src/tools/render_protopages.py` | Step 2 of proto-page pipeline: proto-page XML → HTML (via Jinja2) |
 
 
 ### Major Modules and Their Roles
@@ -99,6 +101,7 @@ These stylesheets are run offline against the raw corpus before the build pipeli
 | `html/chunker_core.xsl`        | Chunking infrastructure (boundary logic) imported by both chunkers |
 | `html/variables.xsl`           | Shared variables (currently kept for future use; `$page-css` removed when CSS was externalized) |
 | `html/tei/*.xsl`               | Rendering library: templates for TEI elements in `mode="tei-to-html"`, organized by Perseus schema level |
+| `html/generate_protopages.xsl` | Proto-page pipeline step 1: iterates Family-1 chapters, writes one `chunk_{book}.{chapter}.xml` + `index.json` per chapter |
 
 #### Python
 Almost all source code lives under `src/python/`.  The primary package is
@@ -131,7 +134,7 @@ Almost all source code lives under `src/python/`.  The primary package is
 | `mvp/site/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
 | `mvp/site/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
 | `mvp/site/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
-| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`) |
+| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`), `ProtopageCompiler`/`ProtopageRenderer` (`protopage_compiler.py`) |
 | `mvp/site/pipeline.py` | `BuildPipeline` — orchestrates the site build |
 
 Each layer's public API is re-exported from its `__init__.py`.  The NLP
@@ -161,6 +164,14 @@ it separate, as an "external service". We do not need to decide this now, howeve
 The following areas are currently under active development (see
 `forum.org` for the full deliberative record and current TODO items):
 
+- **Proto-page pipeline** (branch `76-write-proto-page-compiler`, pushed, awaiting PR/merge):
+  A two-step replacement for the one-step `PageCompiler`+`driver.xsl` pipeline.
+  Step 1 (`ProtopageCompiler` + `generate_protopages.xsl`) transforms a Family-1 TEI
+  file into per-chapter proto-page XML files plus `index.json`.  Step 2
+  (`ProtopageRenderer`) renders those XML files to HTML via Jinja2.  Thucydides is
+  the reference corpus (917 chapters).  See `wiki/Proto-Page-Pipeline.org` for design
+  notes.  The scratchpad work in `PerseusDLCode/tei-tagger` is now mothballed; all
+  further development happens here.
 - **Citation infrastructure**: `ReferenceParser` is complete (merged to
   `dev`, PRs #49 and #53).  Next steps: (1) connect
   `ReferenceParser.citations()` to the XSLT chunkers for navigation-link
