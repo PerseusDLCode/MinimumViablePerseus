@@ -10,10 +10,10 @@ Usage:
   python src/tools/render_protopages.py \\
       /tmp/thucydides-proto /tmp/thucydides-html
 
-  # Custom Jinja2 template directory:
+  # Custom Jinja2 template:
   python src/tools/render_protopages.py \\
       /tmp/thucydides-proto /tmp/thucydides-html \\
-      --templates path/to/my/templates/
+      --templates path/to/my/templates/ --template my_chunk.html
 
 Serve the result:
   cd /tmp/thucydides-html && python -m http.server 8000
@@ -42,7 +42,11 @@ def main() -> None:
                         help="Directory to write HTML reading pages")
     parser.add_argument(
         "--templates", type=Path, default=None, metavar="DIR",
-        help="Custom Jinja2 template directory (default: built-in templates)",
+        help="Jinja2 template directory (default: built-in templates)",
+    )
+    parser.add_argument(
+        "--template", default=None, metavar="FILE",
+        help="Template filename within the template directory (default: chunk.html)",
     )
     args = parser.parse_args()
 
@@ -60,6 +64,8 @@ def main() -> None:
         if not args.templates.is_dir():
             parser.error(f"Template directory not found: {args.templates}")
         renderer_kwargs["template_dir"] = args.templates
+    if args.template:
+        renderer_kwargs["template_name"] = args.template
 
     print(f"source : {proto_dir}")
     print(f"output : {html_dir}")

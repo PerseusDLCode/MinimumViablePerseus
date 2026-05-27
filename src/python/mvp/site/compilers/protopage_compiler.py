@@ -194,12 +194,19 @@ class ProtopageRenderer(Compiler[Path]):
     discovery and ordering; the directory is not scanned directly.
 
     Args:
-        template_dir: Jinja2 template directory.  Defaults to the built-in
-                      templates bundled with this package.
+        template_dir:  Jinja2 template directory.  Defaults to the built-in
+                       templates bundled with this package.
+        template_name: Filename of the Jinja2 template within template_dir.
+                       Defaults to ``chunk.html``.
     """
 
-    def __init__(self, template_dir: Path = _BUILTIN_TEMPLATES) -> None:
+    def __init__(
+        self,
+        template_dir: Path = _BUILTIN_TEMPLATES,
+        template_name: str = "chunk.html",
+    ) -> None:
         self._template_dir = Path(template_dir)
+        self._template_name = template_name
 
     def compile(self, source: Path, output_path: Path, **kwargs) -> None:
         """Render proto-page XML from source directory to HTML in output_path.
@@ -215,7 +222,7 @@ class ProtopageRenderer(Compiler[Path]):
             loader=FileSystemLoader(str(self._template_dir)),
             autoescape=True,
         )
-        template = env.get_template("chunk.html")
+        template = env.get_template(self._template_name)
         index = json.loads((source / "index.json").read_text(encoding="utf-8"))
         output_path.mkdir(parents=True, exist_ok=True)
 

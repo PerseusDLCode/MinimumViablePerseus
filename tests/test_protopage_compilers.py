@@ -179,6 +179,30 @@ class TestProtopageRendererConstruction:
         renderer = ProtopageRenderer(template_dir=tmp_path)
         assert renderer is not None
 
+    def test_accepts_custom_template_name(self, tmp_path):
+        renderer = ProtopageRenderer(template_name="my_chunk.html")
+        assert renderer is not None
+
+    def test_uses_named_template(self, tmp_path):
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+
+        tpl_dir = tmp_path / "templates"
+        tpl_dir.mkdir()
+        (tpl_dir / "minimal.html").write_text(
+            "<html><body>SENTINEL {{ chunk.cts_urn }}</body></html>",
+            encoding="utf-8",
+        )
+
+        output_dir = tmp_path / "html"
+        ProtopageRenderer(template_dir=tpl_dir, template_name="minimal.html").compile(
+            proto_dir, output_dir
+        )
+
+        html = (output_dir / "chunk_1.1.html").read_text(encoding="utf-8")
+        assert "SENTINEL" in html
+        assert "1.1" in html
+
 
 class TestProtopageRendererCompile:
 
