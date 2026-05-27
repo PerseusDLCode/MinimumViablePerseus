@@ -105,11 +105,14 @@ class ChunkIndexer(TEIIndexer):
         for elem in self.root.iter():
             if elem.tag in self.chunk_qnames:
                 xpath = self.xpath_for(elem)
+                element_name = etree.QName(elem).localname
                 text_bits: list[str] = []
                 self._collect_text(elem, text_bits)
                 full_text = "".join(text_bits).strip()
                 if full_text:
-                    index.entries.append(ChunkOccurrence(xpath, full_text))
+                    index.entries.append(
+                        ChunkOccurrence(xpath=xpath, element=element_name, chunk=full_text)
+                    )
         return index
 
     def _collect_text(self, node, text_bits: list[str]) -> None:

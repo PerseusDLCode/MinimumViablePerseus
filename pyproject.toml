@@ -14,6 +14,7 @@ license = {text = "MIT"}
 [project.scripts]
 build-site = "run_build:main"
 run-audit = "run_audit:main"
+run-index = "run_index:main"
 generate-html-from-tei = "generate_html_from_tei:main"
 
 [build-system]

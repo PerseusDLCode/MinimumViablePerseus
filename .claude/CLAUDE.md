@@ -70,6 +70,7 @@ There are also several scripts that may be run to generate output:
 | `src/tools/run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
 | `src/tools/run_build.py` | Builds the site |
 | `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
+| `src/tools/run_index.py` | Builds `chunks.json` and `words.jsonl` index files from TEI documents |
 | `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
 
 

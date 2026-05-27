@@ -383,6 +383,55 @@ class TestChunkIndexer:
 
 
 # ---------------------------------------------------------------------------
+# New fields: element and urn on ChunkOccurrence, urn on WordOccurrence
+# ---------------------------------------------------------------------------
+
+class TestChunkOccurrenceFields:
+
+    def test_element_is_populated(self, tmp_path):
+        body = "<p>a paragraph</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert all(e.element for e in result.entries)
+
+    def test_element_matches_tag_name(self, tmp_path):
+        body = "<p>prose</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        p_entry = next(e for e in result.entries if "tei:p" in e.xpath)
+        assert p_entry.element == "p"
+
+    def test_verse_line_element(self, tmp_path):
+        body = "<lg><l>first line</l></lg>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        line_entries = [e for e in result.entries if e.element == "l"]
+        assert len(line_entries) == 1
+
+    def test_lg_element_recorded(self, tmp_path):
+        body = "<lg><l>a</l><l>b</l></lg>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert any(e.element == "lg" for e in result.entries)
+
+    def test_chunk_urn_is_none_by_default(self, tmp_path):
+        body = "<p>text</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert all(e.urn is None for e in result.entries)
+
+
+class TestWordOccurrenceFields:
+
+    def test_word_urn_is_none_by_default(self, tmp_path):
+        body = "<p>hello world</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = WordIndexer(path).word_index
+        for occurrences in result.entries.values():
+            assert all(occ.urn is None for occ in occurrences)
+
+
+# ---------------------------------------------------------------------------
 # Layer 3: Integration test against real corpus file
 # ---------------------------------------------------------------------------
 
