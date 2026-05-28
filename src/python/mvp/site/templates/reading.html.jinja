@@ -1,0 +1,147 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{{ edition_textgroup }}, {{ edition_title }}, {{ current_location }}{% endblock %}
+
+{% block content %}
+    <main class="flex pt-4 w-full">
+        <!-- Left nav -->
+        <div class="text-base-content text-xs w-1/5">
+            <div class="bg-neutral-400 p-4 mb-4">
+                <h3 class="font-bold">This text is part of:</h3>
+                <ul>
+                    {% for collection in collections %}
+                        <li><a href="{{ collection.url }}">{{ collection.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="bg-neutral-400 p-4 mb-4">
+                <h3 class="font-bold">Search the Perseus Catalog for:</h3>
+                <ul>
+                    <li>
+                        <a href="//data.perseus.org/catalog/{{ work_urn }}" class="link">
+                            Editions/Translations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//data.perseus.org/catalog/{{ textgroup_urn }}" class="link">
+                            Author Group
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-neutral-400 p-4 mb-4">
+                <h3 class="font-bold">Table of Contents:</h3>
+                <ul class="menu [&_li>*]:rounded-none flex-nowrap max-h-screen overflow-y-auto">
+                    {% for nav_item in toc.get("table_of_contents", []) %}
+                      {% with item = nav_item %}
+                        {% include 'components/NavigationItem.html.jinja' %}
+                      {% endwith %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Base text -->
+        <article class="w-2/5 mx-4 text-sm">
+            <p class="font-bold mb-4 text-xs">Click on a word to bring up parses, dictionary entries, and frequency statistics</p>
+            <div class="prose">
+                {{ base_text }}
+            <div class="pt-8">
+                <p class="mb-4">
+                    {{ edition_title }}. Apollonius Rhodius. George W. Mooney. London.
+                    Longmans, Green. 1912.
+                </p>
+                <p class="mb-4">Tufts University provided support for entering this text.</p>
+                <p>
+                    This text was converted to electronic form by professional
+                    data entry and has been proofread to a medium level of
+                    accuracy.
+                </p>
+            </div>
+        </article>
+
+        <!-- Paratexts -->
+
+        <div class="text-xs w-2/5">
+            <div class="bg-neutral-400 flex justify-between p-4 mb-4">
+                <h4 class="font-bold">Notes (George W. Mooney, 1912)</h4>
+                <p>
+                    <a href="#" class="link font-bold">focus</a>
+                    <a href="#" class="link font-bold">load</a>
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <div class="bg-neutral-400 flex justify-between p-4">
+                    <h4 class="font-bold">References (4 total)</h4>
+                    <p>
+                        <a href="#" class="link font-bold">hide</a>
+                    </p>
+                </div>
+
+                <div class="bg-neutral-300 flex justify-between p-4">
+                    <ul
+                        class="list-disc list-outside p-4 [&_ul]:list-[revert]"
+                    >
+                        <li>
+                            Cross-references in general dictionaries to this
+                            page ({{ len(cross_references) }}):
+                            <ul class="list-inside">
+                                {% for ref in cross_references %}
+                                    <li><em>{{ ref.source }}</em>, {{ ref.lemma }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="bg-neutral-400 flex justify-between p-4">
+                    <h4 class="font-bold">Stable identifiers</h4>
+                    <p>
+                        <a href="#" class="link font-bold">load</a>
+                    </p>
+                </div>
+
+                <div class="bg-neutral-300 p-4 text-xs">
+                    <p>Citation URI: {{ citation_uri }}</p>
+                    <p>Text URI: {{ text_uri }}</p>
+                    <p>Work URI: {{ work_uri }}</p>
+                    <p>Catalog Record URI: {{ catalog_record_uri }}</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-xs bg-neutral-300 p-4">
+        <div class="rights_info">
+            <p class="cc_rights">
+                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                    <img
+                        alt="Creative Commons License"
+                        style="border-width: 0"
+                        src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
+                    />
+                </a>
+                <p>
+                    This work is licensed under a
+                    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                        Creative Commons Attribution-ShareAlike 3.0 United
+                        States License
+                    </a>.
+                </p>
+            </p>
+            <p class="xml_download">
+                An
+                <a href="{{ xml_src_url }}">XML version</a>
+                of this text is available for download, with the additional
+                restriction that you offer Perseus any modifications you
+                make. Perseus provides credit for all accepted changes,
+                storing new additions in a versioning system.
+            </p>
+        </div>
+    </footer>
+{% endblock %}
