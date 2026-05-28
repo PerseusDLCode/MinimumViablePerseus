@@ -6,7 +6,7 @@ authors = [
     {name = "Cliff Wulfman", email = "cwulfman@princeton.edu"},
     {name = "Charles Pletcher", email = "charles.pletcher@gmail.com"}
 ]
-dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2"]
+dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2", "beta-code>=1.1.1", "tqdm>=4.67.3", "bs4>=0.0.2"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}

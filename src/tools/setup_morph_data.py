@@ -72,7 +72,10 @@ def main() -> None:
     if all_present:
         print("All morphology data files are present.")
     else:
-        print("\nDone. Run 'python src/tools/run_local.py <output_dir>' to start the servers.")
+        print("\nDone. Build the indexes next:")
+        print("  python src/morph-server/build_indexes.py")
+        print("Then start the servers:")
+        print("  python src/tools/run_local.py <output_dir>")
 
 
 if __name__ == "__main__":

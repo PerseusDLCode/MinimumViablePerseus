@@ -218,11 +218,19 @@ __marimo__/
 .claude/settings.local.json
 docs/forum.org
 
-# Morphology data files (large; download via src/tools/setup_morph_data.py)
+# Morphology and dictionary data files (large; download via src/tools/setup_morph_data.py)
 src/morph-server/*.morph.xml
+src/morph-server/*.pkl
+src/morph-server/*.json
 
 # Regeneratable output files
 html/
 
 # notebooks
 notebooks/
+
+# vscode
+.vscode/
+
+# built site artifacts
+site-build/

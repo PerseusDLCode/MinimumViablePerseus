@@ -30,6 +30,25 @@ from pathlib import Path
 
 _MORPH_SERVER_DIR = Path(__file__).parent.parent / "morph-server"
 
+_REQUIRED_INDEX_FILES = [
+    "greek_morph_freqs.pkl",
+    "latin_morph_freqs.pkl",
+    "lsj_index.json",
+    "ls_index.json",
+]
+
+
+def _check_index_files() -> None:
+    missing = [f for f in _REQUIRED_INDEX_FILES if not (_MORPH_SERVER_DIR / f).exists()]
+    if missing:
+        print("error: pre-built index files are missing:")
+        for f in missing:
+            print(f"  {_MORPH_SERVER_DIR / f}")
+        print()
+        print("Build them first:")
+        print("  python src/morph-server/build_indexes.py")
+        sys.exit(1)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -61,6 +80,8 @@ def main() -> None:
 
     if not args.output_dir.is_dir():
         sys.exit(f"error: output directory does not exist: {args.output_dir}")
+
+    _check_index_files()
 
     morph_proc = subprocess.Popen(
         [
