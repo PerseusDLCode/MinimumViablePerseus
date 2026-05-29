@@ -38,10 +38,6 @@ it so that it is accurate.
    Check whether this branch has been merged to `dev`. Update the status
    accordingly.
 
-6. **Fix the garbled sentence.** Line 113 reads: "and t resolution of
-   traditional citations to CTS URNs". Repair this to read: "and the
-   resolution of traditional citations to CTS URNs".
-
 ## Constraints
 
 - Do not change the architecture description prose (the Corpus / Annotations /
