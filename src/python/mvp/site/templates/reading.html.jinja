@@ -2,6 +2,19 @@
 
 {% block title %}{{ edition_textgroup }}, {{ edition_title }}, {{ current_location }}{% endblock %}
 
+{% block header %}
+    <header class="hero mb-4">
+        <div class="px-8 text-base-content w-full">
+            <div>
+                <h1 class="text-xl font-bold">
+                    {{ edition_textgroup }} <em>{{ edition_title }}</em>
+                </h1>
+                <h2 class="text-lg font-bold">{{ edition_creators }}</h2>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
 {% block content %}
     <main class="flex pt-4 w-full">
         <!-- Left nav -->
@@ -50,8 +63,9 @@
                 {{ base_text }}
             <div class="pt-8">
                 <p class="mb-4">
-                    {{ edition_title }}. Apollonius Rhodius. George W. Mooney. London.
-                    Longmans, Green. 1912.
+                    {{ edition_title }}.
+                    {{ edition_textgroup }}. {{ edition_creators }}. {{ edition_location }}.
+                    {{ edition_publisher }}. {{ edition_year }}.
                 </p>
                 <p class="mb-4">Tufts University provided support for entering this text.</p>
                 <p>
