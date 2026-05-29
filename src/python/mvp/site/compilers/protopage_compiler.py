@@ -1,3 +1,10 @@
+""" Proto-page compiler for TEI texts.
+
+
+
+
+"""
+
 """Proto-page compiler and renderer for Family-1 (hierarchical-div) TEI texts.
 
 Two compilers forming the two-step pipeline:
@@ -130,7 +137,7 @@ def _inline_to_html(el: etree._Element) -> str:
         elif tag == "add":
             parts.append(f'<span class="tei-add">{inner}</span>')
         elif tag == "gap":
-            parts.append('<span class="gap">†</span>')
+            parts.append('<span class="gap">…</span>')
         else:
             parts.append(inner)
 
