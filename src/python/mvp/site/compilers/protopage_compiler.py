@@ -19,6 +19,15 @@ Proto-page XML vocabulary (no namespace):
         <title>…</title>
         <base-urn>…</base-urn>
         <language>…</language>
+        <ctsurn>…</ctsurn>
+        <sourceURL>…</sourceURL>
+        <pubInfo>
+          <title>…</title>
+          <author>…</author>
+          <editor>…</editor>   <!-- one per editor; empty element if none -->
+          <pubPlace>…</pubPlace>
+          <pubDate>…</pubDate>
+        </pubInfo>
       </meta>
       <content>
         <section n="…" cts-urn="…">
@@ -26,13 +35,21 @@ Proto-page XML vocabulary (no namespace):
         </section>
       </content>
     </chunk>
+
+Template context supplied by ProtopageRenderer:
+
+    chunk    — Chunk dataclass (current chunk)
+    pub_info — dict extracted from <meta>/<pubInfo>
+    toc      — full toc.json dict, or None if toc.json absent
 """
 
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 from lxml import etree
@@ -44,6 +61,7 @@ from mvp.site.compilers.page_compiler import XSLTCompiler
 
 
 _BUILTIN_TEMPLATES = Path(__file__).parent.parent / "templates"
+_log = logging.getLogger(__name__)
 
 
 # ── Data model ────────────────────────────────────────────────────────────────
@@ -122,7 +140,28 @@ def _inline_to_html(el: etree._Element) -> str:
     return "".join(parts)
 
 
-def _parse_chunk(path: Path) -> Chunk:
+def _parse_pub_info(meta: etree._Element | None) -> dict[str, Any]:
+    """Extract <pubInfo> from a proto-page <meta> element.
+
+    Returns a dict with keys: title, author, editors (list), pub_place, pub_date.
+    All values default to empty strings / empty list when the element is absent.
+    """
+    if meta is None:
+        return {"title": "", "author": "", "editors": [], "pub_place": "", "pub_date": ""}
+    pub = meta.find("pubInfo")
+    if pub is None:
+        return {"title": "", "author": "", "editors": [], "pub_place": "", "pub_date": ""}
+    return {
+        "title":     pub.findtext("title", ""),
+        "author":    pub.findtext("author", ""),
+        "editors":   [el.text or "" for el in pub.findall("editor")],
+        "pub_place": pub.findtext("pubPlace", ""),
+        "pub_date":  pub.findtext("pubDate", ""),
+    }
+
+
+def _parse_chunk(path: Path) -> tuple[Chunk, dict[str, Any]]:
+    """Parse a proto-page XML file into a (Chunk, pub_info) tuple."""
     root = etree.parse(path).getroot()
     meta = root.find("meta")
     sections = [
@@ -133,7 +172,7 @@ def _parse_chunk(path: Path) -> Chunk:
         )
         for sec in root.findall(".//section")
     ]
-    return Chunk(
+    chunk = Chunk(
         cts_urn=root.get("cts-urn", ""),
         prev_urn=root.get("prev-urn"),
         next_urn=root.get("next-urn"),
@@ -142,6 +181,7 @@ def _parse_chunk(path: Path) -> Chunk:
         language=meta.findtext("language", "") if meta is not None else "",
         sections=sections,
     )
+    return chunk, _parse_pub_info(meta)
 
 
 # ── ProtopageCompiler ─────────────────────────────────────────────────────────
@@ -193,6 +233,11 @@ class ProtopageRenderer(Compiler[Path]):
     each XML file to an HTML reading page via Jinja2.  index.json drives
     discovery and ordering; the directory is not scanned directly.
 
+    Template context per chunk:
+        chunk    — Chunk dataclass
+        pub_info — dict from <meta>/<pubInfo> (title, author, editors, pub_place, pub_date)
+        toc      — full toc.json dict, or None if toc.json is absent
+
     Args:
         template_dir:  Jinja2 template directory.  Defaults to the built-in
                        templates bundled with this package.
@@ -226,7 +271,20 @@ class ProtopageRenderer(Compiler[Path]):
         index = json.loads((source / "index.json").read_text(encoding="utf-8"))
         output_path.mkdir(parents=True, exist_ok=True)
 
+        # Load toc.json if present; warn and continue if absent.
+        toc_path = source / "toc.json"
+        if toc_path.exists():
+            toc_data: dict[str, Any] | None = json.loads(
+                toc_path.read_text(encoding="utf-8")
+            )
+        else:
+            toc_data = None
+            _log.warning("toc.json not found in %s; toc context will be None", source)
+
         for entry in index["chunks"]:
-            chunk = _parse_chunk(source / entry["file"])
+            chunk, pub_info = _parse_chunk(source / entry["file"])
             out_path = output_path / chunk.html_file
-            out_path.write_text(template.render(chunk=chunk), encoding="utf-8")
+            out_path.write_text(
+                template.render(chunk=chunk, pub_info=pub_info, toc=toc_data),
+                encoding="utf-8",
+            )

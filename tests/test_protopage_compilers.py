@@ -44,9 +44,25 @@ def thucydides_doc():
 
 
 def _write_protopage_fixture(directory: Path) -> None:
-    """Write a minimal proto-page fixture (2 chunks) into directory."""
+    """Write a minimal proto-page fixture (2 chunks) into directory.
+
+    Includes <pubInfo> in <meta> and author/book_subtype/chapter_subtype in
+    index.json so that ProtopageRenderer tests can exercise the enriched context
+    without running the full XSLT (Part 2) pipeline.
+    """
     directory.mkdir(parents=True, exist_ok=True)
     base_urn = "urn:cts:greekLit:tlg0003.tlg001.perseus-grc2"
+
+    _pub_info = """
+    <ctsurn>{base_urn}</ctsurn>
+    <sourceURL></sourceURL>
+    <pubInfo>
+      <title>Ἱστορίαι</title>
+      <author>Thucydides</author>
+      <editor>Henry Stuart Jones</editor>
+      <pubPlace>Medford, MA</pubPlace>
+      <pubDate>1992</pubDate>
+    </pubInfo>""".format(base_urn=base_urn)
 
     (directory / "chunk_1.1.xml").write_text(
         f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -55,7 +71,7 @@ def _write_protopage_fixture(directory: Path) -> None:
   <meta>
     <title>Ἱστορίαι</title>
     <base-urn>{base_urn}</base-urn>
-    <language>grc</language>
+    <language>grc</language>{_pub_info}
   </meta>
   <content>
     <section n="1" cts-urn="{base_urn}:1.1.1">
@@ -73,7 +89,7 @@ def _write_protopage_fixture(directory: Path) -> None:
   <meta>
     <title>Ἱστορίαι</title>
     <base-urn>{base_urn}</base-urn>
-    <language>grc</language>
+    <language>grc</language>{_pub_info}
   </meta>
   <content>
     <section n="1" cts-urn="{base_urn}:1.2.1">
@@ -89,6 +105,9 @@ def _write_protopage_fixture(directory: Path) -> None:
             "base_urn": base_urn,
             "title": "Ἱστορίαι",
             "language": "grc",
+            "author": "Thucydides",
+            "book_subtype": "book",
+            "chapter_subtype": "chapter",
             "chunks": [
                 {"urn": f"{base_urn}:1.1", "file": "chunk_1.1.xml", "book": "1", "chapter": "1"},
                 {"urn": f"{base_urn}:1.2", "file": "chunk_1.2.xml", "book": "1", "chapter": "2"},
@@ -383,3 +402,186 @@ class TestProtopagePipelineIntegration:
 
         html = (html_dir / "chunk_1.1.html").read_text(encoding="utf-8")
         assert "chunk_1.2.html" in html
+
+    # -- Part 2: pubInfo and extended index.json --
+
+    def test_proto_page_xml_has_pub_info(self, tmp_path):
+        """XSLT emits <pubInfo> with non-empty <author> and <title>."""
+        from lxml import etree
+
+        doc = TEIDocument.from_path(THUCYDIDES_GRC)
+        proto_dir = tmp_path / "proto"
+        ProtopageCompiler(xsl_file=_XSL_PATH).compile(doc, proto_dir)
+
+        root = etree.parse(proto_dir / "chunk_1.1.xml").getroot()
+        pub_info = root.find("meta/pubInfo")
+        assert pub_info is not None, "<pubInfo> missing from <meta>"
+        assert pub_info.findtext("author", "").strip() != "", "<author> is empty"
+        assert pub_info.findtext("title", "").strip() != "", "<title> is empty"
+
+    def test_proto_page_xml_has_editor(self, tmp_path):
+        """XSLT emits <editor> elements when source TEI has <editor> in <titleStmt>."""
+        from lxml import etree
+
+        doc = TEIDocument.from_path(THUCYDIDES_GRC)
+        proto_dir = tmp_path / "proto"
+        ProtopageCompiler(xsl_file=_XSL_PATH).compile(doc, proto_dir)
+
+        root = etree.parse(proto_dir / "chunk_1.1.xml").getroot()
+        pub_info = root.find("meta/pubInfo")
+        assert pub_info is not None
+        editors = pub_info.findall("editor")
+        assert len(editors) >= 1, "No <editor> elements found"
+        assert any(e.text and e.text.strip() for e in editors), "All <editor> elements are empty"
+
+    def test_proto_page_xml_emits_empty_elements_for_absent_fields(self, tmp_path):
+        """XSLT emits empty elements (not absent) for fields not in the source TEI."""
+        from lxml import etree
+
+        doc = TEIDocument.from_path(THUCYDIDES_GRC)
+        proto_dir = tmp_path / "proto"
+        ProtopageCompiler(xsl_file=_XSL_PATH).compile(doc, proto_dir)
+
+        root = etree.parse(proto_dir / "chunk_1.1.xml").getroot()
+        pub_info = root.find("meta/pubInfo")
+        assert pub_info is not None
+        # All scalar fields must be present as elements, even if empty.
+        for tag in ("title", "author", "pubPlace", "pubDate"):
+            el = pub_info.find(tag)
+            assert el is not None, f"<{tag}> missing from <pubInfo>"
+
+    def test_index_json_has_author_and_subtypes(self, tmp_path):
+        """index.json contains author, book_subtype, and chapter_subtype."""
+        doc = TEIDocument.from_path(THUCYDIDES_GRC)
+        proto_dir = tmp_path / "proto"
+        ProtopageCompiler(xsl_file=_XSL_PATH).compile(doc, proto_dir)
+
+        index = json.loads((proto_dir / "index.json").read_text(encoding="utf-8"))
+        assert "author" in index, "author missing from index.json"
+        assert "book_subtype" in index, "book_subtype missing from index.json"
+        assert "chapter_subtype" in index, "chapter_subtype missing from index.json"
+        assert index["author"].strip() != "", "author is empty"
+        assert index["book_subtype"] == "book"
+        assert index["chapter_subtype"] == "chapter"
+
+
+# ---------------------------------------------------------------------------
+# ProtopageRenderer — pub_info and toc context (unit tests, no Saxon)
+# ---------------------------------------------------------------------------
+
+class TestProtopageRendererContext:
+    """Unit tests for the enriched template context (pub_info, toc)."""
+
+    def test_pub_info_populated_from_meta(self, tmp_path):
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+        html_dir = tmp_path / "html"
+
+        captured: list[dict] = []
+        original_render = None
+
+        def capturing_render(**ctx):
+            captured.append(ctx)
+            return original_render(**ctx)
+
+        renderer = ProtopageRenderer()
+        env_orig = renderer.compile.__func__  # just verify via rendered output
+        renderer.compile(proto_dir, html_dir)
+
+        # Verify via _parse_chunk directly
+        from mvp.site.compilers.protopage_compiler import _parse_chunk
+        _, pub_info = _parse_chunk(proto_dir / "chunk_1.1.xml")
+        assert pub_info["author"] == "Thucydides"
+        assert pub_info["title"] == "Ἱστορίαι"
+        assert "Henry Stuart Jones" in pub_info["editors"]
+        assert pub_info["pub_place"] == "Medford, MA"
+        assert pub_info["pub_date"] == "1992"
+
+    def test_toc_passed_when_toc_json_present(self, tmp_path):
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+
+        # Write a minimal toc.json
+        toc_data = {"version": "1", "document": {}, "toc": [{"depth": 0, "label": "Book 1"}]}
+        (proto_dir / "toc.json").write_text(
+            json.dumps(toc_data), encoding="utf-8"
+        )
+
+        html_dir = tmp_path / "html"
+        renderer = ProtopageRenderer()
+
+        # Patch template.render to capture context
+        with patch("mvp.site.compilers.protopage_compiler.Environment") as mock_env_cls:
+            mock_template = MagicMock()
+            mock_template.render.return_value = "<html/>"
+            mock_env = MagicMock()
+            mock_env.get_template.return_value = mock_template
+            mock_env_cls.return_value = mock_env
+
+            renderer.compile(proto_dir, html_dir)
+
+        calls = mock_template.render.call_args_list
+        assert len(calls) == 2
+        for call in calls:
+            assert "toc" in call.kwargs
+            assert call.kwargs["toc"] == toc_data
+
+    def test_toc_none_when_toc_json_absent(self, tmp_path):
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+        # No toc.json written
+
+        html_dir = tmp_path / "html"
+        renderer = ProtopageRenderer()
+
+        with patch("mvp.site.compilers.protopage_compiler.Environment") as mock_env_cls:
+            mock_template = MagicMock()
+            mock_template.render.return_value = "<html/>"
+            mock_env = MagicMock()
+            mock_env.get_template.return_value = mock_template
+            mock_env_cls.return_value = mock_env
+
+            renderer.compile(proto_dir, html_dir)
+
+        calls = mock_template.render.call_args_list
+        assert len(calls) == 2
+        for call in calls:
+            assert call.kwargs.get("toc") is None
+
+    def test_toc_none_logs_warning(self, tmp_path):
+        import logging
+
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+        html_dir = tmp_path / "html"
+
+        with patch("mvp.site.compilers.protopage_compiler.Environment") as mock_env_cls:
+            mock_template = MagicMock()
+            mock_template.render.return_value = "<html/>"
+            mock_env = MagicMock()
+            mock_env.get_template.return_value = mock_template
+            mock_env_cls.return_value = mock_env
+
+            with patch("mvp.site.compilers.protopage_compiler._log") as mock_log:
+                renderer = ProtopageRenderer()
+                renderer.compile(proto_dir, html_dir)
+                mock_log.warning.assert_called_once()
+
+    def test_pub_info_passed_to_template(self, tmp_path):
+        proto_dir = tmp_path / "proto"
+        _write_protopage_fixture(proto_dir)
+        html_dir = tmp_path / "html"
+
+        with patch("mvp.site.compilers.protopage_compiler.Environment") as mock_env_cls:
+            mock_template = MagicMock()
+            mock_template.render.return_value = "<html/>"
+            mock_env = MagicMock()
+            mock_env.get_template.return_value = mock_template
+            mock_env_cls.return_value = mock_env
+
+            renderer = ProtopageRenderer()
+            renderer.compile(proto_dir, html_dir)
+
+        for call in mock_template.render.call_args_list:
+            assert "pub_info" in call.kwargs
+            assert call.kwargs["pub_info"]["author"] == "Thucydides"
