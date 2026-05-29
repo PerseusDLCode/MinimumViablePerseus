@@ -32,6 +32,7 @@ class WordOccurrence:
     xpath: str
     start: int
     end: int
+    urn: str | None = None
 
 
 @dataclass
@@ -47,7 +48,9 @@ class WordIndex:
 @dataclass(frozen=True)
 class ChunkOccurrence:
     xpath: str
+    element: str    # tag name of the source element: "l", "p", "lg", "ab"
     chunk: str
+    urn: str | None = None
 
 
 @dataclass
