@@ -7,13 +7,15 @@
   with a book/chapter/section citation structure, produces one proto-page XML
   file per chapter in a simple, no-namespace vocabulary designed for easy
   Python/Jinja2 consumption.  Proto-pages carry all the semantic data needed
-  to render a reading page: CTS URNs, navigation links, and structured text.
+  to render a reading page: CTS URNs, navigation links, publication metadata,
+  and structured text.
 
   The base CTS URN is read from body/@xml:base.  Section URNs are computed as
   {base-urn}:{book}.{chapter}.{section}.
 
   Parameters:
     output-dir  (xs:string)  Directory for output files  [default: '.']
+    sourceURL   (xs:string)  Source URL for the document  [default: '']
 
   Output files are named  chunk_{book}.{chapter}.xml
   An index.json manifest is also written.
@@ -39,6 +41,7 @@
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
   <xsl:param name="output-dir" as="xs:string" select="'.'"/>
+  <xsl:param name="sourceURL"  as="xs:string" select="''"/>
 
 
   <!-- ============================================================
@@ -47,10 +50,34 @@
 
   <xsl:template match="/">
     <xsl:variable name="base-urn"   select="string(//tei:body/@xml:base)"/>
-    <xsl:variable name="title"      select="string((//tei:titleStmt/tei:title)[1])"/>
     <xsl:variable name="language"   select="string((//tei:langUsage/tei:language)[1]/@ident)"/>
     <xsl:variable name="chapters"   select="//tei:div[@type='chapter']"/>
     <xsl:variable name="n-chapters" select="count($chapters)"/>
+
+    <!-- Publication metadata — extracted once and shared across all chunks -->
+    <xsl:variable name="pub-title"
+      select="string(((//tei:titleStmt/tei:title[@type='main'])[1],
+                      (//tei:titleStmt/tei:title)[1])[1])"/>
+    <xsl:variable name="pub-author"
+      select="string((//tei:titleStmt/tei:author)[1])"/>
+    <xsl:variable name="pub-editors"
+      select="//tei:titleStmt/tei:editor"/>
+    <xsl:variable name="pub-place"
+      select="string(((//tei:publicationStmt/tei:pubPlace)[1],
+                      (//tei:sourceDesc//tei:pubPlace)[1])[1])"/>
+    <xsl:variable name="pub-date"
+      select="string(((//tei:publicationStmt/tei:date)[1],
+                      (//tei:sourceDesc//tei:date)[1])[1])"/>
+
+    <!-- citeStructure metadata for index.json.
+         Perseus documents have a body-level outer citeStructure (no @unit);
+         the first named level is the book and the second is the chapter.  -->
+    <xsl:variable name="book-subtype"
+      select="string((//tei:refsDecl[@default='true']/tei:citeStructure/tei:citeStructure/@unit,
+                      //tei:refsDecl/tei:citeStructure/tei:citeStructure/@unit)[1])"/>
+    <xsl:variable name="chapter-subtype"
+      select="string((//tei:refsDecl[@default='true']/tei:citeStructure/tei:citeStructure/tei:citeStructure/@unit,
+                      //tei:refsDecl/tei:citeStructure/tei:citeStructure/tei:citeStructure/@unit)[1])"/>
 
     <xsl:if test="$base-urn = ''">
       <xsl:message terminate="yes">
@@ -72,10 +99,13 @@
       <xsl:on-completion>
         <xsl:result-document href="{$output-dir}/index.json" method="json" indent="yes">
           <xsl:sequence select="map{
-            'base_urn': $base-urn,
-            'title':    $title,
-            'language': $language,
-            'chunks':   array{ $index-entries }
+            'base_urn':        $base-urn,
+            'title':           $pub-title,
+            'language':        $language,
+            'author':          $pub-author,
+            'book_subtype':    $book-subtype,
+            'chapter_subtype': $chapter-subtype,
+            'chunks':          array{ $index-entries }
           }"/>
         </xsl:result-document>
       </xsl:on-completion>
@@ -111,9 +141,27 @@
             <xsl:attribute name="next-urn" select="$next-urn"/>
           </xsl:if>
           <meta>
-            <title><xsl:value-of select="$title"/></title>
+            <title><xsl:value-of select="$pub-title"/></title>
             <base-urn><xsl:value-of select="$base-urn"/></base-urn>
             <language><xsl:value-of select="$language"/></language>
+            <ctsurn><xsl:value-of select="$base-urn"/></ctsurn>
+            <sourceURL><xsl:value-of select="$sourceURL"/></sourceURL>
+            <pubInfo>
+              <title><xsl:value-of select="$pub-title"/></title>
+              <author><xsl:value-of select="$pub-author"/></author>
+              <xsl:choose>
+                <xsl:when test="exists($pub-editors)">
+                  <xsl:for-each select="$pub-editors">
+                    <editor><xsl:value-of select="."/></editor>
+                  </xsl:for-each>
+                </xsl:when>
+                <xsl:otherwise>
+                  <editor/>
+                </xsl:otherwise>
+              </xsl:choose>
+              <pubPlace><xsl:value-of select="$pub-place"/></pubPlace>
+              <pubDate><xsl:value-of select="$pub-date"/></pubDate>
+            </pubInfo>
           </meta>
           <content>
             <xsl:apply-templates select="tei:div[@type='section']" mode="section">
