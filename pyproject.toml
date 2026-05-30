@@ -6,7 +6,7 @@ authors = [
     {name = "Cliff Wulfman", email = "cwulfman@princeton.edu"},
     {name = "Charles Pletcher", email = "charles.pletcher@gmail.com"}
 ]
-dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2", "fastapi>=0.136.1", "uvicorn[standard]>=0.46.0", "frozen-flask>=1.0.2"]
+dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "pandas>=3.0.2", "fastapi>=0.136.1", "uvicorn[standard]>=0.46.0", "frozen-flask>=1.0.2", "markdown>=3.10.2"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
@@ -17,6 +17,7 @@ run-audit = "run_audit:main"
 run-index = "run_index:main"
 generate-html-from-tei = "generate_html_from_tei:main"
 generate-protopages = "generate_protopages:main"
+mvp-dev = "mvp.site.app:main"
 render-protopages = "render_protopages:main"
 run-toc = "run_toc:main"
 
@@ -38,6 +39,8 @@ test = "python -m pytest"
 test_verbose = "python -m pytest -v"
 cov = "python -m pytest --cov=mvp --cov-report=html"
 cov_report = {shell = "python -m http.server -d htmlcov"}
+css = "./tailwindcss -i src/python/mvp/site/static/css/input.css -o src/python/mvp/site/static/css/output.css"
+css-watch = "./tailwindcss -i src/python/mvp/site/static/css/input.css -o src/python/mvp/site/static/css/output.css -w"
 lint = "python -m ruff check"
 typecheck = "python -m mypy src/python/mvp"
 

@@ -1,3 +1,80 @@
 {% extends "base.html.jinja" %}
 
 {% block title %}Perseus Digital Library{% endblock %}
+
+{% block header %}
+    <div class="py-4">
+        <img src="{{ url_for('static', filename='images/perseus-banner.png') }}" />
+    </div>
+{% endblock %}
+
+{% block content %}
+<main class="p-8">
+    <section class="mx-auto text-center">
+        <h1 class="text-xl font-bold">Welcome to Perseus (Parcus)</h1>
+        <p class="text-md">A statically compiled reading environment of the Perseus digital library</p>
+        <p>
+            Read more on the <a href="#" class="link">Perseus version history</a>.
+        </p>
+    </section>
+
+    <section class="pt-8 mx-auto">
+        <div class="prose">
+            {{ news_markdown }}
+        </div>
+    </section>
+</main>
+
+<footer class="footer sm:footer-horizontal bg-neutral-300 p-4 text-neutral-800">
+    <div id="contact_info">
+        <p>Perseus contact and support <a href="/hopper/help">information</a>.</p>
+
+        <p>Perseus is a non-profit enterprise, located in the
+            <a class="link" target="_blank" href="http://ase.tufts.edu/classics" onclick="javascript: pageTracker._trackPageview('/outgoing/ClassicsDept');">Department
+            of  Classical Studies</a>,
+            <a class="link" target="_blank" href="http://www.tufts.edu" onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
+            University</a>.</p>
+
+            <p>The Perseus Project has been supported by various funders throughout its history:</p>
+            <p>Perseus has been most recently funded by the <a class="link" target="_blank" href="http://alpheios.net" onclick="javascript: pageTracker._trackPageview('/outgoing/Alpheios');">Alpheios
+            Project</a>, the
+            <a class="link" target="_blank" href="http://www.mellon.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Mellon');">Andrew
+            W. Mellon Foundation</a>, the
+
+            <a class="link" target="_blank" href="http://www.imls.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/IMLS');">Institute
+            of Museum and Library Services</a>, the
+            <a class="link" target="_blank" href="http://www.neh.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NEH');">National
+                Endowment for the Humanities</a>, the
+                <a class="link" target="_blank" href="http://www.nsf.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NSF');">National
+                    Science Foundation</a>,
+                    <a href="/hopper/help/support.jsp">private donations</a>, and
+                    <a class="link" target="_blank" href="http://www.tufts.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
+            University</a>.
+        </p>
+
+        <p>Prior support for the project has been provided by the
+            <a class="link" target="_blank" href="http://www.learner.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Annenberg');">Annenberg/CPB
+            Project</a>,
+            <a class="link" target="_blank" href="http://www.apple.com/" onclick="javascript: pageTracker._trackPageview('/outgoing/Apple');">Apple Computer</a>, the
+            <a class="link" target="_blank" href="http://www.library.tufts.edu/tisch/Berger/bergerhome.html" onclick="javascript: pageTracker._trackPageview('/outgoing/Berger');">Berger
+            Family Technology Transfer Endowment</a>,
+            <a class="link" target="_blank" href="http://www.dli2.nsf.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/DLI2');">Digital
+            Libraries Initiative Phase 2</a>,
+            the <a class="link" target="_blank" href="http://www.ed.gov/FIPSE/" onclick="javascript: pageTracker._trackPageview('/outgoing/FIPSE');">Fund
+            for the Improvement of Postsecondary Education</a>
+            part of the <a class="link" target="_blank" href="http://www.ed.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/DeptOfEd');">U.S.
+            Department of Education</a>,
+            the <a class="link" target="_blank" href="http://www.getty.edu/grant/" onclick="javascript: pageTracker._trackPageview('/outgoing/Getty');">Getty
+            Grant program</a>, the
+            <a class="link" target="_blank" href="http://www.mla.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/MLA');">Modern Language Association</a>, the
+            <a class="link" target="_blank" href="http://arts.endow.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NEA');">National
+            Endowment for the Arts</a>,  the
+            <a class="link" target="_blank" href="www.packhum.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Packard');">Packard
+            Humanities Institute</a>,
+            <a class="link" target="_blank" href="http://www.xerox.com/" onclick="javascript: pageTracker._trackPageview('/outgoing/Xerox');">Xerox Corporation</a>,
+            <a class="link" target="_blank" href="http://web.bu.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/BU');">Boston University</a>, and
+            <a class="link" target="_blank" href="http://www.harvard.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/Harvard');">Harvard University</a>.
+        </p>
+    </div>
+</footer>
+{% endblock %}
