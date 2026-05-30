@@ -23,6 +23,7 @@ Examples:
         /tmp/prepared/latinLit \\
         src/xslt/corpus-prep/transform1.xsl
 """
+
 from __future__ import annotations
 
 import argparse
@@ -36,6 +37,7 @@ from saxonche import PySaxonProcessor
 
 def _detect_cts_namespace(corpus_dir: Path) -> str:
     for part in corpus_dir.parts:
+        print(part)
         if "latinLit" in part:
             return "latinLit"
         if "greekLit" in part:
@@ -55,19 +57,34 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    parser.add_argument("corpus_dir", type=Path, metavar="CORPUS_DIR",
-                        help="Root of a canonical-*Lit data/ directory.")
-    parser.add_argument("output_dir", type=Path, metavar="OUTPUT_DIR",
-                        help="Output root; directory structure is preserved.")
-    parser.add_argument("stylesheet", type=Path, metavar="STYLESHEET",
-                        help="Path to the corpus-prep XSLT stylesheet.")
-    parser.add_argument("--cts-namespace", metavar="NS",
-                        help="Override the CTS namespace (default: auto-detect).")
+    parser.add_argument(
+        "corpus_dir",
+        type=Path,
+        metavar="CORPUS_DIR",
+        help="Root of a canonical-*Lit data/ directory.",
+    )
+    parser.add_argument(
+        "output_dir",
+        type=Path,
+        metavar="OUTPUT_DIR",
+        help="Output root; directory structure is preserved.",
+    )
+    parser.add_argument(
+        "stylesheet",
+        type=Path,
+        metavar="STYLESHEET",
+        help="Path to the corpus-prep XSLT stylesheet.",
+    )
+    parser.add_argument(
+        "--cts-namespace",
+        metavar="NS",
+        help="Override the CTS namespace (default: auto-detect).",
+    )
     args = parser.parse_args()
 
     corpus_dir = args.corpus_dir.resolve()
     output_dir = args.output_dir.resolve()
-    stylesheet  = args.stylesheet.resolve()
+    stylesheet = args.stylesheet.resolve()
     cts_namespace = args.cts_namespace or _detect_cts_namespace(corpus_dir)
 
     for path, label in ((corpus_dir, "Corpus"), (stylesheet, "Stylesheet")):
@@ -88,13 +105,10 @@ def main() -> None:
     with PySaxonProcessor(license=False) as proc:
         xslt = proc.new_xslt30_processor()
         transformer = xslt.compile_stylesheet(stylesheet_file=str(stylesheet))
-        if xslt.error_message:
-            print(f"ERROR: stylesheet compilation failed:\n{xslt.error_message}",
-                  file=sys.stderr)
-            sys.exit(1)
 
-        transformer.set_parameter("cts-namespace",
-                                  proc.make_string_value(cts_namespace))
+        transformer.set_parameter(
+            "cts-namespace", proc.make_string_value(cts_namespace)
+        )
 
         for tei_file in files:
             rel = tei_file.relative_to(corpus_dir)
@@ -102,11 +116,7 @@ def main() -> None:
             out_file.parent.mkdir(parents=True, exist_ok=True)
 
             try:
-                result = transformer.transform_to_string(
-                    source_file=str(tei_file)
-                )
-                if xslt.error_message:
-                    raise RuntimeError(xslt.error_message)
+                result = transformer.transform_to_string(source_file=str(tei_file))
                 out_file.write_text(result, encoding="utf-8")
                 print(f"  ok      {rel}")
                 ok += 1

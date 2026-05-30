@@ -3,7 +3,7 @@
         <details {% if current_urn.startswith(item.urn) %}open="true"{% endif %}>
             <summary>
                 <span>
-                    {{ item.label | replace("Book", "Liber") | replace("Chapter", "Capitulum") | replace("Section", "Sectio") }}
+                    {{ item.label }}
                 </span>
             </summary>
             <ul>
@@ -15,6 +15,6 @@
             </ul>
         </details>
     {% else %}
-        <a href="{{ url_for('reading', urn=item.urn) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label | replace("Book", "Liber") | replace("Chapter", "Capitulum") | replace("Section", "Sectio") }}</a>
+        <a href="{{ url_for('reading_view', **item.route_kwargs) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label }}</a>
     {% endif %}
 </li>

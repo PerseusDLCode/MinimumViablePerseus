@@ -41,8 +41,6 @@ class XSLTCompiler:
                 transformer.set_parameter(name, proc.make_string_value(value))
             transformer.set_base_output_uri(output_dir.resolve().as_uri() + "/")
             transformer.transform_to_string(source_file=str(source.resolve()))
-            if xslt.error_message:
-                raise RuntimeError(xslt.error_message)
 
 
 class PageCompiler(Compiler[TEIDocument]):

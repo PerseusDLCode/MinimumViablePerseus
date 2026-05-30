@@ -1,33 +1,26 @@
 {% extends "base.html.jinja" %}
 
-{% block title %}{{ edition_textgroup }}, {{ edition_title }}, {{ current_location }}{% endblock %}
+{% block title %}{{ pub_info.author }}, {{ chunk.title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
 
 {% block header %}
     <header class="hero mb-4">
         <div class="px-8 text-base-content w-full">
             <div>
                 <h1 class="text-xl font-bold">
-                    {{ edition_textgroup }} <em>{{ edition_title }}</em>
+                    {{ pub_info.author }} <em>{{ chunk.title }}</em>
                 </h1>
-                <h2 class="text-lg font-bold">{{ edition_creators }}</h2>
+                {% if pub_info.editors %}
+                    <h2 class="text-lg font-bold">{{ pub_info.editors | join(", ") }}</h2>
+                {% endif %}
             </div>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <main class="flex pt-4 w-full">
-        <!-- Left nav -->
-        <div class="text-base-content text-xs w-1/5">
-            <div class="bg-neutral-400 p-4 mb-4">
-                <h3 class="font-bold">This text is part of:</h3>
-                <ul>
-                    {% for collection in collections %}
-                        <li><a href="{{ collection.url }}">{{ collection.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-
+    <main class="flex pt-4 w-full items-start">
+        <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
+        <div class="text-base-content text-xs w-1/5 sticky top-0 self-start max-h-screen overflow-y-auto">
             <div class="bg-neutral-400 p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -46,7 +39,7 @@
 
             <div class="bg-neutral-400 p-4 mb-4">
                 <h3 class="font-bold">Table of Contents:</h3>
-                <ul class="menu [&_li>*]:rounded-none flex-nowrap max-h-screen overflow-y-auto">
+                <ul class="menu [&_li>*]:rounded-none flex-nowrap w-full">
                     {% for nav_item in toc.get("table_of_contents", []) %}
                       {% with item = nav_item %}
                         {% include 'components/NavigationItem.html.jinja' %}
@@ -58,14 +51,34 @@
 
         <!-- Base text -->
         <article class="w-2/5 mx-4 text-sm">
-            <p class="font-bold mb-4 text-xs">Click on a word to bring up parses, dictionary entries, and frequency statistics</p>
+            <div class="flex justify-between mb-4 text-xs">
+                {% if prev_url %}
+                    <a href="{{ prev_url }}" class="link">&larr; Previous</a>
+                {% else %}
+                    <span></span>
+                {% endif %}
+                {% if next_url %}
+                    <a href="{{ next_url }}" class="link">Next &rarr;</a>
+                {% endif %}
+            </div>
+
             <div class="prose">
-                {{ base_text }}
+                {% for section in chunk.sections %}
+                    <div class="section" id="{{ section.cts_urn }}">
+                        {% for paragraph in section.paragraphs %}
+                            {{ paragraph }}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
             <div class="pt-8">
                 <p class="mb-4">
-                    {{ edition_title }}.
-                    {{ edition_textgroup }}. {{ edition_creators }}. {{ edition_location }}.
-                    {{ edition_publisher }}. {{ edition_year }}.
+                    {{ chunk.title }}.
+                    {{ pub_info.author }}.
+                    {% if pub_info.editors %}{{ pub_info.editors | join(", ") }}.{% endif %}
+                    {{ pub_info.pub_place }}.
+                    {{ pub_info.pub_date }}.
                 </p>
                 <p class="mb-4">Tufts University provided support for entering this text.</p>
                 <p>
@@ -77,62 +90,25 @@
         </article>
 
         <!-- Paratexts -->
-
         <div class="text-xs w-2/5">
-            <div class="bg-neutral-400 flex justify-between p-4 mb-4">
-                <h4 class="font-bold">Notes (George W. Mooney, 1912)</h4>
-                <p>
-                    <a href="#" class="link font-bold">focus</a>
-                    <a href="#" class="link font-bold">load</a>
-                </p>
-            </div>
-
-            <div class="mb-4">
-                <div class="bg-neutral-400 flex justify-between p-4">
-                    <h4 class="font-bold">References (4 total)</h4>
-                    <p>
-                        <a href="#" class="link font-bold">hide</a>
-                    </p>
-                </div>
-
-                <div class="bg-neutral-300 flex justify-between p-4">
-                    <ul
-                        class="list-disc list-outside p-4 [&_ul]:list-[revert]"
-                    >
-                        <li>
-                            Cross-references in general dictionaries to this
-                            page ({{ len(cross_references) }}):
-                            <ul class="list-inside">
-                                {% for ref in cross_references %}
-                                    <li><em>{{ ref.source }}</em>, {{ ref.lemma }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
             <div class="mb-4">
                 <div class="bg-neutral-400 flex justify-between p-4">
                     <h4 class="font-bold">Stable identifiers</h4>
-                    <p>
-                        <a href="#" class="link font-bold">load</a>
-                    </p>
                 </div>
 
                 <div class="bg-neutral-300 p-4 text-xs">
-                    <p>Citation URI: {{ citation_uri }}</p>
-                    <p>Text URI: {{ text_uri }}</p>
-                    <p>Work URI: {{ work_uri }}</p>
-                    <p>Catalog Record URI: {{ catalog_record_uri }}</p>
+                    <p>Citation URI: <a href="{{ citation_uri }}" class="link">{{ citation_uri }}</a></p>
+                    <p>Text URI: <a href="{{ text_uri }}" class="link">{{ text_uri }}</a></p>
+                    <p>Work URI: <a href="{{ work_uri }}" class="link">{{ work_uri }}</a></p>
+                    <p>Catalog Record URI: <a href="{{ catalog_record_uri }}" class="link">{{ catalog_record_uri }}</a></p>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="text-xs bg-neutral-300 p-4">
+    <footer class="text-xs bg-neutral-300 p-4 sticky bottom-0">
         <div class="rights_info">
-            <p class="cc_rights">
+            <div class="cc_rights flex items-start gap-4 mb-2">
                 <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
                     <img
                         alt="Creative Commons License"
@@ -143,18 +119,16 @@
                 <p>
                     This work is licensed under a
                     <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                        Creative Commons Attribution-ShareAlike 3.0 United
-                        States License
+                        Creative Commons Attribution-ShareAlike 3.0 United States License
                     </a>.
                 </p>
-            </p>
+            </div>
             <p class="xml_download">
-                An
-                <a href="{{ xml_src_url }}">XML version</a>
-                of this text is available for download, with the additional
-                restriction that you offer Perseus any modifications you
-                make. Perseus provides credit for all accepted changes,
-                storing new additions in a versioning system.
+                An <a href="{{ xml_src_url }}">XML version</a>
+                of this text is available for download, with the additional restriction
+                that you offer Perseus any modifications you make. Perseus provides
+                credit for all accepted changes, storing new additions in a versioning
+                system.
             </p>
         </div>
     </footer>
