@@ -5,7 +5,7 @@
 from mvp.corpus.tei_constants import TEI_NS, XML_NS, NS, XML_BASE, XML_ID, XML_LANG
 from mvp.corpus.tei_document import LenientTEIDocument, expected_div_base, expected_leaf_base
 from mvp.corpus.models import (
-    TEIMetadata, CitationRecord,
+    TEIMetadata, CitationRecord, CitationChunk,
     WordOccurrence, WordIndex,
     ChunkOccurrence, ChunkIndex,
 )
@@ -19,7 +19,7 @@ from mvp.corpus.toc_generator import TOCGenerator
 __all__ = [
     "TEI_NS", "XML_NS", "NS", "XML_BASE", "XML_ID", "XML_LANG",
     "LenientTEIDocument", "expected_div_base", "expected_leaf_base",
-    "TEIMetadata", "CitationRecord",
+    "TEIMetadata", "CitationRecord", "CitationChunk",
     "WordOccurrence", "WordIndex",
     "ChunkOccurrence", "ChunkIndex",
     "TEIDocument", "LANGUAGE_NAMES", "normalize_lang",

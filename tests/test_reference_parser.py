@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from mvp.corpus.models import CitationChunk
 from mvp.corpus.tei_document import LenientTEIDocument
 from mvp.corpus.reference_parser import CitationError, ConfigurationError, ReferenceParser
 
@@ -357,3 +358,168 @@ class TestThucydidesCitations:
         assert urns[1] == f"{THUCYDIDES_BASE}:1.1"
         assert urns[2] == f"{THUCYDIDES_BASE}:1.1.1"
         assert urns[-1] == f"{THUCYDIDES_BASE}:2.1.1"
+
+
+# ---------------------------------------------------------------------------
+# chunks() — div-based
+# ---------------------------------------------------------------------------
+
+
+class TestChunksDivBased:
+    """chunks() on a 3-level hierarchy defaults to the penultimate (chapter) level."""
+
+    def test_returns_citation_chunk_objects(self, thucydides_parser):
+        result = list(thucydides_parser.chunks())
+        assert all(isinstance(c, CitationChunk) for c in result)
+
+    def test_chunk_count_equals_chapter_count(self, thucydides_parser):
+        # THUCYDIDES_XML has 3 chapters (book1:ch1, book1:ch2, book2:ch1)
+        result = list(thucydides_parser.chunks())
+        assert len(result) == 3
+
+    def test_chunks_are_chapter_level(self, thucydides_parser):
+        result = list(thucydides_parser.chunks())
+        assert all(c.unit == "chapter" for c in result)
+
+    def test_each_chunk_has_one_element(self, thucydides_parser):
+        result = list(thucydides_parser.chunks())
+        assert all(len(c.elements) == 1 for c in result)
+
+    def test_chunk_urns_are_correct(self, thucydides_parser):
+        urns = [c.cts_urn for c in thucydides_parser.chunks()]
+        assert urns == [
+            f"{THUCYDIDES_BASE}:1.1",
+            f"{THUCYDIDES_BASE}:1.2",
+            f"{THUCYDIDES_BASE}:2.1",
+        ]
+
+    def test_prev_next_navigation(self, thucydides_parser):
+        chunks = list(thucydides_parser.chunks())
+        assert chunks[0].prev_urn is None
+        assert chunks[0].next_urn == f"{THUCYDIDES_BASE}:1.2"
+        assert chunks[1].prev_urn == f"{THUCYDIDES_BASE}:1.1"
+        assert chunks[1].next_urn == f"{THUCYDIDES_BASE}:2.1"
+        assert chunks[2].prev_urn == f"{THUCYDIDES_BASE}:1.2"
+        assert chunks[2].next_urn is None
+
+    def test_single_level_uses_that_level(self, apology_parser):
+        # Apology has only one citation level (section); penultimate == leaf
+        result = list(apology_parser.chunks())
+        assert len(result) == 3
+        assert all(c.unit == "section" for c in result)
+
+    def test_n_chunk_attr_overrides_penultimate(self, tmp_path):
+        # Mark sections (leaf) as the chunk level explicitly on a 3-level doc
+        xml = f"""\
+            <?xml version="1.0" encoding="UTF-8"?>
+            <TEI xmlns="http://www.tei-c.org/ns/1.0">
+              <teiHeader>
+                <encodingDesc>
+                  <refsDecl default="true">
+                    <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
+                      <citeStructure unit="book" delim=":" match="tei:div[@subtype='book']" use="@n">
+                        <citeStructure unit="chapter" delim="." match="tei:div[@subtype='chapter']" use="@n">
+                          <citeStructure unit="section" delim="." match="tei:div[@subtype='section']" use="@n" n="chunk"/>
+                        </citeStructure>
+                      </citeStructure>
+                    </citeStructure>
+                  </refsDecl>
+                </encodingDesc>
+              </teiHeader>
+              <text>
+                <body xml:base="{THUCYDIDES_BASE}">
+                  <div type="textpart" subtype="book" n="1">
+                    <div type="textpart" subtype="chapter" n="1">
+                      <div type="textpart" subtype="section" n="1"><p>A</p></div>
+                      <div type="textpart" subtype="section" n="2"><p>B</p></div>
+                    </div>
+                  </div>
+                </body>
+              </text>
+            </TEI>"""
+        from pathlib import Path
+        p = tmp_path / "chunk.xml"
+        p.write_text(xml, encoding="utf-8")
+        from mvp.corpus.tei_document import LenientTEIDocument
+        parser = ReferenceParser(LenientTEIDocument(p))
+        result = list(parser.chunks())
+        assert len(result) == 2
+        assert all(c.unit == "section" for c in result)
+
+
+# ---------------------------------------------------------------------------
+# chunks() — milestone-based
+# ---------------------------------------------------------------------------
+
+MILESTONE_BASE = "urn:cts:myexample:author.work.edition"
+
+MILESTONE_XML = f"""\
+    <?xml version="1.0" encoding="UTF-8"?>
+    <TEI xmlns="http://www.tei-c.org/ns/1.0">
+      <teiHeader>
+        <encodingDesc>
+          <refsDecl default="true">
+            <citeStructure match="//tei:milestone[@unit='card']"
+                           unit="card" delim=" " use="@n" n="chunk"/>
+          </refsDecl>
+        </encodingDesc>
+      </teiHeader>
+      <text>
+        <body xml:base="{MILESTONE_BASE}">
+          <milestone unit="card" n="1"/>
+          <div><p>card 1 content</p></div>
+          <milestone unit="card" n="2"/>
+          <div><p>card 2 content</p></div>
+          <milestone unit="card" n="3"/>
+          <div><p>card 3 content</p></div>
+        </body>
+      </text>
+    </TEI>"""
+
+
+@pytest.fixture
+def milestone_parser(tmp_path):
+    p = tmp_path / "milestone.xml"
+    p.write_text(MILESTONE_XML, encoding="utf-8")
+    from mvp.corpus.tei_document import LenientTEIDocument
+    return ReferenceParser(LenientTEIDocument(p))
+
+
+class TestChunksMilestoneBased:
+
+    def test_returns_citation_chunk_objects(self, milestone_parser):
+        result = list(milestone_parser.chunks())
+        assert all(isinstance(c, CitationChunk) for c in result)
+
+    def test_chunk_count_equals_milestone_count(self, milestone_parser):
+        result = list(milestone_parser.chunks())
+        assert len(result) == 3
+
+    def test_chunks_are_card_unit(self, milestone_parser):
+        result = list(milestone_parser.chunks())
+        assert all(c.unit == "card" for c in result)
+
+    def test_chunk_urns(self, milestone_parser):
+        urns = [c.cts_urn for c in milestone_parser.chunks()]
+        assert urns == [
+            f"{MILESTONE_BASE} 1",
+            f"{MILESTONE_BASE} 2",
+            f"{MILESTONE_BASE} 3",
+        ]
+
+    def test_prev_next_navigation(self, milestone_parser):
+        chunks = list(milestone_parser.chunks())
+        assert chunks[0].prev_urn is None
+        assert chunks[0].next_urn == f"{MILESTONE_BASE} 2"
+        assert chunks[2].prev_urn == f"{MILESTONE_BASE} 2"
+        assert chunks[2].next_urn is None
+
+    def test_each_chunk_contains_correct_content(self, milestone_parser):
+        from lxml import etree as _etree
+        chunks = list(milestone_parser.chunks())
+        # Elements are TEI-namespaced; check localname and text content.
+        divs0 = [e for e in chunks[0].elements if _etree.QName(e.tag).localname == "div"]
+        assert len(divs0) == 1
+        assert divs0[0][0].text == "card 1 content"
+        divs1 = [e for e in chunks[1].elements if _etree.QName(e.tag).localname == "div"]
+        assert divs1[0][0].text == "card 2 content"

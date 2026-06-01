@@ -143,6 +143,25 @@ class TEIDocument:
     def metadata(self) -> TEIMetadata:
         return self._metadata
 
+    @property
+    def schemas(self) -> list:
+        schema_list = list()
+        for node in self._tree.getroot().itersiblings(preceding=True):
+            if isinstance(node, etree._ProcessingInstruction) and node.target == "xml-model":
+                schema_list.append(node.text)
+        return schema_list
+
+    @property
+    def schema(self) -> str:
+        """Returns the name of the schema (e.g., 'perseus_base').
+          This method is fragile! Assumes there is one and only one schema, and
+          that the declaration follows a particular syntax.
+        """
+        return self.schemas[0].split()[0].split("=")[1].strip("\"").split('/')[-1].split('.')[0]
+
+        
+        
+
     # ------------------------------------------------------------------
     # Private
 

@@ -1,10 +1,3 @@
-""" Proto-page compiler for TEI texts.
-
-
-
-
-"""
-
 """Proto-page compiler and renderer for Family-1 (hierarchical-div) TEI texts.
 
 Two compilers forming the two-step pipeline:
