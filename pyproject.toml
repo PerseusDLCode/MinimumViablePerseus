@@ -18,7 +18,6 @@ run-index = "run_index:main"
 generate-html-from-tei = "generate_html_from_tei:main"
 generate-protopages = "generate_protopages:main"
 render-protopages = "render_protopages:main"
-run-toc = "run_toc:main"
 
 [build-system]
 requires = ["pdm-backend"]

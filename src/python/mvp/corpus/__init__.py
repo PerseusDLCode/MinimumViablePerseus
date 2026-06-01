@@ -14,7 +14,6 @@ from mvp.corpus.corpus import Corpus
 from mvp.corpus.auditors import StructureAuditor, ReferenceAuditor
 from mvp.corpus.indexers import TEIIndexer, WordIndexer, ChunkIndexer
 from mvp.corpus.reference_parser import ReferenceParser, ConfigurationError, CitationError
-from mvp.corpus.toc_generator import TOCGenerator
 
 __all__ = [
     "TEI_NS", "XML_NS", "NS", "XML_BASE", "XML_ID", "XML_LANG",
@@ -27,5 +26,4 @@ __all__ = [
     "StructureAuditor", "ReferenceAuditor",
     "TEIIndexer", "WordIndexer", "ChunkIndexer",
     "ReferenceParser", "ConfigurationError", "CitationError",
-    "TOCGenerator",
 ]
