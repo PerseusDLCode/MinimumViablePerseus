@@ -339,6 +339,11 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             encoding="utf-8",
         )
 
+        (output_path / "toc.json").write_text(
+            json.dumps(self.reference_parser.toc(), indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------

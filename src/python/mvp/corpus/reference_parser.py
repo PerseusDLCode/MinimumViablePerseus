@@ -255,6 +255,60 @@ class ReferenceParser:
                         new_suffix, children, cand, current_depth + 1, max_depth
                     )
 
+    def toc(self) -> list[dict]:
+        """Return the full citation hierarchy as a list of nested TOC entries.
+
+        Each entry has the shape::
+
+            {
+                "depth":       int,          # 0-based level in the hierarchy
+                "index":       int,          # 1-based position among siblings
+                "label":       str,          # e.g. "Book 1", "Chapter 3"
+                "subtype":     str,          # citeStructure @unit value
+                "urn":         str,          # full CTS URN
+                "subpassages": list[dict],   # recursive; empty for leaf nodes
+            }
+
+        The top-level list contains entries for the first citation level
+        (e.g. books).  Leaf nodes carry an empty ``subpassages`` list.
+        """
+        children = list(self._root_cs.findall("tei:citeStructure", NS))
+        return self._toc_level("", children, self._body, 0)
+
+    def _toc_level(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+        depth: int,
+    ) -> list[dict]:
+        entries: list[dict] = []
+        for cs in cs_list:
+            match_expr = cs.get("match", "")
+            use_attr   = cs.get("use", "@n")
+            delim      = cs.get("delim", ":")
+            unit       = cs.get("unit", "")
+            children_cs = list(cs.findall("tei:citeStructure", NS))
+            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
+
+            for idx, cand in enumerate(candidates, 1):
+                val = cand.get(use_attr[1:], str(idx)) if use_attr.startswith("@") else str(idx)
+                new_suffix = suffix + delim + val
+                urn = self._base_urn + new_suffix
+                subpassages = (
+                    self._toc_level(new_suffix, children_cs, cand, depth + 1)
+                    if children_cs else []
+                )
+                entries.append({
+                    "depth":       depth,
+                    "index":       idx,
+                    "label":       f"{unit.capitalize()} {val}",
+                    "subtype":     unit,
+                    "urn":         urn,
+                    "subpassages": subpassages,
+                })
+        return entries
+
     def citations(self, depth: int = -1) -> Iterator[str]:
         """Yield every resolvable CTS URN in document order.
 

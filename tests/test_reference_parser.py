@@ -361,6 +361,74 @@ class TestThucydidesCitations:
 
 
 # ---------------------------------------------------------------------------
+# toc()
+# ---------------------------------------------------------------------------
+
+
+class TestTOC:
+
+    def test_returns_list(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert isinstance(result, list)
+
+    def test_top_level_count_equals_book_count(self, thucydides_parser):
+        # THUCYDIDES_XML has 2 books
+        result = thucydides_parser.toc()
+        assert len(result) == 2
+
+    def test_top_level_depth_is_zero(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert all(e["depth"] == 0 for e in result)
+
+    def test_top_level_index_is_one_based(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert [e["index"] for e in result] == [1, 2]
+
+    def test_top_level_subtype_is_book(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert all(e["subtype"] == "book" for e in result)
+
+    def test_top_level_label(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert result[0]["label"] == "Book 1"
+        assert result[1]["label"] == "Book 2"
+
+    def test_top_level_urn(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert result[0]["urn"] == f"{THUCYDIDES_BASE}:1"
+        assert result[1]["urn"] == f"{THUCYDIDES_BASE}:2"
+
+    def test_subpassages_are_chapters(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        for entry in result[0]["subpassages"]:
+            assert entry["subtype"] == "chapter"
+            assert entry["depth"] == 1
+
+    def test_chapter_index_restarts_per_book(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        assert [e["index"] for e in result[0]["subpassages"]] == [1, 2]
+        assert [e["index"] for e in result[1]["subpassages"]] == [1]
+
+    def test_chapter_subpassages_contain_sections(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        sections = result[0]["subpassages"][0]["subpassages"]
+        assert len(sections) == 3
+        assert all(e["subtype"] == "section" for e in sections)
+        assert all(e["depth"] == 2 for e in sections)
+
+    def test_leaf_subpassages_empty(self, thucydides_parser):
+        result = thucydides_parser.toc()
+        for section in result[0]["subpassages"][0]["subpassages"]:
+            assert section["subpassages"] == []
+
+    def test_single_level_doc(self, apology_parser):
+        result = apology_parser.toc()
+        assert len(result) == 3
+        assert all(e["depth"] == 0 for e in result)
+        assert all(e["subpassages"] == [] for e in result)
+
+
+# ---------------------------------------------------------------------------
 # chunks() — div-based
 # ---------------------------------------------------------------------------
 

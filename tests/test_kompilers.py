@@ -264,3 +264,26 @@ class TestProtopageCompilerFileIO:
         compiler.compile(compiler.tei_doc, out)
         assert out.is_dir()
         assert any(out.glob("protopage_*.xml"))
+
+    def test_compile_creates_toc_json(self, compiler, tmp_path):
+        compiler.compile(compiler.tei_doc, tmp_path)
+        assert (tmp_path / "toc.json").exists()
+
+    def test_toc_json_top_level_entries(self, compiler, tmp_path):
+        import json
+        compiler.compile(compiler.tei_doc, tmp_path)
+        toc = json.loads((tmp_path / "toc.json").read_text())
+        # PROSE_XML has one book with two chapters
+        assert len(toc) == 1
+        assert toc[0]["subtype"] == "book"
+        assert toc[0]["label"] == "Book 1"
+        assert len(toc[0]["subpassages"]) == 2
+
+    def test_toc_json_chapter_entries(self, compiler, tmp_path):
+        import json
+        compiler.compile(compiler.tei_doc, tmp_path)
+        toc = json.loads((tmp_path / "toc.json").read_text())
+        chapters = toc[0]["subpassages"]
+        assert chapters[0]["urn"].endswith(":1.1")
+        assert chapters[0]["label"] == "Chapter 1"
+        assert chapters[1]["urn"].endswith(":1.2")
