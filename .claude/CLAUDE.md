@@ -268,12 +268,13 @@ Almost all source code lives under `src/python/`.  The primary package is
 |--------|------|
 | `mvp/corpus/tei_constants.py` | Shared XML namespace constants and TEI tag definitions |
 | `mvp/corpus/tei_document.py` | Thin TEI wrapper with recover-mode parser |
-| `mvp/corpus/models.py` | Core corpus data objects: `TEIMetadata`, `CitationRecord`, `Word*`/`Chunk*` index types |
-| `mvp/corpus/document.py` | `TEIDocument` — parses a TEI file and extracts metadata |
+| `mvp/corpus/models.py` | Core corpus data objects: `TEIMetadata`, `CitationRecord`, `CitationChunk`, `Word*`/`Chunk*` index types |
+| `mvp/corpus/document.py` | `TEIDocument` — parses a TEI file and extracts metadata; `.schema` reads the `<?xml-model?>` PI |
 | `mvp/corpus/corpus.py` | `Corpus` — discovers and enumerates `TEIDocument`s under a root directory |
 | `mvp/corpus/auditors.py` | `StructureAuditor`, `ReferenceAuditor` — analyze TEI structure and `refsDecl` declarations |
 | `mvp/corpus/indexers.py` | `TEIIndexer`, `WordIndexer`, `ChunkIndexer` — extract word tokens and chunk elements with XPath provenance for NLP pipelines |
-| `mvp/corpus/reference_parser.py` | `ReferenceParser` — resolves CTS URNs to TEI elements and generates CTS URNs from elements via `<citeStructure>`; raises `ConfigurationError` / `CitationError` |
+| `mvp/corpus/chunking.py` | `copy_before()`, `elements_between()` — LCA tree-surgery utilities for extracting content between milestone elements |
+| `mvp/corpus/reference_parser.py` | `ReferenceParser` — resolves CTS URNs; `chunks()` yields `CitationChunk` objects (div-based or milestone-based); `toc()` returns the full citation hierarchy as nested dicts |
 
 **`mvp/annotations/` — enrichments derived from the corpus**
 
@@ -289,7 +290,8 @@ Almost all source code lives under `src/python/`.  The primary package is
 | `mvp/site/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
 | `mvp/site/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
 | `mvp/site/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
-| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`), `ProtopageCompiler`/`ProtopageRenderer` (`protopage_compiler.py`) |
+| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`), XSLT-based `ProtopageCompiler`/`ProtopageRenderer` (`protopage_compiler.py`) |
+| `mvp/compilers/kompilers.py` | **Proof-of-concept** pure-Python `ProtopageCompiler`: `Transformer` registry, `Family1ProseTransformer`, `SchemaRegistry`/`TransformerFactory`; writes `protopage_*.xml` + `index.json` + `toc.json` — intended to supersede `protopage_compiler.py` once validated |
 | `mvp/site/pipeline.py` | `BuildPipeline` — orchestrates the site build |
 
 Each layer's public API is re-exported from its `__init__.py`.  The NLP
@@ -334,19 +336,19 @@ shared among human developers.
 The following areas are currently under active development (see
 `forum.org` for the full deliberative record and current TODO items):
 
-- **Proto-page pipeline** (branch `76-write-proto-page-compiler`, pushed, awaiting PR/merge):
-  A two-step replacement for the one-step `PageCompiler`+`driver.xsl` pipeline.
-  Step 1 (`ProtopageCompiler` + `generate_protopages.xsl`) transforms a Family-1 TEI
-  file into per-chapter proto-page XML files plus `index.json`.  Step 2
-  (`ProtopageRenderer`) renders those XML files to HTML via Jinja2.  Thucydides is
-  the reference corpus (917 chapters).  See `wiki/Proto-Page-Pipeline.org` for design
-  notes.  The scratchpad work in `PerseusDLCode/tei-tagger` is now mothballed; all
-  further development happens here.
+- **Pure-Python protopage compiler** (branch `protopage-compiler-in-python`, in progress):
+  Replaces the Saxon/XSLT step of the proto-page pipeline with a pure-Python
+  recursive descent transformer.  Key new pieces: `CitationChunk` (corpus layer),
+  `ReferenceParser.chunks()` (div-based and milestone-based chunking),
+  `ReferenceParser.toc()` (full citation hierarchy for navigation), and a
+  `Transformer` registry pattern in `mvp/compilers/kompilers.py`.  Root element
+  is `<protopage>`; bibliographic metadata drawn from `<sourceDesc>`.  Validated
+  against Thucydides (917 chunks, 8-book `toc.json`).  Pending review by Charles
+  Pletcher; open questions on section wrapping and `metadata.json` format.
+  See forum `#python-protopage-compiler` for the full deliberative record.
 - **Citation infrastructure**: `ReferenceParser` is complete (merged to
-  `dev`, PRs #49 and #53).  Next steps: (1) connect
-  `ReferenceParser.citations()` to the XSLT chunkers for navigation-link
-  generation (undesigned — see open question in `#implement-reference-parser`);
-  (2) migrate corpus from `<cRefPattern>` to `<citeStructure>` (design phase).
+  `dev`, PRs #49 and #53).  Extended with `chunks()` and `toc()` on branch
+  `protopage-compiler-in-python`.
 - **XSLT modularization**: refactoring chunker stylesheets into a
   proper stylesheet family (see `#reimplement-xslt-to-be-modular`)
 
