@@ -7,12 +7,18 @@ from mvp.corpus.tei_document import LenientTEIDocument
 from mvp.compilers.transformers.base import Transformer
 
 
+def _make_gap() -> etree._Element:
+    el = etree.Element("gap")
+    el.text = "…"
+    return el
+
+
 class Family1ProseTransformer(Transformer):
     """Transformer for Family-1 hierarchical-div prose TEI texts.
 
     Implements the generate_protopages.xsl content-mode rule set:
       placeName → <place>, persName → <person>, q/quote → <q>,
-      del/add preserved, gap → empty <gap>, milestone/pb/note/head suppressed,
+      del/add preserved, gap → <gap>…</gap>, milestone/pb/note/head suppressed,
       everything else descends without wrapping.
     """
 
@@ -34,8 +40,8 @@ class Family1ProseTransformer(Transformer):
         self.register("del",   lambda t, el: Transformer._copy_inline(t, el, "del"))
         self.register("add",   lambda t, el: Transformer._copy_inline(t, el, "add"))
 
-        # Empty output element
-        self.register("gap", lambda _t, _el: [etree.Element("gap")])
+        # Gap marker — Unicode horizontal ellipsis per Charles's review
+        self.register("gap", lambda _t, _el: [_make_gap()])
 
         # Named entities — copy optional @key attribute
         self.register(

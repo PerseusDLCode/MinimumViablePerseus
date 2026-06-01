@@ -175,12 +175,12 @@ class TestTransformerDispatch:
         note = etree.fromstring(f'<note xmlns="{TEI_NS}">footnote</note>')
         assert t.apply(note) == []
 
-    def test_gap_maps_to_empty_gap(self, prose_doc):
+    def test_gap_maps_to_gap_with_ellipsis(self, prose_doc):
         t = Family1ProseTransformer(prose_doc)
         gap = etree.fromstring(f'<gap xmlns="{TEI_NS}"/>')
         result = t.apply(gap)
         assert result[0].tag == "gap"
-        assert list(result[0]) == []
+        assert result[0].text == "…"
 
     def test_del_and_add(self, prose_doc):
         t = Family1ProseTransformer(prose_doc)
