@@ -133,3 +133,53 @@
         </div>
     </footer>
 {% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const morphUrl = {{ morph_url | tojson }};
+    const lang = {{ chunk.language | tojson }};
+
+    if (!morphUrl) return;
+
+    const MORPHABLE_LANGUAGES = ['grc', 'la', 'lat'];
+
+    if (!MORPHABLE_LANGUAGES.includes(lang)) return;
+
+    const stripPunct = /^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu;
+
+    function linkifyTextNode(node) {
+        const text = node.nodeValue;
+        if (!text.trim()) return;
+
+        const frag = document.createDocumentFragment();
+        for (const part of text.split(/(\s+)/)) {
+            if (!part || /^\s+$/.test(part)) {
+                frag.appendChild(document.createTextNode(part));
+                continue;
+            }
+            const surface = part.replace(stripPunct, '');
+            if (!surface) {
+                frag.appendChild(document.createTextNode(part));
+                continue;
+            }
+            const a = document.createElement('a');
+            a.href = `${morphUrl}?form=${encodeURIComponent(surface)}&lang=${lang}`;
+            a.className = 'font-normal no-underline hover:underline';
+            a.textContent = part;
+            frag.appendChild(a);
+        }
+        node.parentNode.replaceChild(frag, node);
+    }
+
+    const prose = document.querySelector('.prose');
+    if (!prose) return;
+
+    const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(linkifyTextNode);
+}());
+</script>
+{% endblock %}

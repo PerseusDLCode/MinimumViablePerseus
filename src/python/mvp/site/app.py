@@ -19,6 +19,7 @@ CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
+MORPH_URL = os.getenv("MORPH_URL", "http://localhost:8000/morph")
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 XSL_FILE = APP_DIR.parents[2] / "xslt" / "html" / "generate_protopages.xsl"
 
@@ -352,6 +353,7 @@ def create_app(test_config=None):
                 work_uri=f"http://data.perseus.org/texts/{work_base_urn}",
                 catalog_record_uri=f"http://data.perseus.org/catalog/{base_urn}",
                 xml_src_url=_xml_src_url(corpus, textgroup, work, version),
+                morph_url=MORPH_URL,
             ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
