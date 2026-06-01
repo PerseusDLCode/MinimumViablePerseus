@@ -1,0 +1,185 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{{ pub_info.author }}, {{ chunk.title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
+
+{% block header %}
+    <header class="hero mb-4">
+        <div class="px-8 text-base-content w-full">
+            <div>
+                <h1 class="text-xl font-bold">
+                    {{ pub_info.author }} <em>{{ chunk.title }}</em>
+                </h1>
+                {% if pub_info.editors %}
+                    <h2 class="text-lg font-bold">{{ pub_info.editors | join(", ") }}</h2>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <main class="flex pt-4 w-full items-start">
+        <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
+        <div class="text-base-content text-xs w-1/5 sticky top-0 self-start max-h-screen overflow-y-auto">
+            <div class="bg-neutral-400 p-4 mb-4">
+                <h3 class="font-bold">Search the Perseus Catalog for:</h3>
+                <ul>
+                    <li>
+                        <a href="//data.perseus.org/catalog/{{ work_urn }}" class="link">
+                            Editions/Translations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//data.perseus.org/catalog/{{ textgroup_urn }}" class="link">
+                            Author Group
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-neutral-400 p-4 mb-4">
+                <h3 class="font-bold">Table of Contents:</h3>
+                <ul class="menu [&_li>*]:rounded-none flex-nowrap w-full">
+                    {% for nav_item in toc.get("table_of_contents", []) %}
+                      {% with item = nav_item %}
+                        {% include 'components/NavigationItem.html.jinja' %}
+                      {% endwith %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Base text -->
+        <article class="w-2/5 mx-4 text-sm">
+            <div class="flex justify-between mb-4 text-xs">
+                {% if prev_url %}
+                    <a href="{{ prev_url }}" class="link">&larr; Previous</a>
+                {% else %}
+                    <span></span>
+                {% endif %}
+                {% if next_url %}
+                    <a href="{{ next_url }}" class="link">Next &rarr;</a>
+                {% endif %}
+            </div>
+
+            <div class="prose">
+                {% for section in chunk.sections %}
+                    <div class="section" id="{{ section.cts_urn }}">
+                        {% for paragraph in section.paragraphs %}
+                            {{ paragraph }}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-8">
+                <p class="mb-4">
+                    {{ chunk.title }}.
+                    {{ pub_info.author }}.
+                    {% if pub_info.editors %}{{ pub_info.editors | join(", ") }}.{% endif %}
+                    {{ pub_info.pub_place }}.
+                    {{ pub_info.pub_date }}.
+                </p>
+                <p class="mb-4">Tufts University provided support for entering this text.</p>
+                <p>
+                    This text was converted to electronic form by professional
+                    data entry and has been proofread to a medium level of
+                    accuracy.
+                </p>
+            </div>
+        </article>
+
+        <!-- Paratexts -->
+        <div class="text-xs w-2/5">
+            <div class="mb-4">
+                <div class="bg-neutral-400 flex justify-between p-4">
+                    <h4 class="font-bold">Stable identifiers</h4>
+                </div>
+
+                <div class="bg-neutral-300 p-4 text-xs">
+                    <p>Citation URI: <a href="{{ citation_uri }}" class="link">{{ citation_uri }}</a></p>
+                    <p>Text URI: <a href="{{ text_uri }}" class="link">{{ text_uri }}</a></p>
+                    <p>Work URI: <a href="{{ work_uri }}" class="link">{{ work_uri }}</a></p>
+                    <p>Catalog Record URI: <a href="{{ catalog_record_uri }}" class="link">{{ catalog_record_uri }}</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-xs bg-neutral-300 p-4 sticky bottom-0">
+        <div class="rights_info">
+            <div class="cc_rights flex items-start gap-4 mb-2">
+                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                    <img
+                        alt="Creative Commons License"
+                        style="border-width: 0"
+                        src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
+                    />
+                </a>
+                <p>
+                    This work is licensed under a
+                    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                        Creative Commons Attribution-ShareAlike 3.0 United States License
+                    </a>.
+                </p>
+            </div>
+            <p class="xml_download">
+                An <a href="{{ xml_src_url }}">XML version</a>
+                of this text is available for download, with the additional restriction
+                that you offer Perseus any modifications you make. Perseus provides
+                credit for all accepted changes, storing new additions in a versioning
+                system.
+            </p>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const morphUrl = {{ morph_url | tojson }};
+    const lang = {{ chunk.language | tojson }};
+
+    if (!morphUrl) return;
+
+    const MORPHABLE_LANGUAGES = ['grc', 'la', 'lat'];
+
+    if (!MORPHABLE_LANGUAGES.includes(lang)) return;
+
+    const stripPunct = /^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu;
+
+    function linkifyTextNode(node) {
+        const text = node.nodeValue;
+        if (!text.trim()) return;
+
+        const frag = document.createDocumentFragment();
+        for (const part of text.split(/(\s+)/)) {
+            if (!part || /^\s+$/.test(part)) {
+                frag.appendChild(document.createTextNode(part));
+                continue;
+            }
+            const surface = part.replace(stripPunct, '');
+            if (!surface) {
+                frag.appendChild(document.createTextNode(part));
+                continue;
+            }
+            const a = document.createElement('a');
+            a.href = `${morphUrl}?form=${encodeURIComponent(surface)}&lang=${lang}`;
+            a.className = 'font-normal no-underline hover:underline';
+            a.textContent = part;
+            frag.appendChild(a);
+        }
+        node.parentNode.replaceChild(frag, node);
+    }
+
+    const prose = document.querySelector('.prose');
+    if (!prose) return;
+
+    const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(linkifyTextNode);
+}());
+</script>
+{% endblock %}

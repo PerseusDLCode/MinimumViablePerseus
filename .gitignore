@@ -236,7 +236,13 @@ src/morph-server/*.morph.xml
 
 
 corpora/
-
+tmp
 
 # The wiki is a submodule; don't track
 wiki
+
+
+# ignore tailwindcss binary
+tailwindcss
+
+proto-pages

@@ -1,0 +1,20 @@
+<li>
+    {% if item.get("subpassages", [])|length > 0 %}
+        <details {% if current_urn.startswith(item.urn) %}open="true"{% endif %}>
+            <summary>
+                <span>
+                    {{ item.label }}
+                </span>
+            </summary>
+            <ul>
+                {% for child in item.get("subpassages") %}
+                    {% with item = child %}
+                        {%- include 'components/NavigationItem.html.jinja' -%}
+                    {% endwith %}
+                {% endfor %}
+            </ul>
+        </details>
+    {% else %}
+        <a href="{{ url_for('reading_view', **item.route_kwargs) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label }}</a>
+    {% endif %}
+</li>
