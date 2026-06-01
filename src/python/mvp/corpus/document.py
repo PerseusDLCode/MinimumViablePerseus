@@ -152,11 +152,14 @@ class TEIDocument:
         return schema_list
 
     @property
-    def schema(self) -> str:
-        """Returns the name of the schema (e.g., 'perseus_base').
-          This method is fragile! Assumes there is one and only one schema, and
-          that the declaration follows a particular syntax.
+    def schema(self) -> str | None:
+        """Returns the name of the schema (e.g., 'perseus_base'), or None if absent.
+
+        Fragile: assumes the href= attribute appears first in the PI text and
+        that the path follows the pattern '.../name.rng'.
         """
+        if not self.schemas:
+            return None
         return self.schemas[0].split()[0].split("=")[1].strip("\"").split('/')[-1].split('.')[0]
 
         

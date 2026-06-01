@@ -86,6 +86,63 @@ class TestTransformerDispatch:
         assert len(result) == 2
         assert all(el.tag == "p" for el in result)
 
+    def test_descend_rescues_tail_after_suppressed_child(self, prose_doc):
+        # <note> is suppressed; its tail text must survive on the preceding
+        # output element so the sentence reads correctly.
+        t = Family1ProseTransformer(prose_doc)
+        div = etree.fromstring(
+            f'<div xmlns="{TEI_NS}">'
+            f'<p>before</p>'
+            f'<note xmlns="{TEI_NS}">fn</note>'
+            f' after'
+            f'<p>end</p>'
+            f'</div>'
+        )
+        result = t.apply(div)
+        # <note> is suppressed but its tail (' after') should land on p[0]
+        assert len(result) == 2
+        assert result[0].tail == " after"
+
+    def test_descend_carries_tail_after_producing_child(self, prose_doc):
+        # Tail text after a child that produces output must reach the last
+        # output element so text flow is preserved.
+        t = Family1ProseTransformer(prose_doc)
+        div = etree.fromstring(
+            f'<div xmlns="{TEI_NS}">'
+            f'<p>first</p>'
+            f' between '
+            f'<p>second</p>'
+            f'</div>'
+        )
+        # In lxml, text between siblings is stored as the first sibling's tail
+        # We need to build this via lxml directly to set .tail correctly
+        from lxml import etree as _etree
+        div2 = _etree.Element(f'{{{TEI_NS}}}div')
+        p1 = _etree.SubElement(div2, f'{{{TEI_NS}}}p')
+        p1.text = "first"
+        p1.tail = " between "
+        p2 = _etree.SubElement(div2, f'{{{TEI_NS}}}p')
+        p2.text = "second"
+        result = t.apply(div2)
+        assert len(result) == 2
+        assert result[0].tail == " between "
+
+    def test_descend_element_text_is_not_preserved(self, prose_doc):
+        # Known limitation: element.text (text before the first child) is lost
+        # when _descend is used because there is no parent element to anchor it.
+        t = Family1ProseTransformer(prose_doc)
+        from lxml import etree as _etree
+        div = _etree.Element(f'{{{TEI_NS}}}div')
+        div.text = "leading text"
+        p = _etree.SubElement(div, f'{{{TEI_NS}}}p')
+        p.text = "para"
+        result = t.apply(div)
+        assert len(result) == 1
+        assert result[0].tag == "p"
+        # "leading text" is not present in any output element — documented limit
+        full_text = "".join(result[0].itertext())
+        assert "leading text" not in full_text
+
     def test_p_maps_to_p(self, prose_doc):
         t = Family1ProseTransformer(prose_doc)
         p = etree.fromstring(f'<p xmlns="{TEI_NS}">hello</p>')

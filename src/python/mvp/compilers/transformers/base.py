@@ -89,8 +89,27 @@ class Transformer:
 
     @staticmethod
     def _descend(t: Transformer, element: etree._Element) -> list[etree._Element]:
-        """Default handler: recurse into children, no wrapper element."""
-        return t.apply_all(list(element))
+        """Default handler: recurse into children, no wrapper element.
+
+        Tail text is rescued for both suppressed and non-suppressed children.
+
+        Known limitation: element.text (text before the first child) cannot be
+        preserved in the flat output list because there is no parent element to
+        anchor it to.  Use _copy_inline for mixed-content elements where leading
+        text matters.
+        """
+        out: list[etree._Element] = []
+        for child in element:
+            child_out = t.apply(child)
+            if child_out:
+                if child.tail:
+                    child_out[-1].tail = (child_out[-1].tail or "") + child.tail
+                out.extend(child_out)
+            else:
+                # Child suppressed (or descended to nothing): rescue its tail.
+                if child.tail and out:
+                    out[-1].tail = (out[-1].tail or "") + child.tail
+        return out
 
     @staticmethod
     def _suppress(_t: Transformer, _el: etree._Element) -> list[etree._Element]:
