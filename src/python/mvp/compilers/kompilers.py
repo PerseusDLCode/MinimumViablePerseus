@@ -28,7 +28,9 @@ ProtopageCompiler
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 from lxml import etree
@@ -252,6 +254,12 @@ class TransformerFactory:
 # ProtopageCompiler
 # ---------------------------------------------------------------------------
 
+def _sub(parent: etree._Element, tag: str, text: str) -> etree._Element:
+    """Append a child element with text content to parent."""
+    el = etree.SubElement(parent, tag)
+    el.text = text
+    return el
+
 class ProtopageCompiler(Compiler[LenientTEIDocument]):
     """Compiles a TEI document into a sequence of ProtopageChunk objects.
 
@@ -282,7 +290,11 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
         return self._compiled
 
     def compile_chunk(self, chunk: CitationChunk) -> ProtopageChunk:
-        """Transform one CitationChunk into Protopage XML."""
+        """Transform one CitationChunk into a complete Protopage XML tree.
+
+        The root element is <chunk cts-urn="…"> containing <meta> and
+        <content>, matching the format expected by ProtopageRenderer.
+        """
         attrs = {"cts-urn": chunk.cts_urn}
         if chunk.prev_urn:
             attrs["prev-urn"] = chunk.prev_urn
@@ -290,11 +302,85 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             attrs["next-urn"] = chunk.next_urn
         root = etree.Element("chunk", attrib=attrs)
 
+        root.append(self._build_meta(chunk.cts_urn))
+
         content_el = etree.SubElement(root, "content")
         for out_el in self.transformer.apply_all(chunk.elements):
             content_el.append(out_el)
 
         return ProtopageChunk(content=root)
 
-    def compile(self, source: TEIDocument, output_path, **kwargs) -> None:
-        raise NotImplementedError("file I/O not yet wired — use compiled_chunks directly")
+    def compile(self, source: LenientTEIDocument, output_path: Path, **kwargs) -> None:
+        """Serialize all compiled chunks to output_path as XML files + index.json.
+
+        Writes one ``chunk_{passage}.xml`` file per CitationChunk plus an
+        ``index.json`` manifest listing them in document order.  The output
+        format is compatible with ProtopageRenderer.
+
+        Args:
+            source:      Ignored (the compiler was already constructed with a
+                         document); present only to satisfy the Compiler ABC.
+            output_path: Directory to write into (created if absent).
+        """
+        output_path = Path(output_path)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        index_entries = []
+        for pc in self.compiled_chunks:
+            filename = self._chunk_filename(pc.content.get("cts-urn", ""))
+            (output_path / filename).write_bytes(
+                etree.tostring(pc.content, encoding="utf-8", xml_declaration=True,
+                               pretty_print=True)
+            )
+            index_entries.append({"file": filename, "cts_urn": pc.content.get("cts-urn", "")})
+
+        (output_path / "index.json").write_text(
+            json.dumps({"chunks": index_entries}, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _build_meta(self, cts_urn: str) -> etree._Element:
+        """Build a <meta> element from the document's teiHeader."""
+        NS = {"tei": TEI_NS}
+        root = self.tei_doc.root
+
+        title = (root.findtext(".//tei:titleStmt/tei:title", namespaces=NS) or "").strip()
+        author = (root.findtext(".//tei:titleStmt/tei:author", namespaces=NS) or "").strip()
+        language = self.reference_parser.base_urn  # placeholder until xml:lang is parsed
+        # Prefer xml:lang on <text> or <body>
+        XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
+        for tag in ("tei:text", "tei:body"):
+            el = root.find(f".//{tag}", NS)
+            if el is not None and el.get(XML_LANG):
+                language = el.get(XML_LANG)
+                break
+
+        meta = etree.Element("meta")
+        _sub(meta, "title", title)
+        _sub(meta, "base-urn", self.reference_parser.base_urn)
+        _sub(meta, "language", language)
+        _sub(meta, "ctsurn", cts_urn)
+
+        pub_info = etree.SubElement(meta, "pubInfo")
+        _sub(pub_info, "title", title)
+        _sub(pub_info, "author", author)
+        pub_stmt = root.find(".//tei:publicationStmt", NS)
+        if pub_stmt is not None:
+            _sub(pub_info, "pubPlace",
+                 (pub_stmt.findtext("tei:pubPlace", namespaces=NS) or "").strip())
+            _sub(pub_info, "pubDate",
+                 (pub_stmt.findtext("tei:date", namespaces=NS) or "").strip())
+        for ed in root.findall(".//tei:titleStmt/tei:editor", NS):
+            _sub(pub_info, "editor", (ed.text or "").strip())
+
+        return meta
+
+    @staticmethod
+    def _chunk_filename(cts_urn: str) -> str:
+        """Return a safe XML filename for a chunk URN."""
+        passage = cts_urn.rsplit(":", 1)[-1].strip().replace(" ", "_")
+        return f"chunk_{passage}.xml"
