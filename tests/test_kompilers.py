@@ -168,17 +168,23 @@ class TestProtopageCompiler:
         for chunk in compiler.compiled_chunks:
             assert chunk.content.tag == "protopage"
 
-    def test_chunk_cts_urn_attr(self, compiler):
-        urns = [c.content.get("cts-urn") for c in compiler.compiled_chunks]
-        assert urns[0] == f"{BASE}:1.1"
-        assert urns[1] == f"{BASE}:1.2"
+    def test_protopage_root_has_no_attributes(self, compiler):
+        for chunk in compiler.compiled_chunks:
+            assert chunk.content.attrib == {}
 
-    def test_prev_next_attrs(self, compiler):
+    def test_chunk_cts_urn_field(self, compiler):
         chunks = compiler.compiled_chunks
-        assert chunks[0].content.get("prev-urn") is None
-        assert chunks[0].content.get("next-urn") == f"{BASE}:1.2"
-        assert chunks[1].content.get("prev-urn") == f"{BASE}:1.1"
-        assert chunks[1].content.get("next-urn") is None
+        assert chunks[0].cts_urn == f"{BASE}:1.1"
+        assert chunks[1].cts_urn == f"{BASE}:1.2"
+
+    def test_meta_prev_next_urns(self, compiler):
+        chunks = compiler.compiled_chunks
+        meta0 = chunks[0].content.find("meta")
+        meta1 = chunks[1].content.find("meta")
+        assert meta0.findtext("prev-urn") is None
+        assert meta0.findtext("next-urn") == f"{BASE}:1.2"
+        assert meta1.findtext("prev-urn") == f"{BASE}:1.1"
+        assert meta1.findtext("next-urn") is None
 
     def test_content_element_present(self, compiler):
         for chunk in compiler.compiled_chunks:
@@ -214,9 +220,9 @@ class TestProtopageCompiler:
         meta = compiler.compiled_chunks[0].content.find("meta")
         assert meta.findtext("ctsurn") == f"{BASE}:1.1"
 
-    def test_meta_contains_pub_info(self, compiler):
+    def test_meta_has_no_pub_info(self, compiler):
         meta = compiler.compiled_chunks[0].content.find("meta")
-        assert meta.find("pubInfo") is not None
+        assert meta.find("pubInfo") is None
 
 
 class TestProtopageCompilerFileIO:
@@ -265,24 +271,40 @@ class TestProtopageCompilerFileIO:
         assert out.is_dir()
         assert any(out.glob("protopage_*.xml"))
 
-    def test_compile_creates_toc_json(self, compiler, tmp_path):
+    def test_compile_creates_metadata_json(self, compiler, tmp_path):
         compiler.compile(compiler.tei_doc, tmp_path)
-        assert (tmp_path / "toc.json").exists()
+        assert (tmp_path / "metadata.json").exists()
 
-    def test_toc_json_top_level_entries(self, compiler, tmp_path):
+    def test_compile_does_not_create_toc_json(self, compiler, tmp_path):
+        compiler.compile(compiler.tei_doc, tmp_path)
+        assert not (tmp_path / "toc.json").exists()
+
+    def test_metadata_json_version(self, compiler, tmp_path):
         import json
         compiler.compile(compiler.tei_doc, tmp_path)
-        toc = json.loads((tmp_path / "toc.json").read_text())
+        metadata = json.loads((tmp_path / "metadata.json").read_text())
+        assert metadata["version"] == "1"
+
+    def test_metadata_json_document_base_urn(self, compiler, tmp_path):
+        import json
+        compiler.compile(compiler.tei_doc, tmp_path)
+        doc = json.loads((tmp_path / "metadata.json").read_text())["document"]
+        assert doc["base_urn"] == BASE
+
+    def test_metadata_json_toc_top_level_entries(self, compiler, tmp_path):
+        import json
+        compiler.compile(compiler.tei_doc, tmp_path)
+        toc = json.loads((tmp_path / "metadata.json").read_text())["toc"]
         # PROSE_XML has one book with two chapters
         assert len(toc) == 1
         assert toc[0]["subtype"] == "book"
         assert toc[0]["label"] == "Book 1"
         assert len(toc[0]["subpassages"]) == 2
 
-    def test_toc_json_chapter_entries(self, compiler, tmp_path):
+    def test_metadata_json_toc_chapter_entries(self, compiler, tmp_path):
         import json
         compiler.compile(compiler.tei_doc, tmp_path)
-        toc = json.loads((tmp_path / "toc.json").read_text())
+        toc = json.loads((tmp_path / "metadata.json").read_text())["toc"]
         chapters = toc[0]["subpassages"]
         assert chapters[0]["urn"].endswith(":1.1")
         assert chapters[0]["label"] == "Chapter 1"
