@@ -350,14 +350,18 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
 
         title = (root.findtext(".//tei:titleStmt/tei:title", namespaces=NS) or "").strip()
         author = (root.findtext(".//tei:titleStmt/tei:author", namespaces=NS) or "").strip()
-        language = self.reference_parser.base_urn  # placeholder until xml:lang is parsed
-        # Prefer xml:lang on <text> or <body>
+        # Language: try xml:lang on <text>/<body>, then first <langUsage>/<language @ident>
         XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
+        language = ""
         for tag in ("tei:text", "tei:body"):
             el = root.find(f".//{tag}", NS)
             if el is not None and el.get(XML_LANG):
                 language = el.get(XML_LANG)
                 break
+        if not language:
+            lang_el = root.find(".//tei:langUsage/tei:language", NS)
+            if lang_el is not None:
+                language = lang_el.get("ident", "")
 
         meta = etree.Element("meta")
         _sub(meta, "title", title)
