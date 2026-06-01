@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import Optional
 
 from lxml import etree
@@ -8,6 +9,17 @@ from lxml import etree
 from mvp.corpus.chunking import elements_between
 from mvp.corpus.models import CitationChunk, CitationRecord
 from mvp.corpus.tei_document import LenientTEIDocument, NS, XML_BASE, XML_ID
+
+
+@dataclass
+class _CSNode:
+    """One (citeStructure, candidate-element) pair at a single hierarchy level."""
+    cs: etree._Element
+    element: etree._Element
+    suffix: str                    # accumulated URN suffix including this level
+    val: str                       # @use attribute value, "" when absent
+    unit: str                      # citeStructure @unit
+    children: list[etree._Element] # child citeStructure elements
 
 
 class ConfigurationError(Exception):
@@ -223,6 +235,41 @@ class ReferenceParser:
         children = list(self._root_cs.findall("tei:citeStructure", NS))
         yield from self._records_recursive("", children, self._body, 0, depth)
 
+    def _walk_cs(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+    ) -> Iterator[_CSNode]:
+        """Yield one _CSNode per (citeStructure, candidate-element) pair.
+
+        This is the shared traversal primitive for _records_recursive,
+        _toc_level, and _collect_cs_elements: it extracts match, use, delim,
+        unit, and children from each cs node, runs the XPath against context,
+        and yields a fully populated _CSNode for each candidate.
+
+        val is always the raw @use attribute value, or "" when the attribute is
+        absent.  Callers that need a display fallback (e.g. _toc_level uses the
+        1-based sibling index) must supply it themselves.
+        """
+        for cs in cs_list:
+            match_expr = cs.get("match", "")
+            use_attr   = cs.get("use", "@n")
+            delim      = cs.get("delim", ":")
+            unit       = cs.get("unit", "")
+            children   = list(cs.findall("tei:citeStructure", NS))
+            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
+            for cand in candidates:
+                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
+                yield _CSNode(
+                    cs=cs,
+                    element=cand,
+                    suffix=suffix + delim + val,
+                    val=val,
+                    unit=unit,
+                    children=children,
+                )
+
     def _records_recursive(
         self,
         suffix: str,
@@ -231,29 +278,17 @@ class ReferenceParser:
         current_depth: int,
         max_depth: int,
     ) -> Iterator[CitationRecord]:
-        for cs in cs_list:
-            match_expr = cs.get("match", "")
-            use_attr = cs.get("use", "@n")
-            delim = cs.get("delim", ":")
-            unit = cs.get("unit", "")
-            children = list(cs.findall("tei:citeStructure", NS))
-            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
-
-            for cand in candidates:
-                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
-                new_suffix = suffix + delim + val
-
-                if max_depth == -1 or current_depth <= max_depth:
-                    yield CitationRecord(
-                        urn=self._base_urn + new_suffix,
-                        unit=unit,
-                        depth=current_depth,
-                    )
-
-                if (max_depth == -1 or current_depth < max_depth) and children:
-                    yield from self._records_recursive(
-                        new_suffix, children, cand, current_depth + 1, max_depth
-                    )
+        for node in self._walk_cs(suffix, cs_list, context):
+            if max_depth == -1 or current_depth <= max_depth:
+                yield CitationRecord(
+                    urn=self._base_urn + node.suffix,
+                    unit=node.unit,
+                    depth=current_depth,
+                )
+            if (max_depth == -1 or current_depth < max_depth) and node.children:
+                yield from self._records_recursive(
+                    node.suffix, node.children, node.element, current_depth + 1, max_depth
+                )
 
     def toc(self) -> list[dict]:
         """Return the full citation hierarchy as a list of nested TOC entries.
@@ -283,30 +318,23 @@ class ReferenceParser:
         depth: int,
     ) -> list[dict]:
         entries: list[dict] = []
-        for cs in cs_list:
-            match_expr = cs.get("match", "")
-            use_attr   = cs.get("use", "@n")
-            delim      = cs.get("delim", ":")
-            unit       = cs.get("unit", "")
-            children_cs = list(cs.findall("tei:citeStructure", NS))
-            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
-
-            for idx, cand in enumerate(candidates, 1):
-                val = cand.get(use_attr[1:], str(idx)) if use_attr.startswith("@") else str(idx)
-                new_suffix = suffix + delim + val
-                urn = self._base_urn + new_suffix
-                subpassages = (
-                    self._toc_level(new_suffix, children_cs, cand, depth + 1)
-                    if children_cs else []
-                )
-                entries.append({
-                    "depth":       depth,
-                    "index":       idx,
-                    "label":       f"{unit.capitalize()} {val}",
-                    "subtype":     unit,
-                    "urn":         urn,
-                    "subpassages": subpassages,
-                })
+        for idx, node in enumerate(self._walk_cs(suffix, cs_list, context), 1):
+            # Use the sibling index as a display-only fallback when @n is absent.
+            # The URN always uses node.suffix (which carries val="") so it stays
+            # consistent with citation_records() on documents without @n.
+            label_val = node.val or str(idx)
+            subpassages = (
+                self._toc_level(node.suffix, node.children, node.element, depth + 1)
+                if node.children else []
+            )
+            entries.append({
+                "depth":       depth,
+                "index":       idx,
+                "label":       f"{node.unit.capitalize()} {label_val}",
+                "subtype":     node.unit,
+                "urn":         self._base_urn + node.suffix,
+                "subpassages": subpassages,
+            })
         return entries
 
     def citations(self, depth: int = -1) -> Iterator[str]:
@@ -439,17 +467,8 @@ class ReferenceParser:
         target_cs: etree._Element,
         result: list[tuple[etree._Element, str]],
     ) -> None:
-        for cs in cs_list:
-            match_expr = cs.get("match", "")
-            use_attr = cs.get("use", "@n")
-            delim = cs.get("delim", ":")
-            children = list(cs.findall("tei:citeStructure", NS))
-            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
-
-            for cand in candidates:
-                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
-                new_suffix = suffix + delim + val
-                if cs is target_cs:
-                    result.append((cand, self._base_urn + new_suffix))
-                elif children:
-                    self._collect_cs_elements(new_suffix, children, cand, target_cs, result)
+        for node in self._walk_cs(suffix, cs_list, context):
+            if node.cs is target_cs:
+                result.append((node.element, self._base_urn + node.suffix))
+            elif node.children:
+                self._collect_cs_elements(node.suffix, node.children, node.element, target_cs, result)

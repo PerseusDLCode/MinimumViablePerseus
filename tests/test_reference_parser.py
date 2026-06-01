@@ -427,6 +427,44 @@ class TestTOC:
         assert all(e["depth"] == 0 for e in result)
         assert all(e["subpassages"] == [] for e in result)
 
+    def test_toc_without_n_attr_uses_idx_for_label_not_urn(self, tmp_path):
+        # When structural elements carry no @n, toc() should fall back to the
+        # 1-based sibling index for the display label but leave the URN suffix
+        # empty (consistent with citation_records()).  This pins the deliberate
+        # val-fallback resolution made during the _walk_cs refactor.
+        base = "urn:cts:greekLit:tlg0001.tlg001.test"
+        xml = textwrap.dedent(f"""\
+            <?xml version="1.0" encoding="UTF-8"?>
+            <TEI xmlns="{TEI_NS}">
+              <teiHeader>
+                <encodingDesc>
+                  <refsDecl default="true">
+                    <citeStructure match="/tei:TEI/tei:text/tei:body" use="@xml:base">
+                      <citeStructure unit="book" delim=":" match="tei:div[@type='textpart']"/>
+                    </citeStructure>
+                  </refsDecl>
+                </encodingDesc>
+              </teiHeader>
+              <text>
+                <body xml:base="{base}">
+                  <div type="textpart"><p>one</p></div>
+                  <div type="textpart"><p>two</p></div>
+                </body>
+              </text>
+            </TEI>
+        """)
+        path = tmp_path / "no_n.xml"
+        path.write_text(xml, encoding="utf-8")
+        doc = LenientTEIDocument(path)
+        result = ReferenceParser(doc).toc()
+        assert len(result) == 2
+        # Labels use 1-based index as fallback
+        assert result[0]["label"] == "Book 1"
+        assert result[1]["label"] == "Book 2"
+        # URN suffix uses val="" — consistent with citation_records()
+        assert result[0]["urn"] == base + ":"
+        assert result[1]["urn"] == base + ":"
+
 
 # ---------------------------------------------------------------------------
 # chunks() — div-based
