@@ -8,7 +8,7 @@ import pytest
 from lxml import etree
 
 from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.compilers.kompilers import (
+from mvp.compilers import (
     Family1ProseTransformer,
     ProtopageChunk,
     ProtopageCompiler,
