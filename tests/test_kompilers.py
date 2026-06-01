@@ -166,7 +166,7 @@ class TestProtopageCompiler:
 
     def test_chunk_root_tag(self, compiler):
         for chunk in compiler.compiled_chunks:
-            assert chunk.content.tag == "chunk"
+            assert chunk.content.tag == "protopage"
 
     def test_chunk_cts_urn_attr(self, compiler):
         urns = [c.content.get("cts-urn") for c in compiler.compiled_chunks]
@@ -223,7 +223,7 @@ class TestProtopageCompilerFileIO:
 
     def test_compile_creates_xml_files(self, compiler, tmp_path):
         compiler.compile(compiler.tei_doc, tmp_path)
-        files = sorted(tmp_path.glob("chunk_*.xml"))
+        files = sorted(tmp_path.glob("protopage_*.xml"))
         assert len(files) == 2
 
     def test_compile_creates_index_json(self, compiler, tmp_path):
@@ -247,20 +247,20 @@ class TestProtopageCompilerFileIO:
 
     def test_xml_file_is_parseable(self, compiler, tmp_path):
         compiler.compile(compiler.tei_doc, tmp_path)
-        for f in tmp_path.glob("chunk_*.xml"):
+        for f in tmp_path.glob("protopage_*.xml"):
             root = etree.parse(f).getroot()
-            assert root.tag == "chunk"
+            assert root.tag == "protopage"
             assert root.find("meta") is not None
             assert root.find("content") is not None
 
-    def test_chunk_filenames_use_passage(self, compiler, tmp_path):
+    def test_protopage_filenames_use_passage(self, compiler, tmp_path):
         compiler.compile(compiler.tei_doc, tmp_path)
-        names = {f.name for f in tmp_path.glob("chunk_*.xml")}
-        assert "chunk_1.1.xml" in names
-        assert "chunk_1.2.xml" in names
+        names = {f.name for f in tmp_path.glob("protopage_*.xml")}
+        assert "protopage_1.1.xml" in names
+        assert "protopage_1.2.xml" in names
 
     def test_output_dir_created_if_absent(self, compiler, tmp_path):
         out = tmp_path / "new" / "subdir"
         compiler.compile(compiler.tei_doc, out)
         assert out.is_dir()
-        assert any(out.glob("chunk_*.xml"))
+        assert any(out.glob("protopage_*.xml"))

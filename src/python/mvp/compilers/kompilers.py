@@ -292,7 +292,7 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
     def compile_chunk(self, chunk: CitationChunk) -> ProtopageChunk:
         """Transform one CitationChunk into a complete Protopage XML tree.
 
-        The root element is <chunk cts-urn="…"> containing <meta> and
+        The root element is <protopage cts-urn="…"> containing <meta> and
         <content>, matching the format expected by ProtopageRenderer.
         """
         attrs = {"cts-urn": chunk.cts_urn}
@@ -300,9 +300,9 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             attrs["prev-urn"] = chunk.prev_urn
         if chunk.next_urn:
             attrs["next-urn"] = chunk.next_urn
-        root = etree.Element("chunk", attrib=attrs)
+        root = etree.Element("protopage", attrib=attrs)
 
-        root.append(self._build_meta(chunk.cts_urn))
+        root.append(self._build_meta(chunk))
 
         content_el = etree.SubElement(root, "content")
         for out_el in self.transformer.apply_all(chunk.elements):
@@ -313,7 +313,7 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
     def compile(self, source: LenientTEIDocument, output_path: Path, **kwargs) -> None:
         """Serialize all compiled chunks to output_path as XML files + index.json.
 
-        Writes one ``chunk_{passage}.xml`` file per CitationChunk plus an
+        Writes one ``protopage_{passage}.xml`` file per CitationChunk plus an
         ``index.json`` manifest listing them in document order.  The output
         format is compatible with ProtopageRenderer.
 
@@ -327,7 +327,7 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
 
         index_entries = []
         for pc in self.compiled_chunks:
-            filename = self._chunk_filename(pc.content.get("cts-urn", ""))
+            filename = self._protopage_filename(pc.content.get("cts-urn", ""))
             (output_path / filename).write_bytes(
                 etree.tostring(pc.content, encoding="utf-8", xml_declaration=True,
                                pretty_print=True)
@@ -343,14 +343,19 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _build_meta(self, cts_urn: str) -> etree._Element:
-        """Build a <meta> element from the document's teiHeader."""
+    def _build_meta(self, chunk: CitationChunk) -> etree._Element:
+        """Build a <meta> element from the document's teiHeader.
+
+        Bibliographic metadata (author, title, editors, place, date) is drawn
+        from <sourceDesc>/<biblStruct>/<monogr>, which records the source
+        edition that was encoded.  Language is taken from <langUsage> or
+        xml:lang on <text>/<body>.  Falls back to <titleStmt> values when
+        <sourceDesc> does not carry structured data.
+        """
         NS = {"tei": TEI_NS}
         root = self.tei_doc.root
 
-        title = (root.findtext(".//tei:titleStmt/tei:title", namespaces=NS) or "").strip()
-        author = (root.findtext(".//tei:titleStmt/tei:author", namespaces=NS) or "").strip()
-        # Language: try xml:lang on <text>/<body>, then first <langUsage>/<language @ident>
+        # Language: xml:lang on <text>/<body> first, then langUsage/@ident
         XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
         language = ""
         for tag in ("tei:text", "tei:body"):
@@ -363,28 +368,59 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             if lang_el is not None:
                 language = lang_el.get("ident", "")
 
+        # Bibliographic source: prefer sourceDesc/biblStruct/monogr
+        monogr = root.find(".//tei:sourceDesc/tei:biblStruct/tei:monogr", NS)
+        if monogr is not None:
+            title  = (monogr.findtext("tei:title",  namespaces=NS) or "").strip()
+            author = (monogr.findtext("tei:author", namespaces=NS) or "").strip()
+            editors = [(ed.text or "").strip()
+                       for ed in monogr.findall("tei:editor", NS)]
+            imprint = monogr.find("tei:imprint", NS)
+            pub_place = (imprint.findtext("tei:pubPlace",   namespaces=NS) or "").strip() \
+                        if imprint is not None else ""
+            # Prefer date[@type='published']; fall back to first <date>
+            pub_date = ""
+            if imprint is not None:
+                for d in imprint.findall("tei:date", NS):
+                    if d.get("type") == "published":
+                        pub_date = (d.text or "").strip()
+                        break
+                if not pub_date:
+                    pub_date = (imprint.findtext("tei:date", namespaces=NS) or "").strip()
+        else:
+            # Fallback: titleStmt / publicationStmt
+            title  = (root.findtext(".//tei:titleStmt/tei:title",  namespaces=NS) or "").strip()
+            author = (root.findtext(".//tei:titleStmt/tei:author", namespaces=NS) or "").strip()
+            editors = [(ed.text or "").strip()
+                       for ed in root.findall(".//tei:titleStmt/tei:editor", NS)]
+            pub_stmt = root.find(".//tei:publicationStmt", NS)
+            pub_place = (pub_stmt.findtext("tei:pubPlace", namespaces=NS) or "").strip() \
+                        if pub_stmt is not None else ""
+            pub_date  = (pub_stmt.findtext("tei:date",     namespaces=NS) or "").strip() \
+                        if pub_stmt is not None else ""
+
         meta = etree.Element("meta")
-        _sub(meta, "title", title)
+        _sub(meta, "title",    title)
         _sub(meta, "base-urn", self.reference_parser.base_urn)
         _sub(meta, "language", language)
-        _sub(meta, "ctsurn", cts_urn)
+        _sub(meta, "ctsurn",   chunk.cts_urn)
+        if chunk.prev_urn:
+            _sub(meta, "prev-urn", chunk.prev_urn)
+        if chunk.next_urn:
+            _sub(meta, "next-urn", chunk.next_urn)
 
         pub_info = etree.SubElement(meta, "pubInfo")
-        _sub(pub_info, "title", title)
-        _sub(pub_info, "author", author)
-        pub_stmt = root.find(".//tei:publicationStmt", NS)
-        if pub_stmt is not None:
-            _sub(pub_info, "pubPlace",
-                 (pub_stmt.findtext("tei:pubPlace", namespaces=NS) or "").strip())
-            _sub(pub_info, "pubDate",
-                 (pub_stmt.findtext("tei:date", namespaces=NS) or "").strip())
-        for ed in root.findall(".//tei:titleStmt/tei:editor", NS):
-            _sub(pub_info, "editor", (ed.text or "").strip())
+        _sub(pub_info, "title",    title)
+        _sub(pub_info, "author",   author)
+        _sub(pub_info, "pubPlace", pub_place)
+        _sub(pub_info, "pubDate",  pub_date)
+        for ed in editors:
+            _sub(pub_info, "editor", ed)
 
         return meta
 
     @staticmethod
-    def _chunk_filename(cts_urn: str) -> str:
-        """Return a safe XML filename for a chunk URN."""
+    def _protopage_filename(cts_urn: str) -> str:
+        """Return a safe XML filename for a protopage URN."""
         passage = cts_urn.rsplit(":", 1)[-1].strip().replace(" ", "_")
-        return f"chunk_{passage}.xml"
+        return f"protopage_{passage}.xml"
