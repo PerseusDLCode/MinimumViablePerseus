@@ -223,12 +223,8 @@ There are also several scripts that may be run to generate output:
 | Script | Role |
 |------------|------|
 | `src/tools/run_audit.py` | Corpus runner for `StructureAuditor` and `ReferenceAuditor`; writes JSON reports |
-| `src/tools/run_build.py` | Builds the site |
 | `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
 | `src/tools/run_index.py` | Builds `chunks.json` and `words.jsonl` index files from TEI documents |
-| `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
-| `src/tools/generate_protopages.py` | Step 1 of proto-page pipeline: TEI → proto-page XML (via Saxon) |
-| `src/tools/render_protopages.py` | Step 2 of proto-page pipeline: proto-page XML → HTML (via Jinja2) |
 
 
 ### Major Modules and Their Roles
@@ -282,29 +278,31 @@ Almost all source code lives under `src/python/`.  The primary package is
 |--------|------|
 | `mvp/annotations/citation_resolver.py` | `CitationResolver` — resolves scholarly abbreviation strings (e.g. "Hom. Od. 1.1") to CTS URNs via OCD abbreviation data |
 
-**`mvp/site/` — static site compilation (downstream consumer of corpus and annotations)**
+**`mvp/compilers/` — static site compilation (downstream consumer of corpus and annotations)**
+
+`mvp/site/` was retired in June 2026 (branch `protopage-compiler-in-python`).  All
+surviving compilation infrastructure now lives in `mvp/compilers/`.
 
 | Module | Role |
 |--------|------|
-| `mvp/site/models.py` | Site data objects: `ChunkManifestEntry`, `ChunkManifest` |
-| `mvp/site/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
-| `mvp/site/strategy.py` | `ChunkingStrategy` and `StrategySelector` |
-| `mvp/site/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
-| `mvp/site/compilers/` | Compilation package: `Compiler` ABC (`base.py`), `PageCompiler`/`XSLTCompiler` (`page_compiler.py`), `CatalogCompiler` and `copy_static_assets` (`catalog_compiler.py`), XSLT-based `ProtopageCompiler`/`ProtopageRenderer` (`protopage_compiler.py`) |
-| `mvp/compilers/kompilers.py` | **Proof-of-concept** pure-Python `ProtopageCompiler`: `Transformer` registry, `Family1ProseTransformer`, `SchemaRegistry`/`TransformerFactory`; writes `protopage_*.xml` + `index.json` + `toc.json` — intended to supersede `protopage_compiler.py` once validated |
-| `mvp/site/pipeline.py` | `BuildPipeline` — orchestrates the site build |
+| `mvp/compilers/base.py` | `Compiler` ABC and `CompilationError` |
+| `mvp/compilers/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
+| `mvp/compilers/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
+| `mvp/compilers/protopage_compiler.py` | `ProtopageCompiler` — pure-Python TEI → protopage XML compiler; `ProtopageChunk` dataclass |
+| `mvp/compilers/transformers/base.py` | `Transformer` base class and element-copy helpers |
+| `mvp/compilers/transformers/prose_transformer.py` | `Family1ProseTransformer` — handler registry for Family-1 prose TEI; Charles Pletcher's customization entry point |
+| `mvp/compilers/transformers/registry.py` | `SchemaRegistry`, `TransformerFactory` — map TEI schema identifiers to transformer instances |
 
 Each layer's public API is re-exported from its `__init__.py`.  The NLP
-team's integration point is the `annotations/` layer (not `site/`).
+team's integration point is the `annotations/` layer (not `compilers/`).
 
 There is also code outside the `mvp` package, under `src/tools/`.
 
 | Script | Role |
 |--------|------|
 | `src/tools/run_audit.py` | Commandline script to run audits on a Perseus corpus |
-| `src/tools/run_build.py` | Builds the site |
 | `src/tools/run_corpus_prep.py` | Applies a corpus-prep XSLT to an entire canonicalLit corpus tree |
-| `src/tools/generate_html_from_tei.py` | Transforms a single TEI document to HTML via an XSLT driver |
+| `src/tools/run_index.py` | Builds `chunks.json` and `words.jsonl` index files from TEI documents |
 | `src/tools/classify_corpus.py` | Classifies corpus documents by structure type |
 | `src/tools/analyze_audit.py` | Analyzes audit output reports |
 
@@ -338,13 +336,15 @@ The following areas are currently under active development (see
 
 - **Pure-Python protopage compiler** (branch `protopage-compiler-in-python`, in progress):
   Replaces the Saxon/XSLT step of the proto-page pipeline with a pure-Python
-  recursive descent transformer.  Key new pieces: `CitationChunk` (corpus layer),
+  recursive descent transformer.  Key pieces: `CitationChunk` (corpus layer),
   `ReferenceParser.chunks()` (div-based and milestone-based chunking),
   `ReferenceParser.toc()` (full citation hierarchy for navigation), and a
-  `Transformer` registry pattern in `mvp/compilers/kompilers.py`.  Root element
-  is `<protopage>`; bibliographic metadata drawn from `<sourceDesc>`.  Validated
-  against Thucydides (917 chunks, 8-book `toc.json`).  Pending review by Charles
-  Pletcher; open questions on section wrapping and `metadata.json` format.
+  `Transformer` registry pattern in `mvp/compilers/`.  Root element is
+  `<protopage>`; bibliographic metadata drawn from `<sourceDesc>`.  Validated
+  against Thucydides (917 chunks, 8-book TOC in `metadata.json`).  The old
+  XSLT pipeline (`mvp/site/`) was retired on this branch; all compilation
+  infrastructure now lives in `mvp/compilers/`.  Pending code review by
+  Charles Pletcher; open questions on section wrapping.
   See forum `#python-protopage-compiler` for the full deliberative record.
 - **Citation infrastructure**: `ReferenceParser` is complete (merged to
   `dev`, PRs #49 and #53).  Extended with `chunks()` and `toc()` on branch
