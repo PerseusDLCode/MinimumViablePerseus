@@ -79,6 +79,11 @@ def main() -> None:
             doc = TEIDocument(tei_file)
             meta = doc.metadata
 
+            if not meta.urn:
+                print(f"  SKIP    {rel}: no usable CTS URN")
+                failed += 1
+                continue
+
             chunk_index = ChunkIndexer(tei_file).chunk_index
             word_index = WordIndexer(tei_file).word_index
 
