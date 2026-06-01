@@ -543,7 +543,6 @@ class TestChunksDivBased:
                 </body>
               </text>
             </TEI>"""
-        from pathlib import Path
         p = tmp_path / "chunk.xml"
         p.write_text(xml, encoding="utf-8")
         from mvp.corpus.tei_document import LenientTEIDocument

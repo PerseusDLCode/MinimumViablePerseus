@@ -8,7 +8,6 @@ import json
 import textwrap
 from pathlib import Path
 
-import pytest
 
 from mvp.corpus.index_serializers import ChunkIndexSerializer, WordIndexSerializer
 from mvp.corpus.indexers import ChunkIndexer, WordIndexer
@@ -276,5 +275,5 @@ class TestWordIndexSerializerWrite:
         serializer = WordIndexSerializer(index, make_meta(path))
         out = tmp_path / "words.jsonl"
         serializer.write(out)
-        lines = [l for l in out.read_text(encoding="utf-8").splitlines() if l.strip()]
+        lines = [line for line in out.read_text(encoding="utf-8").splitlines() if line.strip()]
         assert len(lines) == len(serializer.generate())

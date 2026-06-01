@@ -25,7 +25,6 @@ import argparse
 import signal
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 _MORPH_SERVER_DIR = Path(__file__).parent.parent / "morph-server"

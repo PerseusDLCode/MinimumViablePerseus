@@ -12,9 +12,6 @@ from mvp.compilers import (
     Family1ProseTransformer,
     ProtopageChunk,
     ProtopageCompiler,
-    SchemaRegistry,
-    Transformer,
-    TransformerFactory,
 )
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"
@@ -107,15 +104,8 @@ class TestTransformerDispatch:
         # Tail text after a child that produces output must reach the last
         # output element so text flow is preserved.
         t = Family1ProseTransformer(prose_doc)
-        div = etree.fromstring(
-            f'<div xmlns="{TEI_NS}">'
-            f'<p>first</p>'
-            f' between '
-            f'<p>second</p>'
-            f'</div>'
-        )
-        # In lxml, text between siblings is stored as the first sibling's tail
-        # We need to build this via lxml directly to set .tail correctly
+        # In lxml, text between siblings is stored as the first sibling's tail;
+        # fromstring can't encode it, so build the tree directly.
         from lxml import etree as _etree
         div2 = _etree.Element(f'{{{TEI_NS}}}div')
         p1 = _etree.SubElement(div2, f'{{{TEI_NS}}}p')

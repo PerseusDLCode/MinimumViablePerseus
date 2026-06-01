@@ -14,7 +14,7 @@ from pathlib import Path
 from lxml import etree
 
 from mvp.corpus.models import TEIMetadata
-from mvp.corpus.tei_constants import TEI_NS, NS, XML_BASE
+from mvp.corpus.tei_constants import NS, XML_BASE
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:

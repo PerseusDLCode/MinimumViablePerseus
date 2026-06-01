@@ -214,7 +214,7 @@ class TestExclusions:
 
     def test_tei_header_words_excluded(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>body</p>"))
-        entries = indexer = WordIndexer(path).word_index.entries
+        entries = WordIndexer(path).word_index.entries
         # "Test" and "Author" come from teiHeader — must not appear
         assert "test" not in entries
         assert "author" not in entries
