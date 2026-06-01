@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from lxml import etree
@@ -153,17 +154,20 @@ class TEIDocument:
 
     @property
     def schema(self) -> str | None:
-        """Returns the name of the schema (e.g., 'perseus_base'), or None if absent.
+        """Return the schema name (e.g. 'perseus_base'), or None if absent.
 
-        Fragile: assumes the href= attribute appears first in the PI text and
-        that the path follows the pattern '.../name.rng'.
+        Extracts the href= pseudo-attribute by name so attribute ordering in
+        the PI text does not matter.  Returns None if the PI is absent or if
+        href= cannot be found.
         """
         if not self.schemas:
             return None
-        return self.schemas[0].split()[0].split("=")[1].strip("\"").split('/')[-1].split('.')[0]
+        m = re.search(r'href=["\']([^"\']+)["\']', self.schemas[0])
+        if not m:
+            return None
+        return m.group(1).split("/")[-1].split(".")[0]
 
-        
-        
+
 
     # ------------------------------------------------------------------
     # Private
