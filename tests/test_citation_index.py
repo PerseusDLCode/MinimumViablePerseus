@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from mvp.site.citation_index import CitationIndexGenerator, _xml_id
+from mvp.compilers.citation_index import CitationIndexGenerator, _xml_id
 from mvp.corpus.models import CitationRecord
 from mvp.corpus.reference_parser import ConfigurationError, ReferenceParser
 from mvp.corpus.tei_document import LenientTEIDocument
@@ -258,13 +258,13 @@ class TestCitationIndexGeneratorWrite:
 class TestSiteMapCitationsPath:
 
     def test_citations_path_under_chunk_dir(self, tmp_path):
-        from mvp.site.site_map import SiteMap
+        from mvp.compilers.site_map import SiteMap
         sm = SiteMap(tmp_path)
         urn = APOLOGY_BASE
         p = sm.citations_path(urn)
         assert p == sm.chunk_dir(urn) / "citations.json"
 
     def test_citations_path_filename(self, tmp_path):
-        from mvp.site.site_map import SiteMap
+        from mvp.compilers.site_map import SiteMap
         p = SiteMap(tmp_path).citations_path(APOLOGY_BASE)
         assert p.name == "citations.json"

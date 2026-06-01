@@ -10,7 +10,7 @@ from lxml import etree
 from mvp.corpus.models import CitationChunk
 from mvp.corpus.reference_parser import ReferenceParser
 from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.site.compilers.base import Compiler
+from mvp.compilers.base import Compiler
 from mvp.compilers.transformers import Transformer, TransformerFactory
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"

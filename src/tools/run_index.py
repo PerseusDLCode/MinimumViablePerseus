@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 from mvp.corpus.document import TEIDocument
 from mvp.corpus.index_serializers import ChunkIndexSerializer, WordIndexSerializer
 from mvp.corpus.indexers import ChunkIndexer, WordIndexer
-from mvp.site.site_map import SiteMap
+from mvp.compilers.site_map import SiteMap
 
 
 def _iter_tei_files(source: Path):

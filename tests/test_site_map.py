@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from mvp.site.site_map import SiteMap
+from mvp.compilers.site_map import SiteMap
 
 # ---------------------------------------------------------------------------
 # Helpers
