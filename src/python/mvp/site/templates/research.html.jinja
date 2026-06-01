@@ -1,0 +1,19 @@
+{% extends 'base.html.jinja' %}
+
+{% block title %}Research – Perseus Digital Library{% endblock %}
+
+{% block header %}
+    <div class="py-4">
+        <img src="{{ url_for('static', filename='images/perseus-banner.png') }}" />
+    </div>
+{% endblock %}
+
+{% block content %}
+    <main class="p-8">
+
+    {% with markdown_content = research_markdown %}
+        {% include 'components/MarkdownContainer.html.jinja' %}
+    {% endwith %}
+
+    </main>
+{% endblock %}

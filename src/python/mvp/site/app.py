@@ -18,57 +18,30 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
+RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 XSL_FILE = APP_DIR.parents[2] / "xslt" / "html" / "generate_protopages.xsl"
 
+_CORPUS_LABELS = {
+    "greekLit": "Greek",
+    "latinLit": "Latin",
+}
 
-def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
-    """Return a Corpus for each subdirectory of corpora_dir that exists."""
-    corpora = []
-    if not corpora_dir.is_dir():
-        return corpora
-    for subdir in sorted(corpora_dir.iterdir()):
-        if not subdir.is_dir():
-            continue
-        data = subdir / "data"
-        root = data if data.is_dir() else subdir
-        try:
-            corpora.append(Corpus(root))
-        except FileNotFoundError:
-            pass
-    return corpora
+_CORPUS_REPO = {
+    "greekLit": "canonical-greekLit",
+    "latinLit": "canonical-latinLit",
+}
 
 
-def generate_proto_pages(
-    proto_dir: Path,
-    corpora: list[Corpus],
-    xsl_file: Path,
-) -> None:
-    """Generate proto-page XML for all corpus documents.
-
-    Skips documents whose index.json already exists in proto_dir so the
-    function is safe to call on every startup without re-doing prior work.
-    """
-    site_map = SiteMap(proto_dir)
-    compiler = ProtopageCompiler(xsl_file=xsl_file)
-    generated = skipped = failed = 0
-
-    for corpus in corpora:
-        for doc in corpus.documents():
-            if not doc.metadata.urn:
-                continue
-            if site_map.manifest_path(doc.metadata.urn).exists():
-                skipped += 1
-                continue
-            try:
-                compiler.compile(doc, site_map.chunk_dir(doc.metadata.urn))
-                generated += 1
-                print(f"  generated: {doc.metadata.urn}")
-            except CompilationError as exc:
-                failed += 1
-                print(f"  FAILED:    {doc.path.name}: {exc}")
-
-    print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
+_LANGUAGE_LABELS = {
+    "deu": "German",
+    "eng": "English",
+    "fre": "French",
+    "ger": "German",
+    "grc": "Greek",
+    "ita": "Italian",
+    "lat": "Latin",
+}
 
 
 def _build_toc(
@@ -125,10 +98,100 @@ def _build_toc(
     return {"table_of_contents": list(books.values())}
 
 
-_CORPUS_REPO = {
-    "greekLit": "canonical-greekLit",
-    "latinLit": "canonical-latinLit",
-}
+def _build_collections(proto_dir: Path) -> list[dict]:
+    if not proto_dir.is_dir():
+        return []
+
+    collections = []
+
+    for corpus_dir in sorted(proto_dir.iterdir()):
+        if not corpus_dir.is_dir():
+            continue
+        corpus = corpus_dir.name
+        textgroups = []
+
+        for tg_dir in sorted(corpus_dir.iterdir()):
+            if not tg_dir.is_dir():
+                continue
+            tg_author = tg_dir.name
+            works = []
+
+            for work_dir in sorted(tg_dir.iterdir()):
+                if not work_dir.is_dir():
+                    continue
+                versions = []
+
+                for ver_dir in sorted(work_dir.iterdir()):
+                    if not ver_dir.is_dir():
+                        continue
+                    index_file = ver_dir / "index.json"
+                    if not index_file.exists():
+                        continue
+                    with open(index_file) as f:
+                        idx = json.load(f)
+                    chunks = idx.get("chunks", [])
+                    if not chunks:
+                        continue
+                    first_passage = chunks[0]["urn"].rsplit(":", 1)[-1]
+                    lang = idx.get("language", "")
+                    versions.append(
+                        {
+                            "id": ver_dir.name,
+                            "title": idx.get("title", ver_dir.name),
+                            "language": lang,
+                            "language_label": _LANGUAGE_LABELS.get(lang, lang),
+                            "first_chunk_url": (
+                                f"/{corpus}/{tg_dir.name}/{work_dir.name}"
+                                f"/{ver_dir.name}/{first_passage}"
+                            ),
+                        }
+                    )
+                    tg_author = idx.get("author", tg_dir.name)
+
+                if versions:
+                    works.append(
+                        {
+                            "id": work_dir.name,
+                            "versions": versions,
+                        }
+                    )
+
+            if works:
+                textgroups.append(
+                    {
+                        "id": tg_dir.name,
+                        "author": tg_author,
+                        "works": works,
+                    }
+                )
+
+        if textgroups:
+            collections.append(
+                {
+                    "id": corpus,
+                    "label": _CORPUS_LABELS.get(corpus, corpus),
+                    "textgroups": textgroups,
+                }
+            )
+
+    return collections
+
+
+def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
+    """Return a Corpus for each subdirectory of corpora_dir that exists."""
+    corpora = []
+    if not corpora_dir.is_dir():
+        return corpora
+    for subdir in sorted(corpora_dir.iterdir()):
+        if not subdir.is_dir():
+            continue
+        data = subdir / "data"
+        root = data if data.is_dir() else subdir
+        try:
+            corpora.append(Corpus(root))
+        except FileNotFoundError:
+            pass
+    return corpora
 
 
 def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
@@ -138,6 +201,37 @@ def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
         f"https://raw.githubusercontent.com/PerseusDL/{repo}/master"
         f"/data/{textgroup}/{work}/{filename}"
     )
+
+
+def generate_proto_pages(
+    proto_dir: Path,
+    corpora: list[Corpus],
+    xsl_file: Path,
+) -> None:
+    """Generate proto-page XML for all corpus documents.
+
+    Skips documents whose index.json already exists in proto_dir so the
+    function is safe to call on every startup without re-doing prior work.
+    """
+    site_map = SiteMap(proto_dir)
+    compiler = ProtopageCompiler(xsl_file=xsl_file)
+    generated = skipped = failed = 0
+
+    for corpus in corpora:
+        for doc in corpus.documents():
+            if not doc.metadata.urn:
+                continue
+            if site_map.manifest_path(doc.metadata.urn).exists():
+                skipped += 1
+                continue
+            try:
+                compiler.compile(doc, site_map.chunk_dir(doc.metadata.urn))
+                generated += 1
+            except CompilationError as exc:
+                failed += 1
+                print(f"  FAILED:    {doc.path.name}: {exc}")
+
+    print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
 
 def create_app(test_config=None):
@@ -178,6 +272,26 @@ def create_app(test_config=None):
 
         return (
             render_template("index.html.jinja", news_markdown=news_markdown),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get("/collections")
+    def get_collections():
+        collections = _build_collections(PROTO_DIR)
+        return (
+            render_template("collections.html.jinja", collections=collections),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get("/research")
+    def get_research():
+        with open(RESEARCH_MARKDOWN) as f:
+            research_markdown = markdown.markdown(f.read())
+
+        return (
+            render_template("research.html.jinja", research_markdown=research_markdown),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
         )

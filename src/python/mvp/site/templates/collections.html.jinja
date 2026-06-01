@@ -1,0 +1,51 @@
+{% extends 'base.html.jinja' %}
+
+{% block title %}Collections – Perseus Digital Library{% endblock %}
+
+{% block header %}
+    <div class="py-4">
+        <img src="{{ url_for('static', filename='images/perseus-banner.png') }}" />
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Collections</h1>
+
+    {% for corpus in collections %}
+    <section class="mb-6">
+        <details>
+            <summary class="text-xl font-semibold border-b border-neutral-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
+
+            <div class="pl-6 mt-2">
+                {% for tg in corpus.textgroups %}
+                <div class="mb-3">
+                    <details>
+                        <summary class="text-base font-semibold text-neutral-700 cursor-pointer">{{ tg.author }}</summary>
+
+                        <ul class="pl-6 mt-1">
+                            {% for work in tg.works %}
+                            <li class="mb-1">
+                                <ul class="pl-6 space-y-0.5">
+                                    {% for version in work.versions %}
+                                    <li>
+                                        <a href="{{ version.first_chunk_url }}" class="link text-sm">
+                                            {{ version.title }} ({{ version.language_label }}, {{ version.id }})
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </div>
+                {% endfor %}
+            </div>
+        </details>
+    </section>
+    {% else %}
+    <p class="text-neutral-500">No collections available.</p>
+    {% endfor %}
+</div>
+{% endblock %}

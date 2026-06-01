@@ -18,11 +18,9 @@
         </p>
     </section>
 
-    <section class="pt-8 mx-auto">
-        <div class="prose">
-            {{ news_markdown }}
-        </div>
-    </section>
+{% with markdown_content = news_markdown %}
+    {% include 'components/MarkdownContainer.html.jinja' %}
+{% endwith %}
 </main>
 
 <footer class="footer sm:footer-horizontal bg-neutral-300 p-4 text-neutral-800">

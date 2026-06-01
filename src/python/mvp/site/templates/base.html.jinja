@@ -15,10 +15,10 @@
         <nav
             class="bg-neutral-500 text-neutral-200 font-bold flex justify-between mb-4 px-8 py-2 text-sm"
         >
-            <a href="#" class="hover:text-base-content">Home</a>
-            <a href="#" class="hover:text-base-content">Collections/Texts</a>
-            <a href="#" class="hover:text-base-content">Perseus Catalog</a>
-            <a href="#" class="hover:text-base-content">Research</a>
+            <a href="{{ url_for('index') }}" class="hover:text-base-content">Home</a>
+            <a href="{{ url_for('get_collections') }}" class="hover:text-base-content">Collections/Texts</a>
+            <a href="https://catalog.perseus.org" class="hover:text-base-content">Perseus Catalog</a>
+            <a href="{{ url_for('get_research') }}" class="hover:text-base-content">Research</a>
             <a href="#" class="hover:text-base-content">Grants</a>
             <a href="#" class="hover:text-base-content">Open Source</a>
             <a href="#" class="hover:text-base-content">About</a>
