@@ -1,13 +1,19 @@
 import json
 import os
 
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import markdown
 
 from flask import Flask, abort, render_template
+from lxml import etree
+from markupsafe import Markup, escape
 
 from mvp.corpus.corpus import Corpus
+from mvp.corpus.reference_parser import ConfigurationError
+from mvp.corpus.tei_document import LenientTEIDocument
 from mvp.compilers import CompilationError, ProtopageCompiler
 from mvp.compilers.site_map import SiteMap
 
@@ -20,7 +26,6 @@ NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
 MORPH_URL = os.getenv("MORPH_URL", "http://localhost:8000/morph")
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
-XSL_FILE = APP_DIR.parents[2] / "xslt" / "html" / "generate_protopages.xsl"
 
 _CORPUS_LABELS = {
     "greekLit": "Greek",
@@ -44,61 +49,145 @@ _LANGUAGE_LABELS = {
 }
 
 
-def _build_toc(
-    work_index: dict,
+@dataclass
+class _Section:
+    cts_urn: str
+    paragraphs: list[Markup]
+
+
+@dataclass
+class _Chunk:
+    cts_urn: str
+    prev_urn: str | None
+    next_urn: str | None
+    title: str
+    base_urn: str
+    language: str
+    sections: list[_Section]
+
+
+def _inline_to_html(el: etree._Element) -> str:
+    """Recursively serialize protopage inline elements to HTML strings."""
+    parts: list[str] = []
+    if el.text:
+        parts.append(str(escape(el.text)))
+    for child in el:
+        tag = etree.QName(child.tag).localname
+        inner = _inline_to_html(child)
+        if tag == "place":
+            key = str(escape(child.get("key", "")))
+            parts.append(f'<span class="place" data-key="{key}">{inner}</span>')
+        elif tag == "person":
+            key = str(escape(child.get("key", "")))
+            parts.append(f'<span class="person" data-key="{key}">{inner}</span>')
+        elif tag == "q":
+            parts.append(f"<q>{inner}</q>")
+        elif tag == "del":
+            parts.append(f'<span class="tei-del">{inner}</span>')
+        elif tag == "add":
+            parts.append(f'<span class="tei-add">{inner}</span>')
+        elif tag == "gap":
+            parts.append('<span class="gap">…</span>')
+        else:
+            parts.append(inner)
+        if child.tail:
+            parts.append(str(escape(child.tail)))
+    return "".join(parts)
+
+
+def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
+    """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
+
+    Document-level metadata (title, author, language, etc.) is read from the
+    sibling metadata.json written by ProtopageCompiler.compile().
+    """
+    root = etree.parse(path).getroot()
+    meta = root.find("meta")
+
+    cts_urn = meta.findtext("ctsurn", "") if meta is not None else ""
+    base_urn = meta.findtext("base-urn", "") if meta is not None else ""
+    prev_urn = meta.findtext("prev-urn") if meta is not None else None
+    next_urn = meta.findtext("next-urn") if meta is not None else None
+
+    metadata_path = path.parent / "metadata.json"
+    doc_meta: dict[str, Any] = {}
+    if metadata_path.exists():
+        with open(metadata_path) as f:
+            doc_meta = json.load(f).get("document", {})
+
+    title = doc_meta.get("title", "")
+    language = doc_meta.get("language", "")
+    pub_info: dict[str, Any] = {
+        "title": title,
+        "author": doc_meta.get("author", ""),
+        "editors": doc_meta.get("editors", []),
+        "pub_place": doc_meta.get("pub_place", ""),
+        "pub_date": doc_meta.get("pub_date", ""),
+    }
+
+    content_el = root.find("content")
+    paragraphs: list[Markup] = []
+    if content_el is not None:
+        for p in content_el.findall("p"):
+            paragraphs.append(Markup(f"<p>{_inline_to_html(p)}</p>"))
+
+    chunk = _Chunk(
+        cts_urn=cts_urn,
+        prev_urn=prev_urn,
+        next_urn=next_urn,
+        title=title,
+        base_urn=base_urn,
+        language=language,
+        sections=[_Section(cts_urn=cts_urn, paragraphs=paragraphs)],
+    )
+    return chunk, pub_info
+
+
+def _annotate_toc(
+    entries: list[dict],
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+) -> list[dict]:
+    """Recursively add route_kwargs to leaf TOC entries.
+
+    ReferenceParser.toc() returns entries with urn/label/subpassages but no
+    route_kwargs.  NavigationItem.html.jinja needs route_kwargs on leaf nodes
+    to build hrefs via url_for('reading_view', ...).
+    """
+    for entry in entries:
+        if entry.get("subpassages"):
+            _annotate_toc(entry["subpassages"], corpus, textgroup, work, version)
+        else:
+            entry["route_kwargs"] = {
+                "corpus": corpus,
+                "textgroup": textgroup,
+                "work": work,
+                "version": version,
+                "chunk": entry["urn"].rsplit(":", 1)[-1],
+            }
+    return entries
+
+
+def _toc_from_metadata(
+    metadata_path: Path,
     corpus: str,
     textgroup: str,
     work: str,
     version: str,
 ) -> dict:
+    """Load and annotate the TOC from a metadata.json file.
+
+    Returns a dict shaped as {"table_of_contents": [...]}, matching
+    what reading.html.jinja expects from toc.get("table_of_contents", []).
     """
-    # TODO (charles): Delete when the TOC generation in
-    # the Transformer version is ready.
-    Build a nested TOC dict from a flat index.json chunk list.
-
-    If all chunks share the same book (or have no book), returns a flat list
-    of chapter entries.  Otherwise nests chapter entries under book entries.
-
-    Each leaf item carries a ``route_kwargs`` dict suitable for Flask's
-    ``url_for('reading_view', **item.route_kwargs)``.
-    """
-    book_label = work_index.get("book_subtype", "book").capitalize()
-    chapter_label = work_index.get("chapter_subtype", "chapter").capitalize()
-    chunks = work_index["chunks"]
-
-    unique_books = {entry["book"] for entry in chunks}
-    single_level = len(unique_books) <= 1
-
-    def _leaf(entry: dict) -> dict:
-        passage = entry["urn"].rsplit(":", 1)[-1]
-        return {
-            "urn": entry["urn"],
-            "label": f"{chapter_label} {entry['chapter']}",
-            "subpassages": [],
-            "route_kwargs": {
-                "corpus": corpus,
-                "textgroup": textgroup,
-                "work": work,
-                "version": version,
-                "chunk": passage,
-            },
-        }
-
-    if single_level:
-        return {"table_of_contents": [_leaf(e) for e in chunks]}
-
-    books: dict[str, dict] = {}
-    for entry in chunks:
-        book = entry["book"]
-        if book not in books:
-            books[book] = {
-                "urn": f"{work_index['base_urn']}:{book}",
-                "label": f"{book_label} {book}",
-                "route_kwargs": None,
-                "subpassages": [],
-            }
-        books[book]["subpassages"].append(_leaf(entry))
-    return {"table_of_contents": list(books.values())}
+    if not metadata_path.exists():
+        return {"table_of_contents": []}
+    with open(metadata_path) as f:
+        toc_entries = json.load(f).get("toc", [])
+    _annotate_toc(toc_entries, corpus, textgroup, work, version)
+    return {"table_of_contents": toc_entries}
 
 
 def _build_collections(proto_dir: Path) -> list[dict]:
@@ -128,19 +217,22 @@ def _build_collections(proto_dir: Path) -> list[dict]:
                     if not ver_dir.is_dir():
                         continue
                     index_file = ver_dir / "index.json"
-                    if not index_file.exists():
+                    metadata_file = ver_dir / "metadata.json"
+                    if not index_file.exists() or not metadata_file.exists():
                         continue
                     with open(index_file) as f:
                         idx = json.load(f)
+                    with open(metadata_file) as f:
+                        doc_meta = json.load(f).get("document", {})
                     chunks = idx.get("chunks", [])
                     if not chunks:
                         continue
-                    first_passage = chunks[0]["urn"].rsplit(":", 1)[-1]
-                    lang = idx.get("language", "")
+                    first_passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
+                    lang = doc_meta.get("language", "")
                     versions.append(
                         {
                             "id": ver_dir.name,
-                            "title": idx.get("title", ver_dir.name),
+                            "title": doc_meta.get("title", ver_dir.name),
                             "language": lang,
                             "language_label": _LANGUAGE_LABELS.get(lang, lang),
                             "first_chunk_url": (
@@ -149,7 +241,7 @@ def _build_collections(proto_dir: Path) -> list[dict]:
                             ),
                         }
                     )
-                    tg_author = idx.get("author", tg_dir.name)
+                    tg_author = doc_meta.get("author", tg_dir.name)
 
                 if versions:
                     works.append(
@@ -209,7 +301,6 @@ def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
 def generate_proto_pages(
     proto_dir: Path,
     corpora: list[Corpus],
-    xsl_file: Path,
 ) -> None:
     """Generate proto-page XML for all corpus documents.
 
@@ -217,7 +308,6 @@ def generate_proto_pages(
     function is safe to call on every startup without re-doing prior work.
     """
     site_map = SiteMap(proto_dir)
-    compiler = ProtopageCompiler(xsl_file=xsl_file)
     generated = skipped = failed = 0
 
     for corpus in corpora:
@@ -228,9 +318,11 @@ def generate_proto_pages(
                 skipped += 1
                 continue
             try:
-                compiler.compile(doc, site_map.chunk_dir(doc.metadata.urn))
+                tei_doc = LenientTEIDocument(doc.path)
+                compiler = ProtopageCompiler(tei_doc)
+                compiler.compile(tei_doc, site_map.chunk_dir(doc.metadata.urn))
                 generated += 1
-            except CompilationError as exc:
+            except (CompilationError, ConfigurationError) as exc:
                 failed += 1
                 print(f"  FAILED:    {doc.path.name}: {exc}")
 
@@ -266,7 +358,7 @@ def create_app(test_config=None):
         pass
 
     corpora = _discover_corpora(CORPORA_DIR)
-    generate_proto_pages(PROTO_DIR, corpora, XSL_FILE)
+    generate_proto_pages(PROTO_DIR, corpora)
 
     @app.get("/")
     def index():
@@ -309,7 +401,9 @@ def create_app(test_config=None):
             work_index = json.load(f)
 
         urn = f"urn:cts:{corpus}:{textgroup}.{work}.{version}:{chunk}"
-        chunk_entry = next((c for c in work_index["chunks"] if c["urn"] == urn), None)
+        chunk_entry = next(
+            (c for c in work_index["chunks"] if c["cts_urn"] == urn), None
+        )
         if chunk_entry is None:
             abort(404)
 
@@ -320,7 +414,8 @@ def create_app(test_config=None):
             abort(404)
 
         chunk_obj, pub_info = _parse_chunk(chunk_file)
-        toc = _build_toc(work_index, corpus, textgroup, work, version)
+        metadata_file = PROTO_DIR / corpus / textgroup / work / version / "metadata.json"
+        toc = _toc_from_metadata(metadata_file, corpus, textgroup, work, version)
 
         base_path = f"/{corpus}/{textgroup}/{work}/{version}"
         prev_url = (
