@@ -8,12 +8,13 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from lxml import etree
 
 from mvp.corpus.models import TEIMetadata
-from mvp.corpus.tei_constants import TEI_NS, NS, XML_BASE
+from mvp.corpus.tei_constants import NS, XML_BASE
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:
@@ -142,6 +143,31 @@ class TEIDocument:
     @property
     def metadata(self) -> TEIMetadata:
         return self._metadata
+
+    @property
+    def schemas(self) -> list:
+        schema_list = list()
+        for node in self._tree.getroot().itersiblings(preceding=True):
+            if isinstance(node, etree._ProcessingInstruction) and node.target == "xml-model":
+                schema_list.append(node.text)
+        return schema_list
+
+    @property
+    def schema(self) -> str | None:
+        """Return the schema name (e.g. 'perseus_base'), or None if absent.
+
+        Extracts the href= pseudo-attribute by name so attribute ordering in
+        the PI text does not matter.  Returns None if the PI is absent or if
+        href= cannot be found.
+        """
+        if not self.schemas:
+            return None
+        m = re.search(r'href=["\']([^"\']+)["\']', self.schemas[0])
+        if not m:
+            return None
+        return m.group(1).split("/")[-1].split(".")[0]
+
+
 
     # ------------------------------------------------------------------
     # Private

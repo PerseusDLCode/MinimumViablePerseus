@@ -1,12 +1,25 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import Optional
 
 from lxml import etree
 
-from mvp.corpus.models import CitationRecord
+from mvp.corpus.chunking import elements_between
+from mvp.corpus.models import CitationChunk, CitationRecord
 from mvp.corpus.tei_document import LenientTEIDocument, NS, XML_BASE, XML_ID
+
+
+@dataclass
+class _CSNode:
+    """One (citeStructure, candidate-element) pair at a single hierarchy level."""
+    cs: etree._Element
+    element: etree._Element
+    suffix: str                    # accumulated URN suffix including this level
+    val: str                       # @use attribute value, "" when absent
+    unit: str                      # citeStructure @unit
+    children: list[etree._Element] # child citeStructure elements
 
 
 class ConfigurationError(Exception):
@@ -222,6 +235,41 @@ class ReferenceParser:
         children = list(self._root_cs.findall("tei:citeStructure", NS))
         yield from self._records_recursive("", children, self._body, 0, depth)
 
+    def _walk_cs(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+    ) -> Iterator[_CSNode]:
+        """Yield one _CSNode per (citeStructure, candidate-element) pair.
+
+        This is the shared traversal primitive for _records_recursive,
+        _toc_level, and _collect_cs_elements: it extracts match, use, delim,
+        unit, and children from each cs node, runs the XPath against context,
+        and yields a fully populated _CSNode for each candidate.
+
+        val is always the raw @use attribute value, or "" when the attribute is
+        absent.  Callers that need a display fallback (e.g. _toc_level uses the
+        1-based sibling index) must supply it themselves.
+        """
+        for cs in cs_list:
+            match_expr = cs.get("match", "")
+            use_attr   = cs.get("use", "@n")
+            delim      = cs.get("delim", ":")
+            unit       = cs.get("unit", "")
+            children   = list(cs.findall("tei:citeStructure", NS))
+            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
+            for cand in candidates:
+                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
+                yield _CSNode(
+                    cs=cs,
+                    element=cand,
+                    suffix=suffix + delim + val,
+                    val=val,
+                    unit=unit,
+                    children=children,
+                )
+
     def _records_recursive(
         self,
         suffix: str,
@@ -230,29 +278,64 @@ class ReferenceParser:
         current_depth: int,
         max_depth: int,
     ) -> Iterator[CitationRecord]:
-        for cs in cs_list:
-            match_expr = cs.get("match", "")
-            use_attr = cs.get("use", "@n")
-            delim = cs.get("delim", ":")
-            unit = cs.get("unit", "")
-            children = list(cs.findall("tei:citeStructure", NS))
-            candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
+        for node in self._walk_cs(suffix, cs_list, context):
+            if max_depth == -1 or current_depth <= max_depth:
+                yield CitationRecord(
+                    urn=self._base_urn + node.suffix,
+                    unit=node.unit,
+                    depth=current_depth,
+                )
+            if (max_depth == -1 or current_depth < max_depth) and node.children:
+                yield from self._records_recursive(
+                    node.suffix, node.children, node.element, current_depth + 1, max_depth
+                )
 
-            for cand in candidates:
-                val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
-                new_suffix = suffix + delim + val
+    def toc(self) -> list[dict]:
+        """Return the full citation hierarchy as a list of nested TOC entries.
 
-                if max_depth == -1 or current_depth <= max_depth:
-                    yield CitationRecord(
-                        urn=self._base_urn + new_suffix,
-                        unit=unit,
-                        depth=current_depth,
-                    )
+        Each entry has the shape::
 
-                if (max_depth == -1 or current_depth < max_depth) and children:
-                    yield from self._records_recursive(
-                        new_suffix, children, cand, current_depth + 1, max_depth
-                    )
+            {
+                "depth":       int,          # 0-based level in the hierarchy
+                "index":       int,          # 1-based position among siblings
+                "label":       str,          # e.g. "Book 1", "Chapter 3"
+                "subtype":     str,          # citeStructure @unit value
+                "urn":         str,          # full CTS URN
+                "subpassages": list[dict],   # recursive; empty for leaf nodes
+            }
+
+        The top-level list contains entries for the first citation level
+        (e.g. books).  Leaf nodes carry an empty ``subpassages`` list.
+        """
+        children = list(self._root_cs.findall("tei:citeStructure", NS))
+        return self._toc_level("", children, self._body, 0)
+
+    def _toc_level(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+        depth: int,
+    ) -> list[dict]:
+        entries: list[dict] = []
+        for idx, node in enumerate(self._walk_cs(suffix, cs_list, context), 1):
+            # Use the sibling index as a display-only fallback when @n is absent.
+            # The URN always uses node.suffix (which carries val="") so it stays
+            # consistent with citation_records() on documents without @n.
+            label_val = node.val or str(idx)
+            subpassages = (
+                self._toc_level(node.suffix, node.children, node.element, depth + 1)
+                if node.children else []
+            )
+            entries.append({
+                "depth":       depth,
+                "index":       idx,
+                "label":       f"{node.unit.capitalize()} {label_val}",
+                "subtype":     node.unit,
+                "urn":         self._base_urn + node.suffix,
+                "subpassages": subpassages,
+            })
+        return entries
 
     def citations(self, depth: int = -1) -> Iterator[str]:
         """Yield every resolvable CTS URN in document order.
@@ -263,3 +346,129 @@ class ReferenceParser:
         """
         children = list(self._root_cs.findall("tei:citeStructure", NS))
         yield from (r.urn for r in self._records_recursive("", children, self._body, 0, depth))
+
+    # ------------------------------------------------------------------
+    # chunks() — public API for compilation
+    # ------------------------------------------------------------------
+
+    def chunks(self) -> Iterator[CitationChunk]:
+        """Yield CitationChunk objects at the designated chunking level.
+
+        The chunking level is determined by the first <citeStructure> bearing
+        @n="chunk".  If none is found, the penultimate citation level is used
+        (one level above the finest granularity); for a single-level hierarchy
+        the sole level is used.
+
+        Div-based citeStructures (match does not reference "milestone") yield
+        one-element chunks.  Milestone-based citeStructures yield multi-element
+        chunks assembled by LCA extraction.
+        """
+        target_cs = self._find_chunk_cs()
+        match_expr = target_cs.get("match", "")
+        if "milestone" in match_expr:
+            yield from self._milestone_chunks(target_cs)
+        else:
+            yield from self._div_chunks(target_cs)
+
+    def _find_chunk_cs(self) -> etree._Element:
+        """Return the citeStructure that defines chunk boundaries."""
+        found = self._find_cs_with_attr(self._root_cs, "n", "chunk")
+        if found is not None:
+            return found
+        return self._penultimate_cs()
+
+    def _find_cs_with_attr(
+        self,
+        parent_cs: etree._Element,
+        attr: str,
+        value: str,
+    ) -> Optional[etree._Element]:
+        for cs in parent_cs.findall("tei:citeStructure", NS):
+            if cs.get(attr) == value:
+                return cs
+            found = self._find_cs_with_attr(cs, attr, value)
+            if found is not None:
+                return found
+        return None
+
+    def _penultimate_cs(self) -> etree._Element:
+        """Return the second-to-deepest citeStructure (first-branch traversal).
+
+        For a single-level hierarchy returns that sole level.
+        """
+        path: list[etree._Element] = []
+        cs = self._root_cs
+        while True:
+            children = cs.findall("tei:citeStructure", NS)
+            if not children:
+                break
+            cs = children[0]
+            path.append(cs)
+        if not path:
+            return self._root_cs
+        if len(path) == 1:
+            return path[0]
+        return path[-2]
+
+    def _div_chunks(self, target_cs: etree._Element) -> Iterator[CitationChunk]:
+        unit = target_cs.get("unit", "")
+        pairs = self._candidates_at_level(target_cs)
+        for i, (elem, urn) in enumerate(pairs):
+            yield CitationChunk(
+                cts_urn=urn,
+                unit=unit,
+                elements=[elem],
+                prev_urn=pairs[i - 1][1] if i > 0 else None,
+                next_urn=pairs[i + 1][1] if i + 1 < len(pairs) else None,
+            )
+
+    def _milestone_chunks(self, target_cs: etree._Element) -> Iterator[CitationChunk]:
+        match_expr = target_cs.get("match", "")
+        use_attr = target_cs.get("use", "@n")
+        unit = target_cs.get("unit", "")
+        delim = target_cs.get("delim", " ")
+
+        milestones: list[etree._Element] = self._body.xpath(match_expr, namespaces=NS)
+
+        def _urn(ms: etree._Element) -> str:
+            val = ms.get(use_attr[1:], "") if use_attr.startswith("@") else ""
+            return self._base_urn + delim + val
+
+        for i, ms in enumerate(milestones):
+            ms_next = milestones[i + 1] if i + 1 < len(milestones) else None
+            yield CitationChunk(
+                cts_urn=_urn(ms),
+                unit=unit,
+                elements=elements_between(self._body, ms, ms_next),
+                prev_urn=_urn(milestones[i - 1]) if i > 0 else None,
+                next_urn=_urn(ms_next) if ms_next is not None else None,
+            )
+
+    def _candidates_at_level(
+        self,
+        target_cs: etree._Element,
+    ) -> list[tuple[etree._Element, str]]:
+        """Return all (element, urn) pairs at the given citeStructure level."""
+        result: list[tuple[etree._Element, str]] = []
+        self._collect_cs_elements(
+            "",
+            list(self._root_cs.findall("tei:citeStructure", NS)),
+            self._body,
+            target_cs,
+            result,
+        )
+        return result
+
+    def _collect_cs_elements(
+        self,
+        suffix: str,
+        cs_list: list[etree._Element],
+        context: etree._Element,
+        target_cs: etree._Element,
+        result: list[tuple[etree._Element, str]],
+    ) -> None:
+        for node in self._walk_cs(suffix, cs_list, context):
+            if node.cs is target_cs:
+                result.append((node.element, self._base_urn + node.suffix))
+            elif node.children:
+                self._collect_cs_elements(node.suffix, node.children, node.element, target_cs, result)

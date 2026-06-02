@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from mvp.corpus.reference_parser import ReferenceParser, ConfigurationError
+from mvp.corpus.reference_parser import ReferenceParser
 from mvp.corpus.tei_document import LenientTEIDocument
 
 

@@ -1,18 +1,3 @@
-# mvp/site_map.py
-#
-# SiteMap: owns the output path and URL scheme for all compiled artifacts.
-#
-# No other object constructs output paths.  Everything goes through
-# SiteMap so the URL scheme can be changed in one place.
-#
-# TODO (multiple chunking strategies): chunk_dir() and chunk_path() currently
-# map each URN to a single output directory.  When multiple chunking schemes
-# per document are supported, these methods will need a chunking-scheme
-# parameter so that each (URN, strategy) pair maps to a distinct directory,
-# e.g. greekLit/tlg0059/tlg013/perseus-grc2/by-section/ vs .../by-page/.
-# See Open Question 6 in wiki/Roadmap.org and the deferred items in
-# wiki/Object-Model.org.
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -45,14 +30,7 @@ class SiteMap:
         return self._root
 
     def chunk_dir(self, urn: str) -> Path:
-        """Return the output directory for chunk pages of a document.
-
-        Creates parent directories as needed.
-
-        TODO (multiple chunking strategies): add a scheme parameter
-        (e.g. chunk_dir(urn, scheme='by-section')) when multi-scheme
-        compilation is implemented.
-        """
+        """Return the output directory for chunk pages of a document."""
         path = self._root / self._urn_to_path(urn)
         path.mkdir(parents=True, exist_ok=True)
         return path
@@ -94,24 +72,11 @@ class SiteMap:
 
         urn:cts:latinLit:phi1017.phi007.perseus-lat2:57
         → latinLit/phi1017/phi007/perseus-lat2  (passage citation stripped)
-
-        Returns a single-segment fallback path for URNs that don't conform
-        to the expected structure.
         """
         bare = urn.removeprefix("urn:cts:")
-
-        # Split into [namespace, work_and_maybe_passage].
-        # A well-formed CTS URN has exactly one colon separating the
-        # namespace from the work identifier.  A passage citation, if
-        # present, appears as a further colon-separated component after
-        # the version identifier.
         parts = bare.split(":", 1)
         if len(parts) == 2:
             namespace = parts[0]
-            # Drop passage citation if present, then split dotted work id
             work = parts[1].split(":")[0]
             return Path(namespace, *work.split("."))
-
-        # Fallback: use the bare string as a single directory name,
-        # replacing characters that are problematic in filesystem paths.
         return Path(bare.replace(":", "_").replace(".", "_"))

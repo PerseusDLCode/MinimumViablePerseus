@@ -8,9 +8,8 @@ import markdown
 from flask import Flask, abort, render_template
 
 from mvp.corpus.corpus import Corpus
-from mvp.site.compilers import CompilationError, ProtopageCompiler
-from mvp.site.compilers.protopage_compiler import _parse_chunk
-from mvp.site.site_map import SiteMap
+from mvp.compilers import CompilationError, ProtopageCompiler
+from mvp.compilers.site_map import SiteMap
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -52,7 +51,10 @@ def _build_toc(
     work: str,
     version: str,
 ) -> dict:
-    """Build a nested TOC dict from a flat index.json chunk list.
+    """
+    # TODO (charles): Delete when the TOC generation in
+    # the Transformer version is ready.
+    Build a nested TOC dict from a flat index.json chunk list.
 
     If all chunks share the same book (or have no book), returns a flat list
     of chapter entries.  Otherwise nests chapter entries under book entries.

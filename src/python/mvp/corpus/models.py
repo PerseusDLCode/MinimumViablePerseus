@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from lxml import etree
+
 
 @dataclass
 class TEIMetadata:
@@ -69,3 +71,19 @@ class CitationRecord:
     urn: str
     unit: str
     depth: int
+
+
+@dataclass
+class CitationChunk:
+    """A citable chunk of a TEI document at a designated citation level.
+
+    For div-based citeStructures, elements contains a single element (the
+    matched div).  For milestone-based citeStructures, elements contains
+    the sequence of top-level elements between two consecutive milestones,
+    possibly truncated at the boundary (LCA extraction).
+    """
+    cts_urn: str
+    unit: str
+    elements: list[etree._Element]
+    prev_urn: str | None = None
+    next_urn: str | None = None

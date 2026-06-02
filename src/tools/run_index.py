@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 from mvp.corpus.document import TEIDocument
 from mvp.corpus.index_serializers import ChunkIndexSerializer, WordIndexSerializer
 from mvp.corpus.indexers import ChunkIndexer, WordIndexer
-from mvp.site.site_map import SiteMap
+from mvp.compilers.site_map import SiteMap
 
 
 def _iter_tei_files(source: Path):
@@ -78,6 +78,11 @@ def main() -> None:
         try:
             doc = TEIDocument(tei_file)
             meta = doc.metadata
+
+            if not meta.urn:
+                print(f"  SKIP    {rel}: no usable CTS URN")
+                failed += 1
+                continue
 
             chunk_index = ChunkIndexer(tei_file).chunk_index
             word_index = WordIndexer(tei_file).word_index
