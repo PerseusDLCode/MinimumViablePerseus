@@ -5,7 +5,6 @@
 # These are plain dataclasses: no significant behavior beyond field
 # access and construction.  They carry data between pipeline stages;
 # they do not implement compilation or transformation logic.
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,6 +12,7 @@ from pathlib import Path
 
 from lxml import etree
 
+TEI_NS = "http://www.tei-c.org/ns/1.0"
 
 @dataclass
 class TEIMetadata:
@@ -87,3 +87,17 @@ class CitationChunk:
     elements: list[etree._Element]
     prev_urn: str | None = None
     next_urn: str | None = None
+
+    def to_xml(self) -> etree._Element:
+        root = etree.Element("citationChunk", nsmap={"tei": TEI_NS})
+        root.set("unit", self.unit)
+        root.set("cts_urn", self.cts_urn)
+        if self.prev_urn is not None:
+            root.set("prev_urn", self.prev_urn)
+        if self.next_urn is not None:
+            root.set("next_urn", self.next_urn)
+
+        elements = etree.SubElement(root, "elements")
+        for e in self.elements:
+            elements.append(e)
+        return root

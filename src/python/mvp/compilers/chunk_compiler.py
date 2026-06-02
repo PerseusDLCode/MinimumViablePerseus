@@ -1,99 +1,47 @@
-"""ProtopageCompiler — compiles a TEI document into Protopage XML chunks."""
+"""ChunkCompiler - compiles a TEI document into chunks."""
 from __future__ import annotations
 
+import re
 import json
-from dataclasses import dataclass
 from pathlib import Path
 
 from lxml import etree
 
-from mvp.corpus.models import CitationChunk
 from mvp.corpus.reference_parser import ReferenceParser
 from mvp.corpus.tei_document import LenientTEIDocument
 from mvp.compilers.base import Compiler
-from mvp.compilers.transformers import TransformerFactory
+from mvp.corpus.models import CitationChunk
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"
 
 
-@dataclass
-class ProtopageChunk:
-    """Protopage XML output for one citation chunk."""
-    content: etree._Element
-    cts_urn: str
+class ChunkCompiler(Compiler[LenientTEIDocument]):
+    """Compiles a TEI document into CitationChunk XML files.
 
+    Writes one XML file per chunk plus index.json and metadata.json."""
 
-def _sub(parent: etree._Element, tag: str, text: str) -> etree._Element:
-    """Append a child element with text content to parent."""
-    el = etree.SubElement(parent, tag)
-    el.text = text
-    return el
-
-
-class ProtopageCompiler(Compiler[LenientTEIDocument]):
-    """Compiles a TEI document into a sequence of ProtopageChunk objects."""
-
-    def __init__(
-        self,
-        tei_doc: LenientTEIDocument,
-        factory: TransformerFactory | None = None,
-    ) -> None:
-        self.tei_doc = tei_doc
+    def __init__(self, tei_doc:LenientTEIDocument) -> None:
+        self.tei_doc:LenientTEIDocument = tei_doc
         self.reference_parser = ReferenceParser(tei_doc)
-        self.transformer = (factory or TransformerFactory()).transformer_for(tei_doc)
-        self._chunks: list[CitationChunk] | None = None
-        self._compiled: list[ProtopageChunk] | None = None
+        self._citation_chunks: list[CitationChunk] | None = None
+
 
     @property
-    def chunks(self) -> list[CitationChunk]:
-        if self._chunks is None:
-            self._chunks = list(self.reference_parser.chunks())
-        return self._chunks
+    def citation_chunks(self) -> list[CitationChunk]:
+        if self._citation_chunks is None:
+            self._citation_chunks = self.reference_parser.chunks()
+        return self._citation_chunks
 
-    @property
-    def compiled_chunks(self) -> list[ProtopageChunk]:
-        if self._compiled is None:
-            self._compiled = [self.compile_chunk(c) for c in self.chunks]
-        return self._compiled
-
-    def compile_chunk(self, chunk: CitationChunk) -> ProtopageChunk:
-        """Transform one CitationChunk into a complete Protopage XML tree.
-
-        The root element is <protopage> (no attributes) containing <meta> and
-        <content>.  Per-chunk navigation data lives in <meta>.
-        """
-        root = etree.Element("protopage")
-        root.append(self._build_meta(chunk))
-
-        content_el = etree.SubElement(root, "content")
-        for out_el in self.transformer.apply_all(chunk.elements):
-            content_el.append(out_el)
-
-        return ProtopageChunk(content=root, cts_urn=chunk.cts_urn)
-
-    def compile(self, source: LenientTEIDocument, output_path: Path, **kwargs) -> None:
-        """Serialize all compiled chunks to output_path as XML files + index.json + metadata.json.
-
-        Writes one ``protopage_{passage}.xml`` file per CitationChunk, an
-        ``index.json`` manifest, and a ``metadata.json`` sidecar containing
-        document-level bibliographic data and the full TOC hierarchy.
-
-        Args:
-            source:      Ignored (the compiler was already constructed with a
-                         document); present only to satisfy the Compiler ABC.
-            output_path: Directory to write into (created if absent).
-        """
-        output_path = Path(output_path)
+    def compile(self, output_path:Path, **kwargs):
         output_path.mkdir(parents=True, exist_ok=True)
-
-        index_entries = []
-        for pc in self.compiled_chunks:
-            filename = self._protopage_filename(pc.cts_urn)
-            (output_path / filename).write_bytes(
-                etree.tostring(pc.content, encoding="utf-8", xml_declaration=True,
+        index_entries: list[dict] = []
+        for chunk in self.citation_chunks:
+            fname = self._chunk_filename(chunk)
+            index_entries.append({"file": fname, "cts_urn": chunk.cts_urn})
+            (output_path / fname).write_bytes(
+                etree.tostring(chunk.to_xml(), encoding="utf-8", xml_declaration=True,
                                pretty_print=True)
-            )
-            index_entries.append({"file": filename, "cts_urn": pc.cts_urn})
+                )
 
         (output_path / "index.json").write_text(
             json.dumps({"chunks": index_entries}, indent=2, ensure_ascii=False),
@@ -110,25 +58,17 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             encoding="utf-8",
         )
 
+
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _build_meta(self, chunk: CitationChunk) -> etree._Element:
-        """Build a <meta> element with per-chunk navigation data.
-
-        Document-level bibliographic data lives in metadata.json.  <meta>
-        carries only the four fields that vary per chunk: base-urn, ctsurn,
-        prev-urn, next-urn.
-        """
-        meta = etree.Element("meta")
-        _sub(meta, "base-urn", self.reference_parser.base_urn)
-        _sub(meta, "ctsurn",   chunk.cts_urn)
-        if chunk.prev_urn:
-            _sub(meta, "prev-urn", chunk.prev_urn)
-        if chunk.next_urn:
-            _sub(meta, "next-urn", chunk.next_urn)
-        return meta
+    @staticmethod
+    def _chunk_filename(chunk: CitationChunk) -> str:
+        """Return a safe XML filename for a chunk URN."""
+        cts_pattern = re.compile(r"urn:cts:(?P<namespace>[^:]+):(?P<textgroup>[^.]+)\.(?P<work>[^.]+)\.(?P<edition>[^:]+):(?P<passage>.*?)$")
+        fields = cts_pattern.match(chunk.cts_urn)
+        return f"{fields['passage']:0>3}.xml"
 
     def _build_document_metadata(self) -> dict:
         """Extract document-level bibliographic metadata for metadata.json.
@@ -190,9 +130,3 @@ class ProtopageCompiler(Compiler[LenientTEIDocument]):
             "pub_place": pub_place,
             "pub_date":  pub_date,
         }
-
-    @staticmethod
-    def _protopage_filename(cts_urn: str) -> str:
-        """Return a safe XML filename for a protopage URN."""
-        passage = cts_urn.rsplit(":", 1)[-1].strip().replace(" ", "_")
-        return f"protopage_{passage}.xml"

@@ -169,11 +169,10 @@ URNs. (This was ported from Charles Pletcher's citation-resolution module.)
 #### Site (Views)
 
 The Site layer is responsible for generating the website. It includes
-a **ProtopageCompiler** that partitions TEI texts into simplified,
-intermediate XML (proto-pages) corresponding with the citation
-structure described in the TEI RefsDecl element; and a
-**ProtopageRenderer**, which uses Jinja templates (separately defined)
-to generate HTML pages.
+a **ChunkCompiler** that partitions TEI texts into `CitationChunk` XML
+files corresponding with the citation structure described in the TEI
+`citeStructure` element; and a **ProtopageRenderer**, which uses Jinja
+templates (separately defined) to generate HTML pages.
 
 There is also an XSLT-based **PageCompiler**, intended to be used to
 generate HTML pages from TEI documents. It is part of an earlier
@@ -288,10 +287,7 @@ surviving compilation infrastructure now lives in `mvp/compilers/`.
 | `mvp/compilers/base.py` | `Compiler` ABC and `CompilationError` |
 | `mvp/compilers/site_map.py` | `SiteMap` — owns the output path and URL scheme for all compiled artifacts |
 | `mvp/compilers/citation_index.py` | `CitationIndexGenerator` — generates a per-document citation index (citations.json) mapping CTS URNs to XML IDs and depths |
-| `mvp/compilers/protopage_compiler.py` | `ProtopageCompiler` — pure-Python TEI → protopage XML compiler; `ProtopageChunk` dataclass |
-| `mvp/compilers/transformers/base.py` | `Transformer` base class and element-copy helpers |
-| `mvp/compilers/transformers/prose_transformer.py` | `Family1ProseTransformer` — handler registry for Family-1 prose TEI; Charles Pletcher's customization entry point |
-| `mvp/compilers/transformers/registry.py` | `SchemaRegistry`, `TransformerFactory` — map TEI schema identifiers to transformer instances |
+| `mvp/compilers/chunk_compiler.py` | `ChunkCompiler` — serializes `CitationChunk` objects to XML without transformation; writes one file per chunk plus `index.json` and `metadata.json` |
 
 Each layer's public API is re-exported from its `__init__.py`.  The NLP
 team's integration point is the `annotations/` layer (not `compilers/`).
@@ -334,21 +330,19 @@ shared among human developers.
 The following areas are currently under active development (see
 `forum.org` for the full deliberative record and current TODO items):
 
-- **Pure-Python protopage compiler** (branch `protopage-compiler-in-python`, in progress):
-  Replaces the Saxon/XSLT step of the proto-page pipeline with a pure-Python
-  recursive descent transformer.  Key pieces: `CitationChunk` (corpus layer),
-  `ReferenceParser.chunks()` (div-based and milestone-based chunking),
-  `ReferenceParser.toc()` (full citation hierarchy for navigation), and a
-  `Transformer` registry pattern in `mvp/compilers/`.  Root element is
-  `<protopage>`; bibliographic metadata drawn from `<sourceDesc>`.  Validated
-  against Thucydides (917 chunks, 8-book TOC in `metadata.json`).  The old
-  XSLT pipeline (`mvp/site/`) was retired on this branch; all compilation
-  infrastructure now lives in `mvp/compilers/`.  Pending code review by
-  Charles Pletcher; open questions on section wrapping.
-  See forum `#python-protopage-compiler` for the full deliberative record.
+- **ChunkCompiler** (branch `97-modify-architecture-to-pass-tei-chunks-instead-of-protopages`, in progress):
+  Replaces `ProtopageCompiler` and the `transformers/` sub-package with a simpler
+  compiler that serializes `CitationChunk` objects directly to XML without element
+  transformation.  Key pieces: `CitationChunk.to_xml()` (corpus layer, with TEI
+  namespace declared via `nsmap`), `ReferenceParser.chunks()` (div-based and
+  milestone-based chunking), `ReferenceParser.toc()` (full citation hierarchy),
+  and `ChunkCompiler._build_document_metadata()` (bibliographic metadata from
+  `<sourceDesc>`).  Output: one `<citationChunk>` XML file per chunk plus
+  `index.json` and `metadata.json`.
+  See forum `#python-protopage-compiler` for the deliberative record.
 - **Citation infrastructure**: `ReferenceParser` is complete (merged to
-  `dev`, PRs #49 and #53).  Extended with `chunks()` and `toc()` on branch
-  `protopage-compiler-in-python`.
+  `dev`, PRs #49 and #53).  `chunks()` and `toc()` are in active use by
+  `ChunkCompiler`.
 - **XSLT modularization**: refactoring chunker stylesheets into a
   proper stylesheet family (see `#reimplement-xslt-to-be-modular`)
 
