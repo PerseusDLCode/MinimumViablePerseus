@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 site/
+!src/python/mvp/site/
 build/
 develop-eggs/
 dist/
@@ -234,8 +235,14 @@ local/
 src/morph-server/*.morph.xml
 
 
-# The top-level data just contains submodules
-data/
+corpora/
+tmp
 
 # The wiki is a submodule; don't track
-wiki/
+wiki
+
+
+# ignore tailwindcss binary
+tailwindcss
+
+proto-pages

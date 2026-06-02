@@ -53,28 +53,16 @@
       </fileDesc>
     
       <encodingDesc>
-         <refsDecl n="CTS">
-            <cRefPattern n="section"
-                         matchPattern="(\w+).(\w+).(\w+)"
-                         replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1']/tei:div[@n='$2']/tei:div[@n='$3'])">
-                <p>This pointer pattern extracts book and chapter and section</p>
-            </cRefPattern>
-            <cRefPattern n="chapter"
-                         matchPattern="(\w+).(\w+)"
-                         replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1']/tei:div[@n='$2'])">
-                <p>This pointer pattern extracts book and chapter</p>
-            </cRefPattern>
-            <cRefPattern n="book"
-                         matchPattern="(\w+)"
-                         replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])">
-                <p>This pointer pattern extracts book</p>
-            </cRefPattern>
-        </refsDecl>
-         <refsDecl>
-            <refState unit="book" delim="."/>
-            <refState unit="chapter" delim="."/>
-            <refState unit="section"/>
-         </refsDecl>
+        <refsDecl xml:id="cite_by_section" default="true">
+            <citeStructure match="/tei:TEI/tei:text/tei:body" use="@n">
+              <citeStructure unit="book" delim=":" match="tei:div[@subtype='book']" use="@n">
+                <citeStructure unit="chapter" delim="." match="tei:div[@subtype='chapter']" use="@n">
+                  <citeStructure unit="section" delim="." match="tei:div[@subtype='section']" use="@n"/>
+                </citeStructure>
+              </citeStructure>
+            </citeStructure>
+          </refsDecl>
+
       </encodingDesc>
     
       <profileDesc>
@@ -91,8 +79,7 @@
   </teiHeader>
   
   <text>
-      <body>
-         <div type="edition" n="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2" xml:lang="grc">
+      <body n="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2" xml:base="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2">
         <div type="textpart" subtype="book" xml:base="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2" n="1"> 
         <div type="textpart" subtype="chapter" xml:base="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2:1" n="1">
                   <div type="textpart" subtype="section" xml:base="urn:cts:greekLit:tlg0003.tlg001.perseus-grc2:1.1" n="1">
@@ -22957,7 +22944,6 @@
                   </div>
                </div>
             </div>
-         </div>   
       </body>
   </text>
 </TEI>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{% block title %}{% endblock %}</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5.5.20/theme/wireframe.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+    </head>
+    <body class="bg-neutral-50 p-4 min-h-screen">
+        <header class="hero mb-4">
+            <div class="px-8 text-base-content w-full">
+                <div>
+                    <h1 class="text-xl font-bold">
+                        Apollonius Rhodius, <em>Argonautica</em>
+                    </h1>
+                    <h2 class="text-lg font-bold">George W. Mooney, Ed.</h2>
+                </div>
+            </div>
+        </header>
+        <nav
+            class="bg-neutral-500 text-neutral-content font-bold flex justify-between mb-4 px-8 py-2 text-sm"
+        >
+            <a href="#" class="hover:text-base-content">Home</a>
+            <a href="#" class="hover:text-base-content">Collections/Texts</a>
+            <a href="#" class="hover:text-base-content">Perseus Catalog</a>
+            <a href="#" class="hover:text-base-content">Research</a>
+            <a href="#" class="hover:text-base-content">Grants</a>
+            <a href="#" class="hover:text-base-content">Open Source</a>
+            <a href="#" class="hover:text-base-content">About</a>
+            <a href="#" class="hover:text-base-content">Help</a>
+        </nav>
+        {% block content %}
+        {% endblock %}
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    </body>
+</html>

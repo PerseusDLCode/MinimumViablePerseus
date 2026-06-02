@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@source not "./tailwindcss";
+@source not "./daisyui{,*}.mjs";
+
+@plugin "@tailwindcss/typography";
+
+@plugin "./daisyui.mjs" {
+    themes: wireframe --default;
+}

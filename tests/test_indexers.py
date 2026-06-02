@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from mvp.indexers import ChunkIndexer, WordIndexer
-from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
+from mvp.corpus.indexers import ChunkIndexer, WordIndexer
+from mvp.corpus.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -214,7 +214,7 @@ class TestExclusions:
 
     def test_tei_header_words_excluded(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>body</p>"))
-        entries = indexer = WordIndexer(path).word_index.entries
+        entries = WordIndexer(path).word_index.entries
         # "Test" and "Author" come from teiHeader — must not appear
         assert "test" not in entries
         assert "author" not in entries
@@ -312,32 +312,32 @@ class TestChunkIndexer:
     def test_returns_chunk_index(self, tmp_path):
         body = "<p>first paragraph</p><p>second paragraph</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         assert isinstance(result, ChunkIndex)
 
     def test_entries_are_chunk_occurrences(self, tmp_path):
         body = "<p>hello world</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         assert all(isinstance(e, ChunkOccurrence) for e in result.entries)
 
     def test_chunk_text_content(self, tmp_path):
         body = "<p>hello world</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         texts = [e.chunk for e in result.entries]
         assert "hello world" in texts
 
     def test_chunk_xpath_starts_with_slash(self, tmp_path):
         body = "<p>hello</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         assert all(e.xpath.startswith("/") for e in result.entries)
 
     def test_multiple_paragraphs_produce_multiple_chunks(self, tmp_path):
         body = "<p>first</p><p>second</p><p>third</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         texts = [e.chunk for e in result.entries]
         assert "first" in texts
         assert "second" in texts
@@ -346,7 +346,7 @@ class TestChunkIndexer:
     def test_excluded_content_stripped_from_chunk(self, tmp_path):
         body = "<p>keep <del>deleted</del> this</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         body_chunk = next(e for e in result.entries if "tei:body" in e.xpath)
         assert "deleted" not in body_chunk.chunk
         assert "keep" in body_chunk.chunk
@@ -355,20 +355,20 @@ class TestChunkIndexer:
         # "this" is in <del>.tail — must appear in the chunk despite <del> being excluded
         body = "<p>keep <del>deleted</del> this</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         body_chunk = next(e for e in result.entries if "tei:body" in e.xpath)
         assert "this" in body_chunk.chunk
 
     def test_empty_chunks_omitted(self, tmp_path):
         body = "<p></p><p>content</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         assert all(e.chunk.strip() for e in result.entries)
 
     def test_verse_lines_chunked(self, tmp_path):
         body = "<lg><l>first line</l><l>second line</l></lg>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         texts = [e.chunk for e in result.entries]
         assert any("first line" in t for t in texts)
         assert any("second line" in t for t in texts)
@@ -376,10 +376,59 @@ class TestChunkIndexer:
     def test_tei_header_excluded(self, tmp_path):
         body = "<p>body text</p>"
         path = write_tei(tmp_path, make_tei(body))
-        result = ChunkIndexer(path).generate_chunks()
+        result = ChunkIndexer(path).chunk_index
         # "Test" and "Author" live in teiHeader — must not appear in any chunk
         all_text = " ".join(e.chunk for e in result.entries)
         assert "Author" not in all_text
+
+
+# ---------------------------------------------------------------------------
+# New fields: element and urn on ChunkOccurrence, urn on WordOccurrence
+# ---------------------------------------------------------------------------
+
+class TestChunkOccurrenceFields:
+
+    def test_element_is_populated(self, tmp_path):
+        body = "<p>a paragraph</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert all(e.element for e in result.entries)
+
+    def test_element_matches_tag_name(self, tmp_path):
+        body = "<p>prose</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        p_entry = next(e for e in result.entries if "tei:p" in e.xpath)
+        assert p_entry.element == "p"
+
+    def test_verse_line_element(self, tmp_path):
+        body = "<lg><l>first line</l></lg>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        line_entries = [e for e in result.entries if e.element == "l"]
+        assert len(line_entries) == 1
+
+    def test_lg_element_recorded(self, tmp_path):
+        body = "<lg><l>a</l><l>b</l></lg>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert any(e.element == "lg" for e in result.entries)
+
+    def test_chunk_urn_is_none_by_default(self, tmp_path):
+        body = "<p>text</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = ChunkIndexer(path).chunk_index
+        assert all(e.urn is None for e in result.entries)
+
+
+class TestWordOccurrenceFields:
+
+    def test_word_urn_is_none_by_default(self, tmp_path):
+        body = "<p>hello world</p>"
+        path = write_tei(tmp_path, make_tei(body))
+        result = WordIndexer(path).word_index
+        for occurrences in result.entries.values():
+            assert all(occ.urn is None for occ in occurrences)
 
 
 # ---------------------------------------------------------------------------

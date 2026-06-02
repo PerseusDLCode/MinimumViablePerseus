@@ -15,9 +15,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 
-from mvp.site_map import SiteMap
+from mvp.compilers.site_map import SiteMap
 
 # ---------------------------------------------------------------------------
 # Helpers
