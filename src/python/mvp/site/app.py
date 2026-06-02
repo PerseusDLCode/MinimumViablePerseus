@@ -14,7 +14,7 @@ from markupsafe import Markup, escape
 from mvp.corpus.corpus import Corpus
 from mvp.corpus.reference_parser import ConfigurationError
 from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.compilers import CompilationError, ProtopageCompiler
+from mvp.compilers import ChunkCompiler, CompilationError
 from mvp.compilers.site_map import SiteMap
 
 
@@ -99,7 +99,7 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
 
     Document-level metadata (title, author, language, etc.) is read from the
-    sibling metadata.json written by ProtopageCompiler.compile().
+    sibling metadata.json written by ChunkCompiler.compile().
     """
     root = etree.parse(path).getroot()
     meta = root.find("meta")
@@ -319,8 +319,8 @@ def generate_proto_pages(
                 continue
             try:
                 tei_doc = LenientTEIDocument(doc.path)
-                compiler = ProtopageCompiler(tei_doc)
-                compiler.compile(tei_doc, site_map.chunk_dir(doc.metadata.urn))
+                compiler = ChunkCompiler(tei_doc)
+                compiler.compile(site_map.chunk_dir(doc.metadata.urn))
                 generated += 1
             except (CompilationError, ConfigurationError) as exc:
                 failed += 1
