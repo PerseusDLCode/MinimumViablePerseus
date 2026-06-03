@@ -1,0 +1,40 @@
+{# Readable Text Container Component #}
+{# Parameters: #}
+{#   text_container - TextContainer object with tokens and children #}
+{#   show_heatmap - Whether to show comment density heatmap #}
+{#   comments - List of Comment objects #}
+{# #}
+{# Mapping of tagnames to HTML elements: #}
+{#   head -> h1, l -> span, lb -> span, lg -> div, #}
+{#   p -> p, pb -> p, quote -> blockquote, default -> span #}
+
+{% set tagname = text_container.subtype or text_container.tagname %}
+{% set element_map = {
+    'head': 'h1',
+    'l': 'span',
+    'lb': 'span',
+    'lg': 'div',
+    'p': 'p',
+    'pb': 'p',
+    'quote': 'blockquote'
+} %}
+{% set container_element = element_map.get(tagname, 'span') %}
+{% set cts_urn = text_container.urn | default('unknown') %}
+
+<{{ container_element }} class="prose tei-{{ text_container.tagname }}{% if text_container.tagname == 'l' %} indent-hanging{% endif %}" data-urn="{{ cts_urn }}" role="presentation">
+    {% for child in text_container.children %}
+        {% set child_urn = child.urn if child.urn else text_container.urn %}
+        {% with text_container=dict(child, urn=child_urn) %}
+            {% include 'components/ReadableTextContainer.html.jinja' %}
+        {% endwith %}
+    {% endfor %}
+
+    {% if text_container.tagname in ['lb', 'milestone', 'pb'] %}
+        <a href="#{{ text_container.n }}">{{ text_container.n }}</a>
+    {% endif %}
+
+    {% if text_container.tagname == 'text_run' and text_container.tokens %}
+        {%- for token in text_container.tokens %}{{ token.text }}{% if token.whitespace %} {% endif %}{%- endfor %}
+    {% endif %}
+
+</{{ container_element }}>

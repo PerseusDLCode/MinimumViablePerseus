@@ -14,6 +14,7 @@ from lxml import etree
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"
 
+
 @dataclass
 class TEIMetadata:
     """Descriptive metadata extracted from a TEI document header.
@@ -21,11 +22,12 @@ class TEIMetadata:
     Carries everything the catalog and build pipeline need to know
     about a document without holding the document tree itself.
     """
+
     urn: str
     title: str
     author: str
-    language: str       # BCP 47 / ISO 639-3: 'grc', 'lat', 'eng', etc.
-    text_type: str      # 'verse' | 'prose' | 'drama'
+    language: str  # BCP 47 / ISO 639-3: 'grc', 'lat', 'eng', etc.
+    text_type: str  # 'verse' | 'prose' | 'drama'
     source_path: Path
 
 
@@ -44,13 +46,14 @@ class WordIndex:
     Maps each lowercased word form to the set of XPath locations
     (tei:-prefixed strings) where it appears in the document.
     """
+
     entries: dict[str, set[WordOccurrence]]
 
 
 @dataclass(frozen=True)
 class ChunkOccurrence:
     xpath: str
-    element: str    # tag name of the source element: "l", "p", "lg", "ab"
+    element: str  # tag name of the source element: "l", "p", "lg", "ab"
     chunk: str
     urn: str | None = None
 
@@ -62,12 +65,14 @@ class ChunkIndex:
     Maps an XPath expression to the contents of the element
     stripped of markup.
     """
+
     entries: list[ChunkOccurrence] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
 class CitationRecord:
     """One citable location in a TEI document, derived from citeStructure."""
+
     urn: str
     unit: str
     depth: int
@@ -82,6 +87,8 @@ class CitationChunk:
     the sequence of top-level elements between two consecutive milestones,
     possibly truncated at the boundary (LCA extraction).
     """
+
+    base_urn: str
     cts_urn: str
     unit: str
     elements: list[etree._Element]
@@ -91,6 +98,7 @@ class CitationChunk:
     def to_xml(self) -> etree._Element:
         root = etree.Element("citationChunk", nsmap={"tei": TEI_NS})
         root.set("unit", self.unit)
+        root.set("base_urn", self.base_urn)
         root.set("cts_urn", self.cts_urn)
         if self.prev_urn is not None:
             root.set("prev_urn", self.prev_urn)

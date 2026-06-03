@@ -16,6 +16,7 @@ from mvp.corpus.reference_parser import ConfigurationError
 from mvp.corpus.tei_document import LenientTEIDocument
 from mvp.compilers import ChunkCompiler, CompilationError
 from mvp.compilers.site_map import SiteMap
+from mvp.site.tei_parser import TEIParser, TEIParserError
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -63,7 +64,7 @@ class _Chunk:
     title: str
     base_urn: str
     language: str
-    sections: list[_Section]
+    elements: list[Any]
 
 
 def _inline_to_html(el: etree._Element) -> str:
@@ -95,54 +96,6 @@ def _inline_to_html(el: etree._Element) -> str:
     return "".join(parts)
 
 
-def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
-    """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
-
-    Document-level metadata (title, author, language, etc.) is read from the
-    sibling metadata.json written by ChunkCompiler.compile().
-    """
-    root = etree.parse(path).getroot()
-    meta = root.find("meta")
-
-    cts_urn = meta.findtext("ctsurn", "") if meta is not None else ""
-    base_urn = meta.findtext("base-urn", "") if meta is not None else ""
-    prev_urn = meta.findtext("prev-urn") if meta is not None else None
-    next_urn = meta.findtext("next-urn") if meta is not None else None
-
-    metadata_path = path.parent / "metadata.json"
-    doc_meta: dict[str, Any] = {}
-    if metadata_path.exists():
-        with open(metadata_path) as f:
-            doc_meta = json.load(f).get("document", {})
-
-    title = doc_meta.get("title", "")
-    language = doc_meta.get("language", "")
-    pub_info: dict[str, Any] = {
-        "title": title,
-        "author": doc_meta.get("author", ""),
-        "editors": doc_meta.get("editors", []),
-        "pub_place": doc_meta.get("pub_place", ""),
-        "pub_date": doc_meta.get("pub_date", ""),
-    }
-
-    content_el = root.find("content")
-    paragraphs: list[Markup] = []
-    if content_el is not None:
-        for p in content_el.findall("p"):
-            paragraphs.append(Markup(f"<p>{_inline_to_html(p)}</p>"))
-
-    chunk = _Chunk(
-        cts_urn=cts_urn,
-        prev_urn=prev_urn,
-        next_urn=next_urn,
-        title=title,
-        base_urn=base_urn,
-        language=language,
-        sections=[_Section(cts_urn=cts_urn, paragraphs=paragraphs)],
-    )
-    return chunk, pub_info
-
-
 def _annotate_toc(
     entries: list[dict],
     corpus: str,
@@ -168,26 +121,6 @@ def _annotate_toc(
                 "chunk": entry["urn"].rsplit(":", 1)[-1],
             }
     return entries
-
-
-def _toc_from_metadata(
-    metadata_path: Path,
-    corpus: str,
-    textgroup: str,
-    work: str,
-    version: str,
-) -> dict:
-    """Load and annotate the TOC from a metadata.json file.
-
-    Returns a dict shaped as {"table_of_contents": [...]}, matching
-    what reading.html.jinja expects from toc.get("table_of_contents", []).
-    """
-    if not metadata_path.exists():
-        return {"table_of_contents": []}
-    with open(metadata_path) as f:
-        toc_entries = json.load(f).get("toc", [])
-    _annotate_toc(toc_entries, corpus, textgroup, work, version)
-    return {"table_of_contents": toc_entries}
 
 
 def _build_collections(proto_dir: Path) -> list[dict]:
@@ -287,6 +220,75 @@ def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
         except FileNotFoundError:
             pass
     return corpora
+
+
+def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
+    """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
+
+    Document-level metadata (title, author, language, etc.) is read from the
+    sibling metadata.json written by ChunkCompiler.compile().
+    """
+    root = etree.parse(path).getroot()
+
+    base_urn = root.get("base_urn", "")
+    cts_urn = root.get("cts_urn", "")
+    prev_urn = root.get("prev_urn")
+    next_urn = root.get("next_urn")
+    chunk_unit = root.get("unit", "")
+
+    metadata_path = path.parent / "metadata.json"
+    doc_meta: dict[str, Any] = {}
+    if metadata_path.exists():
+        with open(metadata_path) as f:
+            doc_meta = json.load(f).get("document", {})
+
+    title = doc_meta.get("title", "")
+    language = doc_meta.get("language", "")
+    pub_info: dict[str, Any] = {
+        "title": title,
+        "author": doc_meta.get("author", ""),
+        "editors": doc_meta.get("editors", []),
+        "pub_place": doc_meta.get("pub_place", ""),
+        "pub_date": doc_meta.get("pub_date", ""),
+    }
+
+    content_el = root.find("elements")
+
+    if not content_el:
+        raise TEIParserError("No content element found!")
+
+    parser = TEIParser(content_el, base_urn, chunk_unit)
+
+    chunk = _Chunk(
+        cts_urn=cts_urn,
+        prev_urn=prev_urn,
+        next_urn=next_urn,
+        title=title,
+        base_urn=cts_urn.rsplit(":", 1)[0],
+        language=language,
+        elements=parser.elements,
+    )
+    return chunk, pub_info
+
+
+def _toc_from_metadata(
+    metadata_path: Path,
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+) -> dict:
+    """Load and annotate the TOC from a metadata.json file.
+
+    Returns a dict shaped as {"table_of_contents": [...]}, matching
+    what reading.html.jinja expects from toc.get("table_of_contents", []).
+    """
+    if not metadata_path.exists():
+        return {"table_of_contents": []}
+    with open(metadata_path) as f:
+        toc_entries = json.load(f).get("toc", [])
+    _annotate_toc(toc_entries, corpus, textgroup, work, version)
+    return {"table_of_contents": toc_entries}
 
 
 def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
@@ -414,7 +416,9 @@ def create_app(test_config=None):
             abort(404)
 
         chunk_obj, pub_info = _parse_chunk(chunk_file)
-        metadata_file = PROTO_DIR / corpus / textgroup / work / version / "metadata.json"
+        metadata_file = (
+            PROTO_DIR / corpus / textgroup / work / version / "metadata.json"
+        )
         toc = _toc_from_metadata(metadata_file, corpus, textgroup, work, version)
 
         base_path = f"/{corpus}/{textgroup}/{work}/{version}"

@@ -63,12 +63,10 @@
             </div>
 
             <div class="prose">
-                {% for section in chunk.sections %}
-                    <div class="section" id="{{ section.cts_urn }}">
-                        {% for paragraph in section.paragraphs %}
-                            {{ paragraph }}
-                        {% endfor %}
-                    </div>
+                {% for element in chunk.elements %}
+                    {% with text_container = element %}
+                        {%  include 'components/ReadableTextContainer.html.jinja' %}
+                    {% endwith %}
                 {% endfor %}
             </div>
 
