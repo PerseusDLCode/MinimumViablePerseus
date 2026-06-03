@@ -45,11 +45,11 @@ hypertextual environment. Perseus6 is an implementation of those tools.
 4. Download the morphology data files (optional — required for the morphological server):
 
    ```bash
-   python src/tools/setup_morph_data.py
+   python src/pdl-morph-server/tools/setup_morph_data.py
    ```
 
    This fetches `greek.morph.xml` (~270 MB) and `latin.morph.xml` (~111 MB) from Tufts Box
-   into `src/morph-server/`. The files are derived from the
+   into `src/pdl-morph-server/morph-server/`. The files are derived from the
    [Perseus Morpheus project](https://github.com/PerseusDL/morpheus) and are not stored
    in this repository due to their size.
 
