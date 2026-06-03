@@ -15,7 +15,7 @@ The site must already be built with --morph-url pointing at the morph server:
 
 Prerequisites:
     pip install fastapi "uvicorn[standard]"
-  (or: pip install -r src/morph-server/requirements.txt)
+  (or: cd src/pdl-morph-server/ && pip install -e .)
 
 Press Ctrl+C to stop both servers.
 """
@@ -27,7 +27,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_MORPH_SERVER_DIR = Path(__file__).parent.parent / "morph-server"
+_MORPH_SERVER_DIR = Path(__file__).parent.parent / "pdl-morph-server" / "pdl-morph-server"
 
 
 def main() -> None:

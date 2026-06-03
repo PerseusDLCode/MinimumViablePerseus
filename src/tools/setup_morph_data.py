@@ -21,7 +21,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-_MORPH_DIR = Path(__file__).parent.parent / "morph-server"
+_MORPH_DIR = Path(__file__).parent.parent / "pdl-morph-server" / "pdl-morph-server"
 
 _FILES = {
     "greek.morph.xml": "https://tufts.box.com/shared/static/bs8vl2vohxyqlzxppy8ii9o319k5l8xa.xml",
