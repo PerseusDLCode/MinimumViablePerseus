@@ -14,12 +14,13 @@ from mvp.corpus.tei_document import LenientTEIDocument, NS, XML_BASE, XML_ID
 @dataclass
 class _CSNode:
     """One (citeStructure, candidate-element) pair at a single hierarchy level."""
+
     cs: etree._Element
     element: etree._Element
-    suffix: str                    # accumulated URN suffix including this level
-    val: str                       # @use attribute value, "" when absent
-    unit: str                      # citeStructure @unit
-    children: list[etree._Element] # child citeStructure elements
+    suffix: str  # accumulated URN suffix including this level
+    val: str  # @use attribute value, "" when absent
+    unit: str  # citeStructure @unit
+    children: list[etree._Element]  # child citeStructure elements
 
 
 class ConfigurationError(Exception):
@@ -58,9 +59,7 @@ class ReferenceParser:
                 None,
             )
             if target is None:
-                raise ConfigurationError(
-                    f"No <refsDecl> with xml:id={refsDecl_id!r}"
-                )
+                raise ConfigurationError(f"No <refsDecl> with xml:id={refsDecl_id!r}")
             cs = target.find("tei:citeStructure", NS)
             if cs is None:
                 raise ConfigurationError(
@@ -68,10 +67,7 @@ class ReferenceParser:
                 )
             self._root_cs = cs
         else:
-            cs_decls = [
-                (rd, rd.find("tei:citeStructure", NS))
-                for rd in refs_decls
-            ]
+            cs_decls = [(rd, rd.find("tei:citeStructure", NS)) for rd in refs_decls]
             cs_decls = [(rd, cs) for rd, cs in cs_decls if cs is not None]
 
             if not cs_decls:
@@ -80,9 +76,7 @@ class ReferenceParser:
                     "Run conversion tooling to add <citeStructure> declarations first."
                 )
 
-            defaults = [
-                (rd, cs) for rd, cs in cs_decls if rd.get("default") == "true"
-            ]
+            defaults = [(rd, cs) for rd, cs in cs_decls if rd.get("default") == "true"]
             if defaults:
                 self._root_cs = defaults[0][1]
             elif len(cs_decls) == 1:
@@ -106,7 +100,7 @@ class ReferenceParser:
                 f"URN base does not match document. "
                 f"Expected prefix {prefix!r}, got {urn!r}"
             )
-        passage = urn[len(prefix):]
+        passage = urn[len(prefix) :]
         if not passage:
             raise CitationError(f"URN has no passage component: {urn!r}")
 
@@ -115,7 +109,9 @@ class ReferenceParser:
         # citation level, so resolution begins with its children.
         children = list(self._root_cs.findall("tei:citeStructure", NS))
         if not children:
-            raise CitationError("Root <citeStructure> has no children to resolve against")
+            raise CitationError(
+                "Root <citeStructure> has no children to resolve against"
+            )
 
         return self._resolve_passage(passage, children, self._body)
 
@@ -166,8 +162,7 @@ class ReferenceParser:
 
         if matched is None:
             raise CitationError(
-                f"No element with {use_attr}={token!r} "
-                f"via match={match_expr!r}"
+                f"No element with {use_attr}={token!r} via match={match_expr!r}"
             )
 
         if rest:
@@ -254,10 +249,10 @@ class ReferenceParser:
         """
         for cs in cs_list:
             match_expr = cs.get("match", "")
-            use_attr   = cs.get("use", "@n")
-            delim      = cs.get("delim", ":")
-            unit       = cs.get("unit", "")
-            children   = list(cs.findall("tei:citeStructure", NS))
+            use_attr = cs.get("use", "@n")
+            delim = cs.get("delim", ":")
+            unit = cs.get("unit", "")
+            children = list(cs.findall("tei:citeStructure", NS))
             candidates: list[etree._Element] = context.xpath(match_expr, namespaces=NS)
             for cand in candidates:
                 val = cand.get(use_attr[1:], "") if use_attr.startswith("@") else ""
@@ -287,7 +282,11 @@ class ReferenceParser:
                 )
             if (max_depth == -1 or current_depth < max_depth) and node.children:
                 yield from self._records_recursive(
-                    node.suffix, node.children, node.element, current_depth + 1, max_depth
+                    node.suffix,
+                    node.children,
+                    node.element,
+                    current_depth + 1,
+                    max_depth,
                 )
 
     def toc(self) -> list[dict]:
@@ -325,16 +324,19 @@ class ReferenceParser:
             label_val = node.val or str(idx)
             subpassages = (
                 self._toc_level(node.suffix, node.children, node.element, depth + 1)
-                if node.children else []
+                if node.children
+                else []
             )
-            entries.append({
-                "depth":       depth,
-                "index":       idx,
-                "label":       f"{node.unit.capitalize()} {label_val}",
-                "subtype":     node.unit,
-                "urn":         self._base_urn + node.suffix,
-                "subpassages": subpassages,
-            })
+            entries.append(
+                {
+                    "depth": depth,
+                    "index": idx,
+                    "label": f"{node.unit.capitalize()} {label_val}",
+                    "subtype": node.unit,
+                    "urn": self._base_urn + node.suffix,
+                    "subpassages": subpassages,
+                }
+            )
         return entries
 
     def citations(self, depth: int = -1) -> Iterator[str]:
@@ -345,7 +347,9 @@ class ReferenceParser:
         depth=N (positive): yield citations up to and including level N (0-based).
         """
         children = list(self._root_cs.findall("tei:citeStructure", NS))
-        yield from (r.urn for r in self._records_recursive("", children, self._body, 0, depth))
+        yield from (
+            r.urn for r in self._records_recursive("", children, self._body, 0, depth)
+        )
 
     # ------------------------------------------------------------------
     # chunks() — public API for compilation
@@ -415,6 +419,7 @@ class ReferenceParser:
         pairs = self._candidates_at_level(target_cs)
         for i, (elem, urn) in enumerate(pairs):
             yield CitationChunk(
+                base_urn=urn.rsplit(":", 1)[0],
                 cts_urn=urn,
                 unit=unit,
                 elements=[elem],
@@ -471,4 +476,6 @@ class ReferenceParser:
             if node.cs is target_cs:
                 result.append((node.element, self._base_urn + node.suffix))
             elif node.children:
-                self._collect_cs_elements(node.suffix, node.children, node.element, target_cs, result)
+                self._collect_cs_elements(
+                    node.suffix, node.children, node.element, target_cs, result
+                )
