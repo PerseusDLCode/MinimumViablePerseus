@@ -10,3 +10,6 @@
 [submodule "data/canonical-engLit"]
 	path = data/canonical-engLit
 	url = https://github.com/PerseusDL/canonical-engLit
+[submodule "src/pdl-morph-server"]
+	path = src/pdl-morph-server
+	url = https://github.com/PerseusDLCode/pdl-morph-server
