@@ -96,7 +96,23 @@ class TEIParser(ContentHandler):
         if el.get("tagname") == "speaker":
             self._pending_speaker = el
 
-        self.elements.append(el)
+        # Don't append the element if it
+        # is part of another element's children — it will
+        # be appended with that element
+        if len(self.element_stack) > 0:
+            if (
+                len(
+                    [
+                        x
+                        for x in self.element_stack[-1]["children"]
+                        if x.get("index") == el["index"]
+                    ]
+                )
+                == 0
+            ):
+                self.elements.append(el)
+        else:
+            self.elements.append(el)
 
     def handle_element(self, tagname: str, attrs: dict):
         element_index = self.global_element_index
