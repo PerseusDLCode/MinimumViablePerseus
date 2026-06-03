@@ -81,6 +81,9 @@ class TEIParser(ContentHandler):
                 logger.warning(content)
             return
 
+        if content.strip() == "":
+            return
+
         parent_element = self.element_stack[-1]
 
         if not self.inside_paratext:
@@ -98,6 +101,9 @@ class TEIParser(ContentHandler):
 
         if el.get("tagname") == "speaker":
             self._pending_speaker = el
+
+        if el.get("type") is not None and el.get("n") is not None:
+            self.citable_stack.pop()
 
         # Don't append the element if it
         # is part of another element's children — it will
@@ -126,9 +132,10 @@ class TEIParser(ContentHandler):
             self._pending_speaker = None
 
         if attrs.get("type") is not None and attrs.get("n") is not None:
-            location = [c["n"] for c in self.citable_stack if c.get("n")] + [
-                attrs.get("n")
-            ]
+            self.citable_stack.append(attrs)
+
+            location = [c["n"] for c in self.citable_stack if c.get("n")]
+
             self.current_urn = f"{self.base_urn}:{'.'.join(location)}"
 
         attrs.update(

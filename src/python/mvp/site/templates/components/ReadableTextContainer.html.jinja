@@ -10,6 +10,7 @@
 
 {% set tagname = text_container.subtype or text_container.tagname %}
 {% set element_map = {
+    'div': 'div',
     'head': 'h1',
     'l': 'span',
     'lb': 'span',
@@ -21,18 +22,17 @@
 {% set container_element = element_map.get(tagname, 'span') %}
 {% set cts_urn = text_container.urn | default('unknown') %}
 
-<{{ container_element }} class="prose tei-{{ text_container.tagname }}{% if text_container.tagname == 'l' %} indent-hanging{% endif %}" data-urn="{{ cts_urn }}" role="presentation">
-    {% for child in text_container.children %}
-        {% set child_urn = child.urn if child.urn else text_container.urn %}
-        {% with text_container=dict(child, urn=child_urn) %}
-            {% include 'components/ReadableTextContainer.html.jinja' %}
-        {% endwith %}
-    {% endfor %}
+<{{ container_element }} class="prose tei-{{ text_container.tagname }}{% if text_container.tagname == 'l' or text_container.get("rend") == "align(indent)" %} indent-8{% endif %} {% if text_container.tagname == 'div' %} mb-4{% endif %}" data-urn="{{ cts_urn }}" role="presentation">
+    {%- for child in text_container.children -%}
+        {%- set child_urn = child.urn if child.urn else text_container.urn -%}
+        {%- with text_container=dict(child, urn=child_urn) -%}
+            {%- include 'components/ReadableTextContainer.html.jinja' -%}
+        {%- endwith -%}
+    {%- endfor -%}
 
-    {% if text_container.tagname in ['lb', 'milestone', 'pb'] %}
+    {%- if text_container.tagname in ['lb', 'milestone', 'pb'] -%}
         <a href="#{{ text_container.n }}">{{ text_container.n }}</a>
-    {% endif %}
+    {%- endif -%}
 
-    {% if text_container.tagname == 'text_run' %}{{ text_container.content }}{% endif %}
-
+    {%- if text_container.tagname == 'text_run' -%}{{ text_container.content }}{%- endif -%}
 </{{ container_element }}>

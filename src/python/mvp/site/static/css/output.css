@@ -2558,6 +2558,12 @@
   .text-center {
     text-align: center;
   }
+  .indent-4 {
+    text-indent: calc(var(--spacing) * 4);
+  }
+  .indent-8 {
+    text-indent: calc(var(--spacing) * 8);
+  }
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -2593,6 +2599,9 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+  .whitespace-pre {
+    white-space: pre;
   }
   .text-base-content {
     color: var(--color-base-content);
