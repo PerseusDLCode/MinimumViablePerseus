@@ -67,35 +67,6 @@ class _Chunk:
     elements: list[Any]
 
 
-def _inline_to_html(el: etree._Element) -> str:
-    """Recursively serialize protopage inline elements to HTML strings."""
-    parts: list[str] = []
-    if el.text:
-        parts.append(str(escape(el.text)))
-    for child in el:
-        tag = etree.QName(child.tag).localname
-        inner = _inline_to_html(child)
-        if tag == "place":
-            key = str(escape(child.get("key", "")))
-            parts.append(f'<span class="place" data-key="{key}">{inner}</span>')
-        elif tag == "person":
-            key = str(escape(child.get("key", "")))
-            parts.append(f'<span class="person" data-key="{key}">{inner}</span>')
-        elif tag == "q":
-            parts.append(f"<q>{inner}</q>")
-        elif tag == "del":
-            parts.append(f'<span class="tei-del">{inner}</span>')
-        elif tag == "add":
-            parts.append(f'<span class="tei-add">{inner}</span>')
-        elif tag == "gap":
-            parts.append('<span class="gap">…</span>')
-        else:
-            parts.append(inner)
-        if child.tail:
-            parts.append(str(escape(child.tail)))
-    return "".join(parts)
-
-
 def _annotate_toc(
     entries: list[dict],
     corpus: str,

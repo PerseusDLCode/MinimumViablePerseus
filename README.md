@@ -31,6 +31,17 @@ to download the `tailwindcss` binary, make changes to
 This minor kludge — in an ideal setup, we will not keep `output.css` in version control
 — allows us to avoid a Node.js dependency.
 
+## Running the development server
+
+After you have prepared your corpora — by default, they should go in a `corpora/` directory
+at the root of your local clone of this project — run
+
+```sh
+pdm run mvp-dev
+```
+
+to start the development server.
+
 ## Repository Organization
 There is a wiki that contains a variety of documents, including installation instructions.
 

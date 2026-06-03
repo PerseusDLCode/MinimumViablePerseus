@@ -33,8 +33,6 @@
         <a href="#{{ text_container.n }}">{{ text_container.n }}</a>
     {% endif %}
 
-    {% if text_container.tagname == 'text_run' and text_container.tokens %}
-        {%- for token in text_container.tokens %}{{ token.text }}{% if token.whitespace %} {% endif %}{%- endfor %}
-    {% endif %}
+    {% if text_container.tagname == 'text_run' %}{{ text_container.content }}{% endif %}
 
 </{{ container_element }}>

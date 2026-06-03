@@ -67,7 +67,7 @@ class TEIParser(ContentHandler):
         self.element_stack = []
         self.global_element_index = 0
         self.inside_paratext = False
-        self.tokens = []
+        self.primary_text = ""
         self._pending_speaker = None
 
         lxml.sax.saxify(self.root, self)
@@ -82,10 +82,13 @@ class TEIParser(ContentHandler):
             return
 
         parent_element = self.element_stack[-1]
-        tokens = self.tokenize(content)
-        text_run = self.process_tokens(tokens)
 
-        if text_run is not None:
+        if not self.inside_paratext:
+            self.primary_text += content
+
+        text_run = {"tagname": "text_run", "content": content.strip()}
+
+        if text_run:
             parent_element["children"].append(text_run)
 
     def endElementNS(self, name: tuple[str | None, str], qname: str | None) -> None:
@@ -144,41 +147,11 @@ class TEIParser(ContentHandler):
 
         self.maybe_toggle_inside_paratext(tagname)
 
-    def maybe_add_token_to_textpart(self, token):
-        if not self.inside_paratext:
-            self.tokens.append(token)
-
     def maybe_toggle_inside_paratext(self, tagname: str):
         if tagname in PARATEXTUAL_ELEMENTS:
             self.inside_paratext = True
         else:
             self.inside_paratext = False
-
-    def process_tokens(self, tokens):
-        text_run = []
-
-        for i, tok in enumerate(tokens):
-            if tok.strip() == "":
-                continue
-
-            urn_token_index = sum([1 for t in self.tokens if t == tok]) + 1
-
-            whitespace = len(tokens) > i + 1 and tokens[i + 1] not in string.punctuation
-            token = {
-                "text": tok.strip(),
-                "urn": f"{self.current_urn}@{tok}[{urn_token_index}]",
-                "whitespace": whitespace,
-            }
-
-            self.maybe_add_token_to_textpart(token)
-
-            text_run.append(token)
-
-        if len(text_run) > 0:
-            element_index = self.global_element_index
-            self.global_element_index += 1
-
-            return {"tagname": "text_run", "tokens": text_run, "index": element_index}
 
     def startElementNS(
         self,
@@ -191,6 +164,3 @@ class TEIParser(ContentHandler):
 
         self.element_set.add(localname)
         self.handle_element(localname, clean_attrs)
-
-    def tokenize(self, s: str):
-        return re.split(r"\s+", s)
