@@ -59,12 +59,18 @@ class Chunker:
     # Private helpers
     # ------------------------------------------------------------------
 
+    _CTS_PATTERN = re.compile(
+        r"urn:cts:[^:]+:[^:]+:(?P<passage>.+)$"
+    )
+
     @staticmethod
     def _chunk_filename(chunk: CitationChunk) -> str:
-        """Return a safe XML filename for a chunk URN."""
-        cts_pattern = re.compile(r"urn:cts:(?P<namespace>[^:]+):(?P<textgroup>[^.]+)\.(?P<work>[^.]+)\.(?P<edition>[^:]+):(?P<passage>.*?)$")
-        fields = cts_pattern.match(chunk.cts_urn)
-        return f"{fields['passage']:0>3}.xml"
+        """Return a safe XML filename derived from the passage component of the URN."""
+        m = Chunker._CTS_PATTERN.match(chunk.cts_urn)
+        if m is None:
+            safe = re.sub(r"[^\w.-]", "_", chunk.cts_urn)
+            return f"{safe}.xml"
+        return f"{m['passage']}.xml"
 
     def _build_document_metadata(self) -> dict:
         """Extract document-level bibliographic metadata for metadata.json.

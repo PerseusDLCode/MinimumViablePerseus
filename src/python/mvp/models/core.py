@@ -1,10 +1,10 @@
-# mvp/corpus/models.py
+# mvp/models/core.py
 #
-# Core data objects for the Corpus layer.
+# Core data objects shared across the mvp package.
 #
-# These are plain dataclasses: no significant behavior beyond field
-# access and construction.  They carry data between pipeline stages;
-# they do not implement compilation or transformation logic.
+# Plain dataclasses — no significant behavior beyond field access and
+# construction.  They carry data between pipeline stages and do not
+# implement compilation or transformation logic.
 from __future__ import annotations
 
 from dataclasses import dataclass, field

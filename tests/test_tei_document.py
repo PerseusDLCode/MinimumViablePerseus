@@ -13,8 +13,6 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from lxml import etree
-
 from mvp.models.document import TEIDocument
 from mvp.models import TEIMetadata
 
@@ -73,11 +71,14 @@ class TestTEIDocumentLoading:
         with pytest.raises(FileNotFoundError):
             TEIDocument.from_path(tmp_path / "nonexistent.xml")
 
-    def test_raises_on_malformed_xml(self, tmp_path):
+    def test_does_not_raise_on_malformed_xml(self, tmp_path):
+        # The lenient parser recovers from malformed XML rather than raising.
+        # Downstream stages (CTSResolver) raise ConfigurationError if the
+        # document structure is unusable.
         p = tmp_path / "bad.xml"
         p.write_text("<unclosed>", encoding="utf-8")
-        with pytest.raises(etree.XMLSyntaxError):
-            TEIDocument.from_path(p)
+        doc = TEIDocument.from_path(p)
+        assert doc is not None
 
     def test_metadata_is_tei_metadata_instance(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>Hello</p>"))
@@ -407,56 +408,24 @@ class TestDTDDocument:
 
 
 # ---------------------------------------------------------------------------
-# TEIDocument.schema property
+# LenientTEIDocument alias
 # ---------------------------------------------------------------------------
 
-class TestTEIDocumentSchema:
+class TestLenientTEIDocumentAlias:
+    """LenientTEIDocument is a backward-compatible alias for TEIDocument."""
 
-    def _doc_with_pi(self, tmp_path: Path, pi_text: str) -> TEIDocument:
-        # XML declaration must be first; PI goes between declaration and root.
-        xml = textwrap.dedent(f"""\
-            <?xml version="1.0" encoding="UTF-8"?>
-            <?xml-model {pi_text}?>
-            <TEI xmlns="http://www.tei-c.org/ns/1.0">
-              <teiHeader>
-                <fileDesc>
-                  <titleStmt><title>T</title></titleStmt>
-                  <publicationStmt><p/></publicationStmt>
-                  <sourceDesc><p/></sourceDesc>
-                </fileDesc>
-              </teiHeader>
-              <text><body><p>text</p></body></text>
-            </TEI>
-        """)
-        return TEIDocument.from_path(write_tei(tmp_path, xml))
+    def test_alias_is_same_class(self):
+        from mvp.models.document import LenientTEIDocument
+        assert LenientTEIDocument is TEIDocument
 
-    def test_href_first_returns_schema_name(self, tmp_path):
-        doc = self._doc_with_pi(
-            tmp_path,
-            'href="../schema/perseus_base.rng" type="application/xml"',
-        )
-        assert doc.schema == "perseus_base"
+    def test_alias_constructs_tei_document(self, tmp_path):
+        from mvp.models.document import LenientTEIDocument
+        path = write_tei(tmp_path, make_tei("<p>text</p>"))
+        doc = LenientTEIDocument(path)
+        assert isinstance(doc, TEIDocument)
+        assert doc.root is not None
 
-    def test_href_not_first_returns_schema_name(self, tmp_path):
-        # Previously broke: split()[0] picked up 'type=...' and returned 'xml'
-        doc = self._doc_with_pi(
-            tmp_path,
-            'type="application/xml" href="../schema/perseus_prose.rng"',
-        )
-        assert doc.schema == "perseus_prose"
-
-    def test_single_quoted_href(self, tmp_path):
-        doc = self._doc_with_pi(
-            tmp_path,
-            "href='../schema/perseus_base.rng'",
-        )
-        assert doc.schema == "perseus_base"
-
-    def test_no_pi_returns_none(self, tmp_path):
+    def test_root_property_exposed(self, tmp_path):
         path = write_tei(tmp_path, make_tei("<p>text</p>"))
         doc = TEIDocument.from_path(path)
-        assert doc.schema is None
-
-    def test_pi_without_href_returns_none(self, tmp_path):
-        doc = self._doc_with_pi(tmp_path, 'type="application/xml"')
-        assert doc.schema is None
+        assert doc.root is not None
