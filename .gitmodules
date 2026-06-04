@@ -4,6 +4,3 @@
 [submodule "data/csel"]
 	path = data/csel
 	url = https://github.com/OpenGreekAndLatin/csel-dev
-[submodule "src/pdl-morph-server"]
-	path = src/pdl-morph-server
-	url = https://github.com/PerseusDLCode/pdl-morph-server

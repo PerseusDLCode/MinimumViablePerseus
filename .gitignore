@@ -230,18 +230,8 @@ local/
 # local .gitmodules
 .gitmodules
 
-
-# Morphology data files (large; download via src/tools/setup_morph_data.py)
-src/pdl-morph-server/pdl-morph-server/*.morph.xml
-src/pdl-morph-server/pdl-morph-server/*.json
-src/pdl-morph-server/pdl-morph-server/*.pkl
-
-corpora/
-tmp
-
 # The wiki is a submodule; don't track
 wiki
-
 
 # ignore tailwindcss binary
 tailwindcss
