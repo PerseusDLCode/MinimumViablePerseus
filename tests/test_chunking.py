@@ -1,9 +1,9 @@
-"""Tests for mvp.corpus.chunking — LCA tree-surgery utilities."""
+"""Tests for copy_before and elements_between in mvp.cts_resolver."""
 from __future__ import annotations
 
 from lxml import etree
 
-from mvp.corpus.chunking import copy_before, elements_between
+from mvp.cts_resolver import copy_before, elements_between
 
 
 def _xml(text: str) -> etree._Element:

@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from mvp.corpus.indexers import ChunkIndexer, WordIndexer
-from mvp.corpus.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
+from mvp.indexers.indexers import ChunkIndexer, WordIndexer
+from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from mvp.corpus import Corpus
-from mvp.corpus.document import TEIDocument
+from mvp.models import Corpus
+from mvp.models.document import TEIDocument
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -153,18 +153,22 @@ class TestCorpusDocuments:
         assert tmp_path / "__cts__.xml" not in paths
         assert sub / "__cts__.xml" not in paths
 
-    def test_skips_malformed_xml(self, tmp_path):
-        """A malformed XML file is skipped; valid files are still yielded."""
+    def test_tolerates_malformed_xml(self, tmp_path):
+        """Malformed XML does not crash Corpus; the good file is still yielded.
+
+        The lenient parser recovers from malformed documents rather than
+        raising, so a malformed file may appear in the results with empty
+        metadata — but Corpus.documents() must not crash.
+        """
         make_tei_file(tmp_path, "good.xml")
         bad = tmp_path / "bad.xml"
         bad.write_text("<unclosed>", encoding="utf-8")
 
         corpus = Corpus(tmp_path)
-        docs = list(corpus.documents())
+        docs = list(corpus.documents())  # must not raise
 
         paths = {d.path for d in docs}
         assert tmp_path / "good.xml" in paths
-        assert bad not in paths
 
     def test_empty_corpus_yields_nothing(self, tmp_path):
         corpus = Corpus(tmp_path)

@@ -1,4 +1,4 @@
-"""ChunkCompiler - compiles a TEI document into chunks."""
+"""Chunker - compiles a TEI document into chunks."""
 from __future__ import annotations
 
 import re
@@ -6,30 +6,26 @@ import json
 from pathlib import Path
 
 from lxml import etree
-
-from mvp.corpus.reference_parser import ReferenceParser
-from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.compilers.base import Compiler
-from mvp.corpus.models import CitationChunk
-
-TEI_NS = "http://www.tei-c.org/ns/1.0"
+from mvp.constants import TEI_NS
+from mvp.cts_resolver import CTSResolver
+from mvp.models import LenientTEIDocument, CitationChunk
 
 
-class ChunkCompiler(Compiler[LenientTEIDocument]):
+class Chunker:
     """Compiles a TEI document into CitationChunk XML files.
 
     Writes one XML file per chunk plus index.json and metadata.json."""
 
     def __init__(self, tei_doc:LenientTEIDocument) -> None:
         self.tei_doc:LenientTEIDocument = tei_doc
-        self.reference_parser = ReferenceParser(tei_doc)
+        self.cts_resolver = CTSResolver(tei_doc)
         self._citation_chunks: list[CitationChunk] | None = None
 
 
     @property
     def citation_chunks(self) -> list[CitationChunk]:
         if self._citation_chunks is None:
-            self._citation_chunks = self.reference_parser.chunks()
+            self._citation_chunks = self.cts_resolver.chunks()
         return self._citation_chunks
 
     def compile(self, output_path:Path, **kwargs):
@@ -51,7 +47,7 @@ class ChunkCompiler(Compiler[LenientTEIDocument]):
         metadata = {
             "version": "1",
             "document": self._build_document_metadata(),
-            "toc": self.reference_parser.toc(),
+            "toc": self.cts_resolver.toc(),
         }
         (output_path / "metadata.json").write_text(
             json.dumps(metadata, indent=2, ensure_ascii=False),
@@ -63,12 +59,18 @@ class ChunkCompiler(Compiler[LenientTEIDocument]):
     # Private helpers
     # ------------------------------------------------------------------
 
+    _CTS_PATTERN = re.compile(
+        r"urn:cts:[^:]+:[^:]+:(?P<passage>.+)$"
+    )
+
     @staticmethod
     def _chunk_filename(chunk: CitationChunk) -> str:
-        """Return a safe XML filename for a chunk URN."""
-        cts_pattern = re.compile(r"urn:cts:(?P<namespace>[^:]+):(?P<textgroup>[^.]+)\.(?P<work>[^.]+)\.(?P<edition>[^:]+):(?P<passage>.*?)$")
-        fields = cts_pattern.match(chunk.cts_urn)
-        return f"{fields['passage']:0>3}.xml"
+        """Return a safe XML filename derived from the passage component of the URN."""
+        m = Chunker._CTS_PATTERN.match(chunk.cts_urn)
+        if m is None:
+            safe = re.sub(r"[^\w.-]", "_", chunk.cts_urn)
+            return f"{safe}.xml"
+        return f"{m['passage']}.xml"
 
     def _build_document_metadata(self) -> dict:
         """Extract document-level bibliographic metadata for metadata.json.
@@ -122,7 +124,7 @@ class ChunkCompiler(Compiler[LenientTEIDocument]):
                         if pub_stmt is not None else ""
 
         return {
-            "base_urn":  self.reference_parser.base_urn,
+            "base_urn":  self.cts_resolver.base_urn,
             "title":     title,
             "author":    author,
             "language":  language,

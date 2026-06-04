@@ -1,10 +1,9 @@
-# mvp/corpus/document.py
+# mvp/models/document.py
 #
 # TEIDocument: parses and holds a single TEI source file.
 #
-# Metadata extraction is eager: TEIMetadata is populated on
-# construction.  If performance over the full corpus proves
-# problematic, lazy extraction can be introduced later.
+# Uses a lenient parser (recover=True) so that malformed corpus files
+# are handled gracefully.  Metadata is extracted lazily on first access.
 
 from __future__ import annotations
 
@@ -13,8 +12,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from mvp.corpus.models import TEIMetadata
-from mvp.corpus.tei_constants import NS, XML_BASE
+from mvp.models.core import TEIMetadata
+from mvp.constants import NS, XML_BASE
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:
@@ -60,9 +59,7 @@ _ISO_639_1_TO_3: dict[str, str] = {
     "yo": "yor", "za": "zha", "zh": "zho", "zu": "zul",
 }
 
-
-# Non-standard language identifiers found in the Perseus corpus that are
-# not valid ISO codes.  Mapped to their canonical ISO 639-3 equivalents.
+# Non-standard language identifiers found in the Perseus corpus.
 _NONSTANDARD_LANG: dict[str, str] = {
     "greek":   "grc",
     "latin":   "lat",
@@ -70,21 +67,13 @@ _NONSTANDARD_LANG: dict[str, str] = {
     "german":  "deu",
     "french":  "fra",
     "arabic":  "ara",
-    # ISO 639-2/B (bibliographic) codes used by 1st1K and older encodings
     "ger": "deu",
     "fre": "fra",
 }
 
 
 def normalize_lang(code: str) -> str:
-    """Normalize a language code to ISO 639-3 (3-letter form).
-
-    Handles (in order):
-    - Lowercasing: 'Grc' → 'grc'
-    - Known non-standard identifiers: 'greek' → 'grc', 'ger' → 'deu'
-    - ISO 639-1 (2-letter): 'de' → 'deu'
-    - Already-canonical 3-letter codes: returned unchanged
-    """
+    """Normalize a language code to ISO 639-3 (3-letter form)."""
     code = code.lower()
     if code in _NONSTANDARD_LANG:
         return _NONSTANDARD_LANG[code]
@@ -109,27 +98,29 @@ LANGUAGE_NAMES: dict[str, str] = {
 
 
 class TEIDocument:
-    """A parsed TEI source document with extracted metadata."""
+    """A parsed TEI source document with lazily-extracted metadata.
 
-    def __init__(self, path: Path) -> None:
-        """Args:
-              path: Absolute or relative path to the TEI XML file.
+    Uses a lenient parser (recover=True) so that malformed corpus files
+    are handled gracefully rather than raising XMLSyntaxError.  DTD
+    loading and external network access are disabled for security.
+    """
 
-           Raises:
-              FileNotFoundError: If the path does not exist.
-              etree.XMLSyntaxError: If the file is not well-formed XML.
-        """
+    def __init__(self, path: Path | str) -> None:
         self._path = Path(path)
         if not self._path.exists():
             raise FileNotFoundError(f"TEI document not found: {self._path}")
-        parser = etree.XMLParser(load_dtd=False, resolve_entities=False,
-                                 no_network=True)
+        parser = etree.XMLParser(
+            recover=True,
+            load_dtd=False,
+            resolve_entities=False,
+            no_network=True,
+            remove_comments=False,
+        )
         self._tree: etree._ElementTree = etree.parse(str(self._path), parser)
-        self._metadata: TEIMetadata = self._extract_metadata()
+        self._metadata: TEIMetadata | None = None
 
     @classmethod
     def from_path(cls, path: Path | str) -> TEIDocument:
-        """Supports TEIDocument.from_path(p)."""
         return cls(Path(path))
 
     @property
@@ -137,56 +128,30 @@ class TEIDocument:
         return self._path
 
     @property
+    def root(self) -> etree._Element:
+        return self._tree.getroot()
+
+    @property
     def tree(self) -> etree._ElementTree:
         return self._tree
 
     @property
     def metadata(self) -> TEIMetadata:
+        if self._metadata is None:
+            self._metadata = self._extract_metadata()
         return self._metadata
-
-    @property
-    def schemas(self) -> list:
-        schema_list = list()
-        for node in self._tree.getroot().itersiblings(preceding=True):
-            if isinstance(node, etree._ProcessingInstruction) and node.target == "xml-model":
-                schema_list.append(node.text)
-        return schema_list
-
-    @property
-    def schema(self) -> str | None:
-        """Return the schema name (e.g. 'perseus_base'), or None if absent.
-
-        Extracts the href= pseudo-attribute by name so attribute ordering in
-        the PI text does not matter.  Returns None if the PI is absent or if
-        href= cannot be found.
-        """
-        if not self.schemas:
-            return None
-        m = re.search(r'href=["\']([^"\']+)["\']', self.schemas[0])
-        if not m:
-            return None
-        return m.group(1).split("/")[-1].split(".")[0]
-
-
 
     # ------------------------------------------------------------------
     # Private
 
     def _extract_metadata(self) -> TEIMetadata:
         root = self._tree.getroot()
-
-        urn = self._extract_urn(root)
-        title = self._extract_title(root)
-        author = self._extract_author(root)
-        language = self._extract_language(root)
-        text_type = self._extract_text_type(root)
-
         return TEIMetadata(
-            urn=urn,
-            title=title,
-            author=author,
-            language=language,
-            text_type=text_type,
+            urn=self._extract_urn(root),
+            title=self._extract_title(root),
+            author=self._extract_author(root),
+            language=self._extract_language(root),
+            text_type=self._extract_text_type(root),
             source_path=self._path,
         )
 
@@ -234,3 +199,8 @@ class TEIDocument:
         if text_el.find(".//tei:l", NS) is not None:
             return "verse"
         return "prose"
+
+
+# Backward-compatible alias — Charles's site/ code imports this name.
+# Use TEIDocument directly in new code.
+LenientTEIDocument = TEIDocument

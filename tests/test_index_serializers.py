@@ -9,9 +9,9 @@ import textwrap
 from pathlib import Path
 
 
-from mvp.corpus.index_serializers import ChunkIndexSerializer, WordIndexSerializer
-from mvp.corpus.indexers import ChunkIndexer, WordIndexer
-from mvp.corpus.models import TEIMetadata
+from mvp.indexers.index_serializers import ChunkIndexSerializer, WordIndexSerializer
+from mvp.indexers.indexers import ChunkIndexer, WordIndexer
+from mvp.models import TEIMetadata
 
 # ---------------------------------------------------------------------------
 # Helpers
