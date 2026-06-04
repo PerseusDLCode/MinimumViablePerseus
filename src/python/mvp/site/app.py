@@ -11,11 +11,10 @@ from flask import Flask, abort, render_template
 from lxml import etree
 from markupsafe import Markup, escape
 
-from mvp.corpus.corpus import Corpus
-from mvp.corpus.reference_parser import ConfigurationError
-from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.compilers import ChunkCompiler, CompilationError
-from mvp.compilers.site_map import SiteMap
+from mvp.models import Corpus, LenientTEIDocument
+from mvp.cts_resolver import ConfigurationError
+from mvp.chunker import Chunker
+from mvp.site_map import SiteMap
 from mvp.site.tei_parser import TEIParser, TEIParserError
 
 
@@ -197,7 +196,7 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
 
     Document-level metadata (title, author, language, etc.) is read from the
-    sibling metadata.json written by ChunkCompiler.compile().
+    sibling metadata.json written by Chunker.compile().
     """
     root = etree.parse(path).getroot()
 
@@ -292,10 +291,10 @@ def generate_proto_pages(
                 continue
             try:
                 tei_doc = LenientTEIDocument(doc.path)
-                compiler = ChunkCompiler(tei_doc)
+                compiler = Chunker(tei_doc)
                 compiler.compile(site_map.chunk_dir(doc.metadata.urn))
                 generated += 1
-            except (CompilationError, ConfigurationError) as exc:
+            except (ConfigurationError, Exception) as exc:
                 failed += 1
                 print(f"  FAILED:    {doc.path.name}: {exc}")
 

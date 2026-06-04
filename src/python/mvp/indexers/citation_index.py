@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from mvp.corpus.reference_parser import ReferenceParser
-from mvp.corpus.tei_document import LenientTEIDocument
+from mvp.cts_resolver import CTSResolver
+from mvp.models.document import LenientTEIDocument
 
 
 def _xml_id(unit: str, passage: str) -> str:
@@ -25,19 +25,19 @@ class CitationIndexGenerator:
     stylesheet (transform1.xsl or equivalent): it must have <body @xml:base>
     carrying the base CTS URN and a <citeStructure> refsDecl.
 
-    Raises ConfigurationError (from ReferenceParser) if the document is not
+    Raises ConfigurationError (from CTSResolver) if the document is not
     properly prepared.
     """
 
     def __init__(self, doc: LenientTEIDocument) -> None:
-        self._parser = ReferenceParser(doc)
+        self._resolver = CTSResolver(doc)
 
     def generate(self) -> dict[str, Any]:
         """Return the citation index as a dict ready for JSON serialisation."""
-        base_urn = self._parser.base_urn
+        base_urn = self._resolver.base_urn
         prefix = base_urn + ":"
         citations = []
-        for record in self._parser.citation_records(depth=-1):
+        for record in self._resolver.citation_records(depth=-1):
             passage = record.urn[len(prefix):]
             citations.append({
                 "urn": record.urn,

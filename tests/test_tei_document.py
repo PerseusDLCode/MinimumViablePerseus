@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from mvp.corpus.document import TEIDocument
-from mvp.corpus.models import TEIMetadata
+from mvp.models.document import TEIDocument
+from mvp.models import TEIMetadata
 
 # ---------------------------------------------------------------------------
 # Helpers

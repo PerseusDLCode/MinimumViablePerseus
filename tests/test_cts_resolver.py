@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from mvp.corpus.models import CitationChunk
-from mvp.corpus.tei_document import LenientTEIDocument
-from mvp.corpus.reference_parser import CitationError, ConfigurationError, ReferenceParser
+from mvp.models import CitationChunk
+from mvp.models.document import LenientTEIDocument
+from mvp.cts_resolver import CitationError, ConfigurationError, CTSResolver as ReferenceParser
 
 # ---------------------------------------------------------------------------
 # Helpers and fixture XML
@@ -545,7 +545,7 @@ class TestChunksDivBased:
             </TEI>"""
         p = tmp_path / "chunk.xml"
         p.write_text(xml, encoding="utf-8")
-        from mvp.corpus.tei_document import LenientTEIDocument
+        from mvp.models.document import LenientTEIDocument
         parser = ReferenceParser(LenientTEIDocument(p))
         result = list(parser.chunks())
         assert len(result) == 2
@@ -586,7 +586,6 @@ MILESTONE_XML = f"""\
 def milestone_parser(tmp_path):
     p = tmp_path / "milestone.xml"
     p.write_text(MILESTONE_XML, encoding="utf-8")
-    from mvp.corpus.tei_document import LenientTEIDocument
     return ReferenceParser(LenientTEIDocument(p))
 
 

@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from mvp.corpus import Corpus
-from mvp.corpus.document import TEIDocument
+from mvp.models import Corpus
+from mvp.models.document import TEIDocument
 
 # ---------------------------------------------------------------------------
 # Helpers

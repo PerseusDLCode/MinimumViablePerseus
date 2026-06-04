@@ -13,8 +13,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from mvp.corpus.models import TEIMetadata
-from mvp.corpus.tei_constants import NS, XML_BASE
+from mvp.models.core import TEIMetadata
+from mvp.constants import NS, XML_BASE
 
 # Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
 # Generated from the SIL ISO 639-3 registration authority table:
@@ -234,3 +234,49 @@ class TEIDocument:
         if text_el.find(".//tei:l", NS) is not None:
             return "verse"
         return "prose"
+
+class LenientTEIDocument:
+    """Thin wrapper around a parsed TEI lxml tree for the citation pipeline.
+
+    Uses recover=True to tolerate the malformed XML present in the corpus.
+    This class is distinct from mvp.models.document.TEIDocument, which serves
+    the compilation pipeline and uses a strict parser.
+    """
+
+    def __init__(self, path: Path | str) -> None:
+        self._path = Path(path)
+        parser = etree.XMLParser(recover=True, remove_comments=False)
+        self._tree: etree._ElementTree = etree.parse(str(self._path), parser)
+
+    @property
+    def path(self) -> Path:
+        return self._path
+
+    @property
+    def root(self) -> etree._Element:
+        return self._tree.getroot()
+
+    @property
+    def tree(self) -> etree._ElementTree:
+        return self._tree
+
+    def extract_base_urn(self) -> str:
+        """Return the CTS work/version URN from the edition div's @n attribute."""
+        edition_divs = self.root.xpath(
+            "//tei:div[@type='edition']", namespaces=NS
+        )
+        if not edition_divs:
+            return ""
+        ed = edition_divs[0]
+        urn = ed.get("n", "") or ed.get(XML_BASE, "")
+        return urn.rstrip(":")
+
+    def parse_cref_patterns(self) -> list[str]:
+        """Return cRefPattern @n values from the CTS refsDecl, deepest first."""
+        return list(
+            self.root.xpath(
+                "//tei:refsDecl[@n='CTS']/tei:cRefPattern/@n",
+                namespaces=NS,
+            )
+        )
+    
