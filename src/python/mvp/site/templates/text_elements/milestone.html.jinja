@@ -1,0 +1,2 @@
+{%- set id = text_container.unit + "-" + text_container.get("n", "") -%}
+[<a href="#{{ id }}" id="{{ id }}" data-n="{{ text_container.get("n", "") }}" data-unit="{{ text_container.unit }}">§{{ text_container.get("n", "") }}</a>]

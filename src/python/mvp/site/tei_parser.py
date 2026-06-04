@@ -20,22 +20,11 @@ logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
-tmp_dir = Path("tmp")
-
-if not tmp_dir.exists():
-    tmp_dir.mkdir()
-
-log_filepath = tmp_dir / Path(f"{__name__}.log")
-
-file_handler = logging.FileHandler(log_filepath, mode="w")
-
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 console_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
-logger.addHandler(file_handler)
 
 
 def remove_ns_from_attrs(attrs: xmlreader.AttributesNSImpl):

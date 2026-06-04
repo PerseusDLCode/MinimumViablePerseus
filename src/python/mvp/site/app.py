@@ -290,8 +290,7 @@ def generate_proto_pages(
                 skipped += 1
                 continue
             try:
-                tei_doc = LenientTEIDocument(doc.path)
-                compiler = Chunker(tei_doc)
+                compiler = Chunker(doc)
                 compiler.compile(site_map.chunk_dir(doc.metadata.urn))
                 generated += 1
             except (ConfigurationError, Exception) as exc:
