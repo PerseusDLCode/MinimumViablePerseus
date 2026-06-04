@@ -232,8 +232,9 @@ local/
 
 
 # Morphology data files (large; download via src/tools/setup_morph_data.py)
-src/morph-server/*.morph.xml
-
+src/pdl-morph-server/pdl-morph-server/*.morph.xml
+src/pdl-morph-server/pdl-morph-server/*.json
+src/pdl-morph-server/pdl-morph-server/*.pkl
 
 corpora/
 tmp
@@ -246,3 +247,6 @@ wiki
 tailwindcss
 
 proto-pages
+
+# build artifacts
+site-build/
