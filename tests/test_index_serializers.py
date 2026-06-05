@@ -11,7 +11,7 @@ from pathlib import Path
 
 from mvp.indexers.index_serializers import ChunkIndexSerializer, WordIndexSerializer
 from mvp.indexers.indexers import ChunkIndexer, WordIndexer
-from mvp.models import TEIMetadata
+from perseus_cts.models import TEIMetadata
 
 # ---------------------------------------------------------------------------
 # Helpers

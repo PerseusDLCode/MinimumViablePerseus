@@ -10,7 +10,7 @@ import lxml.sax  # ty: ignore
 
 from lxml import etree
 
-from mvp.constants import NS
+from perseus_cts.constants import NS
 
 PARATEXTUAL_ELEMENTS = frozenset({"note", "noteGrp", "speaker", "sp"})
 

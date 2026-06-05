@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 
 from mvp.indexers.citation_index import CitationIndexGenerator, _xml_id
-from mvp.models import CitationRecord
-from mvp.cts_resolver import ConfigurationError, CTSResolver as ReferenceParser
-from mvp.models.document import LenientTEIDocument
+from perseus_cts.models import CitationRecord
+from perseus_cts.cts_resolver import ConfigurationError, CTSResolver as ReferenceParser
+from perseus_cts.models.document import LenientTEIDocument
 
 # ---------------------------------------------------------------------------
 # Shared XML fixtures (reuse patterns from test_reference_parser)
