@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from mvp.cts_resolver import CTSResolver
-from mvp.models.document import LenientTEIDocument
+from perseus_cts.cts_resolver import CTSResolver
+from perseus_cts.models.document import LenientTEIDocument
 
 
 def _xml_id(unit: str, passage: str) -> str:

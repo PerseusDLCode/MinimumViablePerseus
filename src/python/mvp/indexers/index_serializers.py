@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from mvp.models import ChunkIndex, TEIMetadata, WordIndex
+from perseus_cts.models import ChunkIndex, TEIMetadata, WordIndex
 
 
 class ChunkIndexSerializer:

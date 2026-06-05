@@ -16,7 +16,7 @@ import pytest
 from lxml import etree
 
 from mvp.indexers.indexers import ChunkIndexer, WordIndexer
-from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
+from perseus_cts.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
 
 # ---------------------------------------------------------------------------
 # Helpers
