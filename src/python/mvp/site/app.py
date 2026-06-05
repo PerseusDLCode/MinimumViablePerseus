@@ -11,7 +11,7 @@ from flask import Flask, abort, render_template, url_for
 from lxml import etree
 from markupsafe import Markup
 
-from perseus_cts.models import Corpus, LenientTEIDocument
+from perseus_cts.models import Corpus
 from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.chunker import Chunker
 from mvp.site_map import SiteMap
@@ -304,7 +304,7 @@ def generate_proto_pages(
                 generated += 1
             except (ConfigurationError, Exception) as exc:
                 failed += 1
-                # print(f"  FAILED:    {doc.path.name}: {exc}")
+                print(f"  FAILED:    {doc.path.name}: {exc}")
 
     print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
