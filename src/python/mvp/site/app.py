@@ -351,7 +351,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/collections")
+    @app.get("/collections/")
     def get_collections():
         collections = _build_collections(PROTO_DIR)
         return (
@@ -360,7 +360,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/research")
+    @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN) as f:
             research_markdown = markdown.markdown(f.read())
@@ -371,7 +371,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/<path:corpus>/<path:textgroup>/<path:work>/<path:version>/<path:chunk>")
+    @app.get("/<path:corpus>/<path:textgroup>/<path:work>/<path:version>/<path:chunk>/")
     def reading_view(corpus, textgroup, work, version, chunk):
         index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
         if not index_file.exists():
