@@ -188,13 +188,10 @@ def _inject_into_element(el: dict, tokens: list[dict]) -> None:
     for child in el.get("children", []):
         if child.get("tagname") == "text_run" and "start" in child:
             run_tokens = [
-                t for t in tokens
-                if child["start"] <= t["start_char"] < child["end"]
+                t for t in tokens if child["start"] <= t["start_char"] < child["end"]
             ]
             if run_tokens:
-                new_children.extend(
-                    {**t, "tagname": "token"} for t in run_tokens
-                )
+                new_children.extend({**t, "tagname": "token"} for t in run_tokens)
             else:
                 new_children.append(child)
         else:

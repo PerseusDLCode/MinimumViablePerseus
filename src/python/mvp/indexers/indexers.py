@@ -5,8 +5,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from mvp.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
-from mvp.constants import NS
+from perseus_cts.models import ChunkIndex, ChunkOccurrence, WordIndex, WordOccurrence
+from perseus_cts.constants import NS
 
 
 class TEIIndexer:

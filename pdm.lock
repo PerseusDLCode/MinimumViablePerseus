@@ -5,7 +5,7 @@
 groups = ["default", "dev", "morph"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:aa54aeeb0b6aa8309549a1643e3509c2ca448a5bca23308188e8f0312aa01bbd"
+content_hash = "sha256:c2a75c933fb9c7e985325848c0799e09c6994ab313b5ede6603675926cb7af2a"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -765,6 +765,19 @@ groups = ["dev"]
 files = [
     {file = "pathspec-1.1.1-py3-none-any.whl", hash = "sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189"},
     {file = "pathspec-1.1.1.tar.gz", hash = "sha256:17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a"},
+]
+
+[[package]]
+name = "perseus-cts"
+version = "0.1.0"
+requires_python = ">=3.12"
+git = "https://github.com/PerseusDLCode/perseus-cts.git"
+revision = "5a91448d8ccdf88f22c2c9349c07138eb2939d35"
+summary = "CTS resolver, chunker, and TEI document models for the Perseus Digital Library"
+groups = ["default"]
+dependencies = [
+    "lxml-stubs>=0.5.1",
+    "lxml>=6.0.4",
 ]
 
 [[package]]

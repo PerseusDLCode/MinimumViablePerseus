@@ -11,9 +11,9 @@ from flask import Flask, abort, render_template, url_for
 from lxml import etree
 from markupsafe import Markup
 
-from mvp.models import Corpus
-from mvp.cts_resolver import ConfigurationError
-from mvp.chunker import Chunker
+from perseus_cts.models import Corpus, LenientTEIDocument
+from perseus_cts.cts_resolver import ConfigurationError
+from perseus_cts.chunker import Chunker
 from mvp.site_map import SiteMap
 from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
 
