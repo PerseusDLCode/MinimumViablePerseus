@@ -9,7 +9,7 @@ import markdown
 
 from flask import Flask, abort, render_template
 from lxml import etree
-from markupsafe import Markup, escape
+from markupsafe import Markup
 
 from perseus_cts.models import Corpus, LenientTEIDocument
 from perseus_cts.cts_resolver import ConfigurationError
@@ -20,7 +20,7 @@ from mvp.site.tei_parser import TEIParser, TEIParserError
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
+CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / ".." / "canonicalLit"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
@@ -295,7 +295,7 @@ def generate_proto_pages(
                 generated += 1
             except (ConfigurationError, Exception) as exc:
                 failed += 1
-                print(f"  FAILED:    {doc.path.name}: {exc}")
+                # print(f"  FAILED:    {doc.path.name}: {exc}")
 
     print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
