@@ -409,17 +409,12 @@ class TestTOC:
         assert [e["index"] for e in result[0]["subpassages"]] == [1, 2]
         assert [e["index"] for e in result[1]["subpassages"]] == [1]
 
-    def test_chapter_subpassages_contain_sections(self, thucydides_parser):
+    def test_chapters_are_leaf_nodes(self, thucydides_parser):
+        # Chapters are the chunk level (penultimate), so they are TOC leaves.
+        # toc() does not recurse into sections — those URNs have no chunk files.
         result = thucydides_parser.toc()
-        sections = result[0]["subpassages"][0]["subpassages"]
-        assert len(sections) == 3
-        assert all(e["subtype"] == "section" for e in sections)
-        assert all(e["depth"] == 2 for e in sections)
-
-    def test_leaf_subpassages_empty(self, thucydides_parser):
-        result = thucydides_parser.toc()
-        for section in result[0]["subpassages"][0]["subpassages"]:
-            assert section["subpassages"] == []
+        for chapter in result[0]["subpassages"]:
+            assert chapter["subpassages"] == []
 
     def test_single_level_doc(self, apology_parser):
         result = apology_parser.toc()

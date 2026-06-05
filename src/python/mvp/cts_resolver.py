@@ -344,7 +344,7 @@ class CTSResolver:
                 )
 
     def toc(self) -> list[dict]:
-        """Return the full citation hierarchy as a list of nested TOC entries.
+        """Return the citation hierarchy down to the chunk level as nested TOC entries.
 
         Each entry has the shape::
 
@@ -358,10 +358,12 @@ class CTSResolver:
             }
 
         The top-level list contains entries for the first citation level
-        (e.g. books).  Leaf nodes carry an empty ``subpassages`` list.
+        (e.g. books).  Leaf nodes are entries at the chunk level — the same
+        level that chunks() uses — so their URNs correspond to navigable pages.
         """
         children = list(self._root_cs.findall("tei:citeStructure", NS))
-        return self._toc_level("", children, self._body, 0)
+        chunk_cs = self._find_chunk_cs()
+        return self._toc_level("", children, self._body, 0, chunk_cs)
 
     def _toc_level(
         self,
@@ -369,6 +371,7 @@ class CTSResolver:
         cs_list: list[etree._Element],
         context: etree._Element,
         depth: int,
+        chunk_cs: etree._Element,
     ) -> list[dict]:
         entries: list[dict] = []
         for idx, node in enumerate(self._walk_cs(suffix, cs_list, context), 1):
@@ -377,8 +380,8 @@ class CTSResolver:
             # consistent with citation_records() on documents without @n.
             label_val = node.val or str(idx)
             subpassages = (
-                self._toc_level(node.suffix, node.children, node.element, depth + 1)
-                if node.children
+                self._toc_level(node.suffix, node.children, node.element, depth + 1, chunk_cs)
+                if node.children and node.cs is not chunk_cs
                 else []
             )
             entries.append(

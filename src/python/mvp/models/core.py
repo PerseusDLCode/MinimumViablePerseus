@@ -7,6 +7,7 @@
 # implement compilation or transformation logic.
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -108,5 +109,5 @@ class CitationChunk:
 
         elements = etree.SubElement(root, "elements")
         for e in self.elements:
-            elements.append(e)
+            elements.append(deepcopy(e))
         return root
