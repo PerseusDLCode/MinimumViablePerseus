@@ -7,15 +7,15 @@ from typing import Any
 
 import markdown
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, url_for
 from lxml import etree
 from markupsafe import Markup
 
-from perseus_cts.models import Corpus, LenientTEIDocument
+from perseus_cts.models import Corpus
 from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.chunker import Chunker
 from mvp.site_map import SiteMap
-from mvp.site.tei_parser import TEIParser, TEIParserError
+from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -138,9 +138,13 @@ def _build_collections(proto_dir: Path) -> list[dict]:
                             "title": doc_meta.get("title", ver_dir.name),
                             "language": lang,
                             "language_label": _LANGUAGE_LABELS.get(lang, lang),
-                            "first_chunk_url": (
-                                f"/{corpus}/{tg_dir.name}/{work_dir.name}"
-                                f"/{ver_dir.name}/{first_passage}"
+                            "first_chunk_url": url_for(
+                                "reading_view",
+                                corpus=corpus,
+                                textgroup=tg_dir.name,
+                                work=work_dir.name,
+                                version=ver_dir.name,
+                                chunk=first_passage,
                             ),
                         }
                     )
@@ -224,10 +228,15 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
 
     content_el = root.find("elements")
 
-    if not content_el:
+    if content_el is None:
         raise TEIParserError("No content element found!")
 
     parser = TEIParser(content_el, base_urn, chunk_unit)
+
+    sidecar = path.with_suffix(".tokens.json")
+    if sidecar.exists():
+        with open(sidecar) as f:
+            inject_tokens(parser.elements, json.load(f).get("tokens", []))
 
     chunk = _Chunk(
         cts_urn=cts_urn,
@@ -295,7 +304,7 @@ def generate_proto_pages(
                 generated += 1
             except (ConfigurationError, Exception) as exc:
                 failed += 1
-                # print(f"  FAILED:    {doc.path.name}: {exc}")
+                print(f"  FAILED:    {doc.path.name}: {exc}")
 
     print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
@@ -342,7 +351,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/collections")
+    @app.get("/collections/")
     def get_collections():
         collections = _build_collections(PROTO_DIR)
         return (
@@ -351,7 +360,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/research")
+    @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN) as f:
             research_markdown = markdown.markdown(f.read())
@@ -362,7 +371,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/<path:corpus>/<path:textgroup>/<path:work>/<path:version>/<path:chunk>")
+    @app.get("/<path:corpus>/<path:textgroup>/<path:work>/<path:version>/<path:chunk>/")
     def reading_view(corpus, textgroup, work, version, chunk):
         index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
         if not index_file.exists():
@@ -430,6 +439,25 @@ def create_app(test_config=None):
         )
 
     return app
+
+
+def build():
+    from flask_frozen import Freezer
+
+    FREEZER_DESTINATION = ROOT_DIR / "build"
+
+    app = create_app()
+
+    app.config.update(
+        FREEZER_BASE_URL=os.getenv("FREEZER_BASE_URL", ""),
+        FREEZER_DEFAULT_MIMETYPE="text/html",
+        FREEZER_DESTINATION=FREEZER_DESTINATION,
+        FREEZER_IGNORE_404_NOT_FOUND=True,
+    )
+
+    freezer = Freezer(app)
+
+    freezer.freeze()
 
 
 def main():

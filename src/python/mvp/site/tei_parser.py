@@ -1,16 +1,12 @@
 import logging
-import re
-import string
+import unicodedata
 
-from pathlib import Path
 from xml.sax import xmlreader
 from xml.sax.handler import ContentHandler
 
 import lxml.sax  # ty: ignore
 
 from lxml import etree
-
-from perseus_cts.constants import NS
 
 PARATEXTUAL_ELEMENTS = frozenset({"note", "noteGrp", "speaker", "sp"})
 
@@ -57,6 +53,7 @@ class TEIParser(ContentHandler):
         self.global_element_index = 0
         self.inside_paratext = False
         self.primary_text = ""
+        self._primary_text_offset = 0
         self._pending_speaker = None
 
         lxml.sax.saxify(self.root, self)
@@ -75,13 +72,27 @@ class TEIParser(ContentHandler):
 
         parent_element = self.element_stack[-1]
 
+        text_run: dict[str, str | int] = {
+            "tagname": "text_run",
+            "content": content.strip(),
+        }
+
         if not self.inside_paratext:
+            if (
+                self.primary_text
+                and not self.primary_text[-1].isspace()
+                and not content[0].isspace()
+                and unicodedata.category(content[0])[0] not in ("P", "S")
+            ):
+                self.primary_text += " "
+                self._primary_text_offset += 1
+            start = self._primary_text_offset
             self.primary_text += content
+            self._primary_text_offset += len(content)
+            text_run["start"] = start
+            text_run["end"] = self._primary_text_offset
 
-        text_run = {"tagname": "text_run", "content": content.strip()}
-
-        if text_run:
-            parent_element["children"].append(text_run)
+        parent_element["children"].append(text_run)
 
     def endElementNS(self, name: tuple[str | None, str], qname: str | None) -> None:
         _uri, localname = name
@@ -160,3 +171,30 @@ class TEIParser(ContentHandler):
 
         self.element_set.add(localname)
         self.handle_element(localname, clean_attrs)
+
+
+def inject_tokens(elements: list[dict], tokens: list[dict]) -> None:
+    """Replace text_run nodes in the element tree with token nodes in place.
+
+    tokens must include start_char and end_char (offsets into primary_text).
+    text_run nodes without start/end (i.e. paratext) are left untouched.
+    """
+    for el in elements:
+        _inject_into_element(el, tokens)
+
+
+def _inject_into_element(el: dict, tokens: list[dict]) -> None:
+    new_children = []
+    for child in el.get("children", []):
+        if child.get("tagname") == "text_run" and "start" in child:
+            run_tokens = [
+                t for t in tokens if child["start"] <= t["start_char"] < child["end"]
+            ]
+            if run_tokens:
+                new_children.extend({**t, "tagname": "token"} for t in run_tokens)
+            else:
+                new_children.append(child)
+        else:
+            _inject_into_element(child, tokens)
+            new_children.append(child)
+    el["children"] = new_children
