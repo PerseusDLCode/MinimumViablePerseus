@@ -4,13 +4,10 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{% block title %}{% endblock %}</title>
-        <link
-            href="{{ url_for('static', filename="css/output.css") }}"
-            rel="stylesheet"
-            type="text/css"
-        />
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
-    <body class="bg-neutral-50 p-4 min-h-screen" data-theme="wireframe">
+    <body class="bg-neutral-50 p-4 min-h-screen">
         {% block header %}{% endblock %}
         <nav
             class="bg-neutral-500 text-neutral-200 font-bold flex justify-between mb-4 px-8 py-2 text-sm"
