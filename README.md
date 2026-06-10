@@ -20,16 +20,7 @@ MVP is a static website generated from the TEI-encoded documents in Perseus's co
 ## Frontend styling
 
 MVP uses [daisyUI](https://daisyui.com/) for frontend styling. Styles are loaded via
-[`output.css`](./src/python/mvp/site/static/css/output.css) — **DO NOT MODIFY THIS FILE
-DIRECTLY**. Instead, follow the [instructions](https://daisyui.com/docs/install/standalone/)
-to download the `tailwindcss` binary, make changes to
-[`input.css`](./src/python/mvp/site/static/css/input.css) and run `pdm run css`
-(or `pdm run css-watch`) to recompile `output.css`.
-
-(Also, do not modify the `daisyui-*.mjs` files in `src/python/mvp/site/static/css`.)
-
-This minor kludge — in an ideal setup, we would not keep `output.css` in version control
-— allows us to avoid a Node.js dependency.
+the official CDN.
 
 ## Running the development server
 
