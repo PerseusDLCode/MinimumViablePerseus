@@ -250,6 +250,35 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     return chunk, pub_info
 
 
+def _max_toc_depth(es: list[dict]) -> int:
+    d = -1
+    for e in es:
+        d = max(d, e["depth"])
+        if e.get("subpassages"):
+            d = max(d, _max_toc_depth(e["subpassages"]))
+    return d
+
+
+def _do_prune_toc(es: list[dict], max_depth: int) -> list[dict]:
+    return [
+        {**e, "subpassages": _do_prune_toc(e.get("subpassages", []), max_depth)}
+        for e in es
+        if e["depth"] < max_depth
+    ]
+
+
+def _prune_toc_leaves(entries: list[dict]) -> list[dict]:
+    """Remove the deepest citation level, keeping only the penultimate level as leaves."""
+    if not entries:
+        return entries
+
+    max_d = _max_toc_depth(entries)
+    if max_d <= 0:
+        return entries
+
+    return _do_prune_toc(entries, max_d)
+
+
 def _toc_from_metadata(
     metadata_path: Path,
     corpus: str,
@@ -266,6 +295,7 @@ def _toc_from_metadata(
         return {"table_of_contents": []}
     with open(metadata_path) as f:
         toc_entries = json.load(f).get("toc", [])
+    toc_entries = _prune_toc_leaves(toc_entries)
     _annotate_toc(toc_entries, corpus, textgroup, work, version)
     return {"table_of_contents": toc_entries}
 
