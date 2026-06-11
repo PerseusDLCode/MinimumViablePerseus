@@ -8,3 +8,7 @@
 @plugin "./daisyui.mjs" {
     themes: wireframe --default;
 }
+
+.tei-milestone {
+    @apply mx-4;
+}
