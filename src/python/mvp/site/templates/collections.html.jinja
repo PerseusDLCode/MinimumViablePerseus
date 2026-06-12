@@ -12,22 +12,22 @@
 <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-6">Collections</h1>
 
-    {% for corpus in collections %}
+    {% for corpus in collections|sort(attribute="label") %}
     <section class="mb-6">
         <details>
             <summary class="text-xl font-semibold border-b border-neutral-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
 
             <div class="pl-6 mt-2">
-                {% for tg in corpus.textgroups %}
+                {% for tg in corpus.textgroups|sort(attribute="author,id") %}
                 <div class="mb-3">
                     <details>
-                        <summary class="text-base font-semibold text-neutral-700 cursor-pointer">{{ tg.author }}</summary>
+                        <summary class="text-base font-semibold text-neutral-700 cursor-pointer">{{ tg.author or tg.id }}</summary>
 
                         <ul class="pl-6 mt-1">
                             {% for work in tg.works %}
                             <li class="mb-1">
                                 <ul class="pl-6 space-y-0.5">
-                                    {% for version in work.versions %}
+                                    {% for version in work.versions|sort(attribute="title,id") %}
                                     <li>
                                         <a href="{{ version.first_chunk_url }}" class="link text-sm">
                                             {{ version.title }} ({{ version.language_label }}, {{ version.id }})

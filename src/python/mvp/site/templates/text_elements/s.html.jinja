@@ -1,0 +1,9 @@
+<span class="tei-s">
+    {# note the lack of whitespace cleaning #}
+    {% for child in text_container.children %}
+        {%- set child_urn = child.urn if child.urn else text_container.urn -%}
+        {%- with text_container=dict(child, urn=child_urn) -%}
+            {%- include 'components/ReadableTextContainer.html.jinja' -%}
+        {%- endwith -%}
+    {% endfor %}
+</span>

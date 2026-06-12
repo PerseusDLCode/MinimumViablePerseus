@@ -51,7 +51,7 @@ class TEIParser(ContentHandler):
         self.element_set = set()
         self.element_stack = []
         self.global_element_index = 0
-        self.inside_paratext = False
+        self._paratext_depth = 0
         self.primary_text = ""
         self._primary_text_offset = 0
         self._pending_speaker = None
@@ -77,7 +77,7 @@ class TEIParser(ContentHandler):
             "content": content.strip(),
         }
 
-        if not self.inside_paratext:
+        if self._paratext_depth == 0:
             if (
                 self.primary_text
                 and not self.primary_text[-1].isspace()
@@ -98,6 +98,9 @@ class TEIParser(ContentHandler):
         _uri, localname = name
 
         el = self.element_stack.pop()
+
+        if localname in PARATEXTUAL_ELEMENTS:
+            self._paratext_depth -= 1
 
         if el.get("tagname") == "speaker":
             self._pending_speaker = el
@@ -152,13 +155,11 @@ class TEIParser(ContentHandler):
 
         self.element_stack.append(attrs)
 
-        self.maybe_toggle_inside_paratext(tagname)
+        self.maybe_increment_paratext_depth(tagname)
 
-    def maybe_toggle_inside_paratext(self, tagname: str):
+    def maybe_increment_paratext_depth(self, tagname: str):
         if tagname in PARATEXTUAL_ELEMENTS:
-            self.inside_paratext = True
-        else:
-            self.inside_paratext = False
+            self._paratext_depth += 1
 
     def startElementNS(
         self,
