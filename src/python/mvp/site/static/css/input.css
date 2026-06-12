@@ -13,7 +13,7 @@
     @apply mx-4;
 }
 
-.prose {
+.tei-elements {
     counter-reset: tei-note;
 }
 

@@ -2570,7 +2570,7 @@
 .tei-milestone {
   margin-inline: calc(var(--spacing) * 4);
 }
-.prose {
+.tei-elements {
   counter-reset: tei-note;
 }
 .tei-note-trigger {
