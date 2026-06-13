@@ -20,7 +20,7 @@ from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / ".." / "canonicalLit"))
+CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
