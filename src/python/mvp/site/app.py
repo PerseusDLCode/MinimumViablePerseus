@@ -11,6 +11,7 @@ from flask import Flask, abort, render_template, url_for
 from lxml import etree
 from markupsafe import Markup
 
+from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from perseus_cts.models import Corpus
 from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.chunker import Chunker
@@ -20,6 +21,8 @@ from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+_DEFAULT_GAZETTEER = ROOT_DIR.parent / "citation-resolution" / "kb" / "data" / "gazetteer.json"
+GAZETTEER_PATH = Path(os.getenv("GAZETTEER_PATH", _DEFAULT_GAZETTEER))
 CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
@@ -91,6 +94,45 @@ def _annotate_toc(
                 "chunk": entry["urn"].rsplit(":", 1)[-1],
             }
     return entries
+
+
+def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
+    """Map work-level CTS URNs to a language→URL-prefix dict.
+
+    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit/phi0917/phi001/perseus-lat1/",
+                                                "eng": "/latinLit/phi0917/phi001/perseus-eng2/"}
+    For each language, the first version found (sorted) wins.
+    The JS appends the passage and a trailing slash to the chosen prefix.
+    """
+    index: dict[str, dict[str, str]] = {}
+    if not proto_dir.is_dir():
+        return index
+
+    for corpus_dir in sorted(proto_dir.iterdir()):
+        if not corpus_dir.is_dir():
+            continue
+        corpus = corpus_dir.name
+        for tg_dir in sorted(corpus_dir.iterdir()):
+            if not tg_dir.is_dir():
+                continue
+            for work_dir in sorted(tg_dir.iterdir()):
+                if not work_dir.is_dir():
+                    continue
+                for ver_dir in sorted(work_dir.iterdir()):
+                    if not ver_dir.is_dir():
+                        continue
+                    meta_file = ver_dir / "metadata.json"
+                    if not meta_file.exists():
+                        continue
+                    with open(meta_file) as f:
+                        lang = json.load(f).get("document", {}).get("language", "")
+                    if not lang:
+                        continue
+                    work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
+                    url_prefix = f"/{corpus}/{tg_dir.name}/{work_dir.name}/{ver_dir.name}/"
+                    index.setdefault(work_urn, {}).setdefault(lang, url_prefix)
+
+    return index
 
 
 def _build_collections(proto_dir: Path) -> list[dict]:
@@ -204,9 +246,9 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """
     tree = etree.parse(path)
 
-    # Placeholder for citation resolution step
-    # linker = TEILinker(kb=Gazetteer.from_json(_DEFAULT_GAZETTEER), decompose=True)
-    # _stats = linker.run(tree)
+    # Resolve citations inline
+    linker = TEILinker(kb=Gazetteer.from_json(GAZETTEER_PATH), decompose=True)
+    _stats = linker.run(tree)
 
     root = tree.getroot()
 
@@ -375,6 +417,10 @@ def create_app(test_config=None):
 
     corpora = _discover_corpora(CORPORA_DIR)
     generate_proto_pages(PROTO_DIR, corpora)
+
+    @app.get("/urn-index.json")
+    def urn_index():
+        return _build_urn_index(PROTO_DIR), 200, {"Content-Type": "application/json"}
 
     @app.get("/")
     def index():

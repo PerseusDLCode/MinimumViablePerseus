@@ -5,7 +5,7 @@
 groups = ["default", "dev", "morph"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:c2a75c933fb9c7e985325848c0799e09c6994ab313b5ede6603675926cb7af2a"
+content_hash = "sha256:26feb3daa34941560130420915f64ae5cc809a175b1446b3f46ce253fcfd81ad"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -102,6 +102,19 @@ groups = ["default"]
 files = [
     {file = "blinker-1.9.0-py3-none-any.whl", hash = "sha256:ba0efaa9080b619ff2f3459d1d500c57bddea4a6b424b60a91141db6fd2f08bc"},
     {file = "blinker-1.9.0.tar.gz", hash = "sha256:b4ce2265a7abece45e7cc896e98dbebe6cead56bcf805a3d23136d145f5445bf"},
+]
+
+[[package]]
+name = "citation-resolution"
+version = "0.1.0"
+requires_python = ">=3.12"
+git = "https://github.com/PerseusDLCode/citation-resolution"
+revision = "b38432446a6bc58181d94184f3db98c56d19fd17"
+summary = "Add your description here"
+groups = ["default"]
+dependencies = [
+    "lxml>=6.1.0",
+    "rdflib>=7.0.0",
 ]
 
 [[package]]
@@ -893,6 +906,17 @@ files = [
 ]
 
 [[package]]
+name = "pyparsing"
+version = "3.3.2"
+requires_python = ">=3.9"
+summary = "pyparsing - Classes and methods to define and execute parsing grammars"
+groups = ["default"]
+files = [
+    {file = "pyparsing-3.3.2-py3-none-any.whl", hash = "sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d"},
+    {file = "pyparsing-3.3.2.tar.gz", hash = "sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc"},
+]
+
+[[package]]
 name = "pytest"
 version = "9.0.3"
 requires_python = ">=3.10"
@@ -999,6 +1023,21 @@ files = [
     {file = "pyyaml-6.0.3-cp314-cp314t-win_amd64.whl", hash = "sha256:4ad1906908f2f5ae4e5a8ddfce73c320c2a1429ec52eafd27138b7f1cbe341c9"},
     {file = "pyyaml-6.0.3-cp314-cp314t-win_arm64.whl", hash = "sha256:ebc55a14a21cb14062aa4162f906cd962b28e2e9ea38f9b4391244cd8de4ae0b"},
     {file = "pyyaml-6.0.3.tar.gz", hash = "sha256:d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f"},
+]
+
+[[package]]
+name = "rdflib"
+version = "7.6.0"
+requires_python = ">=3.8.1"
+summary = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information."
+groups = ["default"]
+dependencies = [
+    "isodate<1.0.0,>=0.7.2; python_version < \"3.11\"",
+    "pyparsing<4,>=2.1.0",
+]
+files = [
+    {file = "rdflib-7.6.0-py3-none-any.whl", hash = "sha256:30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd"},
+    {file = "rdflib-7.6.0.tar.gz", hash = "sha256:6c831288d5e4a5a7ece85d0ccde9877d512a3d0f02d7c06455d00d6d0ea379df"},
 ]
 
 [[package]]
