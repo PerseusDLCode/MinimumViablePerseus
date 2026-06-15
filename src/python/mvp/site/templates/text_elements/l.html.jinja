@@ -9,7 +9,7 @@
     </div>
 
     {% set n = text_container.get("n", "1") | int %}
-    {% if n % 5 == 0 or n == 1 %}
-        <span>{{ n }}</span>
+    {% if (n % 5 == 0 and n!= 0) or n == 1 %}
+        <span class="select-none">{{ n }}</span>
     {% endif %}
 </div>

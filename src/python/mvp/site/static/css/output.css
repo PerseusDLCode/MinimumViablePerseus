@@ -1540,6 +1540,9 @@
       }
     }
   }
+  .-z-10 {
+    z-index: calc(10 * -1);
+  }
   .hero {
     @layer daisyui.l1.l2.l3 {
       display: grid;
@@ -2514,6 +2517,10 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
   .backdrop\:bg-black\/40 {
     &::backdrop {
       background-color: color-mix(in srgb, #000 40%, transparent);
@@ -2569,6 +2576,13 @@
 }
 .tei-milestone {
   margin-inline: calc(var(--spacing) * 4);
+}
+.tei-milestone[data-unit="para"]::after {
+  text-indent: calc(var(--spacing) * 4);
+  white-space: pre;
+}
+.tei-milestone[data-unit="para"]::after {
+  content: "\a\a";
 }
 .tei-elements {
   counter-reset: tei-note;

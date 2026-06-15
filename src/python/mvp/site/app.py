@@ -202,7 +202,13 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     Document-level metadata (title, author, language, etc.) is read from the
     sibling metadata.json written by Chunker.compile().
     """
-    root = etree.parse(path).getroot()
+    tree = etree.parse(path)
+
+    # Placeholder for citation resolution step
+    # linker = TEILinker(kb=Gazetteer.from_json(_DEFAULT_GAZETTEER), decompose=True)
+    # _stats = linker.run(tree)
+
+    root = tree.getroot()
 
     base_urn = root.get("base_urn", "")
     cts_urn = root.get("cts_urn", "")

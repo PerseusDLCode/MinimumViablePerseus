@@ -13,6 +13,17 @@
     @apply mx-4;
 }
 
+
+
+.tei-milestone[data-unit="para"]::after {
+    @apply indent-4;
+    @apply whitespace-pre;
+}
+
+.tei-milestone[data-unit="para"]::after {
+    content: "\a\a";
+}
+
 .tei-elements {
     counter-reset: tei-note;
 }

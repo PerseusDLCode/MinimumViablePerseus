@@ -1,4 +1,5 @@
 import logging
+import re
 import unicodedata
 
 from xml.sax import xmlreader
@@ -74,7 +75,7 @@ class TEIParser(ContentHandler):
 
         text_run: dict[str, str | int] = {
             "tagname": "text_run",
-            "content": content.strip(),
+            "content": re.sub(r"\s+", " ", content),
         }
 
         if self._paratext_depth == 0:
