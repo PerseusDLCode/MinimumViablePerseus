@@ -1,11 +1,9 @@
 from pathlib import Path
 import json
-
-PROTO_ROOT = Path("/Users/evrenuluer/Desktop/NewPerseus/MinimumViablePerseus/proto-pages/greekLit")
-
-OUTPUT_FILE = "proto_pages_mapping.json"
+import os
 
 
+# TODO: Move to cts utilities module
 def split_cts_urn(urn):
     last_part = urn.split(":")[-1]
     parts = last_part.split(".")
@@ -24,17 +22,20 @@ def classify_document(document):
     if "commentary" in document.get("title", "").lower():
         return "commentaries"
 
-    if language == "grc" or "lat":
+    if language == "grc" or language == "lat":
         return "editions"
 
     # Non-Greek = translation
     return "translations"
 
 
-def main():
+def generate_mapping(proto_root, output_file):
+    PROTO_ROOT = Path(
+    os.getenv("PROTOPAGE_OUTPUT_DIR", "./proto-pages")
+)
     mapping = {}
 
-    for metadata_file in PROTO_ROOT.rglob("metadata.json"):
+    for metadata_file in proto_root.rglob("metadata.json"):
         with open(metadata_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -76,11 +77,7 @@ def main():
             "metadata_file": str(metadata_file)
         })
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(mapping, f, indent=4, ensure_ascii=False)
 
-    print(f"Wrote mapping to {OUTPUT_FILE}")
-
-
-if __name__ == "__main__":
-    main()
+    return mapping
