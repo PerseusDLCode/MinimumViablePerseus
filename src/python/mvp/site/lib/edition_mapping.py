@@ -29,10 +29,7 @@ def classify_document(document):
     return "translations"
 
 
-def generate_mapping(proto_root, output_file):
-    PROTO_ROOT = Path(
-    os.getenv("PROTOPAGE_OUTPUT_DIR", "./proto-pages")
-)
+def generate_mapping(proto_root):
     mapping = {}
 
     for metadata_file in proto_root.rglob("metadata.json"):
@@ -76,8 +73,5 @@ def generate_mapping(proto_root, output_file):
             "title": title,
             "metadata_file": str(metadata_file)
         })
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(mapping, f, indent=4, ensure_ascii=False)
 
     return mapping
