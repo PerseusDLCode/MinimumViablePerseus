@@ -173,7 +173,8 @@
     const prose = document.querySelector('.prose');
     if (!prose) return;
 
-    const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT,
+        (textNode) => textNode.parentElement.closest(".tei-speaker") ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT);
     const nodes = [];
     let n;
     while ((n = walker.nextNode())) nodes.push(n);

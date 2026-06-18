@@ -7,7 +7,16 @@ authors = [
     {name = "Charles Pletcher", email = "charles.pletcher@tufts.edu"},
     {name = "Peter Nadel", email = "peter.nadel@tufts.edu"}
 ]
-dependencies = ["lxml>=6.0.4", "lxml-stubs>=0.5.1", "saxonche>=12.9.0", "fastapi>=0.136.1", "uvicorn[standard]>=0.46.0", "frozen-flask>=1.0.2", "markdown>=3.10.2", "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts.git"]
+dependencies = [
+    "lxml>=6.0.4",
+    "lxml-stubs>=0.5.1",
+    "saxonche>=12.9.0",
+    "fastapi>=0.136.1",
+    "uvicorn[standard]>=0.46.0",
+    "frozen-flask>=1.0.2",
+    "markdown>=3.10.2",
+    "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts@dev"
+]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}

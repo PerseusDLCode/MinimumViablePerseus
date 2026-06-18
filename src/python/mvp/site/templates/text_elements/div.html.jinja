@@ -1,10 +1,22 @@
 {% set cts_urn = text_container.urn | default('unknown') %}
+{% set is_strophic = text_container.type in ("antistrophe", "epode", "strophe") %}
 
+{% if is_strophic %}
+    <div class="relative">
+        <div class="absolute right-0 select-none text-neutral-500 text-sm">
+            {% if text_container.type == "epode" %}ep{% else %}{{ text_container.type[:3] }}{% endif %}.
+            {{ text_container.n }}
+        </div>
+    </div>
+{% endif %}
 <div class="prose tei-div mb-4" data-urn="{{ cts_urn }}" role="presentation">
-    {%- for child in text_container.children -%}
-        {%- set child_urn = child.urn if child.urn else text_container.urn -%}
-        {%- with text_container=dict(child, urn=child_urn) -%}
-            {%- include 'components/ReadableTextContainer.html.jinja' -%}
-        {%- endwith -%}
-    {%- endfor -%}
+    <div>
+        {%- for child in text_container.children -%}
+            {%- set child_urn = child.urn if child.urn else text_container.urn -%}
+            {%- with text_container=dict(child, urn=child_urn) -%}
+                {%- include 'components/ReadableTextContainer.html.jinja' -%}
+            {%- endwith -%}
+        {%- endfor -%}
+    </div>
+
 </div>

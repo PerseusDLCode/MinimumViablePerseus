@@ -1,6 +1,8 @@
-{%- for child in text_container.children -%}
-    {%- set child_urn = child.urn if child.urn else text_container.urn -%}
-    {%- with text_container=dict(child, urn=child_urn) -%}
-        {%- include 'components/ReadableTextContainer.html.jinja' -%}
-    {%- endwith -%}
-{%- endfor -%}
+<div class="tei-speaker font-bold mt-4 mx-auto">
+    {%- for child in text_container.children -%}
+        {%- set child_urn = child.urn if child.urn else text_container.urn -%}
+        {%- with text_container=dict(child, urn=child_urn) -%}
+            {%- include 'components/ReadableTextContainer.html.jinja' -%}
+        {%- endwith -%}
+    {%- endfor -%}
+</div>
