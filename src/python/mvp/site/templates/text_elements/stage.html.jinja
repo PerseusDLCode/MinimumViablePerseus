@@ -1,0 +1,8 @@
+<span class="tei-stage italic text-neutral-500">
+    {% for child in text_container.children -%}
+        {% set child_urn = child.urn if child.urn else text_container.urn -%}
+        {% with text_container=dict(child, urn=child_urn) -%}
+            {% include 'components/ReadableTextContainer.html.jinja' -%}
+        {% endwith -%}
+    {% endfor -%}
+</span>

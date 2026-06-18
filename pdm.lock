@@ -784,8 +784,8 @@ files = [
 name = "perseus-cts"
 version = "0.1.0"
 requires_python = ">=3.12"
-git = "https://github.com/PerseusDLCode/perseus-cts.git"
-revision = "3bda8daa217518e1ed47442053a31a22e1b8be7a"
+git = "https://github.com/PerseusDLCode/perseus-cts"
+revision = "1c115c9f7625a2ef95c2aef9d135e743ebc92b44"
 summary = "CTS resolver, chunker, and TEI document models for the Perseus Digital Library"
 groups = ["default"]
 dependencies = [
