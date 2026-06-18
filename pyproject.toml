@@ -15,7 +15,8 @@ dependencies = [
     "uvicorn[standard]>=0.46.0",
     "frozen-flask>=1.0.2",
     "markdown>=3.10.2",
-    "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts@dev"
+    "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts.git",
+    "citation-resolution @ git+https://github.com/PerseusDLCode/citation-resolution"
 ]
 requires-python = ">=3.12"
 readme = "README.md"
