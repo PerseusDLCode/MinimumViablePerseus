@@ -1,6 +1,4 @@
-from pathlib import Path
 import json
-import os
 
 
 # TODO: Move to cts utilities module
@@ -15,9 +13,13 @@ def split_cts_urn(urn):
     return group, work, version
 
 
+# FIXME (charles): We should be getting
+# this information from the __cts__.xml files,
+# but their data are not being made available
+# by the chunker. When those data are available,
+# update this function accordingly.
 def classify_document(document):
     language = document.get("language", "")
-    base_urn = document.get("base_urn", "")
 
     if "commentary" in document.get("title", "").lower():
         return "commentaries"
@@ -52,26 +54,25 @@ def generate_mapping(proto_root):
             continue
 
         if group not in mapping:
-            mapping[group] = {
-                "author": author,
-                "works": {}
-            }
+            mapping[group] = {"author": author, "works": {}}
 
         if work not in mapping[group]["works"]:
             mapping[group]["works"][work] = {
                 "title": title,
                 "editions": [],
                 "translations": [],
-                "commentaries": []
+                "commentaries": [],
             }
 
         category = classify_document(document)
 
-        mapping[group]["works"][work][category].append({
-            "urn": base_urn,
-            "language": language,
-            "title": title,
-            "metadata_file": str(metadata_file)
-        })
+        mapping[group]["works"][work][category].append(
+            {
+                "urn": base_urn,
+                "language": language,
+                "title": title,
+                "metadata_file": str(metadata_file),
+            }
+        )
 
     return mapping
