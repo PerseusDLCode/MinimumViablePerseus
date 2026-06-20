@@ -1,7 +1,1 @@
-{% if text_container.unit == "card" %}
-{% elif text_container.unit == "para" %}
-<span class="tei-milestone" data-unit="para"></span>
-{% else %}
-{%- set id = text_container.unit + "-" + text_container.get("n", "") -%}
-[<a href="#{{ id }}" id="{{ id }}" data-n="{{ text_container.get("n", "") }}" data-unit="{{ text_container.unit }}">§{{ text_container.get("n", "") }}</a>]
-{% endif %}
+{%- set id = text_container.unit + "-" + text_container.get("n", "") -%}<span id="{{ id }}" data-n="{{ text_container.get("n", "") }}" data-unit="{{ text_container.unit }}" class="tei-milestone" title="{{ text_container.unit|default("") }} {{ text_container.get("n", "") }}"></span>

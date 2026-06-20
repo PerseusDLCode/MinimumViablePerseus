@@ -12,16 +12,18 @@ from lxml import etree
 from markupsafe import Markup
 
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
-from perseus_cts.models import Corpus
-from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.chunker import Chunker
+from perseus_cts.cts_resolver import ConfigurationError
+from perseus_cts.models import Corpus
 from mvp.site_map import SiteMap
 from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-_DEFAULT_GAZETTEER = ROOT_DIR.parent / "citation-resolution" / "kb" / "data" / "gazetteer.json"
+_DEFAULT_GAZETTEER = (
+    ROOT_DIR.parent / "citation-resolution" / "kb" / "data" / "gazetteer.json"
+)
 GAZETTEER_PATH = Path(os.getenv("GAZETTEER_PATH", _DEFAULT_GAZETTEER))
 CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
@@ -129,7 +131,9 @@ def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
                     if not lang:
                         continue
                     work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
-                    url_prefix = f"/{corpus}/{tg_dir.name}/{work_dir.name}/{ver_dir.name}/"
+                    url_prefix = (
+                        f"/{corpus}/{tg_dir.name}/{work_dir.name}/{ver_dir.name}/"
+                    )
                     index.setdefault(work_urn, {}).setdefault(lang, url_prefix)
 
     return index
@@ -180,8 +184,7 @@ def _build_collections(proto_dir: Path) -> list[dict]:
                             "title": doc_meta.get("title", ver_dir.name),
                             "language": lang,
                             "language_label": _LANGUAGE_LABELS.get(lang, lang),
-                            "first_chunk_url": url_for(
-                                "reading_view",
+                            "first_chunk_kwargs": dict(
                                 corpus=corpus,
                                 textgroup=tg_dir.name,
                                 work=work_dir.name,

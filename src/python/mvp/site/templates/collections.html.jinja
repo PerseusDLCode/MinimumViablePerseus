@@ -29,7 +29,7 @@
                                 <ul class="pl-6 space-y-0.5">
                                     {% for version in work.versions|sort(attribute="title,id") %}
                                     <li>
-                                        <a href="{{ version.first_chunk_url }}" class="link text-sm">
+                                        <a href="{{ url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
                                             {{ version.title }} ({{ version.language_label }}, {{ version.id }})
                                         </a>
                                     </li>

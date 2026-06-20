@@ -10,10 +10,10 @@
 }
 
 .tei-milestone {
-    @apply mx-4;
+    @apply mx-1;
+    @apply border-l-2;
+    @apply border-red-800;
 }
-
-
 
 .tei-milestone[data-unit="para"]::after {
     @apply indent-4;

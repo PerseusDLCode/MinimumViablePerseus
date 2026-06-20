@@ -63,6 +63,7 @@
             </div>
 
             <div class="prose">
+                {% set notes = namespace(items=[]) %}
                 {% for element in chunk.elements %}
                     {% with text_container = element %}
                         {%  include 'components/ReadableTextContainer.html.jinja' %}
@@ -103,6 +104,17 @@
             </div>
         </div>
     </main>
+
+    {% for note in notes.items %}
+        <dialog id="{{ note.id }}" class="tei-note-dialog rounded p-4 shadow-lg max-w-prose w-full mt-16 mx-auto backdrop:bg-black/40">
+            <form method="dialog" class="flex justify-end mb-2">
+                <button type="submit" class="cursor-pointer font-bold text-lg leading-none" aria-label="Close">&#215;</button>
+            </form>
+            <div class="tei-note-content text-sm prose">
+                {{ note.content }}
+            </div>
+        </dialog>
+    {% endfor %}
 
     <footer class="text-xs bg-neutral-300 p-4 bottom-0">
         <div class="rights_info">

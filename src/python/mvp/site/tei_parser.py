@@ -9,7 +9,7 @@ import lxml.sax  # ty: ignore
 
 from lxml import etree
 
-PARATEXTUAL_ELEMENTS = frozenset({"note", "noteGrp", "speaker", "sp"})
+PARATEXTUAL_ELEMENTS = frozenset({"note", "noteGrp", "speaker"})
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
