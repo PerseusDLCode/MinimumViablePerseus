@@ -177,10 +177,7 @@
 </script>
 <script>
 (function () {
-    const morphUrl = {{ morph_url | tojson }};
     const lang = {{ chunk.language | tojson }};
-
-    if (!morphUrl) return;
 
     const MORPHABLE_LANGUAGES = ['grc', 'la', 'lat'];
 
@@ -193,7 +190,11 @@
         if (!text.trim()) return;
 
         const frag = document.createDocumentFragment();
-        for (const part of text.split(/(\s+)/)) {
+        const splitText = text.split(/(\s+)/);
+        let prev = null;
+        for (let i = 0, l = splitText.length; i < l; i++) {
+            const part = splitText[i];
+
             if (!part || /^\s+$/.test(part)) {
                 frag.appendChild(document.createTextNode(part));
                 continue;
@@ -204,9 +205,18 @@
                 continue;
             }
             const a = document.createElement('a');
-            a.href = `${morphUrl}?form=${encodeURIComponent(surface)}&lang=${lang}`;
+            a.href = `{{ url_for('get_morph') }}?word=${encodeURIComponent(surface)}&language=${lang}&document_id={{ document_id }}`;
+
+            a.target = "_blank";
+
+            if (prev) {
+                a.href += `&prior_word=${encodeURIComponent(prev)}`
+            }
+
             a.className = 'font-normal no-underline hover:underline';
             a.textContent = part;
+
+            prev = surface;
             frag.appendChild(a);
         }
         node.parentNode.replaceChild(frag, node);
@@ -218,8 +228,12 @@
     const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT,
         (textNode) => textNode.parentElement.closest(".tei-speaker") ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT);
     const nodes = [];
-    let n;
-    while ((n = walker.nextNode())) nodes.push(n);
+    let n = walker.nextNode();
+
+    while (n) {
+        nodes.push(n);
+        n = walker.nextNode()
+    }
     nodes.forEach(linkifyTextNode);
 }());
 </script>

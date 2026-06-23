@@ -5,7 +5,7 @@
 groups = ["default", "dev", "morph"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:26feb3daa34941560130420915f64ae5cc809a175b1446b3f46ce253fcfd81ad"
+content_hash = "sha256:b6fc2c0c7ee3d52f4a0dc7eff02a318c4b5efc4bf0cde677b0f2380e54d62476"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -469,6 +469,22 @@ files = [
 ]
 
 [[package]]
+name = "kodon-py"
+version = "0.1.0"
+requires_python = ">=3.12"
+git = "https://github.com/PerseusDLCode/kodon-py"
+ref = "beta"
+revision = "5fd6a7c3bb85f44b00ef7fa985aee1a026d7fffa"
+summary = "Add your description here"
+groups = ["default"]
+dependencies = [
+    "click>=8.1.0",
+    "flask>=3.1.2",
+    "lxml-stubs>=0.5.1",
+    "lxml>=6.0.2",
+]
+
+[[package]]
 name = "librt"
 version = "0.11.0"
 requires_python = ">=3.9"
@@ -784,7 +800,7 @@ files = [
 name = "perseus-cts"
 version = "0.1.0"
 requires_python = ">=3.12"
-git = "https://github.com/PerseusDLCode/perseus-cts"
+git = "https://github.com/PerseusDLCode/perseus-cts.git"
 revision = "1c115c9f7625a2ef95c2aef9d135e743ebc92b44"
 summary = "CTS resolver, chunker, and TEI document models for the Perseus Digital Library"
 groups = ["default"]

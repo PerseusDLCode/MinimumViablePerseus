@@ -1,0 +1,193 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{{ word }} – Morpheus{% endblock %}
+
+{% block content %}
+<div x-data="morph">
+    <template x-if="loading">
+        <p class="text-neutral-500">Loading…</p>
+    </template>
+
+    <template x-if="error">
+        <p class="text-red-600" x-text="error"></p>
+    </template>
+
+    <template x-if="results">
+        <div>
+            <h1 class="text-xl font-bold mb-4">
+                <span x-text="results.word"></span>
+                <span class="font-normal text-neutral-500" x-text="`(${results.language_code})`"></span>
+            </h1>
+
+            <template x-if="results.lemmas.length === 0">
+                <p class="text-neutral-500 italic">No results found.</p>
+            </template>
+
+            <template x-for="lemma in results.lemmas" :key="lemma.headword + lemma.sequence_number">
+                <details class="border border-neutral-300 rounded mb-2 overflow-hidden" open>
+                    <summary class="bg-neutral-100 cursor-pointer font-semibold px-4 py-2 text-neutral-800">
+                        <span x-text="lemma.headword"></span>
+                        <template x-if="lemma.sequence_number > 1">
+                            <span class="text-neutral-400" x-text="`(${lemma.sequence_number})`"></span>
+                        </template>
+                        <template x-if="lemma.document_frequency !== null">
+                            <span class="font-normal text-neutral-400 text-sm" x-text="`— ${(lemma.document_frequency * 100).toFixed(0)}%`"></span>
+                        </template>
+                    </summary>
+
+                    <div class="px-4 py-2 space-y-2">
+                        <!-- Morphology -->
+                        <details class="border border-neutral-200 rounded" open>
+                            <summary class="bg-neutral-50 cursor-pointer font-medium px-3 py-1 text-neutral-700 text-sm">
+                                Morphology
+                                <span class="font-normal text-neutral-400" x-text="`(${lemma.parses.length} parse${lemma.parses.length === 1 ? '' : 's'})`"></span>
+                            </summary>
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-neutral-200 text-neutral-500 text-xs uppercase">
+                                        <th class="px-3 py-1 text-left">Form</th>
+                                        <th class="px-3 py-1 text-left">POS</th>
+                                        <th class="px-3 py-1 text-left">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(parse, idx) in lemma.parses" :key="idx">
+                                        <tr class="border-b border-neutral-100" :class="parse.is_winner ? 'bg-green-50' : ''">
+                                            <td class="px-3 py-1">
+                                                <span x-text="parse.form"></span>
+                                                <template x-if="parse.is_winner">
+                                                    <span class="text-green-600 text-xs" title="Most likely parse"> ✓</span>
+                                                </template>
+                                            </td>
+                                            <td class="px-3 py-1" x-text="parse.part_of_speech"></td>
+                                            <td class="px-3 py-1 text-neutral-600 text-sm" x-text="morphDetails(parse)"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </details>
+
+                        <!-- Senses -->
+                        <details class="border border-neutral-200 rounded">
+                            <summary class="bg-neutral-50 cursor-pointer font-medium px-3 py-1 text-neutral-700 text-sm">
+                                Senses
+                                <span class="font-normal text-neutral-400" x-text="`(${lemma.senses.length} sense${lemma.senses.length === 1 ? '' : 's'})`"></span>
+                            </summary>
+                            <div class="px-3 py-2 space-y-1">
+                                <template x-for="group in sensesByLexicon(lemma.senses)" :key="group.lexicon">
+                                    <details class="border border-neutral-100 rounded">
+                                        <summary class="cursor-pointer font-medium text-neutral-600 text-sm" x-text="group.lexicon"></summary>
+                                        <div class="px-3 py-1">
+                                            <template x-for="sense in group.senses" :key="sense.definition">
+                                                <div
+                                                    class="text-sm"
+                                                    :style="`padding-left: ${(sense.level || 0) * 1.25}rem`"
+                                                >
+                                                    <span x-text="sense.sense" x-show="sense.sense" class="font-medium text-neutral-700"></span>
+                                                    <span x-text="sense.definition" x-show="sense.definition" :class="sense.sense ? 'ml-1' : ''"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </details>
+                                </template>
+                                <template x-if="lemma.senses.length === 0">
+                                    <p class="text-neutral-400 text-sm italic">No senses available.</p>
+                                </template>
+                            </div>
+                        </details>
+
+                        <!-- Full Entry -->
+                        <details class="border border-neutral-200 rounded">
+                            <summary class="bg-neutral-50 cursor-pointer font-medium px-3 py-1 text-neutral-700 text-sm">
+                                Full Entry
+                                <span class="font-normal text-neutral-400" x-text="`(${lemma.entries.length} lexicon${lemma.entries.length === 1 ? '' : 's'})`"></span>
+                            </summary>
+                            <div class="px-3 py-2 space-y-1">
+                                <template x-for="entry in lemma.entries" :key="entry.document_id">
+                                    <details class="border border-neutral-100 rounded">
+                                        <summary class="cursor-pointer font-medium text-neutral-600 text-sm" x-text="entry.document_id"></summary>
+                                        <pre class="bg-neutral-50 border border-neutral-100 mt-1 overflow-auto p-2 text-xs" x-text="entry.text"></pre>
+                                    </details>
+                                </template>
+                                <template x-if="lemma.entries.length === 0">
+                                    <p class="text-neutral-400 text-sm italic">No lexicon entries available.</p>
+                                </template>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+            </template>
+        </div>
+    </template>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script>
+        const morphUrl = {{ morph_url | tojson }};
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('morph', () => ({
+                results: null,
+                loading: true,
+                error: null,
+
+                init() {
+                    const params = new URLSearchParams(window.location.search);
+                    const url = morphUrl + '?' + params.toString();
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            this.results = data;
+                            this.loading = false;
+                        })
+                        .catch(err => {
+                            this.error = err.message;
+                            this.loading = false;
+                        });
+                },
+
+                groupBy(items, key) {
+                    return items.reduce((acc, item) => {
+                        const group = item[key];
+                        if (!acc[group]) {
+                            acc[group] = [];
+                        }
+                        acc[group].push(item);
+                        return acc;
+                    }, {});
+                },
+
+                morphDetails(parse) {
+                    const fields = [];
+                    if (parse.grammatical_case) fields.push(parse.grammatical_case);
+                    if (parse.number) fields.push(parse.number);
+                    if (parse.gender) fields.push(parse.gender);
+                    if (parse.tense) fields.push(parse.tense);
+                    if (parse.mood) fields.push(parse.mood);
+                    if (parse.voice) fields.push(parse.voice);
+                    if (parse.person) fields.push(parse.person);
+                    if (parse.degree) fields.push(parse.degree);
+                    if (parse.dialect) fields.push(parse.dialect);
+                    if (parse.other) fields.push(parse.other);
+                    return fields.join(' · ');
+                },
+
+                sensesByLexicon(senses) {
+                    const grouped = this.groupBy(senses, 'document_id');
+                    return Object.entries(grouped).map(([lexicon, senses]) => ({
+                        lexicon,
+                        senses,
+                    }));
+                },
+            }));
+        });
+    </script>
+{% endblock %}

@@ -7,7 +7,7 @@ from typing import Any
 
 import markdown
 
-from flask import Flask, abort, render_template, url_for
+from flask import Flask, abort, render_template
 from lxml import etree
 from markupsafe import Markup
 
@@ -16,7 +16,7 @@ from perseus_cts.chunker import Chunker
 from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.models import Corpus
 from mvp.site_map import SiteMap
-from mvp.site.tei_parser import TEIParser, TEIParserError, inject_tokens
+from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -445,6 +445,10 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
+    @app.get("/morph/")
+    def get_morph():
+        return render_template("morph.html.jinja", morph_url=MORPH_URL)
+
     @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN) as f:
@@ -504,20 +508,20 @@ def create_app(test_config=None):
         return (
             render_template(
                 "reading.html.jinja",
-                chunk=chunk_obj,
-                pub_info=pub_info,
-                toc=toc,
-                current_urn=urn,
-                textgroup_urn=f"urn:cts:{corpus}:{textgroup}",
-                work_urn=f"urn:cts:{corpus}:{textgroup}.{work}",
-                prev_url=prev_url,
-                next_url=next_url,
-                citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",
-                text_uri=f"http://data.perseus.org/texts/{base_urn}",
-                work_uri=f"http://data.perseus.org/texts/{work_base_urn}",
                 catalog_record_uri=f"http://data.perseus.org/catalog/{base_urn}",
+                chunk=chunk_obj,
+                citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",
+                current_urn=urn,
+                document_id=f"{textgroup}.{work}.{version}",
+                next_url=next_url,
+                prev_url=prev_url,
+                pub_info=pub_info,
+                text_uri=f"http://data.perseus.org/texts/{base_urn}",
+                textgroup_urn=f"urn:cts:{corpus}:{textgroup}",
+                toc=toc,
+                work_uri=f"http://data.perseus.org/texts/{work_base_urn}",
+                work_urn=f"urn:cts:{corpus}:{textgroup}.{work}",
                 xml_src_url=_xml_src_url(corpus, textgroup, work, version),
-                morph_url=MORPH_URL,
             ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
