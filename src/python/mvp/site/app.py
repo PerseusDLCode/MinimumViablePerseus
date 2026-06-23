@@ -12,11 +12,11 @@ from lxml import etree
 from markupsafe import Markup
 
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
+from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
 from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.models import Corpus
 from mvp.site_map import SiteMap
-from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 
 
 APP_DIR = Path(__file__).resolve().parent

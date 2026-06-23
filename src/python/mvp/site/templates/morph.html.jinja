@@ -78,13 +78,13 @@
                                     <details class="border border-neutral-100 rounded">
                                         <summary class="cursor-pointer font-medium text-neutral-600 text-sm" x-text="group.lexicon"></summary>
                                         <div class="px-3 py-1">
-                                            <template x-for="sense in group.senses" :key="sense.definition">
+                                            <template x-for="sense in group.senses" :key="sense.sense">
                                                 <div
                                                     class="text-sm"
                                                     :style="`padding-left: ${(sense.level || 0) * 1.25}rem`"
                                                 >
                                                     <span x-text="sense.sense" x-show="sense.sense" class="font-medium text-neutral-700"></span>
-                                                    <span x-text="sense.definition" x-show="sense.definition" :class="sense.sense ? 'ml-1' : ''"></span>
+                                                    <span x-show="sense.definition" :class="sense.sense ? 'ml-1' : ''" x-init="renderElements($el, sense.definition)"></span>
                                                 </div>
                                             </template>
                                         </div>
@@ -106,7 +106,7 @@
                                 <template x-for="entry in lemma.entries" :key="entry.document_id">
                                     <details class="border border-neutral-100 rounded">
                                         <summary class="cursor-pointer font-medium text-neutral-600 text-sm" x-text="entry.document_id"></summary>
-                                        <pre class="bg-neutral-50 border border-neutral-100 mt-1 overflow-auto p-2 text-xs" x-text="entry.text"></pre>
+                                        <div class="bg-neutral-50 border border-neutral-100 mt-1 overflow-auto p-2 text-xs" x-init="renderElements($el, entry.text)"></div>
                                     </details>
                                 </template>
                                 <template x-if="lemma.entries.length === 0">
@@ -124,8 +124,125 @@
 
 {% block scripts %}
     <script src="//unpkg.com/alpinejs" defer></script>
+
     <script>
+        const lang = new URLSearchParams(window.location.search).get("language", "")
+
         const morphUrl = {{ morph_url | tojson }};
+
+        // ── Text-element renderer (mirrors ReadableTextContainer.html.jinja) ──
+        // Dispatches to element-specific renderers by tagname, recursively
+        // rendering children into DOM nodes.
+
+        const _elementRenderers = {};
+        let biblsToLinkify = [];
+
+        function renderTextElement(el) {
+            if (!el || typeof el === 'string') return document.createTextNode(el || '');
+
+            switch (el.tagname) {
+                case 'text_run':
+                    return document.createTextNode(el.text || el.content || '');
+                case 'token': {
+                    const s = document.createElement('span');
+                    if (el.urn) s.dataset.tokenUrn = el.urn;
+                    s.textContent = el.text || '';
+                    return s;
+                }
+                case 'bibl': {
+                    let bibl = document.createElement('a');
+
+                    bibl.className = 'tei-bibl perseus-reference';
+
+                    const urn = el.n;
+
+                    bibl.dataset.ref = urn;
+
+                    (el.children || []).forEach(function(child) {
+                        bibl.appendChild(renderTextElement(child));
+                    });
+
+                    biblsToLinkify.push(bibl);
+
+                    return bibl;
+                }
+                case 'lb':
+                    return document.createElement('br');
+                case 'pb':
+                case 'milestone': {
+                    const s = document.createElement('span');
+                    s.className = 'tei-' + el.tagname;
+                    return s;
+                }
+                default: {
+                    const fn = _elementRenderers[el.tagname];
+                    if (fn) return fn(el);
+                    // Fallback: generic span
+                    const fallback = document.createElement('span');
+                    fallback.className = 'tei-' + (el.tagname || 'span');
+                    (el.children || []).forEach(function (child) {
+                        fallback.appendChild(renderTextElement(child));
+                    });
+                    return fallback;
+                }
+            }
+        }
+
+        function _makeRenderer(tagName, cssClass) {
+            return function (el) {
+                var c = document.createElement(tagName);
+                if (cssClass) c.className = cssClass;
+                (el.children || []).forEach(function (child) {
+                    c.appendChild(renderTextElement(child));
+                });
+                return c;
+            };
+        }
+
+        // Register renderers for all TEI element types
+        var _tagConfig = [
+            ['p', 'p', 'prose tei-p'],
+            ['l', 'div', 'prose tei-l flex justify-between w-full'],
+            ['lg', 'div', 'prose tei-lg'],
+            ['div', 'div', 'prose tei-div mb-4'],
+            ['head', 'h1', 'prose tei-head'],
+            ['speaker', 'div', 'tei-speaker font-bold mt-4 mx-auto'],
+            ['sp', 'h6', 'prose tei-sp'],
+            ['stage', 'span', 'tei-stage italic text-neutral-500'],
+            ['quote', 'blockquote', 'prose tei-quote'],
+            ['s', 'span', 'tei-s'],
+            ['note', 'sup', 'tei-note'],
+            ['bibl', 'span', 'tei-bibl perseus-reference'],
+            ['placeName', 'a', 'tei-placeName hover:font-extrabold'],
+            ['span', 'span', 'prose tei-span'],
+        ];
+        for (var _i = 0; _i < _tagConfig.length; _i++) {
+            var _t = _tagConfig[_i];
+            _elementRenderers[_t[0]] = _makeRenderer(_t[1], _t[2]);
+        }
+
+        fetch("/urn-index.json").then(function (r) { return r.json(); }).then(function (index) {
+            biblsToLinkify.forEach(function (el) {
+                const urn = el.dataset.ref;
+                if (!urn || typeof urn === 'undefined' || !urn.startsWith('urn:cts:')) return;
+
+                const parts = urn.split(':');
+                if (parts.length < 5) return;
+
+                const workUrn = parts.slice(0, 4).join(':');
+                const passage = parts[4].split(".").slice(0, -1);
+                const versions = index[workUrn];
+                if (!versions) return;
+                const prefix = versions[lang] || Object.values(versions)[0];
+                if (!prefix) return;
+
+                el.href = prefix;
+
+                if (passage.length) {
+                    el.href = el.href + passage + "/"
+                }
+            });
+        });
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('morph', () => ({
@@ -152,6 +269,17 @@
                             this.error = err.message;
                             this.loading = false;
                         });
+                },
+
+                renderElements(container, elements) {
+                    if (typeof elements === 'string') {
+                        container.textContent = elements;
+                        return;
+                    }
+                    container.innerHTML = '';
+                    (elements || []).forEach(el => {
+                        container.appendChild(renderTextElement(el));
+                    });
                 },
 
                 groupBy(items, key) {

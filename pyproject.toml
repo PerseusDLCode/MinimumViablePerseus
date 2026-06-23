@@ -17,7 +17,7 @@ dependencies = [
     "markdown>=3.10.2",
     "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts.git",
     "citation-resolution @ git+https://github.com/PerseusDLCode/citation-resolution",
-    "kodon-py @ git+https://github.com/PerseusDLCode/kodon-py@beta"
+    "kodon-py @ git+https://github.com/PerseusDLCode/kodon-py"
 ]
 requires-python = ">=3.12"
 readme = "README.md"
