@@ -150,6 +150,7 @@
 <script>
 (function () {
     const lang = {{ chunk.language | tojson }};
+    const morphUrl = {{ morph_url | tojson }};
 
     linkifyBiblRefs(lang);
 
@@ -179,7 +180,7 @@
                 continue;
             }
             const a = document.createElement('a');
-            a.href = `{{ url_for('get_morph') }}?word=${encodeURIComponent(surface)}&language=${lang}&document_id={{ document_id }}`;
+            a.href = `${morphUrl}?word=${encodeURIComponent(surface)}&language=${lang}&document_id={{ document_id }}`;
 
             a.target = "_blank";
 

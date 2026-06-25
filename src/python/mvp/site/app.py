@@ -445,10 +445,6 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/morph/")
-    def get_morph():
-        return render_template("morph.html.jinja", morph_url=MORPH_URL)
-
     @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN) as f:
@@ -513,6 +509,7 @@ def create_app(test_config=None):
                 citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",
                 current_urn=urn,
                 document_id=f"{textgroup}.{work}.{version}",
+                morph_url=MORPH_URL,
                 next_url=next_url,
                 prev_url=prev_url,
                 pub_info=pub_info,

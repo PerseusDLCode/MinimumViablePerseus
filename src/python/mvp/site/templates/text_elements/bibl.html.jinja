@@ -8,7 +8,6 @@
     {%- endfor -%}
 </a>
 {% else %}
-    {{ text_container }}
 <span class="tei-bibl">
     {%- for child in text_container.children -%}
         {%- set child_urn = child.urn if child.urn else text_container.urn -%}
