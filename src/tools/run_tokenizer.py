@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
 from lxml import etree
 
-from mvp.site.tei_parser import TEIParser, TEIParserError
+from kodon_py.tei_parser import TEIParser, TEIParserError
 
 
 def _is_punct(text: str) -> bool:
