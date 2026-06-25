@@ -99,6 +99,8 @@ ARG MORPH_URL=http://localhost:5000
 ENV MORPH_URL=${MORPH_URL}
 ENV TEI_DATA_ROOT=/corpora
 
+# This argument invalidates caching to allow for the runner to update this everytime
+ARG BUILD_DATE 
 RUN uv run mvp-build
 
 # The static site is now at /app/build/.
