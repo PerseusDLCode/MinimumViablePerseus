@@ -20,7 +20,7 @@ from mvp.site_map import SiteMap
 
 
 APP_DIR = Path(__file__).resolve().parent
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_GAZETTEER = (
     ROOT_DIR.parent / "citation-resolution" / "kb" / "data" / "gazetteer.json"
 )
