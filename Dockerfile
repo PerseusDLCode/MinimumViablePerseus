@@ -76,6 +76,7 @@ COPY pyproject.toml .
 COPY README.md .  
 # COPY uv.lock .                  ← uncomment once uv.lock exists
 
+ENV UV_PYTHON=3.12
 RUN uv sync --no-dev --no-install-project
 
 # ----------------------------------------------------------------
