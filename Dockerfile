@@ -72,6 +72,7 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
 WORKDIR /app
 
 COPY pyproject.toml .
+COPY README.md .  
 # COPY uv.lock .                  ← uncomment once uv.lock exists
 
 RUN uv sync --no-dev --no-install-project
