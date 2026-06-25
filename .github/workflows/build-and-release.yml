@@ -1,0 +1,139 @@
+name: Build and Release
+
+# Triggers on every push to `dev`, plus manual dispatch for testing
+# the pipeline without a real code change.
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # The Saxon XSLT pass over the full corpora may be slow.
+    # 6 hours is the GitHub Actions maximum; adjust down once you
+    # know your typical build time.
+    timeout-minutes: 360
+
+    steps:
+      # ---------------------------------------------------------- #
+      # 1. SOURCE
+      # We only need the MinimumViablePerseus code itself here.
+      # The corpus data is handled inside the Docker build.
+      # ---------------------------------------------------------- #
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      # ---------------------------------------------------------- #
+      # 2. CORPUS CACHE-BUSTING
+      #
+      # Query the HEAD commit SHA of each corpus's `editing` branch.
+      # These SHAs are passed to `docker build` as --build-args.
+      # When a SHA changes (i.e., new commits to the corpus), Docker
+      # invalidates the clone layer and re-clones. When they haven't
+      # changed, the cached corpus layer is reused — meaning a push
+      # to `dev` that only touches Python code skips re-cloning
+      # several hundred MB of XML.
+      # ---------------------------------------------------------- #
+      - name: Get corpus HEAD SHAs
+        id: corpus
+        run: |
+          GREEK=$(git ls-remote \
+            https://github.com/PerseusDLCode/canonical-greekLit \
+            refs/heads/editing | cut -f1)
+          LATIN=$(git ls-remote \
+            https://github.com/PerseusDLCode/canonical-latinLit \
+            refs/heads/editing | cut -f1)
+          echo "greek=${GREEK}" >> "$GITHUB_OUTPUT"
+          echo "latin=${LATIN}" >> "$GITHUB_OUTPUT"
+
+      # ---------------------------------------------------------- #
+      # 3. DOCKER BUILD
+      #
+      # docker/build-push-action with cache-from/cache-to type=gha
+      # stores Docker layer cache in GitHub Actions' built-in cache.
+      # On subsequent runs, unchanged layers (corpus clones, dep
+      # installs) are pulled from cache rather than rebuilt.
+      #
+      # `push: false` + `load: true` makes the image available
+      # locally on the runner so we can extract build/ from it.
+      #
+      # Secrets to create in repo Settings → Secrets and variables
+      # → Actions:
+      #   MORPH_URL — full URL of the Morpheus endpoint for this
+      #               environment, e.g. https://dev.perseus.tufts.edu:PORT/morph
+      # ---------------------------------------------------------- #
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (runs full site build inside)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: mvp-build:latest
+          build-args: |
+            MORPH_URL=${{ secrets.MORPH_URL }}
+            GREEK_CORPUS_SHA=${{ steps.corpus.outputs.greek }}
+            LATIN_CORPUS_SHA=${{ steps.corpus.outputs.latin }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ---------------------------------------------------------- #
+      # 4. EXTRACT
+      #
+      # The site was built inside the Docker image during `docker build`.
+      # We create a (non-running) container from it just to copy the
+      # build directory out, then immediately remove the container.
+      # ---------------------------------------------------------- #
+      - name: Extract build/ from container
+        run: |
+          CONTAINER_ID=$(docker create mvp-build:latest)
+          mkdir -p ./build
+          docker cp "${CONTAINER_ID}:/app/build/." ./build/
+          docker rm "${CONTAINER_ID}"
+
+      # ---------------------------------------------------------- #
+      # 5. PACKAGE
+      #
+      # Tag format: dev-YYYYMMDDHHMMSS-<short-sha>
+      # Human-readable, chronologically sortable, and unique.
+      # This is what the deploy script on the VM tracks.
+      # ---------------------------------------------------------- #
+      - name: Package build output
+        id: package
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_TAG="dev-$(date -u +%Y%m%d%H%M%S)-${SHORT_SHA}"
+          ARTIFACT="perseus-build-${BUILD_TAG}.tar.gz"
+          tar -czf "${ARTIFACT}" -C build/ .
+          echo "build_tag=${BUILD_TAG}" >> "$GITHUB_OUTPUT"
+          echo "artifact=${ARTIFACT}" >> "$GITHUB_OUTPUT"
+
+      # ---------------------------------------------------------- #
+      # 6. RELEASE
+      #
+      # Creates a GitHub Release and uploads the tarball as an asset.
+      # make_latest: true ensures the deploy script can always find
+      # the newest build via the /releases/latest API endpoint.
+      #
+      # GITHUB_TOKEN is provided automatically by Actions —
+      # no secret to create for this step.
+      # ---------------------------------------------------------- #
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.build_tag }}
+          name: "Build ${{ steps.package.outputs.build_tag }}"
+          body: |
+            Automated build from branch `dev`.
+            Commit: ${{ github.sha }}
+          files: ${{ steps.package.outputs.artifact }}
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

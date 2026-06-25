@@ -240,5 +240,6 @@ proto-pages
 
 # build artifacts
 site-build/
-
+src/static
 corpora
+scripts/
