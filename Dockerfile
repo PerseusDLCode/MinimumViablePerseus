@@ -103,7 +103,14 @@ ENV TEI_DATA_ROOT=${CORPORA_DIR}
 
 # This argument invalidates caching to allow for the runner to update this everytime
 ARG BUILD_DATE 
-RUN uv run mvp-build
+
+# This is hacky but I am getting ValueError: Unexpected status '500 INTERNAL SERVER ERROR' on URL /greekLit/tlg0016/tlg001/perseus-eng2/1.1/, will need to talk to Charles about this
+RUN uv run mvp-build; \
+    PAGE_COUNT=$(find /app/build -name "*.html" 2>/dev/null | wc -l); \
+    echo "Build finished. ${PAGE_COUNT} HTML pages generated."; \
+    if [ "${PAGE_COUNT}" -eq 0 ]; then \
+        echo "ERROR: Build produced no HTML output."; exit 1; \
+    fi
 
 # The static site is now at /app/build/.
 # The CI workflow extracts it with:
