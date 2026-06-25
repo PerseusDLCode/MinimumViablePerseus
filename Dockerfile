@@ -43,15 +43,16 @@ ENV PATH="/root/.local/bin:${PATH}"
 ARG GREEK_CORPUS_SHA=latest
 ARG LATIN_CORPUS_SHA=latest
 
+ARG CORPORA_DIR=/corpora
 RUN echo "greekLit @ ${GREEK_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
         https://github.com/PerseusDLCode/canonical-greekLit \
-        /corpora/greekLit
+        ${CORPORA_DIR}/greekLit
 
 RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
         https://github.com/PerseusDLCode/canonical-latinLit \
-        /corpora/latinLit
+        ${CORPORA_DIR}/latinLit
 
 # ----------------------------------------------------------------
 # Python dependencies
@@ -97,7 +98,7 @@ RUN uv sync --no-dev
 # ----------------------------------------------------------------
 ARG MORPH_URL=http://localhost:5000
 ENV MORPH_URL=${MORPH_URL}
-ENV TEI_DATA_ROOT=/corpora
+ENV TEI_DATA_ROOT=${CORPORA_DIR}
 
 # This argument invalidates caching to allow for the runner to update this everytime
 ARG BUILD_DATE 
