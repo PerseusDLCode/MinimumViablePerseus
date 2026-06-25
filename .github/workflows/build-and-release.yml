@@ -84,6 +84,7 @@ jobs:
             MORPH_URL=${{ secrets.MORPH_URL }}
             GREEK_CORPUS_SHA=${{ steps.corpus.outputs.greek }}
             LATIN_CORPUS_SHA=${{ steps.corpus.outputs.latin }}
+            BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
