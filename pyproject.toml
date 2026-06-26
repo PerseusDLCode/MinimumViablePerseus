@@ -26,6 +26,7 @@ license = {text = "MIT"}
 [project.scripts]
 mvp-dev = "mvp.site.app:main"
 mvp-build = "mvp.site.app:build"
+mvp-proto = "mvp.scripts.proto:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -37,6 +38,8 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/mvp"]
 
+[tool.uv.sources]
+citation-resolution = {git = "https://github.com/PerseusDLCode/citation-resolution", rev = "d28f14e160cc2f12ae832abe47925f40ede0af95"}
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

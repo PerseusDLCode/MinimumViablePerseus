@@ -7,9 +7,11 @@ from typing import Any
 
 import markdown
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, redirect, url_for
 from lxml import etree
 from markupsafe import Markup
+
+import citation_resolution
 
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
@@ -22,7 +24,7 @@ from mvp.site_map import SiteMap
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_GAZETTEER = (
-    ROOT_DIR.parent / "citation-resolution" / "kb" / "data" / "gazetteer.json"
+    Path(citation_resolution.__file__).parent / "data" / "gazetteer.json"
 )
 GAZETTEER_PATH = Path(os.getenv("GAZETTEER_PATH", _DEFAULT_GAZETTEER))
 CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
@@ -456,6 +458,42 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
+    @app.get("/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<path:version>/")
+    def get_first_chunk(corpus, textgroup, work, version):
+        index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
+        if not index_file.exists():
+            abort(404)
+
+        with open(index_file) as f:
+            work_index = json.load(f)
+
+        chunks = work_index.get("chunks")
+
+        if not chunks or len(chunks) == 0:
+            abort(404)
+
+        chunk_entry = chunks[0]
+
+        if chunk_entry is None:
+            abort(404)
+
+        try:
+            _urn, _cts, corpus, work_urn, chunk = chunk_entry["cts_urn"].split(":", 4)
+            textgroup, work, version = work_urn.split(".")
+        except Exception:
+            abort(404)
+
+        return redirect(
+            url_for(
+                "reading_view",
+                corpus=corpus,
+                textgroup=textgroup,
+                work=work,
+                version=version,
+                chunk=chunk,
+            )
+        )
+
     @app.get(
         "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<path:version>:<path:chunk>/"
     )
@@ -544,6 +582,34 @@ def build():
     )
 
     freezer = Freezer(app)
+
+    @freezer.register_generator
+    def get_first_chunk():
+        metadata = PROTO_DIR.glob("**/metadata.json")
+
+        for m in metadata:
+            with m.open() as f:
+                metadata_json = json.load(f)
+
+            document = metadata_json.get("document")
+
+            if not document:
+                continue
+
+            base_urn = document.get("base_urn")
+
+            if not base_urn:
+                continue
+
+            (
+                _urn,
+                _cts,
+                corpus,
+                work_urn,
+            ) = base_urn.split(":")
+            textgroup, work, version = work_urn.split(".")
+
+            yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
 
     freezer.freeze()
 

@@ -89,7 +89,7 @@ wheels = [
 [[package]]
 name = "citation-resolution"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/citation-resolution#b38432446a6bc58181d94184f3db98c56d19fd17" }
+source = { git = "https://github.com/PerseusDLCode/citation-resolution?rev=d28f14e160cc2f12ae832abe47925f40ede0af95#d28f14e160cc2f12ae832abe47925f40ede0af95" }
 dependencies = [
     { name = "lxml" },
     { name = "rdflib" },
@@ -578,7 +578,7 @@ morph = [
 
 [package.metadata]
 requires-dist = [
-    { name = "citation-resolution", git = "https://github.com/PerseusDLCode/citation-resolution" },
+    { name = "citation-resolution", git = "https://github.com/PerseusDLCode/citation-resolution?rev=d28f14e160cc2f12ae832abe47925f40ede0af95" },
     { name = "fastapi", specifier = ">=0.136.1" },
     { name = "frozen-flask", specifier = ">=1.0.2" },
     { name = "kodon-py", git = "https://github.com/PerseusDLCode/kodon-py" },

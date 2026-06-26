@@ -1,24 +1,24 @@
 # ================================================================
-# MinimumViablePerseus — Build Image
+# MinimumViablePerseus — Build + Serve Image
 #
-# This is a BUILD image, not a serve image. It produces a static
-# site at /app/build/ which the GitHub Actions workflow extracts,
-# packages, and publishes as a GitHub Release artifact.
+# At build time, this image clones the TEI corpus repositories,
+# generates proto-pages, and compiles the frozen static site.
+# At run time, it serves the static site via Python's built-in
+# HTTP server.
 #
-# The running web server on the VM is untouched by this process;
-# the deploy script on the VM simply downloads the release tarball
-# and swaps the symlink.
+# The GitHub Actions workflow can still extract /app/build/ from
+# a created container for release packaging.
 # ================================================================
 
-FROM eclipse-temurin:21-jdk-jammy
+FROM python:3.12-slim
 
 # ----------------------------------------------------------------
 # System dependencies
 # ----------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git \
-        curl \
-        ca-certificates \
+    git \
+    curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------------------------------
@@ -46,13 +46,13 @@ ARG LATIN_CORPUS_SHA=latest
 ARG CORPORA_DIR=/corpora
 RUN echo "greekLit @ ${GREEK_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
-        https://github.com/PerseusDLCode/canonical-greekLit \
-        ${CORPORA_DIR}/greekLit
+    https://github.com/PerseusDLCode/canonical-greekLit \
+    ${CORPORA_DIR}/greekLit
 
 RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
-        https://github.com/PerseusDLCode/canonical-latinLit \
-        ${CORPORA_DIR}/latinLit
+    https://github.com/PerseusDLCode/canonical-latinLit \
+    ${CORPORA_DIR}/latinLit
 
 # ----------------------------------------------------------------
 # Python dependencies
@@ -65,16 +65,12 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
 # --no-dev excludes pytest, ruff, mypy — not needed at build time.
 # --no-install-project installs deps only; the project itself is
 # installed in the next step once source is present.
-#
-# If you add a uv.lock to the repo (recommended for reproducibility),
-# uncomment the COPY uv.lock line and add --frozen to both uv sync
-# calls below.
 # ----------------------------------------------------------------
 WORKDIR /app
 
 COPY pyproject.toml .
 COPY README.md .  
-# COPY uv.lock .                  ← uncomment once uv.lock exists
+COPY uv.lock .
 
 ENV UV_PYTHON=3.12
 RUN uv sync --no-dev --no-install-project
@@ -84,8 +80,17 @@ RUN uv sync --no-dev --no-install-project
 # ----------------------------------------------------------------
 COPY src/ src/
 
-# Install the project itself (registers the mvp-build entry point).
+# Install the project itself (registers the mvp-* entry points).
 RUN uv sync --no-dev
+
+# ----------------------------------------------------------------
+# Proto-pages
+#
+# Generate proto-page XML from the cloned TEI corpora.
+# ----------------------------------------------------------------
+ENV CORPORA_DIR=${CORPORA_DIR}
+ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages
+RUN uv run mvp-proto
 
 # ----------------------------------------------------------------
 # Build
@@ -94,24 +99,21 @@ RUN uv sync --no-dev
 # to the correct Morpheus endpoint for the target environment
 # (dev vs prod). It comes from a GitHub Actions secret and is
 # passed as a --build-arg by the CI workflow.
-#
-# TEI_DATA_ROOT points to the corpora directory cloned above.
 # ----------------------------------------------------------------
 ARG MORPH_URL=http://localhost:5000
 ENV MORPH_URL=${MORPH_URL}
-ENV TEI_DATA_ROOT=${CORPORA_DIR}
 
-# This argument invalidates caching to allow for the runner to update this everytime
-ARG BUILD_DATE 
+ARG BUILD_DATE
 
-# This is hacky but I am getting ValueError: Unexpected status '500 INTERNAL SERVER ERROR' on URL /greekLit/tlg0016/tlg001/perseus-eng2/1.1/, will need to talk to Charles about this
 RUN uv run mvp-build; \
     PAGE_COUNT=$(find /app/build -name "*.html" 2>/dev/null | wc -l); \
     echo "Build finished. ${PAGE_COUNT} HTML pages generated."; \
     if [ "${PAGE_COUNT}" -eq 0 ]; then \
-        echo "ERROR: Build produced no HTML output."; exit 1; \
+    echo "ERROR: Build produced no HTML output."; exit 1; \
     fi
 
-# The static site is now at /app/build/.
-# The CI workflow extracts it with:
-#   docker create mvp-build:latest  →  docker cp <id>:/app/build/ ./build/
+# ----------------------------------------------------------------
+# Runtime — serve the frozen static site
+# ----------------------------------------------------------------
+EXPOSE 8080
+CMD ["python", "-m", "http.server", "8080", "--directory", "/app/build"]
