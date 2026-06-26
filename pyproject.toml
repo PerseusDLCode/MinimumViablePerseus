@@ -15,9 +15,9 @@ dependencies = [
     "uvicorn[standard]>=0.46.0",
     "frozen-flask>=1.0.2",
     "markdown>=3.10.2",
-    "perseus-cts @ git+https://github.com/PerseusDLCode/perseus-cts.git",
-    "citation-resolution @ git+https://github.com/PerseusDLCode/citation-resolution",
-    "kodon-py @ git+https://github.com/PerseusDLCode/kodon-py"
+    "perseus-cts",
+    "citation-resolution",
+    "kodon-py @ git+https://github.com/PerseusDLCode/kodon-py",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -40,6 +40,7 @@ packages = ["src/mvp"]
 
 [tool.uv.sources]
 citation-resolution = {git = "https://github.com/PerseusDLCode/citation-resolution", rev = "d28f14e160cc2f12ae832abe47925f40ede0af95"}
+perseus-cts = { git = "https://github.com/PerseusDLCode/perseus-cts.git", rev = "17084f3" }
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

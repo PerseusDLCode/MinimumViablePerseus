@@ -17,7 +17,7 @@ from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
 from perseus_cts.cts_resolver import ConfigurationError
-from perseus_cts.models import Corpus
+from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 from mvp.site_map import SiteMap
 
 
@@ -303,6 +303,83 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     return chunk, pub_info
 
 
+def _build_sibling_data(
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+    chunk: str,
+    chunk_index: int | None,
+    catalog: CTSCatalog,
+    base_urn: str,
+) -> dict:
+    """Build sibling edition/translation chunk data using catalog + chunk offset.
+
+    For each sibling version, loads its index.json and finds the corresponding
+    chunk by:
+      Strategy 1 — exact passage reference match
+      Strategy 2 — positional (offset) fallback, clamped to bounds
+
+    Returns dict with keys:
+      current_version: CTSVersion | None
+      edition_chunks: list[(CTSVersion, _Chunk | None)]
+      translation_chunks: list[(CTSVersion, _Chunk | None)]
+    """
+    result: dict = {
+        "current_version": None,
+        "edition_chunks": [],
+        "translation_chunks": [],
+    }
+
+    result["current_version"] = catalog.version_for(base_urn)
+    work_urn = base_urn.rsplit(".", 1)[0]
+
+    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None]:
+        sib_id = sib.urn.split(":")[3].split(".")[-1]
+        if sib_id == version:
+            return (sib, None)
+
+        index_file = PROTO_DIR / corpus / textgroup / work / sib_id / "index.json"
+        if not index_file.exists():
+            return (sib, None)
+
+        with open(index_file) as f:
+            sib_index = json.load(f)
+        sib_chunks = sib_index.get("chunks", [])
+        if not sib_chunks:
+            return (sib, None)
+
+        entry = next(
+            (c for c in sib_chunks if c["cts_urn"].endswith(f":{chunk}")),
+            None,
+        )
+
+        if entry is None and chunk_index is not None:
+            pos = min(chunk_index, len(sib_chunks) - 1)
+            print(sib_chunks)
+            entry = sib_chunks[pos]
+
+        if entry is None:
+            return (sib, None)
+
+        chunk_file = PROTO_DIR / corpus / textgroup / work / sib_id / entry["file"]
+        if not chunk_file.exists():
+            return (sib, None)
+
+        sib_chunk, _ = _parse_chunk(chunk_file)
+        return (sib, sib_chunk)
+
+    for sib in catalog.editions_of(work_urn):
+        if sib.urn != base_urn:
+            result["edition_chunks"].append(_lookup(sib))
+
+    for sib in catalog.translations_of(work_urn):
+        if sib.urn != base_urn:
+            result["translation_chunks"].append(_lookup(sib))
+
+    return result
+
+
 def _max_toc_depth(es: list[dict]) -> int:
     d = -1
     for e in es:
@@ -421,7 +498,10 @@ def create_app(test_config=None):
         pass
 
     corpora = _discover_corpora(CORPORA_DIR)
+
     generate_proto_pages(PROTO_DIR, corpora)
+
+    catalog = CTSCatalog([c.root for c in corpora])
 
     @app.get("/urn-index.json")
     def urn_index():
@@ -506,8 +586,9 @@ def create_app(test_config=None):
             work_index = json.load(f)
 
         urn = f"urn:cts:{corpus}:{textgroup}.{work}.{version}:{chunk}"
-        chunk_entry = next(
-            (c for c in work_index["chunks"] if c["cts_urn"] == urn), None
+        chunk_entry, chunk_index = next(
+            ((c, i) for i, c in enumerate(work_index["chunks"]) if c["cts_urn"] == urn),
+            (None, None),
         )
         if chunk_entry is None:
             abort(404)
@@ -541,6 +622,10 @@ def create_app(test_config=None):
         )  # e.g. urn:cts:greekLit:tlg0003.tlg001.perseus-grc2
         work_base_urn = base_urn.rsplit(".", 1)[0]  # drop version component
 
+        sibling_data = _build_sibling_data(
+            corpus, textgroup, work, version, chunk, chunk_index, catalog, base_urn
+        )
+
         return (
             render_template(
                 "reading.html.jinja",
@@ -549,6 +634,8 @@ def create_app(test_config=None):
                 citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",
                 current_urn=urn,
                 document_id=f"{textgroup}.{work}.{version}",
+                sibling_data=sibling_data,
+                language_labels=_LANGUAGE_LABELS,
                 morph_url=MORPH_URL,
                 next_url=next_url,
                 prev_url=prev_url,

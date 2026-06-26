@@ -18,6 +18,8 @@
 {% endblock %}
 
 {% block content %}
+    {% set notes = namespace(items=[]) %}
+
     <main class="flex pt-4 w-full items-start">
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
         <div class="text-base-content text-xs w-1/5 sticky top-0 self-start max-h-screen overflow-y-auto">
@@ -63,7 +65,6 @@
             </div>
 
             <div class="prose">
-                {% set notes = namespace(items=[]) %}
                 {% for element in chunk.elements %}
                     {% with text_container = element %}
                         {%  include 'components/ReadableTextContainer.html.jinja' %}
@@ -88,8 +89,78 @@
             </div>
         </article>
 
-        <!-- Paratexts -->
+        <!-- Paratexts / Editions / Translations -->
         <div class="text-xs w-2/5">
+            {% if sibling_data and sibling_data.current_version %}
+            <!-- Current version -->
+            <div class="mb-4">
+                <div class="bg-neutral-400 p-4">
+                    <h4 class="font-bold">
+                        Current:
+                        {{ sibling_data.current_version.label }}
+                        ({{ language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) }})
+                    </h4>
+                </div>
+            </div>
+
+            <!-- Editions -->
+            {% if sibling_data.edition_chunks %}
+            <div class="mb-4">
+                <div class="bg-neutral-400 p-4">
+                    <h4 class="font-bold">Editions</h4>
+                </div>
+                {% for sib, sib_chunk in sibling_data.edition_chunks %}
+                    <details class="bg-neutral-300">
+                        <summary class="p-4 cursor-pointer font-bold">
+                            {{ sib.label }}
+                            ({{ language_labels.get(sib.lang, sib.lang) }})
+                        </summary>
+                        <div class="p-4 text-sm prose">
+                            {% if sib_chunk %}
+                                {% for element in sib_chunk.elements %}
+                                    {% with text_container = element %}
+                                        {% include 'components/ReadableTextContainer.html.jinja' %}
+                                    {% endwith %}
+                                {% endfor %}
+                            {% else %}
+                                <p class="italic">No corresponding passage available</p>
+                            {% endif %}
+                        </div>
+                    </details>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Translations -->
+            {% if sibling_data.translation_chunks %}
+            <div class="mb-4">
+                <div class="bg-neutral-400 p-4">
+                    <h4 class="font-bold">Translations</h4>
+                </div>
+                {% for sib, sib_chunk in sibling_data.translation_chunks %}
+                <details class="bg-neutral-300">
+                    <summary class="p-4 cursor-pointer font-bold">
+                        {{ sib.label }}
+                        ({{ language_labels.get(sib.lang, sib.lang) }})
+                    </summary>
+                    <div class="p-4 text-sm prose">
+                        {% if sib_chunk %}
+                        {% for element in sib_chunk.elements %}
+                        {% with text_container = element %}
+                        {% include 'components/ReadableTextContainer.html.jinja' %}
+                        {% endwith %}
+                        {% endfor %}
+                        {% else %}
+                        <p class="italic">No corresponding passage available</p>
+                        {% endif %}
+                    </div>
+                </details>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Stable identifiers -->
             <div class="mb-4">
                 <div class="bg-neutral-400 flex justify-between p-4">
                     <h4 class="font-bold">Stable identifiers</h4>

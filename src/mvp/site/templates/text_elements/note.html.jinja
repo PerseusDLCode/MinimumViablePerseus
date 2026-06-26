@@ -1,3 +1,4 @@
+{% from "components/macros.html.jinja" import render_children with context %}
 {%- set note_id = "note-" ~ text_container.index -%}
 <sup class="tei-note">
     <button
@@ -8,11 +9,6 @@
     ></button>
 </sup>
 {%- set note_content -%}
-    {%- for child in text_container.children -%}
-        {%- set child_urn = child.urn if child.urn else text_container.urn -%}
-        {%- with text_container=dict(child, urn=child_urn) -%}
-            {%- include 'components/ReadableTextContainer.html.jinja' -%}
-        {%- endwith -%}
-    {%- endfor -%}
+    {{- render_children(text_container) -}}
 {%- endset -%}
 {%- set _ = notes.items.append({"id": note_id, "content": note_content}) -%}

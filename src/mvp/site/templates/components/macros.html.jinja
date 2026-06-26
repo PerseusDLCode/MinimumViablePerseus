@@ -1,0 +1,8 @@
+{% macro render_children(container) %}
+    {%- for child in container.children -%}
+        {%- set child_urn = child.urn if child.urn else container.urn -%}
+        {%- with text_container=dict(child, urn=child_urn) -%}
+            {%- include 'components/ReadableTextContainer.html.jinja' -%}
+        {%- endwith -%}
+    {%- endfor -%}
+{% endmacro %}

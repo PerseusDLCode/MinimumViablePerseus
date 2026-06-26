@@ -1,8 +1,4 @@
+{% from "components/macros.html.jinja" import render_children with context %}
 <span class="prose tei-{{ text_container.tagname }}">
-    {% for child in text_container.children -%}
-        {% set child_urn = child.urn if child.urn else text_container.urn -%}
-        {% with text_container=dict(child, urn=child_urn) -%}
-            {% include 'components/ReadableTextContainer.html.jinja' -%}
-        {% endwith -%}
-    {% endfor -%}
+    {{- render_children(text_container) -}}
 </span>
