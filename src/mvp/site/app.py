@@ -101,8 +101,8 @@ def _annotate_toc(
 def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
     """Map work-level CTS URNs to a language→URL-prefix dict.
 
-    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit/phi0917/phi001/perseus-lat1/",
-                                                "eng": "/latinLit/phi0917/phi001/perseus-eng2/"}
+    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit:phi0917.phi001.perseus-lat1/",
+                                                "eng": "/latinLit:phi0917.phi001.perseus-eng2/"}
     For each language, the first version found (sorted) wins.
     The JS appends the passage and a trailing slash to the chosen prefix.
     """
@@ -132,7 +132,7 @@ def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
                         continue
                     work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
                     url_prefix = (
-                        f"/{corpus}/{tg_dir.name}/{work_dir.name}/{ver_dir.name}/"
+                        f"/{corpus}:{tg_dir.name}.{work_dir.name}.{ver_dir.name}"
                     )
                     index.setdefault(work_urn, {}).setdefault(lang, url_prefix)
 
@@ -456,7 +456,9 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/<path:corpus>/<path:textgroup>/<path:work>/<path:version>/<path:chunk>/")
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<path:version>:<path:chunk>/"
+    )
     def reading_view(corpus, textgroup, work, version, chunk):
         index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
         if not index_file.exists():
