@@ -35,11 +35,13 @@ PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 
 _CORPUS_LABELS = {
     "greekLit": "Greek",
+    "hebrewLit": "Hebrew",
     "latinLit": "Latin",
 }
 
 _CORPUS_REPO = {
     "greekLit": "canonical-greekLit",
+    "hebrewLit": "First1KGreek",
     "latinLit": "canonical-latinLit",
 }
 
