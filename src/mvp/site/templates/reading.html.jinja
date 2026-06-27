@@ -4,7 +4,7 @@
 
 {% block header %}
     <header class="hero mb-4">
-        <div class="px-8 text-base-content w-full">
+        <div class="px-4 text-base-content w-full">
             <div>
                 <h1 class="text-xl font-bold">
                     {{ pub_info.author }} <em>{{ chunk.title }}</em>
@@ -113,7 +113,7 @@
                     <details class="bg-neutral-300">
                         <summary class="p-4 cursor-pointer font-bold">
                             {{ sib.label }}
-                            ({{ language_labels.get(sib.lang, sib.lang) }})
+                            ({{ sib.description }})
                         </summary>
                         <div class="p-4 text-sm prose">
                             {% if sib_chunk %}
@@ -141,7 +141,7 @@
                 <details class="bg-neutral-300">
                     <summary class="p-4 cursor-pointer font-bold">
                         {{ sib.label }}
-                        ({{ language_labels.get(sib.lang, sib.lang) }})
+                        ({{ sib.description }})
                     </summary>
                     <div class="p-4 text-sm prose">
                         {% if sib_chunk %}
