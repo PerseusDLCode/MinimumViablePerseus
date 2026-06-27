@@ -4,7 +4,7 @@
         {{- render_children(text_container) -}}
     </div>
 
-    {% set n = text_container.get("n", "1") | int %}
+    {% set n = text_container.get("n") | int %}
     {% if (n % 5 == 0 and n!= 0) or n == 1 %}
         <span class="select-none">{{ n }}</span>
     {% endif %}
