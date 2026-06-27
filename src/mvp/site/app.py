@@ -1,6 +1,7 @@
 import json
 import os
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -9,14 +10,12 @@ import markdown
 
 from flask import Flask, abort, render_template, redirect, url_for
 from lxml import etree
-from markupsafe import Markup
 
 import citation_resolution
 
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
-from perseus_cts.cts_resolver import ConfigurationError
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 from mvp.site_map import SiteMap
 
@@ -57,12 +56,6 @@ _LANGUAGE_LABELS = {
 
 
 @dataclass
-class _Section:
-    cts_urn: str
-    paragraphs: list[Markup]
-
-
-@dataclass
 class _Chunk:
     cts_urn: str
     prev_urn: str | None
@@ -100,118 +93,41 @@ def _annotate_toc(
     return entries
 
 
-def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
-    """Map work-level CTS URNs to a language→URL-prefix dict.
-
-    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit:phi0917.phi001.perseus-lat1/",
-                                                "eng": "/latinLit:phi0917.phi001.perseus-eng2/"}
-    For each language, the first version found (sorted) wins.
-    The JS appends the passage and a trailing slash to the chosen prefix.
-    """
-    index: dict[str, dict[str, str]] = {}
-    if not proto_dir.is_dir():
-        return index
-
-    for corpus_dir in sorted(proto_dir.iterdir()):
-        if not corpus_dir.is_dir():
-            continue
-        corpus = corpus_dir.name
-        for tg_dir in sorted(corpus_dir.iterdir()):
-            if not tg_dir.is_dir():
-                continue
-            for work_dir in sorted(tg_dir.iterdir()):
-                if not work_dir.is_dir():
-                    continue
-                for ver_dir in sorted(work_dir.iterdir()):
-                    if not ver_dir.is_dir():
-                        continue
-                    meta_file = ver_dir / "metadata.json"
-                    if not meta_file.exists():
-                        continue
-                    with open(meta_file) as f:
-                        lang = json.load(f).get("document", {}).get("language", "")
-                    if not lang:
-                        continue
-                    work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
-                    url_prefix = (
-                        f"/{corpus}:{tg_dir.name}.{work_dir.name}.{ver_dir.name}"
-                    )
-                    index.setdefault(work_urn, {}).setdefault(lang, url_prefix)
-
-    return index
-
-
 def _build_collections(proto_dir: Path) -> list[dict]:
-    if not proto_dir.is_dir():
-        return []
+    """Build the nested corpus → textgroup → work → version catalog tree.
 
+    Each level is included only when it has at least one populated child, so
+    empty directories never surface in the catalog.
+    """
     collections = []
 
-    for corpus_dir in sorted(proto_dir.iterdir()):
-        if not corpus_dir.is_dir():
-            continue
+    for corpus_dir in _subdirs(proto_dir):
         corpus = corpus_dir.name
         textgroups = []
 
-        for tg_dir in sorted(corpus_dir.iterdir()):
-            if not tg_dir.is_dir():
-                continue
-            tg_author = tg_dir.name
+        for textgroup_dir in _subdirs(corpus_dir):
+            author = textgroup_dir.name
             works = []
 
-            for work_dir in sorted(tg_dir.iterdir()):
-                if not work_dir.is_dir():
-                    continue
+            for work_dir in _subdirs(textgroup_dir):
                 versions = []
 
-                for ver_dir in sorted(work_dir.iterdir()):
-                    if not ver_dir.is_dir():
+                for version_dir in _subdirs(work_dir):
+                    entry = _version_entry(corpus, textgroup_dir, work_dir, version_dir)
+                    if entry is None:
                         continue
-                    index_file = ver_dir / "index.json"
-                    metadata_file = ver_dir / "metadata.json"
-                    if not index_file.exists() or not metadata_file.exists():
-                        continue
-                    with open(index_file) as f:
-                        idx = json.load(f)
-                    with open(metadata_file) as f:
-                        doc_meta = json.load(f).get("document", {})
-                    chunks = idx.get("chunks", [])
-                    if not chunks:
-                        continue
-                    first_passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
-                    lang = doc_meta.get("language", "")
-                    versions.append(
-                        {
-                            "id": ver_dir.name,
-                            "title": doc_meta.get("title", ver_dir.name),
-                            "language": lang,
-                            "language_label": _LANGUAGE_LABELS.get(lang, lang),
-                            "first_chunk_kwargs": dict(
-                                corpus=corpus,
-                                textgroup=tg_dir.name,
-                                work=work_dir.name,
-                                version=ver_dir.name,
-                                chunk=first_passage,
-                            ),
-                        }
-                    )
-                    tg_author = doc_meta.get("author", tg_dir.name)
+                    version, document = entry
+                    versions.append(version)
+                    # The textgroup author is the same across versions; take
+                    # it from whichever version supplies one.
+                    author = document.get("author", textgroup_dir.name)
 
                 if versions:
-                    works.append(
-                        {
-                            "id": work_dir.name,
-                            "versions": versions,
-                        }
-                    )
+                    works.append({"id": work_dir.name, "versions": versions})
 
             if works:
                 textgroups.append(
-                    {
-                        "id": tg_dir.name,
-                        "author": tg_author,
-                        "works": works,
-                    }
+                    {"id": textgroup_dir.name, "author": author, "works": works}
                 )
 
         if textgroups:
@@ -224,83 +140,6 @@ def _build_collections(proto_dir: Path) -> list[dict]:
             )
 
     return collections
-
-
-def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
-    """Return a Corpus for each subdirectory of corpora_dir that exists."""
-    corpora = []
-    if not corpora_dir.is_dir():
-        return corpora
-    for subdir in sorted(corpora_dir.iterdir()):
-        if not subdir.is_dir():
-            continue
-        data = subdir / "data"
-        root = data if data.is_dir() else subdir
-        try:
-            corpora.append(Corpus(root))
-        except FileNotFoundError:
-            pass
-    return corpora
-
-
-def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
-    """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
-
-    Document-level metadata (title, author, language, etc.) is read from the
-    sibling metadata.json written by Chunker.compile().
-    """
-    tree = etree.parse(path)
-
-    # Resolve citations inline
-    linker = TEILinker(kb=Gazetteer.from_json(GAZETTEER_PATH), decompose=True)
-    _stats = linker.run(tree)
-
-    root = tree.getroot()
-
-    base_urn = root.get("base_urn", "")
-    cts_urn = root.get("cts_urn", "")
-    prev_urn = root.get("prev_urn")
-    next_urn = root.get("next_urn")
-    chunk_unit = root.get("unit", "")
-
-    metadata_path = path.parent / "metadata.json"
-    doc_meta: dict[str, Any] = {}
-    if metadata_path.exists():
-        with open(metadata_path) as f:
-            doc_meta = json.load(f).get("document", {})
-
-    title = doc_meta.get("title", "")
-    language = doc_meta.get("language", "")
-    pub_info: dict[str, Any] = {
-        "title": title,
-        "author": doc_meta.get("author", ""),
-        "editors": doc_meta.get("editors", []),
-        "pub_place": doc_meta.get("pub_place", ""),
-        "pub_date": doc_meta.get("pub_date", ""),
-    }
-
-    content_el = root.find("elements")
-
-    if content_el is None:
-        raise TEIParserError("No content element found!")
-
-    parser = TEIParser(content_el, base_urn, chunk_unit)
-
-    sidecar = path.with_suffix(".tokens.json")
-    if sidecar.exists():
-        with open(sidecar) as f:
-            inject_tokens(parser.elements, json.load(f).get("tokens", []))
-
-    chunk = _Chunk(
-        cts_urn=cts_urn,
-        prev_urn=prev_urn,
-        next_urn=next_urn,
-        title=title,
-        base_urn=cts_urn.rsplit(":", 1)[0],
-        language=language,
-        elements=parser.elements,
-    )
-    return chunk, pub_info
 
 
 def _build_sibling_data(
@@ -325,76 +164,184 @@ def _build_sibling_data(
       edition_chunks: list[(CTSVersion, _Chunk | None)]
       translation_chunks: list[(CTSVersion, _Chunk | None)]
     """
-    result: dict = {
-        "current_version": None,
-        "edition_chunks": [],
-        "translation_chunks": [],
-    }
-
-    result["current_version"] = catalog.version_for(base_urn)
     work_urn = base_urn.rsplit(".", 1)[0]
 
     def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None]:
         sib_id = sib.urn.split(":")[3].split(".")[-1]
         if sib_id == version:
-            return (sib, None)
+            return sib, None
 
         index_file = PROTO_DIR / corpus / textgroup / work / sib_id / "index.json"
         if not index_file.exists():
-            return (sib, None)
+            return sib, None
 
-        with open(index_file) as f:
-            sib_index = json.load(f)
-        sib_chunks = sib_index.get("chunks", [])
+        with open(index_file, encoding="utf-8") as f:
+            sib_chunks = json.load(f).get("chunks", [])
         if not sib_chunks:
-            return (sib, None)
+            return sib, None
 
+        # Strategy 1: exact passage-reference match.
         entry = next(
             (c for c in sib_chunks if c["cts_urn"].endswith(f":{chunk}")),
             None,
         )
-
+        # Strategy 2: positional fallback, clamped to the sibling's bounds.
         if entry is None and chunk_index is not None:
-            pos = min(chunk_index, len(sib_chunks) - 1)
-            print(sib_chunks)
-            entry = sib_chunks[pos]
-
+            entry = sib_chunks[min(chunk_index, len(sib_chunks) - 1)]
         if entry is None:
-            return (sib, None)
+            return sib, None
 
         chunk_file = PROTO_DIR / corpus / textgroup / work / sib_id / entry["file"]
         if not chunk_file.exists():
-            return (sib, None)
+            return sib, None
 
         sib_chunk, _ = _parse_chunk(chunk_file)
-        return (sib, sib_chunk)
+        return sib, sib_chunk
 
-    for sib in catalog.editions_of(work_urn):
-        if sib.urn != base_urn:
-            result["edition_chunks"].append(_lookup(sib))
-
-    for sib in catalog.translations_of(work_urn):
-        if sib.urn != base_urn:
-            result["translation_chunks"].append(_lookup(sib))
-
-    return result
-
-
-def _max_toc_depth(es: list[dict]) -> int:
-    d = -1
-    for e in es:
-        d = max(d, e["depth"])
-        if e.get("subpassages"):
-            d = max(d, _max_toc_depth(e["subpassages"]))
-    return d
+    return {
+        "current_version": catalog.version_for(base_urn),
+        "edition_chunks": [
+            _lookup(sib) for sib in catalog.editions_of(work_urn) if sib.urn != base_urn
+        ],
+        "translation_chunks": [
+            _lookup(sib)
+            for sib in catalog.translations_of(work_urn)
+            if sib.urn != base_urn
+        ],
+    }
 
 
-def _do_prune_toc(es: list[dict], max_depth: int) -> list[dict]:
+def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
+    """Map work-level CTS URNs to a language→URL-prefix dict.
+
+    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit:phi0917.phi001.perseus-lat1/",
+                                                "eng": "/latinLit:phi0917.phi001.perseus-eng2/"}
+    For each language, the first version found (sorted) wins.
+    The JS appends the passage and a trailing slash to the chosen prefix.
+    """
+    index: dict[str, dict[str, str]] = {}
+
+    for corpus_dir, tg_dir, work_dir, ver_dir in _iter_version_dirs(proto_dir):
+        meta_file = ver_dir / "metadata.json"
+        if not meta_file.exists():
+            continue
+        with open(meta_file, encoding="utf-8") as f:
+            language = json.load(f).get("document", {}).get("language", "")
+        if not language:
+            continue
+
+        corpus = corpus_dir.name
+        work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
+        url_prefix = f"/{corpus}:{tg_dir.name}.{work_dir.name}.{ver_dir.name}"
+        index.setdefault(work_urn, {}).setdefault(language, url_prefix)
+
+    return index
+
+
+def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
+    """Return a Corpus for each subdirectory of corpora_dir that exists."""
+    corpora = []
+    for subdir in _subdirs(corpora_dir):
+        data = subdir / "data"
+        root = data if data.is_dir() else subdir
+        try:
+            corpora.append(Corpus(root))
+        except FileNotFoundError:
+            pass
+    return corpora
+
+
+def _do_prune_toc(entries: list[dict], max_depth: int) -> list[dict]:
+    """Return a copy of entries with every node at or below max_depth removed."""
     return [
         {**e, "subpassages": _do_prune_toc(e.get("subpassages", []), max_depth)}
-        for e in es
+        for e in entries
         if e["depth"] < max_depth
     ]
+
+
+def _iter_version_dirs(
+    proto_dir: Path,
+) -> Iterator[tuple[Path, Path, Path, Path]]:
+    """Yield ``(corpus_dir, textgroup_dir, work_dir, version_dir)`` tuples.
+
+    Walks the four-level proto-page tree
+    (``corpus / textgroup / work / version``), skipping non-directory entries
+    at every level.
+    """
+    for corpus_dir in _subdirs(proto_dir):
+        for textgroup_dir in _subdirs(corpus_dir):
+            for work_dir in _subdirs(textgroup_dir):
+                for version_dir in _subdirs(work_dir):
+                    yield corpus_dir, textgroup_dir, work_dir, version_dir
+
+
+def _max_toc_depth(entries: list[dict]) -> int:
+    """Return the greatest ``depth`` value anywhere in the TOC tree, or -1."""
+    depth = -1
+    for entry in entries:
+        depth = max(depth, entry["depth"])
+        if entry.get("subpassages"):
+            depth = max(depth, _max_toc_depth(entry["subpassages"]))
+    return depth
+
+
+def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
+    """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
+
+    Document-level metadata (title, author, language, etc.) is read from the
+    sibling metadata.json written by Chunker.compile().
+    """
+    tree = etree.parse(path)
+
+    # Resolve citations inline.
+    linker = TEILinker(kb=Gazetteer.from_json(GAZETTEER_PATH), decompose=True)
+    linker.run(tree)
+
+    # `base_urn` and `cts_urn` do not resolve to the same value:
+    # `cts_urn` is the URN for the specific passage; `base_urn`
+    # is the URN for the version as a whole (i.e., without the
+    # citaton fragment).
+    root = tree.getroot()
+    base_urn = root.get("base_urn", "")
+    cts_urn = root.get("cts_urn", "")
+    chunk_unit = root.get("unit", "")
+
+    metadata_path = path.parent / "metadata.json"
+    document: dict[str, Any] = {}
+    if metadata_path.exists():
+        with open(metadata_path, encoding="utf-8") as f:
+            document = json.load(f).get("document", {})
+
+    pub_info: dict[str, Any] = {
+        "title": document.get("title", ""),
+        "author": document.get("author", ""),
+        "editors": document.get("editors", []),
+        "pub_place": document.get("pub_place", ""),
+        "pub_date": document.get("pub_date", ""),
+    }
+
+    content_el = root.find("elements")
+    if content_el is None:
+        raise TEIParserError("No content element found!")
+
+    parser = TEIParser(content_el, base_urn, chunk_unit)
+
+    sidecar = path.with_suffix(".tokens.json")
+    if sidecar.exists():
+        with open(sidecar, encoding="utf-8") as f:
+            inject_tokens(parser.elements, json.load(f).get("tokens", []))
+
+    chunk = _Chunk(
+        cts_urn=cts_urn,
+        prev_urn=root.get("prev_urn"),
+        next_urn=root.get("next_urn"),
+        title=document.get("title", ""),
+        base_urn=cts_urn.rsplit(":", 1)[0],
+        language=document.get("language", ""),
+        elements=parser.elements,
+    )
+    return chunk, pub_info
 
 
 def _prune_toc_leaves(entries: list[dict]) -> list[dict]:
@@ -402,11 +349,22 @@ def _prune_toc_leaves(entries: list[dict]) -> list[dict]:
     if not entries:
         return entries
 
-    max_d = _max_toc_depth(entries)
-    if max_d <= 0:
+    max_depth = _max_toc_depth(entries)
+    if max_depth <= 0:
         return entries
 
-    return _do_prune_toc(entries, max_d)
+    return _do_prune_toc(entries, max_depth)
+
+
+def _subdirs(path: Path) -> list[Path]:
+    """Return the immediate subdirectories of ``path``, sorted by name.
+
+    Returns an empty list when ``path`` is not a directory, letting callers
+    iterate without a separate existence check.
+    """
+    if not path.is_dir():
+        return []
+    return [child for child in sorted(path.iterdir()) if child.is_dir()]
 
 
 def _toc_from_metadata(
@@ -423,11 +381,55 @@ def _toc_from_metadata(
     """
     if not metadata_path.exists():
         return {"table_of_contents": []}
-    with open(metadata_path) as f:
+
+    with open(metadata_path, encoding="utf-8") as f:
         toc_entries = json.load(f).get("toc", [])
+
     toc_entries = _prune_toc_leaves(toc_entries)
     _annotate_toc(toc_entries, corpus, textgroup, work, version)
     return {"table_of_contents": toc_entries}
+
+
+def _version_entry(
+    corpus: str,
+    textgroup_dir: Path,
+    work_dir: Path,
+    version_dir: Path,
+) -> tuple[dict, dict] | None:
+    """Parse one version directory into a ``(version, document_metadata)`` pair.
+
+    Returns ``None`` when the version is missing its ``index.json`` /
+    ``metadata.json`` sidecars or has no chunks, so callers can skip it.
+    """
+    index_file = version_dir / "index.json"
+    metadata_file = version_dir / "metadata.json"
+    if not index_file.exists() or not metadata_file.exists():
+        return None
+
+    with open(index_file, encoding="utf-8") as f:
+        chunks = json.load(f).get("chunks", [])
+    if not chunks:
+        return None
+
+    with open(metadata_file, encoding="utf-8") as f:
+        document = json.load(f).get("document", {})
+
+    language = document.get("language", "")
+    first_passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
+    version = {
+        "id": version_dir.name,
+        "title": document.get("title", version_dir.name),
+        "language": language,
+        "language_label": _LANGUAGE_LABELS.get(language, language),
+        "first_chunk_kwargs": dict(
+            corpus=corpus,
+            textgroup=textgroup_dir.name,
+            work=work_dir.name,
+            version=version_dir.name,
+            chunk=first_passage,
+        ),
+    }
+    return version, document
 
 
 def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
@@ -462,7 +464,7 @@ def generate_proto_pages(
                 compiler = Chunker(doc)
                 compiler.compile(site_map.chunk_dir(doc.metadata.urn))
                 generated += 1
-            except (ConfigurationError, Exception) as exc:
+            except Exception as exc:
                 failed += 1
                 print(f"  FAILED:    {doc.path.name}: {exc}")
 
@@ -509,7 +511,7 @@ def create_app(test_config=None):
 
     @app.get("/")
     def index():
-        with open(NEWS_MARKDOWN) as f:
+        with open(NEWS_MARKDOWN, encoding="utf-8") as f:
             news_markdown = markdown.markdown(f.read())
 
         return (
@@ -529,7 +531,7 @@ def create_app(test_config=None):
 
     @app.get("/research/")
     def get_research():
-        with open(RESEARCH_MARKDOWN) as f:
+        with open(RESEARCH_MARKDOWN, encoding="utf-8") as f:
             research_markdown = markdown.markdown(f.read())
 
         return (
@@ -544,23 +546,17 @@ def create_app(test_config=None):
         if not index_file.exists():
             abort(404)
 
-        with open(index_file) as f:
+        with open(index_file, encoding="utf-8") as f:
             work_index = json.load(f)
 
         chunks = work_index.get("chunks")
-
-        if not chunks or len(chunks) == 0:
-            abort(404)
-
-        chunk_entry = chunks[0]
-
-        if chunk_entry is None:
+        if not chunks:
             abort(404)
 
         try:
-            _urn, _cts, corpus, work_urn, chunk = chunk_entry["cts_urn"].split(":", 4)
+            _urn, _cts, corpus, work_urn, chunk = chunks[0]["cts_urn"].split(":", 4)
             textgroup, work, version = work_urn.split(".")
-        except Exception:
+        except (KeyError, ValueError):
             abort(404)
 
         return redirect(
@@ -582,7 +578,7 @@ def create_app(test_config=None):
         if not index_file.exists():
             abort(404)
 
-        with open(index_file) as f:
+        with open(index_file, encoding="utf-8") as f:
             work_index = json.load(f)
 
         urn = f"urn:cts:{corpus}:{textgroup}.{work}.{version}:{chunk}"
@@ -617,9 +613,8 @@ def create_app(test_config=None):
             else None
         )
 
-        base_urn = (
-            chunk_obj.base_urn
-        )  # e.g. urn:cts:greekLit:tlg0003.tlg001.perseus-grc2
+        # e.g. urn:cts:greekLit:tlg0003.tlg001.perseus-grc2
+        base_urn = chunk_obj.base_urn
         work_base_urn = base_urn.rsplit(".", 1)[0]  # drop version component
 
         sibling_data = _build_sibling_data(
@@ -672,28 +667,18 @@ def build():
 
     @freezer.register_generator
     def get_first_chunk():
-        metadata = PROTO_DIR.glob("**/metadata.json")
-
-        for m in metadata:
-            with m.open() as f:
-                metadata_json = json.load(f)
-
-            document = metadata_json.get("document")
+        for metadata_path in PROTO_DIR.glob("**/metadata.json"):
+            with metadata_path.open(encoding="utf-8") as f:
+                document = json.load(f).get("document")
 
             if not document:
                 continue
 
             base_urn = document.get("base_urn")
-
             if not base_urn:
                 continue
 
-            (
-                _urn,
-                _cts,
-                corpus,
-                work_urn,
-            ) = base_urn.split(":")
+            _urn, _cts, corpus, work_urn = base_urn.split(":")
             textgroup, work, version = work_urn.split(".")
 
             yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
