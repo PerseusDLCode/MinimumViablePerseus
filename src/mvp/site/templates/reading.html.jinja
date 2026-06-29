@@ -92,72 +92,72 @@
         <!-- Paratexts / Editions / Translations -->
         <div class="text-xs w-2/5">
             {% if sibling_data and sibling_data.current_version %}
-            <!-- Current version -->
-            <div class="mb-4">
-                <div class="bg-neutral-400 p-4">
-                    <h4 class="font-bold">
-                        Current:
-                        {{ sibling_data.current_version.label }}
-                        ({{ language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) }})
-                    </h4>
-                </div>
-            </div>
-
-            <!-- Editions -->
-            {% if sibling_data.edition_chunks %}
-            <div class="mb-4">
-                <div class="bg-neutral-400 p-4">
-                    <h4 class="font-bold">Editions</h4>
-                </div>
-                {% for sib, sib_chunk in sibling_data.edition_chunks %}
-                    <details class="bg-neutral-300">
-                        <summary class="p-4 cursor-pointer font-bold">
-                            {{ sib.label }}
-                            ({{ sib.description }})
-                        </summary>
-                        <div class="p-4 text-sm prose">
-                            {% if sib_chunk %}
-                                {% for element in sib_chunk.elements %}
-                                    {% with text_container = element %}
-                                        {% include 'components/ReadableTextContainer.html.jinja' %}
-                                    {% endwith %}
-                                {% endfor %}
-                            {% else %}
-                                <p class="italic">No corresponding passage available</p>
-                            {% endif %}
-                        </div>
-                    </details>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Translations -->
-            {% if sibling_data.translation_chunks %}
-            <div class="mb-4">
-                <div class="bg-neutral-400 p-4">
-                    <h4 class="font-bold">Translations</h4>
-                </div>
-                {% for sib, sib_chunk in sibling_data.translation_chunks %}
-                <details class="bg-neutral-300">
-                    <summary class="p-4 cursor-pointer font-bold">
-                        {{ sib.label }}
-                        ({{ sib.description }})
-                    </summary>
-                    <div class="p-4 text-sm prose">
-                        {% if sib_chunk %}
-                        {% for element in sib_chunk.elements %}
-                        {% with text_container = element %}
-                        {% include 'components/ReadableTextContainer.html.jinja' %}
-                        {% endwith %}
-                        {% endfor %}
-                        {% else %}
-                        <p class="italic">No corresponding passage available</p>
-                        {% endif %}
+                <!-- Current version -->
+                <div class="mb-4">
+                    <div class="bg-neutral-400 p-4">
+                        <h4 class="font-bold">
+                            Current:
+                            {{ sibling_data.current_version.label }}
+                            ({{ language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) }})
+                        </h4>
                     </div>
-                </details>
-                {% endfor %}
-            </div>
-            {% endif %}
+                </div>
+
+                <!-- Editions -->
+                {% if sibling_data.edition_chunks %}
+                    <div class="mb-4">
+                        <div class="bg-neutral-400 p-4">
+                            <h4 class="font-bold">Editions</h4>
+                        </div>
+                        {% for sib, sib_chunk in sibling_data.edition_chunks %}
+                            <details class="bg-neutral-300">
+                                <summary class="p-4 cursor-pointer font-bold">
+                                    {{ sib.label }}
+                                    ({{ sib.description }})
+                                </summary>
+                                <div class="p-4">
+                                    {% if sib_chunk %}
+                                        {% for element in sib_chunk.elements %}
+                                            {% with text_container = element %}
+                                                {% include 'components/ReadableTextContainer.html.jinja' %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="italic">No corresponding passage available</p>
+                                    {% endif %}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Translations -->
+                {% if sibling_data.translation_chunks %}
+                    <div class="mb-4">
+                        <div class="bg-neutral-400 p-4">
+                            <h4 class="font-bold">Translations</h4>
+                        </div>
+                        {% for sib, sib_chunk in sibling_data.translation_chunks %}
+                        <details class="bg-neutral-300">
+                            <summary class="p-4 cursor-pointer font-bold">
+                                {{ sib.label }}
+                                ({{ sib.description }})
+                            </summary>
+                            <div class="p-4">
+                                {% if sib_chunk %}
+                                    {% for element in sib_chunk.elements %}
+                                        {% with text_container = element %}
+                                            {% include 'components/ReadableTextContainer.html.jinja' %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="italic">No corresponding passage available</p>
+                                {% endif %}
+                            </div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endif %}
 
             <!-- Stable identifiers -->

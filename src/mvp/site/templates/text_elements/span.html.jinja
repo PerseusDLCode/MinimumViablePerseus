@@ -1,4 +1,4 @@
 {% from "components/macros.html.jinja" import render_children with context %}
-<span class="prose tei-{{ text_container.tagname }}">
+<span class="tei-{{ text_container.tagname }}">
     {{- render_children(text_container) -}}
 </span>
