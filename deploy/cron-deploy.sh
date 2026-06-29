@@ -20,12 +20,12 @@ set -euo pipefail
 # ----- Configuration defaults -----------------------------------------
 IMAGE="${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}"
 MORPH_URL="${MORPH_URL:?MORPH_URL is required}"
-BUILD_DIR="${BUILD_DIR:-/opt/perseus/build}"
-BUILD_PREV="${BUILD_PREV:-/opt/perseus/build-prev}"
-STATE_FILE="${STATE_FILE:-/opt/perseus/last-digest}"
+BUILD_DIR="${BUILD_DIR:-build}"
+BUILD_PREV="${BUILD_PREV:-build-prev}"
+STATE_FILE="${STATE_FILE:-last-digest}"
 BUILD_CTR="${BUILD_CTR:-perseus-build}"
 SERVE_PORT="${SERVE_PORT:-8080}"
-CONTAINER_CMD="${CONTAINER_CMD:-docker}"
+CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 
 COMPOSE_FILE="$(dirname "$0")/compose.yaml"
 
