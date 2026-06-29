@@ -53,7 +53,7 @@ if [ -f "$STATE_FILE" ]; then
   fi
 fi
 
-log "New image detected: ${REMOTE_DIGEST:0:12}... (was ${LAST_DIGEST:0:12:-})."
+log "New image detected: ${REMOTE_DIGEST:0:12}..."
 
 # ----- 3. Cancel any running build ------------------------------------
 if ${CONTAINER_CMD} ps --format '{{.Names}}' 2>/dev/null | grep -q "^${BUILD_CTR}$"; then
