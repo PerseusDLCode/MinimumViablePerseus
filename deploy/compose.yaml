@@ -1,0 +1,8 @@
+services:
+  serve:
+    image: nginx:alpine
+    ports:
+      - "${SERVE_PORT:-8080}:80"
+    volumes:
+      - "${BUILD_DIR:-/opt/perseus/build}:/usr/share/nginx/html:ro"
+    restart: unless-stopped

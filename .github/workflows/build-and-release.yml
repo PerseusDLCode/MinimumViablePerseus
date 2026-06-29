@@ -1,7 +1,5 @@
-name: Build and Release
+name: Build and Push to GHCR
 
-# Triggers on every push to `dev`, plus manual dispatch for testing
-# the pipeline without a real code change.
 on:
   push:
     branches:
@@ -9,25 +7,21 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    # The Saxon XSLT pass over the full corpora may be slow.
-    # 6 hours is the GitHub Actions maximum; adjust down once you
-    # know your typical build time.
-    timeout-minutes: 360
+    timeout-minutes: 30
 
     steps:
       # ---------------------------------------------------------- #
       # 1. SOURCE
-      # We only need the MinimumViablePerseus code itself here.
-      # The corpus data is handled inside the Docker build.
       # ---------------------------------------------------------- #
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: dev
 
@@ -55,89 +49,40 @@ jobs:
           echo "latin=${LATIN}" >> "$GITHUB_OUTPUT"
 
       # ---------------------------------------------------------- #
-      # 3. DOCKER BUILD
+      # 3. LOGIN TO GHCR
+      # ---------------------------------------------------------- #
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------- #
+      # 4. DOCKER BUILD & PUSH
       #
-      # docker/build-push-action with cache-from/cache-to type=gha
-      # stores Docker layer cache in GitHub Actions' built-in cache.
-      # On subsequent runs, unchanged layers (corpus clones, dep
-      # installs) are pulled from cache rather than rebuilt.
+      # Builds a slim "builder" image containing deps + corpora +
+      # source code (but NOT the heavy build/ output). The image is
+      # pushed to GHCR with two tags:
+      #   - dev-<ts>-<sha>  (unique per build, for rollback)
+      #   - dev-latest      (mutable, polled by the VM cron)
       #
-      # `push: false` + `load: true` makes the image available
-      # locally on the runner so we can extract build/ from it.
-      #
-      # Secrets to create in repo Settings → Secrets and variables
-      # → Actions:
-      #   MORPH_URL — full URL of the Morpheus endpoint for this
-      #               environment, e.g. https://dev.perseus.tufts.edu:PORT/morph
+      # The corpora SHAs act as cache-busters for Docker layer
+      # caching via type=gha.
       # ---------------------------------------------------------- #
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      - name: Build Docker image (runs full site build inside)
-        uses: docker/build-push-action@v6
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
         with:
           context: .
-          push: false
-          load: true
-          tags: mvp-build:latest
+          push: true
+          tags: |
+            ghcr.io/perseusdlcode/minimumviableperseus:dev-latest
+            ghcr.io/perseusdlcode/minimumviableperseus:dev-${{ github.run_id }}-${{ github.sha }}
           build-args: |
-            MORPH_URL=${{ secrets.MORPH_URL }}
             GREEK_CORPUS_SHA=${{ steps.corpus.outputs.greek }}
             LATIN_CORPUS_SHA=${{ steps.corpus.outputs.latin }}
-            BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # ---------------------------------------------------------- #
-      # 4. EXTRACT
-      #
-      # The site was built inside the Docker image during `docker build`.
-      # We create a (non-running) container from it just to copy the
-      # build directory out, then immediately remove the container.
-      # ---------------------------------------------------------- #
-      - name: Extract build/ from container
-        run: |
-          CONTAINER_ID=$(docker create mvp-build:latest)
-          mkdir -p ./build
-          docker cp "${CONTAINER_ID}:/app/build/." ./build/
-          docker rm "${CONTAINER_ID}"
-
-      # ---------------------------------------------------------- #
-      # 5. PACKAGE
-      #
-      # Tag format: dev-YYYYMMDDHHMMSS-<short-sha>
-      # Human-readable, chronologically sortable, and unique.
-      # This is what the deploy script on the VM tracks.
-      # ---------------------------------------------------------- #
-      - name: Package build output
-        id: package
-        run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          BUILD_TAG="dev-$(date -u +%Y%m%d%H%M%S)-${SHORT_SHA}"
-          ARTIFACT="perseus-build-${BUILD_TAG}.tar.gz"
-          tar -czf "${ARTIFACT}" -C build/ .
-          echo "build_tag=${BUILD_TAG}" >> "$GITHUB_OUTPUT"
-          echo "artifact=${ARTIFACT}" >> "$GITHUB_OUTPUT"
-
-      # ---------------------------------------------------------- #
-      # 6. RELEASE
-      #
-      # Creates a GitHub Release and uploads the tarball as an asset.
-      # make_latest: true ensures the deploy script can always find
-      # the newest build via the /releases/latest API endpoint.
-      #
-      # GITHUB_TOKEN is provided automatically by Actions —
-      # no secret to create for this step.
-      # ---------------------------------------------------------- #
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.package.outputs.build_tag }}
-          name: "Build ${{ steps.package.outputs.build_tag }}"
-          body: |
-            Automated build from branch `dev`.
-            Commit: ${{ github.sha }}
-          files: ${{ steps.package.outputs.artifact }}
-          make_latest: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

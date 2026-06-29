@@ -1,13 +1,13 @@
 # ================================================================
-# MinimumViablePerseus — Build + Serve Image
+# MinimumViablePerseus — Builder Image
 #
-# At build time, this image clones the TEI corpus repositories,
-# generates proto-pages, and compiles the frozen static site.
-# At run time, it serves the static site via Python's built-in
-# HTTP server.
+# At build time, this image clones the TEI corpus repositories
+# and installs Python dependencies. At run time, it generates
+# proto-pages and runs the static site build into a mounted
+# /app/build volume.
 #
-# The GitHub Actions workflow can still extract /app/build/ from
-# a created container for release packaging.
+# This image is ~2 GB (well under GHCR's 10 GB-per-layer cap) and
+# is intended to be run on the VM, not serve directly.
 # ================================================================
 
 FROM python:3.12-slim
@@ -83,37 +83,13 @@ COPY src/ src/
 # Install the project itself (registers the mvp-* entry points).
 RUN uv sync --no-dev
 
-# ----------------------------------------------------------------
-# Proto-pages
-#
-# Generate proto-page XML from the cloned TEI corpora.
-# ----------------------------------------------------------------
 ENV CORPORA_DIR=${CORPORA_DIR}
 ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages
-RUN uv run mvp-proto
 
 # ----------------------------------------------------------------
-# Build
+# Runtime — build the static site
 #
-# MORPH_URL is passed in at build time so the generated HTML links
-# to the correct Morpheus endpoint for the target environment
-# (dev vs prod). It comes from a GitHub Actions secret and is
-# passed as a --build-arg by the CI workflow.
+# MORPH_URL must be passed via `-e` at runtime.
+# The build output is written to /app/build (mount a volume there).
 # ----------------------------------------------------------------
-ARG MORPH_URL=http://localhost:5000
-ENV MORPH_URL=${MORPH_URL}
-
-ARG BUILD_DATE
-
-RUN uv run mvp-build; \
-    PAGE_COUNT=$(find /app/build -name "*.html" 2>/dev/null | wc -l); \
-    echo "Build finished. ${PAGE_COUNT} HTML pages generated."; \
-    if [ "${PAGE_COUNT}" -eq 0 ]; then \
-    echo "ERROR: Build produced no HTML output."; exit 1; \
-    fi
-
-# ----------------------------------------------------------------
-# Runtime — serve the frozen static site
-# ----------------------------------------------------------------
-EXPOSE 8080
-CMD ["python", "-m", "http.server", "8080", "--directory", "/app/build"]
+CMD ["uv", "run", "mvp-build"]
