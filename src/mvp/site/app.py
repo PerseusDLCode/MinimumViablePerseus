@@ -663,9 +663,10 @@ def build():
         FREEZER_DEFAULT_MIMETYPE="text/html",
         FREEZER_DESTINATION=FREEZER_DESTINATION,
         FREEZER_IGNORE_404_NOT_FOUND=True,
+        FREEZER_REMOVE_EXTRA_FILES=True,
     )
 
-    freezer = Freezer(app)
+    freezer = Freezer(app, with_no_argument_rules=False, log_url_for=False)
 
     @freezer.register_generator
     def get_first_chunk():
@@ -685,7 +686,28 @@ def build():
 
             yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
 
-    freezer.freeze()
+    @freezer.register_generator
+    def reading_view():
+        for index_path in PROTO_DIR.glob("**/index.json"):
+            with index_path.open(encoding="utf-8") as f:
+                chunks = json.load(f).get("chunks")
+
+                for chunk in chunks:
+                    yield f"/{chunk.get('cts_urn')}/"
+
+    import click
+    from timeit import default_timer
+
+    start = default_timer()
+    with click.progressbar(
+        freezer.freeze_yield(), item_show_func=lambda p: p.url if p else "Done!"
+    ) as urls:
+        for url in urls:
+            pass
+
+    end = default_timer()
+
+    print(f"MVP took {end - start} seconds to build.")
 
 
 def main():
