@@ -65,5 +65,6 @@ and writes each page to a `build` directory. You can upload this directory to th
 staging/production servers.
 
 ## Repository Organization
+
 There is a wiki that contains a variety of documents, including installation instructions.
 

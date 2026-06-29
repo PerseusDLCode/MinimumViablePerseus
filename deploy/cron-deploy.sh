@@ -36,7 +36,7 @@ mkdir -p "$BUILD_DIR"
 
 # ----- 1. Poll remote digest ------------------------------------------
 REMOTE_DIGEST=$(${CONTAINER_CMD} manifest inspect "${IMAGE}:dev-latest" 2>/dev/null \
-  | python3 -c "import sys,json; print(json.load(sys.stdin)['config']['digest'])" 2>/dev/null \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['manifests'][0]['digest'])" 2>/dev/null \
   || echo "")
 
 if [ -z "$REMOTE_DIGEST" ]; then
