@@ -160,6 +160,50 @@
                 {% endif %}
             {% endif %}
 
+            <!-- Commentaries -->
+            {% if commentary_groups or commentary_warnings %}
+                <div class="mb-4">
+                    <div class="bg-neutral-400 p-4">
+                        <h4 class="font-bold">Commentary</h4>
+                    </div>
+
+                    {# for debug purposes only #}
+                    {# {% for warning in commentary_warnings %}
+                        <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
+                    {% endfor %} #}
+
+                    {% for group in commentary_groups %}
+                        <details class="bg-neutral-300">
+                            <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
+                            <div class="p-4">
+                                {% for entry in group.entries %}
+                                    <p class="mb-2">
+                                        {% if entry.lemma_elements %}
+                                            <strong>
+                                                {% for element in entry.lemma_elements %}
+                                                    {% with text_container = element %}
+                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            </strong>
+                                        {% else %}
+                                            <strong>{{ entry.anchor_id }}</strong>
+                                        {% endif %}
+                                        {% if entry.comment_elements %}
+                                            {% for element in entry.comment_elements %}
+                                                {% with text_container = element %}
+                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <!-- Stable identifiers -->
             <div class="mb-4">
                 <div class="bg-neutral-400 flex justify-between p-4">

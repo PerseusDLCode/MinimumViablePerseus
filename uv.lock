@@ -585,7 +585,7 @@ requires-dist = [
     { name = "lxml", specifier = ">=6.0.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },
     { name = "markdown", specifier = ">=3.10.2" },
-    { name = "perseus-cts", git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=17084f3" },
+    { name = "perseus-cts", git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=01c10a2b280b70538c29029c187c1f69c75d1a46" },
     { name = "saxonche", specifier = ">=12.9.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.46.0" },
 ]
@@ -677,7 +677,7 @@ wheels = [
 [[package]]
 name = "perseus-cts"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=17084f3#17084f33353cd990d24a73bccdfedc5eb13a01e8" }
+source = { git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=01c10a2b280b70538c29029c187c1f69c75d1a46#01c10a2b280b70538c29029c187c1f69c75d1a46" }
 dependencies = [
     { name = "lxml" },
     { name = "lxml-stubs" },

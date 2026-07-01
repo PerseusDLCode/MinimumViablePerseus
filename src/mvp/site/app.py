@@ -16,6 +16,7 @@ import citation_resolution
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
+from perseus_cts.commentary import CommentaryLookup, links_for_passage
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 from mvp.site_map import SiteMap
 
@@ -66,6 +67,19 @@ class _Chunk:
     base_urn: str
     language: str
     elements: list[Any]
+
+
+@dataclass
+class _CommentaryEntry:
+    anchor_id: str
+    lemma_elements: list[Any]
+    comment_elements: list[Any]
+
+
+@dataclass
+class _CommentaryGroup:
+    label: str
+    entries: list[_CommentaryEntry]
 
 
 def _annotate_toc(
@@ -142,6 +156,28 @@ def _build_collections(proto_dir: Path) -> list[dict]:
             )
 
     return collections
+
+
+def _build_commentary_groups(lookup: CommentaryLookup) -> list[_CommentaryGroup]:
+    """Group a CommentaryLookup's links by commentary, rendering lemma/comment XML.
+
+    Each CommentaryLink carries its lemma/comment as serialized <seg> XML
+    (see perseus_cts.commentary); this parses that XML through the same
+    TEIParser used for the base text so it renders with ReadableTextContainer.
+    """
+    groups: dict[str, _CommentaryGroup] = {}
+    for link in lookup.links:
+        group = groups.setdefault(
+            link.commentary_label, _CommentaryGroup(label=link.commentary_label, entries=[])
+        )
+        group.entries.append(
+            _CommentaryEntry(
+                anchor_id=link.anchor_id,
+                lemma_elements=_parse_seg_elements(link.lemma),
+                comment_elements=_parse_seg_elements(link.comment),
+            )
+        )
+    return list(groups.values())
 
 
 def _build_sibling_data(
@@ -286,6 +322,14 @@ def _max_toc_depth(entries: list[dict]) -> int:
         if entry.get("subpassages"):
             depth = max(depth, _max_toc_depth(entry["subpassages"]))
     return depth
+
+
+def _parse_seg_elements(xml: str | None) -> list[Any]:
+    """Parse a serialized <seg> element into TEIParser elements for rendering."""
+    if not xml:
+        return []
+    seg_el = etree.fromstring(xml)
+    return TEIParser(seg_el, base_urn="", chunk_unit="").elements
 
 
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
@@ -623,11 +667,16 @@ def create_app(test_config=None):
             corpus, textgroup, work, version, chunk, chunk_index, catalog, base_urn
         )
 
+        commentary = links_for_passage(catalog, work_base_urn, chunk)
+        commentary_groups = _build_commentary_groups(commentary)
+
         return (
             render_template(
                 "reading.html.jinja",
                 catalog_record_uri=f"http://data.perseus.org/catalog/{base_urn}",
                 chunk=chunk_obj,
+                commentary_groups=commentary_groups,
+                commentary_warnings=commentary.warnings,
                 citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",
                 current_urn=urn,
                 document_id=f"{textgroup}.{work}.{version}",
