@@ -54,6 +54,9 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     https://github.com/PerseusDLCode/canonical-latinLit \
     ${CORPORA_DIR}/latinLit
 
+# pdl_refwk 
+COPY pdlrefwk/ /app/data/  
+
 # ----------------------------------------------------------------
 # Python dependencies
 #

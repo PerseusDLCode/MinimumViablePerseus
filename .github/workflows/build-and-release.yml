@@ -24,6 +24,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: dev
+      
+      # Clone canonical_pdlrefwk (private one)
+      - name: Checkout canonical_pdlrefwk repository
+        uses: actions/checkout@v7
+        with:
+          repository: https://github.com/PerseusDLCode/canonical_pdlrefwk.git
+          token: ${{ secrets.REFWK_REPO_PAT }}
+          path: pdlrefwk
 
       # ---------------------------------------------------------- #
       # 2. CORPUS CACHE-BUSTING

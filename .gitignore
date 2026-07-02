@@ -243,3 +243,5 @@ site-build/
 
 # AI support
 opencode.json
+
+corpora/*
