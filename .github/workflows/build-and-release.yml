@@ -29,7 +29,7 @@ jobs:
       - name: Checkout canonical_pdlrefwk repository
         uses: actions/checkout@v7
         with:
-          repository: https://github.com/PerseusDLCode/canonical_pdlrefwk.git
+          repository: PerseusDLCode/canonical_pdlrefwk.git
           token: ${{ secrets.REFWK_REPO_PAT }}
           path: pdlrefwk
 
