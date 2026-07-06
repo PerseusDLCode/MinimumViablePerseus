@@ -55,7 +55,7 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     ${CORPORA_DIR}/latinLit
 
 # pdl_refwk 
-COPY pdlrefwk/ /app/data/  
+COPY canonical_pdlrefwk/ /app/data/  
 
 # ----------------------------------------------------------------
 # Python dependencies
