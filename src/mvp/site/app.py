@@ -168,7 +168,8 @@ def _build_commentary_groups(lookup: CommentaryLookup) -> list[_CommentaryGroup]
     groups: dict[str, _CommentaryGroup] = {}
     for link in lookup.links:
         group = groups.setdefault(
-            link.commentary_label, _CommentaryGroup(label=link.commentary_label, entries=[])
+            link.commentary_label,
+            _CommentaryGroup(label=link.commentary_label, entries=[]),
         )
         group.entries.append(
             _CommentaryEntry(
