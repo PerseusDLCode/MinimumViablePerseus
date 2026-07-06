@@ -31,7 +31,7 @@ jobs:
         with:
           repository: PerseusDLCode/canonical_pdlrefwk.git
           token: ${{ secrets.REFWK_REPO_PAT }}
-          path: pdlrefwk
+          path: canonical_pdlrefwk
 
       # ---------------------------------------------------------- #
       # 2. CORPUS CACHE-BUSTING
