@@ -2,7 +2,16 @@ services:
   serve:
     image: nginx:alpine
     ports:
-      - "${SERVE_PORT:-8080}:80"
+      - "${SERVE_PORT:-8080}:8000"
     volumes:
-      - "${BUILD_DIR:-/opt/perseus/build}:/usr/share/nginx/html:ro"
+      - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro"
     restart: unless-stopped
+
+  build:
+    image: "${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}:${IMAGE_TAG:-dev-latest}"
+    container_name: "${BUILD_CTR:-perseus-build}"
+    profiles: ["build"]
+    volumes:
+      - "${BUILD_DIR:-./build}:/app/build"
+    environment:
+      MORPH_URL: "${MORPH_URL:?MORPH_URL is required}"

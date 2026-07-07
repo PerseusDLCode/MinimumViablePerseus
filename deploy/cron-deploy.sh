@@ -5,11 +5,10 @@
 # Environment variables (set these in /opt/perseus/env or crontab):
 #   IMAGE         GHCR image (default: ghcr.io/perseusdlcode/minimumviableperseus)
 #   MORPH_URL     Morpheus endpoint for the build (required)
-#   BUILD_DIR     Host directory for build output (default: /opt/perseus/build)
-#   BUILD_PREV    Path to previous build snapshot (default: /opt/perseus/build-prev)
-#   STATE_FILE    Path to last-deployed digest file (default: /opt/perseus/last-digest)
+#   BUILD_DIR     Host directory for build output (default: ./build)
+#   BUILD_PREV    Path to previous build snapshot (default: ./build-prev)
+#   STATE_FILE    Path to last-deployed digest file (default: ./last-digest)
 #   BUILD_CTR     Name for the build container (default: perseus-build)
-#   SERVE_PORT    Host port for nginx (default: 8080)
 #   CONTAINER_CMD Container runtime (default: docker; set to podman on VM)
 #
 # Intended to run under `flock` every 10 minutes:
@@ -18,16 +17,17 @@
 set -euo pipefail
 
 # ----- Configuration defaults -----------------------------------------
-IMAGE="${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}"
-MORPH_URL="${MORPH_URL:?MORPH_URL is required}"
-BUILD_DIR="${BUILD_DIR:-build}"
+export IMAGE="${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}"
+export MORPH_URL="${MORPH_URL:?MORPH_URL is required}"
+export BUILD_DIR="${BUILD_DIR:-build}"
 BUILD_PREV="${BUILD_PREV:-build-prev}"
 STATE_FILE="${STATE_FILE:-last-digest}"
-BUILD_CTR="${BUILD_CTR:-perseus-build}"
-SERVE_PORT="${SERVE_PORT:-8080}"
+export BUILD_CTR="${BUILD_CTR:-perseus-build}"
+export IMAGE_TAG="${IMAGE_TAG:-dev-latest}"
 CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 
 COMPOSE_FILE="$(dirname "$0")/compose.yaml"
+COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p perseus"
 
 log() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"; }
 
@@ -35,12 +35,12 @@ log() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"; }
 mkdir -p "$BUILD_DIR"
 
 # ----- 1. Poll remote digest ------------------------------------------
-REMOTE_DIGEST=$(${CONTAINER_CMD} manifest inspect "${IMAGE}:dev-latest" 2>/dev/null \
+REMOTE_DIGEST=$(${CONTAINER_CMD} manifest inspect "${IMAGE}:${IMAGE_TAG}" 2>/dev/null \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['manifests'][0]['digest'])" 2>/dev/null \
   || echo "")
 
 if [ -z "$REMOTE_DIGEST" ]; then
-  log "WARN: Could not fetch digest for ${IMAGE}:dev-latest; will retry next tick."
+  log "WARN: Could not fetch digest for ${IMAGE}:${IMAGE_TAG}; will retry next tick."
   exit 0
 fi
 
@@ -63,8 +63,8 @@ if ${CONTAINER_CMD} ps --format '{{.Names}}' 2>/dev/null | grep -q "^${BUILD_CTR
 fi
 
 # ----- 4. Pull new image ----------------------------------------------
-log "Pulling ${IMAGE}:dev-latest..."
-${CONTAINER_CMD} pull "${IMAGE}:dev-latest"
+log "Pulling ${IMAGE}:${IMAGE_TAG}..."
+${COMPOSE} pull build
 
 # ----- 5. Rollback snapshot -------------------------------------------
 log "Saving rollback snapshot to ${BUILD_PREV}..."
@@ -74,11 +74,7 @@ rsync -a --delete "${BUILD_DIR}/" "${BUILD_PREV}/"
 # ----- 6. Build on server ---------------------------------------------
 log "Running build container ${BUILD_CTR}..."
 BUILD_EXIT=0
-${CONTAINER_CMD} run --rm --name "${BUILD_CTR}" \
-  -v "${BUILD_DIR}:/app/build" \
-  -e MORPH_URL="${MORPH_URL}" \
-  "${IMAGE}:dev-latest" \
-  || BUILD_EXIT=$?
+${COMPOSE} run --rm build || BUILD_EXIT=$?
 
 if [ "$BUILD_EXIT" -ne 0 ]; then
   log "ERROR: Build failed with exit code ${BUILD_EXIT}."
@@ -91,7 +87,7 @@ if [ "$BUILD_EXIT" -ne 0 ]; then
 
   # Restart serve on the restored build
   log "Restarting serve on restored build..."
-  ${CONTAINER_CMD} compose -f "$COMPOSE_FILE" -p perseus up -d --force-recreate serve
+  ${COMPOSE} up -d --force-recreate serve
 
   log "Rollback complete. STATE_FILE unchanged; retry next tick."
   exit "$BUILD_EXIT"
@@ -101,7 +97,7 @@ log "Build succeeded."
 
 # ----- 7. Restart serve, write state ----------------------------------
 log "Restarting serve..."
-${CONTAINER_CMD} compose -f "$COMPOSE_FILE" -p perseus up -d --force-recreate serve
+${COMPOSE} up -d --force-recreate serve
 
 echo "$REMOTE_DIGEST" > "$STATE_FILE"
 log "Deploy complete. Digest written to ${STATE_FILE}."
