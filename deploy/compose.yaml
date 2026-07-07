@@ -4,7 +4,7 @@ services:
     ports:
       - "${SERVE_PORT:-8080}:8000"
     volumes:
-      - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro"
+      - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro,z"
     restart: unless-stopped
 
   build:
@@ -12,6 +12,6 @@ services:
     container_name: "${BUILD_CTR:-perseus-build}"
     profiles: ["build"]
     volumes:
-      - "${BUILD_DIR:-./build}:/app/build"
+      - "${BUILD_DIR:-./build}:/app/build:z"
     environment:
       MORPH_URL: "${MORPH_URL:?MORPH_URL is required}"
