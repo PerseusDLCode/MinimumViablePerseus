@@ -719,6 +719,22 @@ def build():
     freezer = Freezer(app, with_no_argument_rules=False, log_url_for=False)
 
     @freezer.register_generator
+    def urn_index():
+        return "/urn-index.json"
+
+    @freezer.register_generator
+    def index():
+        return "/"
+
+    @freezer.register_generator
+    def get_collections():
+        return "/collections/"
+
+    @freezer.register_generator
+    def get_research():
+        return "/research/"
+
+    @freezer.register_generator
     def get_first_chunk():
         for metadata_path in PROTO_DIR.glob("**/metadata.json"):
             with metadata_path.open(encoding="utf-8") as f:
