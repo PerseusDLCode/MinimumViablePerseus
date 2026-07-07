@@ -716,23 +716,7 @@ def build():
         FREEZER_REMOVE_EXTRA_FILES=True,
     )
 
-    freezer = Freezer(app, with_no_argument_rules=False, log_url_for=False)
-
-    @freezer.register_generator
-    def urn_index():
-        return "/urn-index.json"
-
-    @freezer.register_generator
-    def index():
-        return "/"
-
-    @freezer.register_generator
-    def get_collections():
-        return "/collections/"
-
-    @freezer.register_generator
-    def get_research():
-        return "/research/"
+    freezer = Freezer(app, with_no_argument_rules=True, log_url_for=False)
 
     @freezer.register_generator
     def get_first_chunk():
