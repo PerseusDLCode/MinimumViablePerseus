@@ -2,7 +2,7 @@ services:
   serve:
     image: nginx:alpine
     ports:
-      - "${SERVE_PORT:-8080}:8000"
+      - "${SERVE_PORT:-8000}:80"
     volumes:
       - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro,z"
     restart: unless-stopped

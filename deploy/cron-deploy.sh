@@ -9,7 +9,8 @@
 #   BUILD_PREV    Path to previous build snapshot (default: ./build-prev)
 #   STATE_FILE    Path to last-deployed digest file (default: ./last-digest)
 #   BUILD_CTR     Name for the build container (default: perseus-build)
-#   CONTAINER_CMD Container runtime (default: docker; set to podman on VM)
+#   IMAGE_TAG     Image tag to poll/build (default: dev-latest)
+#   CONTAINER_CMD Container runtime (default: podman; set to docker locally)
 #
 # Intended to run under `flock` every 10 minutes:
 #   */10 * * * * /usr/bin/flock -n /opt/perseus/deploy.lock /opt/perseus/cron-deploy.sh >> /opt/perseus/deploy.log 2>&1
@@ -28,6 +29,7 @@ CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 
 COMPOSE_FILE="$(dirname "$0")/compose.yaml"
 COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p perseus"
+COMPOSE_BUILD="${COMPOSE} --profile build"
 
 log() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"; }
 
@@ -64,7 +66,7 @@ fi
 
 # ----- 4. Pull new image ----------------------------------------------
 log "Pulling ${IMAGE}:${IMAGE_TAG}..."
-${COMPOSE} pull build
+${COMPOSE_BUILD} pull build
 
 # ----- 5. Rollback snapshot -------------------------------------------
 log "Saving rollback snapshot to ${BUILD_PREV}..."
@@ -74,7 +76,7 @@ rsync -a --delete "${BUILD_DIR}/" "${BUILD_PREV}/"
 # ----- 6. Build on server ---------------------------------------------
 log "Running build container ${BUILD_CTR}..."
 BUILD_EXIT=0
-${COMPOSE} run --rm build || BUILD_EXIT=$?
+${COMPOSE_BUILD} run --rm build || BUILD_EXIT=$?
 
 if [ "$BUILD_EXIT" -ne 0 ]; then
   log "ERROR: Build failed with exit code ${BUILD_EXIT}."
