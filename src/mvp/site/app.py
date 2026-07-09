@@ -648,14 +648,14 @@ def create_app(test_config=None):
         )
         toc = _toc_from_metadata(metadata_file, corpus, textgroup, work, version)
 
-        base_path = f"/{corpus}/{textgroup}/{work}/{version}"
+        base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
         prev_url = (
-            f"{base_path}/{chunk_obj.prev_urn.rsplit(':', 1)[-1]}"
+            f"{base_path}:{chunk_obj.prev_urn.rsplit(':', 1)[-1]}"
             if chunk_obj.prev_urn
             else None
         )
         next_url = (
-            f"{base_path}/{chunk_obj.next_urn.rsplit(':', 1)[-1]}"
+            f"{base_path}:{chunk_obj.next_urn.rsplit(':', 1)[-1]}"
             if chunk_obj.next_urn
             else None
         )
