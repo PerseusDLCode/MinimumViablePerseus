@@ -317,7 +317,7 @@ wheels = [
 [[package]]
 name = "kodon-py"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/kodon-py#5fd6a7c3bb85f44b00ef7fa985aee1a026d7fffa" }
+source = { git = "https://github.com/PerseusDLCode/kodon-py?rev=b925cf4cb7254e641ab50075dbb1048fc9bc5cfc#b925cf4cb7254e641ab50075dbb1048fc9bc5cfc" }
 dependencies = [
     { name = "click" },
     { name = "flask" },
@@ -581,7 +581,7 @@ requires-dist = [
     { name = "citation-resolution", git = "https://github.com/PerseusDLCode/citation-resolution?rev=d28f14e160cc2f12ae832abe47925f40ede0af95" },
     { name = "fastapi", specifier = ">=0.136.1" },
     { name = "frozen-flask", specifier = ">=1.0.2" },
-    { name = "kodon-py", git = "https://github.com/PerseusDLCode/kodon-py" },
+    { name = "kodon-py", git = "https://github.com/PerseusDLCode/kodon-py?rev=b925cf4cb7254e641ab50075dbb1048fc9bc5cfc" },
     { name = "lxml", specifier = ">=6.0.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },
     { name = "markdown", specifier = ">=3.10.2" },
