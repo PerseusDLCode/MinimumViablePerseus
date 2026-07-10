@@ -52,7 +52,7 @@
         </div>
 
         <!-- Base text -->
-        <article class="w-2/5 mx-4 text-sm">
+        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto">
             <div class="flex justify-between mb-4 text-xs">
                 {% if prev_url %}
                     <a href="{{ prev_url }}" class="link">&larr; Previous</a>
@@ -90,7 +90,7 @@
         </article>
 
         <!-- Paratexts / Editions / Translations -->
-        <div class="text-xs w-2/5">
+        <div class="text-xs w-2/5 sticky top-0 self-start max-h-screen overflow-y-auto">
             {% if sibling_data and sibling_data.current_version %}
                 <!-- Current version -->
                 <div class="mb-4">
