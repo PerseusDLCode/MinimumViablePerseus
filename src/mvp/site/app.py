@@ -3,6 +3,7 @@ import os
 
 from collections.abc import Iterator
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -181,6 +182,20 @@ def _build_commentary_groups(lookup: CommentaryLookup) -> list[_CommentaryGroup]
     return list(groups.values())
 
 
+@lru_cache(maxsize=None)
+def _load_index_chunks(index_file: Path) -> list[dict]:
+    """Load and cache an index.json's chunk list.
+
+    _build_sibling_data re-reads a sibling version's index.json on every
+    request for the version family; the file doesn't change within a build,
+    so caching turns O(pages) re-reads into one read per sibling version.
+    """
+    if not index_file.exists():
+        return []
+    with open(index_file, encoding="utf-8") as f:
+        return json.load(f).get("chunks", [])
+
+
 def _build_sibling_data(
     corpus: str,
     textgroup: str,
@@ -211,11 +226,7 @@ def _build_sibling_data(
             return sib, None
 
         index_file = PROTO_DIR / corpus / textgroup / work / sib_id / "index.json"
-        if not index_file.exists():
-            return sib, None
-
-        with open(index_file, encoding="utf-8") as f:
-            sib_chunks = json.load(f).get("chunks", [])
+        sib_chunks = _load_index_chunks(index_file)
         if not sib_chunks:
             return sib, None
 
@@ -333,16 +344,32 @@ def _parse_seg_elements(xml: str | None) -> list[Any]:
     return TEIParser(seg_el, base_urn="", chunk_unit="").elements
 
 
+@lru_cache(maxsize=1)
+def _gazetteer() -> Gazetteer:
+    """Load and index the gazetteer once per process.
+
+    Gazetteer.from_json parses an ~800KB file and rebuilds lookup indices;
+    _parse_chunk runs once per rendered chunk (thousands per build), so
+    reloading it per-call previously dominated build time.
+    """
+    return Gazetteer.from_json(GAZETTEER_PATH)
+
+
+@lru_cache(maxsize=None)
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
 
     Document-level metadata (title, author, language, etc.) is read from the
     sibling metadata.json written by Chunker.compile().
+
+    Cached because sibling-version lookups (see _build_sibling_data) often
+    resolve the same chunk file repeatedly across many source pages, e.g. via
+    the positional-fallback strategy.
     """
     tree = etree.parse(path)
 
     # Resolve citations inline.
-    linker = TEILinker(kb=Gazetteer.from_json(GAZETTEER_PATH), decompose=True)
+    linker = TEILinker(kb=_gazetteer(), decompose=True)
     linker.run(tree)
 
     # `base_urn` and `cts_urn` do not resolve to the same value:
