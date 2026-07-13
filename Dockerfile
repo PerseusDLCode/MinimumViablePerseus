@@ -76,7 +76,7 @@ COPY README.md .
 COPY uv.lock .
 
 ENV UV_PYTHON=3.12
-RUN uv sync --no-dev --no-install-project
+RUN uv sync --no-dev --no-install-project --no-cache
 
 # ----------------------------------------------------------------
 # Source code
@@ -84,7 +84,7 @@ RUN uv sync --no-dev --no-install-project
 COPY src/ src/
 
 # Install the project itself (registers the mvp-* entry points).
-RUN uv sync --no-dev
+RUN uv sync --no-dev --no-cache
 
 ENV CORPORA_DIR=${CORPORA_DIR}
 ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages

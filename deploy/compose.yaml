@@ -4,6 +4,9 @@ services:
     ports:
       - "${SERVE_PORT:-8000}:80"
     volumes:
+      # BUILD_DIR is a symlink to whichever blue-green directory is live;
+      # `serve` must be force-recreated after the symlink flips so the bind
+      # mount re-resolves it — see cron-deploy.sh.
       - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro,z"
     restart: unless-stopped
 
@@ -12,6 +15,8 @@ services:
     container_name: "${BUILD_CTR:-perseus-build}"
     profiles: ["build"]
     volumes:
-      - "${BUILD_DIR:-./build}:/app/build:z"
+      # Writes into the currently-inactive blue-green directory, not the
+      # symlink `serve` reads from — see cron-deploy.sh.
+      - "${BUILD_TARGET_DIR:-./build}:/app/build:z"
     environment:
       MORPH_URL: "${MORPH_URL:?MORPH_URL is required}"
