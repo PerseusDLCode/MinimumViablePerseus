@@ -29,9 +29,17 @@ class SiteMap:
     def root(self) -> Path:
         return self._root
 
-    def chunk_dir(self, urn: str) -> Path:
-        """Return the output directory for chunk pages of a document."""
+    def chunk_dir(self, urn: str, scheme: str | None = None) -> Path:
+        """Return the output directory for chunk pages of a document.
+
+        A document may declare more than one citeStructure/refsDecl scheme
+        (e.g. scene/line vs. card-based chunking for a tragedy). The default
+        scheme is compiled directly into the version directory; any
+        additional scheme is compiled into a same-named subdirectory.
+        """
         path = self._root / self._urn_to_path(urn)
+        if scheme:
+            path = path / scheme
         path.mkdir(parents=True, exist_ok=True)
         return path
 

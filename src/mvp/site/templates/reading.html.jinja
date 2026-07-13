@@ -53,6 +53,14 @@
 
         <!-- Base text -->
         <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto">
+            {% if scheme_links %}
+                <div class="flex gap-2 mb-2 text-xs">
+                    <span>View:</span>
+                    {% for scheme_link in scheme_links %}
+                        <a href="{{ scheme_link.url }}" class="link">{{ scheme_link.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
             <div class="flex justify-between mb-4 text-xs">
                 {% if prev_url %}
                     <a href="{{ prev_url }}" class="link">&larr; Previous</a>

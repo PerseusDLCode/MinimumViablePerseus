@@ -18,6 +18,7 @@ from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
 from perseus_cts.commentary import CommentaryLookup, links_for_passage
+from perseus_cts.cts_resolver import available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 from mvp.site_map import SiteMap
 
@@ -430,6 +431,67 @@ def _prune_toc_leaves(entries: list[dict]) -> list[dict]:
     return _do_prune_toc(entries, max_depth)
 
 
+def _scheme_dirs(version_dir: Path) -> list[str]:
+    """Return the names of alternate citeStructure scheme subdirectories.
+
+    The default scheme's index.json/metadata.json live directly in
+    version_dir; any additional scheme (see _scheme_slug) lives in a
+    same-named subdirectory alongside its own index.json/metadata.json."""
+    return [d.name for d in _subdirs(version_dir) if (d / "index.json").exists()]
+
+
+def _chunk_start_line(cts_urn: str) -> int:
+    """Return the starting line number encoded in a chunk's passage citation.
+
+    Scene-level passages are line ranges ("1-93"); card-level passages are
+    a single line number ("49"). Both start with the same integer."""
+    passage = cts_urn.rsplit(":", 1)[-1]
+    return int(passage.split("-", 1)[0])
+
+
+def _find_chunk_for_line(chunks: list[dict], line: int) -> dict | None:
+    """Return the chunk with the greatest start line at or before ``line``.
+
+    Works for both scene chunks (few, wide ranges) and card chunks (many,
+    single-line starts) since chunk boundaries are always given by
+    monotonically increasing start lines."""
+    best: dict | None = None
+    best_start: int | None = None
+    for chunk in chunks:
+        start = _chunk_start_line(chunk["cts_urn"])
+        if start <= line and (best_start is None or start > best_start):
+            best, best_start = chunk, start
+    return best
+
+
+def _scheme_toggle_links(
+    version_dir: Path,
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+    current_scheme: str | None,
+    current_line: int,
+) -> list[dict]:
+    """Return links to the same passage under each other available scheme."""
+    links: list[dict] = []
+    for scheme in [None, *_scheme_dirs(version_dir)]:
+        if scheme == current_scheme:
+            continue
+        data_dir = version_dir / scheme if scheme else version_dir
+        chunks = _load_index_chunks(data_dir / "index.json")
+        if not chunks:
+            continue
+        target = _find_chunk_for_line(chunks, current_line) or chunks[0]
+        passage = target["cts_urn"].rsplit(":", 1)[-1]
+        base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
+        if scheme:
+            base_path += f"/{scheme}"
+        label = f"By {scheme.capitalize()}" if scheme else "By Scene"
+        links.append({"label": label, "url": f"{base_path}:{passage}/"})
+    return links
+
+
 def _subdirs(path: Path) -> list[Path]:
     """Return the immediate subdirectories of ``path``, sorted by name.
 
@@ -515,11 +577,26 @@ def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
     )
 
 
+def _scheme_slug(refsDecl_id: str) -> str:
+    """Return the subdirectory name for a non-default citeStructure scheme.
+
+    The default scheme (xml:id="CTS") compiles directly into the version
+    directory (slug ""); any additional scheme (e.g. "CTS-card") compiles
+    into a same-named subdirectory (e.g. "card")."""
+    if refsDecl_id == "CTS":
+        return ""
+    return refsDecl_id.removeprefix("CTS-") or refsDecl_id.lower()
+
+
 def generate_proto_pages(
     proto_dir: Path,
     corpora: list[Corpus],
 ) -> None:
     """Generate proto-page XML for all corpus documents.
+
+    A document may declare more than one citeStructure scheme (see
+    perseus_cts.cts_resolver.available_refsDecl_ids); each is compiled
+    separately (see _scheme_slug for the output layout).
 
     Skips documents whose index.json already exists in proto_dir so the
     function is safe to call on every startup without re-doing prior work.
@@ -535,8 +612,12 @@ def generate_proto_pages(
                 skipped += 1
                 continue
             try:
-                compiler = Chunker(doc)
-                compiler.compile(site_map.chunk_dir(doc.metadata.urn))
+                for refsDecl_id in available_refsDecl_ids(doc):
+                    scheme = _scheme_slug(refsDecl_id)
+                    compiler = Chunker(doc, refsDecl_id=refsDecl_id)
+                    compiler.compile(
+                        site_map.chunk_dir(doc.metadata.urn, scheme or None)
+                    )
                 generated += 1
             except Exception as exc:
                 failed += 1
@@ -614,9 +695,7 @@ def create_app(test_config=None):
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
-    @app.get("/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<path:version>/")
-    def get_first_chunk(corpus, textgroup, work, version):
-        index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
+    def _redirect_to_first_chunk(corpus, textgroup, work, version, scheme, index_file):
         if not index_file.exists():
             abort(404)
 
@@ -627,28 +706,39 @@ def create_app(test_config=None):
         if not chunks:
             abort(404)
 
-        try:
-            _urn, _cts, corpus, work_urn, chunk = chunks[0]["cts_urn"].split(":", 4)
-            textgroup, work, version = work_urn.split(".")
-        except (KeyError, ValueError):
-            abort(404)
+        passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
 
+        route_kwargs = dict(
+            corpus=corpus, textgroup=textgroup, work=work, version=version, chunk=passage
+        )
+        if scheme:
+            route_kwargs["scheme"] = scheme
         return redirect(
-            url_for(
-                "reading_view",
-                corpus=corpus,
-                textgroup=textgroup,
-                work=work,
-                version=version,
-                chunk=chunk,
-            )
+            url_for("reading_view_scheme" if scheme else "reading_view", **route_kwargs)
         )
 
-    @app.get(
-        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<path:version>:<path:chunk>/"
-    )
-    def reading_view(corpus, textgroup, work, version, chunk):
+    @app.get("/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>/")
+    def get_first_chunk(corpus, textgroup, work, version):
         index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
+        return _redirect_to_first_chunk(corpus, textgroup, work, version, None, index_file)
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        "/<string:scheme>/"
+    )
+    def get_first_scheme_chunk(corpus, textgroup, work, version, scheme):
+        index_file = (
+            PROTO_DIR / corpus / textgroup / work / version / scheme / "index.json"
+        )
+        return _redirect_to_first_chunk(
+            corpus, textgroup, work, version, scheme, index_file
+        )
+
+    def _render_reading_view(corpus, textgroup, work, version, chunk, scheme=None):
+        version_dir = PROTO_DIR / corpus / textgroup / work / version
+        data_dir = version_dir / scheme if scheme else version_dir
+
+        index_file = data_dir / "index.json"
         if not index_file.exists():
             abort(404)
 
@@ -663,19 +753,18 @@ def create_app(test_config=None):
         if chunk_entry is None:
             abort(404)
 
-        chunk_file = (
-            PROTO_DIR / corpus / textgroup / work / version / chunk_entry["file"]
-        )
+        chunk_file = data_dir / chunk_entry["file"]
         if not chunk_file.exists():
             abort(404)
 
         chunk_obj, pub_info = _parse_chunk(chunk_file)
-        metadata_file = (
-            PROTO_DIR / corpus / textgroup / work / version / "metadata.json"
+        toc = _toc_from_metadata(
+            data_dir / "metadata.json", corpus, textgroup, work, version
         )
-        toc = _toc_from_metadata(metadata_file, corpus, textgroup, work, version)
 
         base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
+        if scheme:
+            base_path += f"/{scheme}"
         prev_url = (
             f"{base_path}:{chunk_obj.prev_urn.rsplit(':', 1)[-1]}"
             if chunk_obj.prev_urn
@@ -685,6 +774,15 @@ def create_app(test_config=None):
             f"{base_path}:{chunk_obj.next_urn.rsplit(':', 1)[-1]}"
             if chunk_obj.next_urn
             else None
+        )
+        scheme_links = _scheme_toggle_links(
+            version_dir,
+            corpus,
+            textgroup,
+            work,
+            version,
+            scheme,
+            _chunk_start_line(chunk_obj.cts_urn),
         )
 
         # e.g. urn:cts:greekLit:tlg0003.tlg001.perseus-grc2
@@ -714,6 +812,7 @@ def create_app(test_config=None):
                 next_url=next_url,
                 prev_url=prev_url,
                 pub_info=pub_info,
+                scheme_links=scheme_links,
                 text_uri=f"http://data.perseus.org/texts/{base_urn}",
                 textgroup_urn=f"urn:cts:{corpus}:{textgroup}",
                 toc=toc,
@@ -723,6 +822,22 @@ def create_app(test_config=None):
             ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        ":<path:chunk>/"
+    )
+    def reading_view(corpus, textgroup, work, version, chunk):
+        return _render_reading_view(corpus, textgroup, work, version, chunk)
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        "/<string:scheme>:<path:chunk>/"
+    )
+    def reading_view_scheme(corpus, textgroup, work, version, scheme, chunk):
+        return _render_reading_view(
+            corpus, textgroup, work, version, chunk, scheme=scheme
         )
 
     return app
@@ -745,12 +860,17 @@ def build():
 
     freezer = Freezer(app, with_no_argument_rules=True, log_url_for=False)
 
-    @freezer.register_generator
-    def get_first_chunk():
+    def _iter_version_metadata():
+        """Yield (corpus, textgroup, work, version, scheme, metadata_path) tuples.
+
+        scheme is None for a document's default citeStructure (metadata.json
+        directly in the version directory) and the subdirectory name for any
+        additional scheme (see _scheme_slug / SiteMap.chunk_dir)."""
         for metadata_path in PROTO_DIR.glob("**/metadata.json"):
             with metadata_path.open(encoding="utf-8") as f:
-                document = json.load(f).get("document")
+                meta = json.load(f)
 
+            document = meta.get("document")
             if not document:
                 continue
 
@@ -760,17 +880,57 @@ def build():
 
             _urn, _cts, corpus, work_urn = base_urn.split(":")
             textgroup, work, version = work_urn.split(".")
+            scheme = None if meta.get("refsDecl_id", "CTS") == "CTS" else (
+                metadata_path.parent.name
+            )
 
-            yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
+            yield corpus, textgroup, work, version, scheme, metadata_path
+
+    @freezer.register_generator
+    def get_first_chunk():
+        for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
+            if scheme is None:
+                yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
+
+    @freezer.register_generator
+    def get_first_scheme_chunk():
+        for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
+            if scheme is not None:
+                yield dict(
+                    corpus=corpus,
+                    textgroup=textgroup,
+                    work=work,
+                    version=version,
+                    scheme=scheme,
+                )
 
     @freezer.register_generator
     def reading_view():
-        for index_path in PROTO_DIR.glob("**/index.json"):
-            with index_path.open(encoding="utf-8") as f:
+        for corpus, textgroup, work, version, scheme, metadata_path in (
+            _iter_version_metadata()
+        ):
+            if scheme is not None:
+                continue
+            with (metadata_path.parent / "index.json").open(encoding="utf-8") as f:
                 chunks = json.load(f).get("chunks")
+            for chunk in chunks:
+                yield f"/{chunk.get('cts_urn')}/"
 
-                for chunk in chunks:
-                    yield f"/{chunk.get('cts_urn')}/"
+    @freezer.register_generator
+    def reading_view_scheme():
+        for corpus, textgroup, work, version, scheme, metadata_path in (
+            _iter_version_metadata()
+        ):
+            if scheme is None:
+                continue
+            with (metadata_path.parent / "index.json").open(encoding="utf-8") as f:
+                chunks = json.load(f).get("chunks")
+            for chunk in chunks:
+                passage = chunk["cts_urn"].rsplit(":", 1)[-1]
+                yield (
+                    f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
+                    f"/{scheme}:{passage}/"
+                )
 
     import click
     from timeit import default_timer
