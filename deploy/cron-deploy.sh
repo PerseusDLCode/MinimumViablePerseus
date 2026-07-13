@@ -28,7 +28,7 @@ set -euo pipefail
 # ----- Configuration defaults -----------------------------------------
 export IMAGE="${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}"
 export MORPH_URL="${MORPH_URL:?MORPH_URL is required}"
-export BUILD_DIR="${BUILD_DIR:-build}"
+export BUILD_DIR="${BUILD_DIR:-./build}"
 STATE_FILE="${STATE_FILE:-last-digest}"
 export BUILD_CTR="${BUILD_CTR:-perseus-build}"
 export IMAGE_TAG="${IMAGE_TAG:-dev-latest}"
