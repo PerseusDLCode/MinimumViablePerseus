@@ -677,7 +677,7 @@ wheels = [
 [[package]]
 name = "perseus-cts"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/perseus-cts.git#2bb5b2b1613a3940988dd66888940ba47c30d1d5" }
+source = { git = "https://github.com/PerseusDLCode/perseus-cts.git#cacb33e0d84c60f4b3c9d0bcc51b984038febdcf" }
 dependencies = [
     { name = "lxml" },
     { name = "lxml-stubs" },

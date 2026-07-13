@@ -90,24 +90,32 @@ def _annotate_toc(
     textgroup: str,
     work: str,
     version: str,
+    scheme: str | None = None,
 ) -> list[dict]:
-    """Recursively add route_kwargs to leaf TOC entries.
+    """Recursively add endpoint/route_kwargs to leaf TOC entries.
 
     ReferenceParser.toc() returns entries with urn/label/subpassages but no
-    route_kwargs.  NavigationItem.html.jinja needs route_kwargs on leaf nodes
-    to build hrefs via url_for('reading_view', ...).
+    routing info.  NavigationItem.html.jinja needs endpoint/route_kwargs on
+    leaf nodes to build hrefs via url_for(item.endpoint, **item.route_kwargs).
     """
+    endpoint = "reading_view_scheme" if scheme else "reading_view"
     for entry in entries:
         if entry.get("subpassages"):
-            _annotate_toc(entry["subpassages"], corpus, textgroup, work, version)
+            _annotate_toc(
+                entry["subpassages"], corpus, textgroup, work, version, scheme
+            )
         else:
-            entry["route_kwargs"] = {
+            route_kwargs = {
                 "corpus": corpus,
                 "textgroup": textgroup,
                 "work": work,
                 "version": version,
                 "chunk": entry["urn"].rsplit(":", 1)[-1],
             }
+            if scheme:
+                route_kwargs["scheme"] = scheme
+            entry["endpoint"] = endpoint
+            entry["route_kwargs"] = route_kwargs
     return entries
 
 
@@ -509,6 +517,7 @@ def _toc_from_metadata(
     textgroup: str,
     work: str,
     version: str,
+    scheme: str | None = None,
 ) -> dict:
     """Load and annotate the TOC from a metadata.json file.
 
@@ -522,7 +531,7 @@ def _toc_from_metadata(
         toc_entries = json.load(f).get("toc", [])
 
     toc_entries = _prune_toc_leaves(toc_entries)
-    _annotate_toc(toc_entries, corpus, textgroup, work, version)
+    _annotate_toc(toc_entries, corpus, textgroup, work, version, scheme)
     return {"table_of_contents": toc_entries}
 
 
@@ -759,7 +768,7 @@ def create_app(test_config=None):
 
         chunk_obj, pub_info = _parse_chunk(chunk_file)
         toc = _toc_from_metadata(
-            data_dir / "metadata.json", corpus, textgroup, work, version
+            data_dir / "metadata.json", corpus, textgroup, work, version, scheme
         )
 
         base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
