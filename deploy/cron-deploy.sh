@@ -13,7 +13,7 @@
 #   CONTAINER_CMD Container runtime (default: podman; set to docker locally)
 #
 # Intended to run under `flock` every 10 minutes:
-#   */10 * * * * /usr/bin/flock -n /home/perseus/deploy.lock /home/perseus/cron-deploy.sh >> /home/perseus/deploy.log 2>&1
+#   */10 * * * * /usr/bin/flock -n /home/perseus/deploy.lock /home/perseus/MinimumViablePerseus/deploy/cron-deploy.sh >> /home/perseus/deploy.log 2>&1
 
 set -euo pipefail
 
