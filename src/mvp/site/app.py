@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -448,23 +449,40 @@ def _scheme_dirs(version_dir: Path) -> list[str]:
     return [d.name for d in _subdirs(version_dir) if (d / "index.json").exists()]
 
 
-def _chunk_start_line(cts_urn: str) -> int:
-    """Return the starting line number encoded in a chunk's passage citation.
+_LEADING_INT_RE = re.compile(r"\d+")
+
+
+def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
+    """Return the starting position of a chunk's passage citation as a sortable key.
 
     Scene-level passages are line ranges ("1-93"); card-level passages are
-    a single line number ("49"). Both start with the same integer."""
+    a single line number ("49"); some works cite by dotted components
+    ("1.1" for book.line in Thucydides) or mix in a letter suffix ("1a").
+
+    The passage is split on "." *before* any digit extraction, so each
+    dot-separated component (e.g. book, then line) contributes its own
+    leading integer to the key. Comparing the resulting tuples sorts
+    correctly across component rollovers (e.g. "1.93" < "2.1"), unlike
+    parsing the whole string as one number would. A component with no
+    leading digits (unexpected input) contributes 0 rather than raising.
+    """
     passage = cts_urn.rsplit(":", 1)[-1]
-    return int(passage.split("-", 1)[0])
+    first_segment = passage.split("-", 1)[0]
+    key = []
+    for component in first_segment.split("."):
+        match = _LEADING_INT_RE.match(component)
+        key.append(int(match.group()) if match else 0)
+    return tuple(key)
 
 
-def _find_chunk_for_line(chunks: list[dict], line: int) -> dict | None:
+def _find_chunk_for_line(chunks: list[dict], line: tuple[int, ...]) -> dict | None:
     """Return the chunk with the greatest start line at or before ``line``.
 
     Works for both scene chunks (few, wide ranges) and card chunks (many,
     single-line starts) since chunk boundaries are always given by
     monotonically increasing start lines."""
     best: dict | None = None
-    best_start: int | None = None
+    best_start: tuple[int, ...] | None = None
     for chunk in chunks:
         start = _chunk_start_line(chunk["cts_urn"])
         if start <= line and (best_start is None or start > best_start):
@@ -479,7 +497,7 @@ def _scheme_toggle_links(
     work: str,
     version: str,
     current_scheme: str | None,
-    current_line: int,
+    current_line: tuple[int, ...],
 ) -> list[dict]:
     """Return links to the same passage under each other available scheme."""
     links: list[dict] = []
