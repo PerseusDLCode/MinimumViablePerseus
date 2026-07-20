@@ -212,16 +212,21 @@ def _build_sibling_data(
     work: str,
     version: str,
     chunk: str,
-    chunk_index: int | None,
+    current_line: tuple[int, ...],
     catalog: CTSCatalog,
     base_urn: str,
 ) -> dict:
-    """Build sibling edition/translation chunk data using catalog + chunk offset.
+    """Build sibling edition/translation chunk data using catalog + citation value.
 
     For each sibling version, loads its index.json and finds the corresponding
     chunk by:
       Strategy 1 — exact passage reference match
-      Strategy 2 — positional (offset) fallback, clamped to bounds
+      Strategy 2 — nearest chunk at or before the same citation value
+
+    Chunk boundaries can differ in granularity between sibling versions (e.g.
+    a card-chunked edition against a line-chunked translation), so falling
+    back to raw chunk position (as opposed to citation value) can land on a
+    wildly mismatched passage; see _chunk_start_line/_find_chunk_for_line.
 
     Returns dict with keys:
       current_version: CTSVersion | None
@@ -245,9 +250,9 @@ def _build_sibling_data(
             (c for c in sib_chunks if c["cts_urn"].endswith(f":{chunk}")),
             None,
         )
-        # Strategy 2: positional fallback, clamped to the sibling's bounds.
-        if entry is None and chunk_index is not None:
-            entry = sib_chunks[min(chunk_index, len(sib_chunks) - 1)]
+        # Strategy 2: nearest chunk at or before the same citation value.
+        if entry is None:
+            entry = _find_chunk_for_line(sib_chunks, current_line) or sib_chunks[0]
         if entry is None:
             return sib, None
 
@@ -736,7 +741,11 @@ def create_app(test_config=None):
         passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
 
         route_kwargs = dict(
-            corpus=corpus, textgroup=textgroup, work=work, version=version, chunk=passage
+            corpus=corpus,
+            textgroup=textgroup,
+            work=work,
+            version=version,
+            chunk=passage,
         )
         if scheme:
             route_kwargs["scheme"] = scheme
@@ -747,7 +756,9 @@ def create_app(test_config=None):
     @app.get("/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>/")
     def get_first_chunk(corpus, textgroup, work, version):
         index_file = PROTO_DIR / corpus / textgroup / work / version / "index.json"
-        return _redirect_to_first_chunk(corpus, textgroup, work, version, None, index_file)
+        return _redirect_to_first_chunk(
+            corpus, textgroup, work, version, None, index_file
+        )
 
     @app.get(
         "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
@@ -773,9 +784,9 @@ def create_app(test_config=None):
             work_index = json.load(f)
 
         urn = f"urn:cts:{corpus}:{textgroup}.{work}.{version}:{chunk}"
-        chunk_entry, chunk_index = next(
-            ((c, i) for i, c in enumerate(work_index["chunks"]) if c["cts_urn"] == urn),
-            (None, None),
+        chunk_entry = next(
+            (c for c in work_index["chunks"] if c["cts_urn"] == urn),
+            None,
         )
         if chunk_entry is None:
             abort(404)
@@ -802,6 +813,7 @@ def create_app(test_config=None):
             if chunk_obj.next_urn
             else None
         )
+        current_line = _chunk_start_line(chunk_obj.cts_urn)
         scheme_links = _scheme_toggle_links(
             version_dir,
             corpus,
@@ -809,7 +821,7 @@ def create_app(test_config=None):
             work,
             version,
             scheme,
-            _chunk_start_line(chunk_obj.cts_urn),
+            current_line,
         )
 
         # e.g. urn:cts:greekLit:tlg0003.tlg001.perseus-grc2
@@ -817,7 +829,7 @@ def create_app(test_config=None):
         work_base_urn = base_urn.rsplit(".", 1)[0]  # drop version component
 
         sibling_data = _build_sibling_data(
-            corpus, textgroup, work, version, chunk, chunk_index, catalog, base_urn
+            corpus, textgroup, work, version, chunk, current_line, catalog, base_urn
         )
 
         commentary = links_for_passage(catalog, work_base_urn, chunk)
@@ -907,8 +919,10 @@ def build():
 
             _urn, _cts, corpus, work_urn = base_urn.split(":")
             textgroup, work, version = work_urn.split(".")
-            scheme = None if meta.get("refsDecl_id", "CTS") == "CTS" else (
-                metadata_path.parent.name
+            scheme = (
+                None
+                if meta.get("refsDecl_id", "CTS") == "CTS"
+                else (metadata_path.parent.name)
             )
 
             yield corpus, textgroup, work, version, scheme, metadata_path
@@ -917,7 +931,9 @@ def build():
     def get_first_chunk():
         for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
             if scheme is None:
-                yield dict(corpus=corpus, textgroup=textgroup, work=work, version=version)
+                yield dict(
+                    corpus=corpus, textgroup=textgroup, work=work, version=version
+                )
 
     @freezer.register_generator
     def get_first_scheme_chunk():
@@ -933,9 +949,14 @@ def build():
 
     @freezer.register_generator
     def reading_view():
-        for corpus, textgroup, work, version, scheme, metadata_path in (
-            _iter_version_metadata()
-        ):
+        for (
+            corpus,
+            textgroup,
+            work,
+            version,
+            scheme,
+            metadata_path,
+        ) in _iter_version_metadata():
             if scheme is not None:
                 continue
             with (metadata_path.parent / "index.json").open(encoding="utf-8") as f:
@@ -945,9 +966,14 @@ def build():
 
     @freezer.register_generator
     def reading_view_scheme():
-        for corpus, textgroup, work, version, scheme, metadata_path in (
-            _iter_version_metadata()
-        ):
+        for (
+            corpus,
+            textgroup,
+            work,
+            version,
+            scheme,
+            metadata_path,
+        ) in _iter_version_metadata():
             if scheme is None:
                 continue
             with (metadata_path.parent / "index.json").open(encoding="utf-8") as f:
