@@ -120,7 +120,28 @@ def _annotate_toc(
     return entries
 
 
-def _build_collections(proto_dir: Path) -> list[dict]:
+def _work_title(catalog: CTSCatalog, work_urn: str, fallback: str = "") -> str:
+    """Return a work's title for display, via CTSWork.title_for.
+
+    Always prefers the English (or other modern-language) title over
+    whatever happens to be first in the catalog's title dict, so readers
+    never see a Greek/Latin title by accident. Falls back to `fallback`
+    whenever no English title is available — either because the catalog
+    has no entry for the work, or because its __cts__.xml only supplies a
+    non-English <ti:title> (e.g. Trachiniae's is tagged xml:lang="lat").
+    Callers should pass a script-neutral fallback (e.g. a work ID), not a
+    document's own-language title, or the same Greek/Latin-title problem
+    just resurfaces one level down.
+    """
+    work = catalog.work_for(work_urn)
+    if work is not None:
+        title = work.title_for("eng")
+        if title:
+            return title
+    return fallback
+
+
+def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
     """Build the nested corpus → textgroup → work → version catalog tree.
 
     Each level is included only when it has at least one populated child, so
@@ -140,7 +161,9 @@ def _build_collections(proto_dir: Path) -> list[dict]:
                 versions = []
 
                 for version_dir in _subdirs(work_dir):
-                    entry = _version_entry(corpus, textgroup_dir, work_dir, version_dir)
+                    entry = _version_entry(
+                        corpus, textgroup_dir, work_dir, version_dir, catalog
+                    )
                     if entry is None:
                         continue
                     version, document = entry
@@ -563,6 +586,7 @@ def _version_entry(
     textgroup_dir: Path,
     work_dir: Path,
     version_dir: Path,
+    catalog: CTSCatalog,
 ) -> tuple[dict, dict] | None:
     """Parse one version directory into a ``(version, document_metadata)`` pair.
 
@@ -584,9 +608,10 @@ def _version_entry(
 
     language = document.get("language", "")
     first_passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
+    work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
     version = {
         "id": version_dir.name,
-        "title": document.get("title", version_dir.name),
+        "title": _work_title(catalog, work_urn, fallback=work_dir.name),
         "language": language,
         "language_label": _LANGUAGE_LABELS.get(language, language),
         "first_chunk_kwargs": dict(
@@ -709,7 +734,7 @@ def create_app(test_config=None):
 
     @app.get("/collections/")
     def get_collections():
-        collections = _build_collections(PROTO_DIR)
+        collections = _build_collections(PROTO_DIR, catalog)
         return (
             render_template("collections.html.jinja", collections=collections),
             200,
@@ -834,12 +859,14 @@ def create_app(test_config=None):
 
         commentary = links_for_passage(catalog, work_base_urn, chunk)
         commentary_groups = _build_commentary_groups(commentary)
+        work_title = _work_title(catalog, work_base_urn, fallback=f"{textgroup}.{work}")
 
         return (
             render_template(
                 "reading.html.jinja",
                 catalog_record_uri=f"http://data.perseus.org/catalog/{base_urn}",
                 chunk=chunk_obj,
+                work_title=work_title,
                 commentary_groups=commentary_groups,
                 commentary_warnings=commentary.warnings,
                 citation_uri=f"http://data.perseus.org/citations/{chunk_obj.cts_urn}",

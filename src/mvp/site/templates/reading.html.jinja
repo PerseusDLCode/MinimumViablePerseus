@@ -1,13 +1,13 @@
 {% extends "base.html.jinja" %}
 
-{% block title %}{{ pub_info.author }}, {{ chunk.title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
+{% block title %}{{ pub_info.author }}, {{ work_title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
 
 {% block header %}
     <header class="hero mb-4">
         <div class="text-base-content w-full">
             <div>
                 <h1 class="text-xl font-bold">
-                    {{ pub_info.author }} <em>{{ chunk.title }}</em>
+                    {{ pub_info.author }} <em>{{ work_title }}</em>
                 </h1>
                 {% if pub_info.editors %}
                     <h2 class="text-lg font-bold">{{ pub_info.editors | join(", ") }}</h2>
@@ -82,7 +82,7 @@
 
             <div class="pt-8">
                 <p class="mb-4">
-                    {{ chunk.title }}.
+                    {{ work_title }}.
                     {{ pub_info.author }}.
                     {% if pub_info.editors %}{{ pub_info.editors | join(", ") }}.{% endif %}
                     {{ pub_info.pub_place }}.
@@ -125,6 +125,7 @@
                                 <summary class="p-4 cursor-pointer font-bold">
                                     {{ sib.label }}
                                     ({{ sib.description }})
+                                    {% if sib_chunk %}<a href="/{{ sib_chunk.cts_urn }}" class="link">focus</a>{% endif %}
                                 </summary>
                                 <div class="p-4">
                                     {% if sib_chunk %}
@@ -149,23 +150,26 @@
                             <h4 class="font-bold">Translations</h4>
                         </div>
                         {% for sib, sib_chunk in sibling_data.translation_chunks %}
-                        <details class="bg-neutral-300">
-                            <summary class="p-4 cursor-pointer font-bold">
-                                {{ sib.label }}
-                                ({{ sib.description }})
-                            </summary>
-                            <div class="p-4">
-                                {% if sib_chunk %}
-                                    {% for element in sib_chunk.elements %}
-                                        {% with text_container = element %}
-                                            {% include 'components/ReadableTextContainer.html.jinja' %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                {% else %}
-                                    <p class="italic">No corresponding passage available</p>
-                                {% endif %}
-                            </div>
-                        </details>
+                            <details class="bg-neutral-300">
+                                <summary class="p-4 cursor-pointer font-bold">
+                                    {{ sib.label }}
+                                    ({{ sib.description }})
+                                    {% if sib_chunk %}<a href="/{{ sib_chunk.cts_urn }}" class="link">focus</a>{% endif %}
+                                </summary>
+
+
+                                <div class="p-4">
+                                    {% if sib_chunk %}
+                                        {% for element in sib_chunk.elements %}
+                                            {% with text_container = element %}
+                                                {% include 'components/ReadableTextContainer.html.jinja' %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="italic">No corresponding passage available</p>
+                                    {% endif %}
+                                </div>
+                            </details>
                         {% endfor %}
                     </div>
                 {% endif %}
