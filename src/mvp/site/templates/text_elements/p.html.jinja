@@ -1,4 +1,5 @@
 {% from "components/macros.html.jinja" import render_children with context %}
 <p class="tei-p">
+    {%- if leading_prefix %}{{ leading_prefix }}{% endif -%}
     {{- render_children(text_container) -}}
 </p>

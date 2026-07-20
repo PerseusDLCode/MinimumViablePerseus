@@ -5210,6 +5210,9 @@
       grid-row-start: 2;
     }
   }
+  .float-left {
+    float: left;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {

@@ -1,7 +1,7 @@
-{% macro render_children(container) %}
+{% macro render_children(container, leading_prefix=None) %}
     {%- for child in container.children -%}
         {%- set child_urn = child.urn if child.urn else container.urn -%}
-        {%- with text_container=dict(child, urn=child_urn) -%}
+        {%- with text_container=dict(child, urn=child_urn), leading_prefix=(leading_prefix if loop.first else None) -%}
             {%- include 'components/ReadableTextContainer.html.jinja' -%}
         {%- endwith -%}
     {%- endfor -%}
