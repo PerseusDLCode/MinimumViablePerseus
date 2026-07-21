@@ -42,6 +42,8 @@ ENV PATH="/root/.local/bin:${PATH}"
 # ----------------------------------------------------------------
 ARG GREEK_CORPUS_SHA=latest
 ARG LATIN_CORPUS_SHA=latest
+ARG FIRST_1K_GREEK_SHA=latest
+ARG PDLREFWK_SHA=latest
 
 ARG CORPORA_DIR=/corpora
 RUN echo "greekLit @ ${GREEK_CORPUS_SHA}" && \
@@ -53,6 +55,16 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
     https://github.com/PerseusDLCode/canonical-latinLit \
     ${CORPORA_DIR}/latinLit
+
+RUN echo "First1KGreek @ ${FIRST_1K_GREEK_SHA}" && \
+    git clone --depth 1 --branch editing \
+    https://github.com/PerseusDLCode/First1KGreek \
+    ${CORPORA_DIR}/First1KGreek
+
+RUN echo "canonical-pdlrefwk @ ${PDLREFWK_SHA}" && \
+    git clone --depth 1 --branch dev \
+    https://github.com/PerseusDLCode/canonical-pdlrefwk \
+    ${CORPORA_DIR}/canonical-pdlrefwk
 
 # pdl_refwk 
 COPY canonical_pdlrefwk/ /app/data/  

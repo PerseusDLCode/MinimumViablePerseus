@@ -663,12 +663,12 @@ def generate_proto_pages(
 
     for corpus in corpora:
         for doc in corpus.documents():
-            if not doc.metadata.urn:
-                continue
-            if site_map.manifest_path(doc.metadata.urn).exists():
-                skipped += 1
-                continue
             try:
+                if not doc.metadata.urn:
+                    continue
+                if site_map.manifest_path(doc.metadata.urn).exists():
+                    skipped += 1
+                    continue
                 for refsDecl_id in available_refsDecl_ids(doc):
                     scheme = _scheme_slug(refsDecl_id)
                     compiler = Chunker(doc, refsDecl_id=refsDecl_id)
