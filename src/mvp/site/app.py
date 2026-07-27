@@ -142,6 +142,39 @@ def _work_title(catalog: CTSCatalog, work_urn: str, fallback: str = "") -> str:
     return fallback
 
 
+def _group_name(catalog: CTSCatalog, textgroup_urn: str, fallback: str = "") -> str:
+    """Return a textgroup's display name for the collections tree.
+
+    Reads CTSGroup.group_names (parsed from __cts__.xml's <ti:groupname>
+    elements), preferring English and falling back to whatever language is
+    available. This is the textgroup-level source of truth; per-work TEI
+    <author> elements are unreliable (e.g. missing/mis-nested in some
+    First1KGreek headers), so callers should prefer this over a document's
+    own author field.
+
+    Falls back to a namespace-agnostic id match when the exact urn misses:
+    the proto-page tree is keyed by a document's own urn namespace, but a
+    textgroup's __cts__.xml occasionally declares a different namespace for
+    the same numeric id (e.g. a commentary's own file says "latinLit" while
+    its work/version files and TEI documents say "greekLit") — a data bug
+    in the corpus, not something this lookup can otherwise route around.
+    """
+    group = catalog.group_for(textgroup_urn)
+    if group is None:
+        textgroup_id = textgroup_urn.rsplit(":", 1)[-1]
+        for candidate in catalog.groups.values():
+            if candidate.urn.rsplit(":", 1)[-1] == textgroup_id:
+                group = candidate
+                break
+    if group is not None:
+        name = group.group_names.get("eng") or next(
+            iter(group.group_names.values()), ""
+        )
+        if name:
+            return name
+    return fallback
+
+
 def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
     """Build the nested corpus → textgroup → work → version catalog tree.
 
@@ -155,7 +188,8 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
         textgroups = []
 
         for textgroup_dir in _subdirs(corpus_dir):
-            author = textgroup_dir.name
+            textgroup_urn = f"urn:cts:{corpus}:{textgroup_dir.name}"
+            author = _group_name(catalog, textgroup_urn, textgroup_dir.name)
             works = []
 
             for work_dir in _subdirs(textgroup_dir):
@@ -167,11 +201,8 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
                     )
                     if entry is None:
                         continue
-                    version, document = entry
+                    version, _document = entry
                     versions.append(version)
-                    # The textgroup author is the same across versions; take
-                    # it from whichever version supplies one.
-                    author = document.get("author", textgroup_dir.name)
 
                 if versions:
                     works.append({"id": work_dir.name, "versions": versions})
