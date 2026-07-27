@@ -89,7 +89,7 @@ def _format_editors(editors: list[dict]) -> str:
             continue
         role = (editor.get("role") or "").strip().lower()
         label = _EDITOR_ROLE_LABELS.get(role)
-        parts.append(f"{name} ({label})" if label else name)
+        parts.append(f"{name} ({label})" if label else f"ed. {name}")
     return ", ".join(parts)
 
 

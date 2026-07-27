@@ -30,7 +30,7 @@
                                     {% for version in work.versions|sort(attribute="title,id") %}
                                     <li>
                                         <a href="{{ url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
-                                            {{ version.title }} ({{ version.language_label }}, {{ version.id }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                            {{ version.title }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
                                         </a>
                                     </li>
                                     {% endfor %}
