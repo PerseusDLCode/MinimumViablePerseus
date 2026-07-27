@@ -10,7 +10,7 @@
                     {{ pub_info.author }} <em>{{ work_title }}</em>
                 </h1>
                 {% if pub_info.editors %}
-                    <h2 class="text-lg font-bold">{{ pub_info.editors | join(", ") }}</h2>
+                    <h2 class="text-lg font-bold">{{ pub_info.editors }}</h2>
                 {% endif %}
             </div>
         </div>
@@ -84,7 +84,7 @@
                 <p class="mb-4">
                     {{ work_title }}.
                     {{ pub_info.author }}.
-                    {% if pub_info.editors %}{{ pub_info.editors | join(", ") }}.{% endif %}
+                    {% if pub_info.editors %}{{ pub_info.editors }}.{% endif %}
                     {{ pub_info.pub_place }}.
                     {{ pub_info.pub_date }}.
                 </p>

@@ -61,6 +61,38 @@ _LANGUAGE_LABELS = {
 }
 
 
+_EDITOR_ROLE_LABELS = {
+    "translator": "Translator",
+    "transl": "Translator",
+    "editor": "Editor",
+    "associate editor": "Associate Editor",
+    "assistant editor": "Assistant Editor",
+    "commentator": "Commentator",
+}
+
+
+def _format_editors(editors: list[dict]) -> str:
+    """Return a display string for a document's editors/translators.
+
+    Each entry is {"name": str, "role": str} (see perseus_cts.chunker's
+    document metadata, which preserves TEI's <editor role="..."> attribute).
+    A recognized role is appended parenthetically (e.g. "Rudolf G. Binding
+    (Translator)") so readers can tell a translation's translator from an
+    edition's editor; an unrecognized or absent role is shown as a bare name,
+    since most TEI <editor> elements carry no role attribute at all and are
+    plain editors.
+    """
+    parts = []
+    for editor in editors:
+        name = (editor.get("name") or "").strip()
+        if not name:
+            continue
+        role = (editor.get("role") or "").strip().lower()
+        label = _EDITOR_ROLE_LABELS.get(role)
+        parts.append(f"{name} ({label})" if label else name)
+    return ", ".join(parts)
+
+
 @dataclass
 class _Chunk:
     cts_urn: str
@@ -124,19 +156,17 @@ def _annotate_toc(
 def _work_title(catalog: CTSCatalog, work_urn: str, fallback: str = "") -> str:
     """Return a work's title for display, via CTSWork.title_for.
 
-    Always prefers the English (or other modern-language) title over
-    whatever happens to be first in the catalog's title dict, so readers
-    never see a Greek/Latin title by accident. Falls back to `fallback`
-    whenever no English title is available — either because the catalog
-    has no entry for the work, or because its __cts__.xml only supplies a
-    non-English <ti:title> (e.g. Trachiniae's is tagged xml:lang="lat").
-    Callers should pass a script-neutral fallback (e.g. a work ID), not a
-    document's own-language title, or the same Greek/Latin-title problem
-    just resurfaces one level down.
+    Prefers English, then falls back to Latin — some __cts__.xml files only
+    supply a <ti:title xml:lang="lat"> (e.g. Trachiniae, or First1KGreek's
+    ggm0001.ggm001), and a Latin title is still far more useful to a reader
+    than the raw URN fragment. Falls back to `fallback` only when neither is
+    available. Callers should pass a script-neutral fallback (e.g. a work
+    ID), not a document's own-language title, or the same title-availability
+    problem just resurfaces one level down.
     """
     work = catalog.work_for(work_urn)
     if work is not None:
-        title = work.title_for("eng")
+        title = work.title_for("eng") or work.title_for("lat")
         if title:
             return title
     return fallback
@@ -296,7 +326,7 @@ def _build_sibling_data(
     """
     work_urn = base_urn.rsplit(".", 1)[0]
 
-    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None]:
+    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None] | None:
         sib_id = sib.urn.split(":")[3].split(".")[-1]
         if sib_id == version:
             return sib, None
@@ -305,6 +335,15 @@ def _build_sibling_data(
         sib_chunks = _load_index_chunks(index_file)
         if not sib_chunks:
             return sib, None
+
+        # A partial version (e.g. a translation covering only a few chapters
+        # of a work) shouldn't be shown as a sibling of every chunk in the
+        # full text — only of chunks actually within its own citation range.
+        # Outside that range there is no meaningful "nearest" passage, so
+        # exclude the sibling entirely rather than clamping to an edge chunk.
+        starts = [_chunk_start_line(c["cts_urn"]) for c in sib_chunks]
+        if current_line < min(starts) or current_line > max(starts):
+            return None
 
         # Strategy 1: exact passage-reference match.
         entry = next(
@@ -327,12 +366,14 @@ def _build_sibling_data(
     return {
         "current_version": catalog.version_for(base_urn),
         "edition_chunks": [
-            _lookup(sib) for sib in catalog.editions_of(work_urn) if sib.urn != base_urn
+            result
+            for sib in catalog.editions_of(work_urn)
+            if sib.urn != base_urn and (result := _lookup(sib)) is not None
         ],
         "translation_chunks": [
-            _lookup(sib)
+            result
             for sib in catalog.translations_of(work_urn)
-            if sib.urn != base_urn
+            if sib.urn != base_urn and (result := _lookup(sib)) is not None
         ],
     }
 
@@ -447,7 +488,7 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     pub_info: dict[str, Any] = {
         "title": document.get("title", ""),
         "author": document.get("author", ""),
-        "editors": document.get("editors", []),
+        "editors": _format_editors(document.get("editors", [])),
         "pub_place": document.get("pub_place", ""),
         "pub_date": document.get("pub_date", ""),
     }
@@ -657,6 +698,7 @@ def _version_entry(
         "title": _work_title(catalog, work_urn, fallback=work_dir.name),
         "language": language,
         "language_label": _LANGUAGE_LABELS.get(language, language),
+        "editors": _format_editors(document.get("editors", [])),
         "first_chunk_kwargs": dict(
             corpus=corpus,
             textgroup=textgroup_dir.name,
