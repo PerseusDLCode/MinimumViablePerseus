@@ -246,12 +246,17 @@ def _build_sibling_data(
     For each sibling version, loads its index.json and finds the corresponding
     chunk by:
       Strategy 1 — exact passage reference match
-      Strategy 2 — nearest chunk at or before the same citation value
+      Strategy 2 — nearest chunk to the same citation value, before or after
 
     Chunk boundaries can differ in granularity between sibling versions (e.g.
     a card-chunked edition against a line-chunked translation), so falling
     back to raw chunk position (as opposed to citation value) can land on a
-    wildly mismatched passage; see _chunk_start_line/_find_chunk_for_line.
+    wildly mismatched passage; see _chunk_start_line/_find_nearest_chunk.
+    This lookup runs symmetrically for both edition_chunks and
+    translation_chunks regardless of which version is currently displayed
+    (base_urn), so alignment is consistent in both directions: reading an
+    edition aligns sibling translations, and reading a translation aligns
+    sibling editions, to the nearest counterpart passage.
 
     Returns dict with keys:
       current_version: CTSVersion | None
@@ -275,9 +280,9 @@ def _build_sibling_data(
             (c for c in sib_chunks if c["cts_urn"].endswith(f":{chunk}")),
             None,
         )
-        # Strategy 2: nearest chunk at or before the same citation value.
+        # Strategy 2: nearest chunk to the same citation value, before or after.
         if entry is None:
-            entry = _find_chunk_for_line(sib_chunks, current_line) or sib_chunks[0]
+            entry = _find_nearest_chunk(sib_chunks, current_line) or sib_chunks[0]
         if entry is None:
             return sib, None
 
@@ -486,6 +491,43 @@ def _find_chunk_for_line(chunks: list[dict], line: tuple[int, ...]) -> dict | No
         start = _chunk_start_line(chunk["cts_urn"])
         if start <= line and (best_start is None or start > best_start):
             best, best_start = chunk, start
+    return best
+
+
+def _chunk_distance(a: tuple[int, ...], b: tuple[int, ...]) -> tuple[int, ...]:
+    """Return an elementwise-absolute-difference key for comparing closeness of two citation keys.
+
+    Shorter tuples are zero-padded so citation keys of differing depth (e.g.
+    mismatched citeStructure schemes between sibling versions) compare
+    safely. Lexicographic comparison of the resulting tuples orders "closer"
+    correctly for hierarchical citations: a difference in a higher-order
+    component (e.g. book) always outweighs any difference in a lower-order
+    one (e.g. line), matching how the citation values themselves are ordered.
+    """
+    length = max(len(a), len(b))
+    a = a + (0,) * (length - len(a))
+    b = b + (0,) * (length - len(b))
+    return tuple(abs(x - y) for x, y in zip(a, b))
+
+
+def _find_nearest_chunk(chunks: list[dict], line: tuple[int, ...]) -> dict | None:
+    """Return the chunk whose start line is closest to ``line``, before or after.
+
+    Used to align sibling editions/translations whose chunk granularity
+    differs from the currently displayed version (see _build_sibling_data):
+    the aligned passage should be whichever sibling chunk is nearest to the
+    current position, not merely the nearest preceding or following one.
+    Ties (equal distance before and after) prefer the earlier chunk, since
+    chunks are iterated in ascending order and only a strictly smaller
+    distance replaces the current best.
+    """
+    best: dict | None = None
+    best_dist: tuple[int, ...] | None = None
+    for chunk in chunks:
+        start = _chunk_start_line(chunk["cts_urn"])
+        dist = _chunk_distance(line, start)
+        if best_dist is None or dist < best_dist:
+            best, best_dist = chunk, dist
     return best
 
 

@@ -12,7 +12,12 @@
 
 from __future__ import annotations
 
-from mvp.site.app import _chunk_start_line, _find_chunk_for_line
+from mvp.site.app import (
+    _chunk_distance,
+    _chunk_start_line,
+    _find_chunk_for_line,
+    _find_nearest_chunk,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -109,3 +114,99 @@ class TestFindChunkForLine:
 
     def test_empty_chunk_list_returns_none(self):
         assert _find_chunk_for_line([], _chunk_start_line("urn:...:1")) is None
+
+
+# ---------------------------------------------------------------------------
+# _find_nearest_chunk
+# ---------------------------------------------------------------------------
+
+class TestFindNearestChunk:
+    """Finding the chunk whose start is closest to a target, before or after.
+
+    Used to align sibling editions/translations by citation value rather
+    than raw chunk position (see _build_sibling_data): the aligned passage
+    is whichever sibling chunk is nearest overall, not merely the nearest
+    preceding one.
+    """
+
+    SCENE_CHUNKS = TestFindChunkForLine.SCENE_CHUNKS
+    CARD_CHUNKS = TestFindChunkForLine.CARD_CHUNKS
+
+    def test_target_closer_to_following_chunk(self):
+        """93 is 3 lines after the 90-card but only 1 before the 94-card."""
+        target = _chunk_start_line("urn:...:93")
+        result = _find_nearest_chunk(self.CARD_CHUNKS, target)
+        assert result["cts_urn"].endswith(":94")
+
+    def test_target_closer_to_preceding_chunk(self):
+        target = _chunk_start_line("urn:...:91")
+        result = _find_nearest_chunk(self.CARD_CHUNKS, target)
+        assert result["cts_urn"].endswith(":90")
+
+    def test_tie_prefers_earlier_chunk(self):
+        target = _chunk_start_line("urn:...:92")
+        result = _find_nearest_chunk(self.CARD_CHUNKS, target)
+        assert result["cts_urn"].endswith(":90")
+
+    def test_target_before_first_chunk_lands_on_first(self):
+        target = _chunk_start_line("urn:...:0")
+        result = _find_nearest_chunk(self.SCENE_CHUNKS, target)
+        assert result["cts_urn"].endswith(":1-93")
+
+    def test_target_after_last_chunk_lands_on_last(self):
+        target = _chunk_start_line("urn:...:9999")
+        result = _find_nearest_chunk(self.SCENE_CHUNKS, target)
+        assert result["cts_urn"].endswith(":497-530")
+
+    def test_empty_chunk_list_returns_none(self):
+        assert _find_nearest_chunk([], _chunk_start_line("urn:...:1")) is None
+
+    # Book.chapter.section works (e.g. Thucydides) mix chunk granularities
+    # across sibling versions: some are chunked per-chapter ("1.50"), others
+    # per-section ("1.50.3"). Modeled on real proto-page data.
+    CHAPTER_CHUNKS = [
+        _chunk(f"urn:cts:greekLit:tlg0003.tlg001.1st1K-fre1:1.{n}")
+        for n in (49, 50, 51)
+    ]
+
+    def test_mid_chapter_section_aligns_to_containing_chapter(self):
+        target = _chunk_start_line("urn:...:1.50.3")
+        result = _find_nearest_chunk(self.CHAPTER_CHUNKS, target)
+        assert result["cts_urn"].endswith(":1.50")
+
+    def test_last_section_of_chapter_stays_in_that_chapter(self):
+        """A high section number must not tip the match into the next
+        chapter: the book/chapter components dominate distance (see
+        _chunk_distance), so within-chapter section offset never outweighs
+        a chapter-level difference."""
+        target = _chunk_start_line("urn:...:1.50.9")
+        result = _find_nearest_chunk(self.CHAPTER_CHUNKS, target)
+        assert result["cts_urn"].endswith(":1.50")
+
+    def test_coarser_chunk_aligns_into_first_section_of_finer_sibling(self):
+        """The reverse direction: a chapter-level citation (e.g. from a
+        French translation) aligning into a section-chunked sibling (e.g.
+        the Greek text) should land on that chapter's first section."""
+        section_chunks = [
+            _chunk(f"urn:cts:greekLit:tlg0003.tlg001.perseus-grc2:1.50.{n}")
+            for n in (1, 2, 3)
+        ] + [_chunk("urn:cts:greekLit:tlg0003.tlg001.perseus-grc2:1.51.1")]
+        target = _chunk_start_line("urn:...:1.50")
+        result = _find_nearest_chunk(section_chunks, target)
+        assert result["cts_urn"].endswith(":1.50.1")
+
+
+# ---------------------------------------------------------------------------
+# _chunk_distance
+# ---------------------------------------------------------------------------
+
+class TestChunkDistance:
+    def test_higher_order_component_outweighs_lower(self):
+        """Being off by one book always outranks any within-book line
+        difference, matching how hierarchical citations are ordered."""
+        same_book_far_line = _chunk_distance((1, 1), (1, 93))
+        next_book_same_line = _chunk_distance((1, 1), (2, 1))
+        assert same_book_far_line < next_book_same_line
+
+    def test_pads_mismatched_depth(self):
+        assert _chunk_distance((1,), (1, 5)) == (0, 5)

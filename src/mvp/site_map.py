@@ -51,18 +51,6 @@ class SiteMap:
         """Return the output path for a document's index.json manifest."""
         return self.chunk_dir(urn) / "index.json"
 
-    def citations_path(self, urn: str) -> Path:
-        """Return the output path for a document's citation index JSON sidecar."""
-        return self.chunk_dir(urn) / "citations.json"
-
-    def chunk_index_path(self, urn: str) -> Path:
-        """Return the output path for a document's chunk index JSON file."""
-        return self.chunk_dir(urn) / "chunks.json"
-
-    def word_index_path(self, urn: str) -> Path:
-        """Return the output path for a document's word index JSONL file."""
-        return self.chunk_dir(urn) / "words.jsonl"
-
     def catalog_path(self, language: str) -> Path:
         """Return the output path for a language catalog page."""
         catalog_dir = self._root / "catalog"
