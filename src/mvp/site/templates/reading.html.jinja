@@ -192,7 +192,10 @@
                             <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
                             <div class="p-4">
                                 {% for entry in group.entries %}
-                                    <p class="mb-2">
+                                    <p class="my-2">
+                                        {% if entry.line_ref %}
+                                            <span class="font-bold">{{ entry.line_ref }}.</span>
+                                        {% endif %}
                                         {% if entry.lemma_elements %}
                                             <strong>
                                                 {% for element in entry.lemma_elements %}

@@ -75,6 +75,7 @@ class _Chunk:
 @dataclass
 class _CommentaryEntry:
     anchor_id: str
+    line_ref: str | None
     lemma_elements: list[Any]
     comment_elements: list[Any]
 
@@ -208,6 +209,7 @@ def _build_commentary_groups(lookup: CommentaryLookup) -> list[_CommentaryGroup]
         group.entries.append(
             _CommentaryEntry(
                 anchor_id=link.anchor_id,
+                line_ref=link.line_ref,
                 lemma_elements=_parse_seg_elements(link.lemma),
                 comment_elements=_parse_seg_elements(link.comment),
             )

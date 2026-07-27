@@ -1197,6 +1197,9 @@
   .mx-auto {
     margin-inline: auto;
   }
+  .my-2 {
+    margin-block: calc(var(--spacing) * 2);
+  }
   .label {
     @layer daisyui.l1.l2.l3 {
       display: inline-flex;
