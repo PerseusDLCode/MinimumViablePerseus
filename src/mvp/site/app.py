@@ -341,15 +341,6 @@ def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
     return corpora
 
 
-def _do_prune_toc(entries: list[dict], max_depth: int) -> list[dict]:
-    """Return a copy of entries with every node at or below max_depth removed."""
-    return [
-        {**e, "subpassages": _do_prune_toc(e.get("subpassages", []), max_depth)}
-        for e in entries
-        if e["depth"] < max_depth
-    ]
-
-
 def _iter_version_dirs(
     proto_dir: Path,
 ) -> Iterator[tuple[Path, Path, Path, Path]]:
@@ -364,16 +355,6 @@ def _iter_version_dirs(
             for work_dir in _subdirs(textgroup_dir):
                 for version_dir in _subdirs(work_dir):
                     yield corpus_dir, textgroup_dir, work_dir, version_dir
-
-
-def _max_toc_depth(entries: list[dict]) -> int:
-    """Return the greatest ``depth`` value anywhere in the TOC tree, or -1."""
-    depth = -1
-    for entry in entries:
-        depth = max(depth, entry["depth"])
-        if entry.get("subpassages"):
-            depth = max(depth, _max_toc_depth(entry["subpassages"]))
-    return depth
 
 
 def _parse_seg_elements(xml: str | None) -> list[Any]:
@@ -456,18 +437,6 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
         elements=parser.elements,
     )
     return chunk, pub_info
-
-
-def _prune_toc_leaves(entries: list[dict]) -> list[dict]:
-    """Remove the deepest citation level, keeping only the penultimate level as leaves."""
-    if not entries:
-        return entries
-
-    max_depth = _max_toc_depth(entries)
-    if max_depth <= 0:
-        return entries
-
-    return _do_prune_toc(entries, max_depth)
 
 
 def _scheme_dirs(version_dir: Path) -> list[str]:
@@ -578,7 +547,6 @@ def _toc_from_metadata(
     with open(metadata_path, encoding="utf-8") as f:
         toc_entries = json.load(f).get("toc", [])
 
-    toc_entries = _prune_toc_leaves(toc_entries)
     _annotate_toc(toc_entries, corpus, textgroup, work, version, scheme)
     return {"table_of_contents": toc_entries}
 
