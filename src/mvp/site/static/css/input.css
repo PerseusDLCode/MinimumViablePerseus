@@ -24,16 +24,3 @@
     content: "\a\a";
 }
 
-.tei-elements {
-    counter-reset: tei-note;
-}
-
-.tei-note-trigger {
-    counter-increment: tei-note;
-}
-
-.tei-note-trigger::before {
-    content: counter(tei-note);
-    font-size: 1em;
-    vertical-align: super;
-}

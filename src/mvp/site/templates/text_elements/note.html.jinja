@@ -1,14 +1,14 @@
 {% from "components/macros.html.jinja" import render_children with context %}
 {%- set note_id = "note-" ~ text_container.index -%}
+{%- set note_number = notes.items|length + 1 -%}
 <sup class="tei-note">
-    <button
+    <a
+        href="#{{ note_id }}"
         class="tei-note-trigger cursor-pointer text-blue-700 hover:text-blue-900"
-        type="button"
-        onclick="document.getElementById('{{ note_id }}').showModal()"
-        aria-label="Show note"
-    ></button>
+        aria-label="Jump to note {{ note_number }}"
+    >{{ note_number }}</a>
 </sup>
 {%- set note_content -%}
     {{- render_children(text_container) -}}
 {%- endset -%}
-{%- set _ = notes.items.append({"id": note_id, "content": note_content}) -%}
+{%- set _ = notes.items.append({"id": note_id, "number": note_number, "content": note_content}) -%}
