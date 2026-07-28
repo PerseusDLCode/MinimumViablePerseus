@@ -2,16 +2,25 @@
 #
 # cron-deploy.sh — Poll GHCR for new builder image, build on VM
 #
-# Environment variables (set these in /home/perseus/env or crontab):
-#   IMAGE         GHCR image (default: ghcr.io/perseusdlcode/minimumviableperseus)
-#   MORPH_URL     Morpheus endpoint for the build (required)
-#   BUILD_DIR     Symlink path `serve` mounts; points at whichever of the two
-#                 blue-green directories (BUILD_DIR-a / BUILD_DIR-b) is live
-#                 (default: ./build)
-#   STATE_FILE    Path to last-deployed digest file (default: ./last-digest)
-#   BUILD_CTR     Name for the build container (default: perseus-build)
-#   IMAGE_TAG     Image tag to poll/build (default: dev-latest)
-#   CONTAINER_CMD Container runtime (default: podman; set to docker locally)
+# Environment variables (set these in ENV_FILE or crontab):
+#   IMAGE           GHCR image (default: ghcr.io/perseusdlcode/minimumviableperseus)
+#   MORPH_URL       Morpheus endpoint for the build (required) — this is baked
+#                   into the built HTML and fetched by browsers client-side,
+#                   so it must be the public morph-server URL, not an
+#                   internal/container-network address.
+#   BUILD_DIR       Symlink path `serve` mounts; points at whichever of the two
+#                   blue-green directories (BUILD_DIR-a / BUILD_DIR-b) is live
+#                   (default: ./build)
+#   STATE_FILE      Path to last-deployed digest file (default: ./last-digest)
+#   BUILD_CTR       Name for the build container (default: perseus-build)
+#   IMAGE_TAG       Image tag to poll/build (default: dev-latest)
+#   CONTAINER_CMD   Container runtime (default: podman; set to docker locally)
+#   COMPOSE_PROJECT podman/docker compose project name (default: perseus) —
+#                   set this explicitly when running alongside other compose
+#                   projects on the same host, so container names don't collide.
+#   ENV_FILE        optional file to source for the above
+#                   (default: <script dir>/.env)
+#   GHCR_USER / GHCR_TOKEN  optional; if set, logs in for private pulls
 #
 # Rollback strategy: two real directories (BUILD_DIR-a, BUILD_DIR-b) and a
 # BUILD_DIR symlink pointing at whichever is currently served. Each run
@@ -25,7 +34,13 @@
 
 set -euo pipefail
 
-# ----- Configuration defaults -----------------------------------------
+log() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"; }
+
+# ----- Config -------------------------------------------------------------
+ENV_FILE="${ENV_FILE:-$(dirname "$0")/.env}"
+# shellcheck disable=SC1090
+[ -f "$ENV_FILE" ] && . "$ENV_FILE"
+
 export IMAGE="${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}"
 export MORPH_URL="${MORPH_URL:?MORPH_URL is required}"
 export BUILD_DIR="${BUILD_DIR:-./build}"
@@ -33,15 +48,19 @@ STATE_FILE="${STATE_FILE:-last-digest}"
 export BUILD_CTR="${BUILD_CTR:-perseus-build}"
 export IMAGE_TAG="${IMAGE_TAG:-dev-latest}"
 CONTAINER_CMD="${CONTAINER_CMD:-podman}"
+COMPOSE_PROJECT="${COMPOSE_PROJECT:-perseus}"
 
 BUILD_A="${BUILD_DIR}-a"
 BUILD_B="${BUILD_DIR}-b"
 
 COMPOSE_FILE="$(dirname "$0")/compose.yaml"
-COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p perseus"
+COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p ${COMPOSE_PROJECT}"
 COMPOSE_BUILD="${COMPOSE} --profile build"
 
-log() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"; }
+# ----- Optional registry login (needed only if the package is private) ----
+if [ -n "${GHCR_TOKEN:-}" ] && [ -n "${GHCR_USER:-}" ]; then
+  echo "$GHCR_TOKEN" | ${CONTAINER_CMD} login ghcr.io -u "$GHCR_USER" --password-stdin >/dev/null
+fi
 
 # ----- Ensure blue-green layout exists ---------------------------------
 mkdir -p "$BUILD_A" "$BUILD_B"

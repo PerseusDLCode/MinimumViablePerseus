@@ -1,6 +1,7 @@
 services:
   serve:
     image: nginx:alpine
+    container_name: "${SERVE_CTR:-mvp-serve}"
     ports:
       - "${SERVE_PORT:-8000}:80"
     volumes:
