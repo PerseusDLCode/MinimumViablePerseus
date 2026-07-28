@@ -1,10 +1,12 @@
 import json
+import multiprocessing
 import os
 import re
 
 from collections.abc import Iterator
+from contextlib import suppress
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +38,11 @@ NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
 MORPH_URL = os.getenv("MORPH_URL", "http://localhost:8000/morph")
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
+# Proto-page compilation and page freezing are both CPU-bound and
+# embarrassingly parallel (independent per document / per URL), so both
+# phases of `mvp-build` fan out across this many worker processes. Defaults
+# to all cores; set to 1 to force the old sequential behavior.
+BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
 
 _CORPUS_LABELS = {
     "greekLit": "Greek",
@@ -730,6 +737,37 @@ def _scheme_slug(refsDecl_id: str) -> str:
     return refsDecl_id.removeprefix("CTS-") or refsDecl_id.lower()
 
 
+def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | None]:
+    """Parse, urn/skip-check, and compile one TEI document.
+
+    Runs in a worker process (see generate_proto_pages) — must never raise,
+    since an uncaught exception here would abort the whole pool instead of
+    just skipping this one document, unlike the previous sequential loop.
+
+    Takes the source XML *path* rather than an already-constructed
+    TEIDocument: a TEIDocument holds a parsed lxml ElementTree, which can't
+    be pickled through Pool.imap_unordered's task queue, and re-parsing here
+    (instead of once in the caller, then again in the worker) avoids paying
+    for the parse twice.
+    """
+    from perseus_cts.models.document import TEIDocument
+
+    site_map = SiteMap(proto_dir)
+    try:
+        doc = TEIDocument.from_path(xml_path)
+        if not doc.metadata.urn:
+            return "skipped", None
+        if site_map.manifest_path(doc.metadata.urn).exists():
+            return "skipped", None
+        for refsDecl_id in available_refsDecl_ids(doc):
+            scheme = _scheme_slug(refsDecl_id)
+            compiler = Chunker(doc, refsDecl_id=refsDecl_id)
+            compiler.compile(site_map.chunk_dir(doc.metadata.urn, scheme or None))
+        return "ok", None
+    except Exception as exc:
+        return "failed", f"{xml_path}: {exc}"
+
+
 def generate_proto_pages(
     proto_dir: Path,
     corpora: list[Corpus],
@@ -742,28 +780,36 @@ def generate_proto_pages(
 
     Skips documents whose index.json already exists in proto_dir so the
     function is safe to call on every startup without re-doing prior work.
-    """
-    site_map = SiteMap(proto_dir)
-    generated = skipped = failed = 0
 
+    Parsing, the skip check, and compilation are all fanned out across
+    BUILD_WORKERS processes (see _compile_proto_page) — only the cheap,
+    parse-free directory walk (mirroring Corpus.documents()'s file
+    discovery) stays single-threaded here.
+    """
+    work = []
     for corpus in corpora:
-        for doc in corpus.documents():
-            try:
-                if not doc.metadata.urn:
-                    continue
-                if site_map.manifest_path(doc.metadata.urn).exists():
-                    skipped += 1
-                    continue
-                for refsDecl_id in available_refsDecl_ids(doc):
-                    scheme = _scheme_slug(refsDecl_id)
-                    compiler = Chunker(doc, refsDecl_id=refsDecl_id)
-                    compiler.compile(
-                        site_map.chunk_dir(doc.metadata.urn, scheme or None)
-                    )
+        for xml_path in sorted(corpus.root.rglob("*.xml")):
+            if xml_path.name == "__cts__.xml":
+                continue
+            work.append(xml_path)
+
+    generated = skipped = failed = 0
+    total = len(work)
+    ctx = multiprocessing.get_context("fork")
+    with ctx.Pool(BUILD_WORKERS) as pool:
+        results = pool.imap_unordered(
+            partial(_compile_proto_page, proto_dir=proto_dir), work
+        )
+        for i, (status, error) in enumerate(results, 1):
+            if status == "ok":
                 generated += 1
-            except Exception as exc:
+            elif status == "skipped":
+                skipped += 1
+            else:
                 failed += 1
-                print(f"  FAILED:    {doc.path.name}: {exc}")
+                print(f"  FAILED:    {error}")
+            if i % 500 == 0 or i == total:
+                print(f"  proto-pages: {i}/{total} processed")
 
     print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
@@ -994,8 +1040,25 @@ def create_app(test_config=None):
     return app
 
 
+# Set just before the freeze worker pool is created (see build()) and read
+# by _freeze_one in each forked worker. A Freezer/Flask app can't be pickled
+# (Jinja templates, compiled routing regexes, etc.), so it can't be passed
+# through Pool.imap_unordered's task queue directly — instead we rely on
+# fork's copy-on-write semantics: workers are forked *after* this global is
+# set, so each one simply inherits its own copy already in memory.
+_ACTIVE_FREEZER = None
+
+
+def _freeze_one(url_and_last_modified: tuple[str, Any]) -> Path:
+    """Render and write one frozen page. Runs in a worker process."""
+    url, last_modified = url_and_last_modified
+    return _ACTIVE_FREEZER._build_one(url, last_modified)
+
+
 def build():
-    from flask_frozen import Freezer
+    from flask_frozen import Freezer, walk_directory
+
+    global _ACTIVE_FREEZER
 
     FREEZER_DESTINATION = ROOT_DIR / "build"
 
@@ -1097,15 +1160,46 @@ def build():
                     f"/{scheme}:{passage}/"
                 )
 
-    import click
     from timeit import default_timer
 
     start = default_timer()
-    with click.progressbar(
-        freezer.freeze_yield(), item_show_func=lambda p: p.url if p else "Done!"
-    ) as urls:
-        for url in urls:
-            pass
+
+    # Mirrors flask_frozen.Freezer.freeze_yield() (frozen_flask==1.0.2), but
+    # fans the expensive per-URL render+write step (_build_one) out across
+    # BUILD_WORKERS processes instead of a single sequential loop. URL
+    # enumeration stays single-threaded here — it's cheap (no rendering).
+    seen_urls: set[str] = set()
+    seen_endpoints: set[str] = set()
+    work: list[tuple[str, Any]] = []
+    for url, endpoint, last_modified in freezer._generate_all_urls():
+        seen_endpoints.add(endpoint)
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
+        work.append((url, last_modified))
+
+    total = len(work)
+    built_paths: set[Path] = set()
+    _ACTIVE_FREEZER = freezer
+    ctx = multiprocessing.get_context("fork")
+    with ctx.Pool(BUILD_WORKERS) as pool:
+        for i, path in enumerate(pool.imap_unordered(_freeze_one, work), 1):
+            built_paths.add(path)
+            if i % 500 == 0 or i == total:
+                print(f"  froze {i}/{total} pages")
+    _ACTIVE_FREEZER = None
+
+    freezer._check_endpoints(seen_endpoints)
+    if app.config["FREEZER_REMOVE_EXTRA_FILES"]:
+        ignore = app.config["FREEZER_DESTINATION_IGNORE"]
+        previous_paths = {
+            Path(freezer.root / name)
+            for name in walk_directory(freezer.root, ignore=ignore)
+        }
+        for extra_path in previous_paths - built_paths:
+            extra_path.unlink()
+            with suppress(OSError):
+                extra_path.parent.rmdir()
 
     end = default_timer()
 
