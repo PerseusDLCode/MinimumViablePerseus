@@ -21,13 +21,13 @@ on:
           Build only this corpus (greekLit, latinLit, First1KGreek).
           Leave blank to build all three.
         required: false
-  # push:
-  #   branches: [dev]
-  #   paths:
-  #     - Dockerfile.corpus
-  #     - src/**
-  #     - pyproject.toml
-  #     - uv.lock
+  push:
+    branches: [dev]
+    paths:
+      - Dockerfile.corpus
+      - src/**
+      - pyproject.toml
+      - uv.lock
 
 permissions:
   contents: read
