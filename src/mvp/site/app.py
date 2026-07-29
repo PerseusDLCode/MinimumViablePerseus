@@ -1373,7 +1373,9 @@ def build():
     print(f"MVP took {end - start} seconds to build.")
 
     if args.mode == "corpus-only":
-        manifest = _build_corpus_manifest(app, PROTO_DIR, app.catalog, args.source_digest)
+        manifest = _build_corpus_manifest(
+            app, PROTO_DIR, app.catalog, args.source_digest
+        )
         # Written inside FREEZER_DESTINATION, not ROOT_DIR: CI only bind-mounts
         # the frozen-pages directory out of the build container, and this way
         # that one mount also carries manifest.json out with it.

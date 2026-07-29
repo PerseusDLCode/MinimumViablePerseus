@@ -41,10 +41,18 @@ jobs:
       max-parallel: 3
       matrix:
         include:
+          # `name` must stay case-sensitive — it's the literal corpus
+          # directory name app.py's _discover_corpora keys everything on
+          # (CORPUS_NAME build-arg, CORPORA_DIR/<name>, etc). `tag_name` is
+          # a separate lowercase-only variant for GHCR repository paths —
+          # both Docker and oras reject uppercase there ("invalid
+          # repository"), unlike image *tags*, which do allow it.
           - name: greekLit
+            tag_name: greeklit
             repo_url: https://github.com/PerseusDLCode/canonical-greekLit
             branch: editing
           - name: latinLit
+            tag_name: latinlit
             repo_url: https://github.com/PerseusDLCode/canonical-latinLit
             branch: editing
           # NOTE: this corpus's own __cts__.xml files declare "hebrewLit"
@@ -56,6 +64,7 @@ jobs:
           # a proper label. Pre-existing mismatch, not introduced by this
           # workflow — flagging rather than silently picking a side.
           - name: First1KGreek
+            tag_name: first1kgreek
             repo_url: https://github.com/PerseusDLCode/First1KGreek
             branch: editing
     steps:
@@ -116,7 +125,7 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         id: skip
         run: |
-          TAG="ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}"
+          TAG="ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}"
           if oras manifest fetch "$TAG" >/dev/null 2>&1; then
             echo "Already built: $TAG"
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -177,13 +186,13 @@ jobs:
       - name: Push pages artifact
         if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
         run: |
-          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}" \
+          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}" \
             pages.tar.zst:application/vnd.perseus.mvp.pages
-          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}" latest
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}" latest
 
       - name: Push manifest artifact
         if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
         run: |
-          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}-manifest:${{ steps.sha.outputs.corpus }}" \
+          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}-manifest:${{ steps.sha.outputs.corpus }}" \
             manifest.json:application/vnd.perseus.mvp.manifest+json
-          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}-manifest:${{ steps.sha.outputs.corpus }}" latest
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}-manifest:${{ steps.sha.outputs.corpus }}" latest
