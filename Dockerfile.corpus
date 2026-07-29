@@ -1,0 +1,75 @@
+# ================================================================
+# MinimumViablePerseus — Per-corpus builder image
+#
+# Unlike Dockerfile (which clones all three corpora into one image for a
+# single combined build), this clones exactly one corpus, selected via
+# build-args, and its entrypoint runs `mvp-build --mode corpus-only`. Used
+# by .github/workflows/build-corpus.yml — each matrix leg builds and runs
+# its own instance of this image. The image itself is never pushed to
+# GHCR; only the frozen pages + manifest.json it writes to /app/build are
+# shipped onward (see that workflow).
+# ================================================================
+
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+# ----------------------------------------------------------------
+# One corpus's TEI data, selected by the caller.
+#
+# CORPUS_SHA is not read directly (see the `echo` below) — it exists only
+# so its value becomes part of the RUN command's cache key: when the
+# corpus's HEAD SHA changes, Docker invalidates this layer and re-clones;
+# otherwise the cached clone is reused, same technique as Dockerfile.
+# ----------------------------------------------------------------
+ARG CORPORA_DIR=/corpora
+ARG CORPUS_NAME
+ARG CORPUS_REPO_URL
+ARG CORPUS_BRANCH=editing
+ARG CORPUS_SHA=latest
+ARG PDLREFWK_SHA=latest
+
+RUN test -n "$CORPUS_NAME" || (echo "CORPUS_NAME build-arg is required" >&2 && exit 1)
+RUN test -n "$CORPUS_REPO_URL" || (echo "CORPUS_REPO_URL build-arg is required" >&2 && exit 1)
+
+RUN echo "${CORPUS_NAME} @ ${CORPUS_SHA}" && \
+    git clone --depth 1 --branch "${CORPUS_BRANCH}" \
+    "${CORPUS_REPO_URL}" "${CORPORA_DIR}/${CORPUS_NAME}"
+
+# Commentary linking (perseus_cts.commentary) reads pdlrefwk data
+# regardless of which corpus is being built, so every corpus-only image
+# needs it too — same private repo as Dockerfile.
+RUN echo "canonical-pdlrefwk @ ${PDLREFWK_SHA}" && \
+    git clone --depth 1 --branch dev \
+    https://github.com/PerseusDLCode/canonical-pdlrefwk \
+    "${CORPORA_DIR}/canonical-pdlrefwk"
+
+WORKDIR /app
+
+COPY pyproject.toml .
+COPY README.md .
+COPY uv.lock .
+
+ENV UV_PYTHON=3.12
+RUN uv sync --no-dev --no-install-project --no-cache
+
+# pdl_refwk (private repo, checked out by the workflow before `docker build`)
+COPY canonical_pdlrefwk/ /app/data/
+
+COPY src/ src/
+RUN uv sync --no-dev --no-cache
+
+ENV CORPORA_DIR=${CORPORA_DIR}
+ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages
+
+# ENTRYPOINT (rather than CMD) so `docker run <image> --source-digest sha256:...`
+# appends to `--mode corpus-only`, instead of replacing it outright.
+# MORPH_URL must still be passed via `-e` at runtime, same as Dockerfile.
+ENTRYPOINT ["uv", "run", "mvp-build", "--mode", "corpus-only"]

@@ -28,8 +28,12 @@
                             <li class="mb-1">
                                 <ul class="pl-6 space-y-0.5">
                                     {% for version in work.versions|sort(attribute="title,id") %}
+                                    {# A live combined build resolves first_chunk_kwargs via url_for here;
+                                       a global build stitched from per-corpus manifests (see
+                                       _build_corpus_manifest) has no kwargs to resolve — it already
+                                       carries the resolved href, computed at corpus-build time. #}
                                     <li>
-                                        <a href="{{ url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
+                                        <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
                                             {{ version.title }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
                                         </a>
                                     </li>

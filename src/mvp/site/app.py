@@ -1,3 +1,4 @@
+import argparse
 import json
 import multiprocessing
 import os
@@ -6,6 +7,7 @@ import re
 from collections.abc import Iterator
 from contextlib import suppress
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any
@@ -43,6 +45,11 @@ PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 # phases of `mvp-build` fan out across this many worker processes. Defaults
 # to all cores; set to 1 to force the old sequential behavior.
 BUILD_WORKERS = 1  # max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
+
+# Bump when the manifest.json shape below changes incompatibly, so a global
+# build can refuse to merge manifests it doesn't know how to read instead of
+# silently mis-rendering.
+_MANIFEST_SCHEMA_VERSION = 1
 
 _CORPUS_LABELS = {
     "greekLit": "Greek",
@@ -410,6 +417,78 @@ def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
         index.setdefault(work_urn, {}).setdefault(language, url_prefix)
 
     return index
+
+
+def _build_corpus_manifest(
+    app: Flask, proto_dir: Path, catalog: CTSCatalog, source_digest: str
+) -> dict:
+    """Build one corpus's manifest.json payload for a `--mode corpus-only` build.
+
+    Mirrors _build_collections/_build_urn_index exactly (a --mode global-only
+    build reassembles them via _merge_manifests), except each version's
+    first_chunk_kwargs is resolved to a concrete href via url_for here —
+    the global build has no Flask app of its own and can't resolve them.
+    url_for needs a request context, which a build process never otherwise
+    has, hence test_request_context().
+    """
+    collections = _build_collections(proto_dir, catalog)
+    corpus_entry = collections[0] if collections else None
+    textgroups = corpus_entry["textgroups"] if corpus_entry else []
+
+    with app.test_request_context():
+        for textgroup in textgroups:
+            for work in textgroup["works"]:
+                for version in work["versions"]:
+                    kwargs = version.pop("first_chunk_kwargs")
+                    version["href"] = url_for("reading_view", **kwargs)
+
+    return {
+        "schema_version": _MANIFEST_SCHEMA_VERSION,
+        "corpus_id": corpus_entry["id"] if corpus_entry else "",
+        "corpus_label": corpus_entry["label"] if corpus_entry else "",
+        "built_at": datetime.now(timezone.utc).isoformat(),
+        "source_digest": source_digest,
+        "textgroups": textgroups,
+        "urn_index": _build_urn_index(proto_dir),
+    }
+
+
+def _merge_manifests(
+    manifest_paths: list[Path],
+) -> tuple[list[dict], dict[str, dict[str, str]]]:
+    """Reassemble the global collections tree and URN index for a `--mode global-only` build.
+
+    Each manifest's textgroups are re-wrapped under a corpus-level dict
+    matching _build_collections's own shape, so collections.html.jinja
+    renders identically whether the tree came from one process walking all
+    corpora or was stitched together from N independent corpus builds.
+    urn_index keys embed their corpus namespace (see _build_urn_index), so a
+    plain dict union across manifests can't collide.
+    """
+    collections = []
+    urn_index: dict[str, dict[str, str]] = {}
+
+    for path in manifest_paths:
+        with open(path, encoding="utf-8") as f:
+            manifest = json.load(f)
+
+        if manifest.get("schema_version") != _MANIFEST_SCHEMA_VERSION:
+            raise ValueError(
+                f"{path}: manifest schema_version {manifest.get('schema_version')!r} "
+                f"!= expected {_MANIFEST_SCHEMA_VERSION!r}"
+            )
+
+        collections.append(
+            {
+                "id": manifest["corpus_id"],
+                "label": manifest["corpus_label"],
+                "textgroups": manifest["textgroups"],
+            }
+        )
+        for work_urn, versions in manifest["urn_index"].items():
+            urn_index.setdefault(work_urn, {}).update(versions)
+
+    return collections, urn_index
 
 
 def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
@@ -814,7 +893,20 @@ def generate_proto_pages(
     print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
 
 
-def create_app(test_config=None):
+def create_app(
+    test_config=None,
+    collections_override: list[dict] | None = None,
+    urn_index_override: dict[str, dict[str, str]] | None = None,
+):
+    """Build the Flask app.
+
+    collections_override/urn_index_override let a `--mode global-only` build
+    (see build()) serve /collections/ and /urn-index.json from manifests
+    merged across corpora instead of computing them from CORPORA_DIR/PROTO_DIR
+    — that build has no corpus data checked out at all, just manifest.json
+    files. Both are None in normal (non-split) operation, which is
+    unchanged from before this parameter existed.
+    """
     app = Flask(
         __name__,
         static_url_path=None,
@@ -847,10 +939,16 @@ def create_app(test_config=None):
     generate_proto_pages(PROTO_DIR, corpora)
 
     catalog = CTSCatalog([c.root for c in corpora])
+    app.catalog = catalog
 
     @app.get("/urn-index.json")
     def urn_index():
-        return _build_urn_index(PROTO_DIR), 200, {"Content-Type": "application/json"}
+        data = (
+            urn_index_override
+            if urn_index_override is not None
+            else _build_urn_index(PROTO_DIR)
+        )
+        return data, 200, {"Content-Type": "application/json"}
 
     @app.get("/")
     def index():
@@ -865,7 +963,11 @@ def create_app(test_config=None):
 
     @app.get("/collections/")
     def get_collections():
-        collections = _build_collections(PROTO_DIR, catalog)
+        collections = (
+            collections_override
+            if collections_override is not None
+            else _build_collections(PROTO_DIR, catalog)
+        )
         return (
             render_template("collections.html.jinja", collections=collections),
             200,
@@ -1055,14 +1157,68 @@ def _freeze_one(url_and_last_modified: tuple[str, Any]) -> Path:
     return _ACTIVE_FREEZER._build_one(url, last_modified)
 
 
+def _parse_build_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse mvp-build's CLI flags.
+
+    argv defaults to sys.argv[1:] (via argparse), which is what the
+    `mvp-build` console_script entry point invokes build() with — it calls
+    build() with no arguments, so argv must come from process args, not a
+    parameter, for that entry point to pick up flags at all.
+    """
+    parser = argparse.ArgumentParser(prog="mvp-build")
+    parser.add_argument(
+        "--mode",
+        choices=["full", "corpus-only", "global-only"],
+        default="full",
+        help=(
+            "full (default): build everything from CORPORA_DIR, unchanged "
+            "from mvp-build's original behavior. corpus-only: freeze just "
+            "this corpus's reading pages plus manifest.json, skipping "
+            "/, /collections/, /urn-index.json, /research/ — CORPORA_DIR "
+            "should point at a single corpus. global-only: skip corpus "
+            "discovery entirely and freeze just those four pages, built "
+            "from manifest.json files passed via --manifest."
+        ),
+    )
+    parser.add_argument(
+        "--manifest",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="Path to a corpus manifest.json (repeatable). Required, and "
+        "only used, in --mode global-only.",
+    )
+    parser.add_argument(
+        "--source-digest",
+        default="",
+        help="Opaque digest of this corpus's source tree, stamped into "
+        "manifest.json for traceability. Only used in --mode corpus-only.",
+    )
+    args = parser.parse_args(argv)
+    if args.mode == "global-only" and not args.manifest:
+        parser.error("--mode global-only requires at least one --manifest PATH")
+    return args
+
+
 def build():
     from flask_frozen import Freezer, walk_directory
 
     global _ACTIVE_FREEZER
 
+    args = _parse_build_args()
+
     FREEZER_DESTINATION = ROOT_DIR / "build"
 
-    app = create_app()
+    collections_override = urn_index_override = None
+    if args.mode == "global-only":
+        collections_override, urn_index_override = _merge_manifests(
+            [Path(p) for p in args.manifest]
+        )
+
+    app = create_app(
+        collections_override=collections_override,
+        urn_index_override=urn_index_override,
+    )
 
     app.config.update(
         FREEZER_BASE_URL=os.getenv("FREEZER_BASE_URL", ""),
@@ -1072,7 +1228,18 @@ def build():
         FREEZER_REMOVE_EXTRA_FILES=True,
     )
 
-    freezer = Freezer(app, with_no_argument_rules=True, log_url_for=False)
+    # corpus-only builds must not auto-freeze the global no-arg pages (/,
+    # /collections/, /urn-index.json, /research/) — rendered from just this
+    # corpus's data, they'd be wrong, and a later global-only build produces
+    # the real ones anyway. global-only builds want exactly those four:
+    # that falls out for free below, since PROTO_DIR has no corpus data
+    # checked out, so the explicitly-registered per-page generators
+    # (get_first_chunk et al.) yield no URLs.
+    freezer = Freezer(
+        app,
+        with_no_argument_rules=(args.mode != "corpus-only"),
+        log_url_for=False,
+    )
 
     def _iter_version_metadata():
         """Yield (corpus, textgroup, work, version, scheme, metadata_path) tuples.
@@ -1204,6 +1371,16 @@ def build():
     end = default_timer()
 
     print(f"MVP took {end - start} seconds to build.")
+
+    if args.mode == "corpus-only":
+        manifest = _build_corpus_manifest(app, PROTO_DIR, app.catalog, args.source_digest)
+        # Written inside FREEZER_DESTINATION, not ROOT_DIR: CI only bind-mounts
+        # the frozen-pages directory out of the build container, and this way
+        # that one mount also carries manifest.json out with it.
+        manifest_path = FREEZER_DESTINATION / "manifest.json"
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f)
+        print(f"Wrote {manifest_path}")
 
 
 def main():
