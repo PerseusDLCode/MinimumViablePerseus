@@ -13,14 +13,14 @@ function linkifyBiblRefs(preferredLang) {
                 if (parts.length < 5) return;
 
                 const workUrn = parts.slice(0, 4).join(':');
-                const passage = parts[4].split(".").slice(0, -1);
+                const passage = parts[4].split(".").slice(0, -1).join(".");
                 const versions = index[workUrn];
                 if (!versions) return;
 
                 const prefix = versions[preferredLang] || Object.values(versions)[0];
                 if (!prefix) return;
 
-                el.href = prefix + passage + '/';
+                el.href = prefix + ':' + passage + '/';
             });
         });
 }
