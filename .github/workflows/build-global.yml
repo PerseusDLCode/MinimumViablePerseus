@@ -1,0 +1,83 @@
+name: Build global pages
+
+# Regenerates the four corpus-independent pages (/, /collections/,
+# /urn-index.json, /research/) from the three corpora's manifest.json
+# artifacts (see build-corpus.yml / `mvp-build --mode global-only`).
+# Deliberately pulls only the small manifest artifacts, never the (much
+# larger) per-corpus page tarballs — see _merge_manifests in app.py.
+#
+# NOTE: like build-corpus.yml, this has not yet been run for real.
+# workflow_dispatch it once all three corpora have a `:latest` manifest
+# artifact pushed, and inspect the result before relying on the
+# workflow_run-triggered path.
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build corpus artifacts"]
+    types: [completed]
+    branches: [dev]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install project (no corpus data needed for a global-only build)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --no-dev
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install oras
+        uses: oras-project/setup-oras@v1
+
+      - name: Pull each corpus's manifest
+        id: manifests
+        run: |
+          mkdir -p manifests
+          args=""
+          for name in greekLit latinLit First1KGreek; do
+            oras pull "ghcr.io/perseusdlcode/mvp-corpus-${name}-manifest:latest" \
+              -o "manifests/${name}"
+            args="${args} --manifest manifests/${name}/manifest.json"
+          done
+          echo "manifest_args=${args}" >> "$GITHUB_OUTPUT"
+
+      - name: Run global-only build
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run mvp-build --mode global-only ${{ steps.manifests.outputs.manifest_args }}
+
+      - name: Compute combined digest
+        id: digest
+        run: |
+          DIGEST=$(cat manifests/*/manifest.json | sha256sum | cut -d' ' -f1)
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+
+      - name: Package and push global pages
+        run: |
+          tar --zstd -cf global.tar.zst -C build .
+          oras push "ghcr.io/perseusdlcode/mvp-global:${{ steps.digest.outputs.digest }}" \
+            global.tar.zst:application/vnd.perseus.mvp.pages
+          oras tag "ghcr.io/perseusdlcode/mvp-global:${{ steps.digest.outputs.digest }}" latest

@@ -1,0 +1,190 @@
+name: Build corpus artifacts
+
+# Builds each corpus's static pages independently and in parallel (see
+# Dockerfile.corpus / `mvp-build --mode corpus-only`), instead of the single
+# combined build in build-and-release.yml. Each matrix leg pushes its own
+# frozen-pages tarball + manifest.json as an OCI artifact to GHCR, tagged by
+# that corpus's HEAD SHA; build-global.yml consumes the manifests to
+# regenerate /, /collections/, /urn-index.json, /research/ once any corpus
+# changes.
+#
+# NOTE: this workflow has not yet been run for real — it hasn't been
+# exercised against live GHCR credentials or a live corpus checkout.
+# workflow_dispatch a single corpus first and inspect the pushed artifact
+# before relying on the push-triggered path.
+
+on:
+  workflow_dispatch:
+    inputs:
+      corpus:
+        description: >-
+          Build only this corpus (greekLit, latinLit, First1KGreek).
+          Leave blank to build all three.
+        required: false
+  push:
+    branches: [dev]
+    paths:
+      - Dockerfile.corpus
+      - src/**
+      - pyproject.toml
+      - uv.lock
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - name: greekLit
+            repo_url: https://github.com/PerseusDLCode/canonical-greekLit
+            branch: editing
+          - name: latinLit
+            repo_url: https://github.com/PerseusDLCode/canonical-latinLit
+            branch: editing
+          # NOTE: this corpus's own __cts__.xml files declare "hebrewLit"
+          # (see _CORPUS_LABELS/_CORPUS_REPO in app.py), but the directory
+          # name actually used at runtime — and so the "corpus" _discover_
+          # corpora keys everything on — is "First1KGreek", matching this
+          # repo's name. _CORPUS_LABELS has no entry for "First1KGreek", so
+          # today it displays as the raw string "First1KGreek" rather than
+          # a proper label. Pre-existing mismatch, not introduced by this
+          # workflow — flagging rather than silently picking a side.
+          - name: First1KGreek
+            repo_url: https://github.com/PerseusDLCode/First1KGreek
+            branch: editing
+    steps:
+      - name: Skip corpora not requested via workflow_dispatch
+        id: gate
+        run: |
+          if [ -n "${{ inputs.corpus }}" ] && [ "${{ inputs.corpus }}" != "${{ matrix.name }}" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.gate.outputs.run == 'true'
+        with:
+          ref: dev
+
+      - name: Checkout canonical_pdlrefwk repository
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: PerseusDLCode/canonical_pdlrefwk
+          token: ${{ secrets.REFWK_REPO_PAT }}
+          path: canonical_pdlrefwk
+
+      # ---------------------------------------------------------- #
+      # Resolve this corpus's HEAD SHA — doubles as the Docker
+      # cache-buster (see Dockerfile.corpus) and as the digest tagging
+      # this corpus's pushed artifact, so an unchanged corpus is a
+      # no-op rebuild (see the "Skip if already built" step).
+      # ---------------------------------------------------------- #
+      - name: Resolve corpus + pdlrefwk HEAD SHAs
+        if: steps.gate.outputs.run == 'true'
+        id: sha
+        run: |
+          CORPUS_SHA=$(git ls-remote "${{ matrix.repo_url }}" "refs/heads/${{ matrix.branch }}" | cut -f1)
+          PDLREFWK_SHA=$(git ls-remote https://github.com/PerseusDLCode/canonical-pdlrefwk refs/heads/dev | cut -f1)
+          if [ -z "$CORPUS_SHA" ]; then
+            echo "Could not resolve HEAD SHA for ${{ matrix.repo_url }}@${{ matrix.branch }}" >&2
+            exit 1
+          fi
+          echo "corpus=${CORPUS_SHA}" >> "$GITHUB_OUTPUT"
+          echo "pdlrefwk=${PDLREFWK_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        if: steps.gate.outputs.run == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install oras
+        if: steps.gate.outputs.run == 'true'
+        uses: oras-project/setup-oras@v1
+
+      - name: Skip if this corpus's SHA is already built
+        if: steps.gate.outputs.run == 'true'
+        id: skip
+        run: |
+          TAG="ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}"
+          if oras manifest fetch "$TAG" >/dev/null 2>&1; then
+            echo "Already built: $TAG"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build corpus builder image (not pushed — see file header)
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.corpus
+          push: false
+          load: true
+          tags: mvp-corpus-builder:${{ matrix.name }}
+          build-args: |
+            CORPUS_NAME=${{ matrix.name }}
+            CORPUS_REPO_URL=${{ matrix.repo_url }}
+            CORPUS_BRANCH=${{ matrix.branch }}
+            CORPUS_SHA=${{ steps.sha.outputs.corpus }}
+            PDLREFWK_SHA=${{ steps.sha.outputs.pdlrefwk }}
+          cache-from: type=gha,scope=corpus-${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=corpus-${{ matrix.name }}
+
+      # ---------------------------------------------------------- #
+      # Run the freeze. manifest.json is written inside FREEZER_
+      # DESTINATION (see build() in app.py), so the one bind mount
+      # below captures both the frozen pages and the manifest.
+      # ---------------------------------------------------------- #
+      - name: Run corpus-only build
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: |
+          mkdir -p "$PWD/out"
+          docker run --rm \
+            -e MORPH_URL="${{ vars.MORPH_URL }}" \
+            -v "$PWD/out:/app/build" \
+            mvp-corpus-builder:${{ matrix.name }} \
+            --source-digest "${{ steps.sha.outputs.corpus }}"
+
+      - name: Pull manifest.json out of the pages tree
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: mv out/manifest.json manifest.json
+
+      - name: Package frozen pages
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: tar --zstd -cf pages.tar.zst -C out .
+
+      # ---------------------------------------------------------- #
+      # Two artifacts per corpus: the (large) pages tarball, and the
+      # (tiny) manifest, tagged separately so build-global.yml never
+      # has to pull page content just to read a manifest.
+      # ---------------------------------------------------------- #
+      - name: Push pages artifact
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: |
+          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}" \
+            pages.tar.zst:application/vnd.perseus.mvp.pages
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}:${{ steps.sha.outputs.corpus }}" latest
+
+      - name: Push manifest artifact
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: |
+          oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}-manifest:${{ steps.sha.outputs.corpus }}" \
+            manifest.json:application/vnd.perseus.mvp.manifest+json
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.name }}-manifest:${{ steps.sha.outputs.corpus }}" latest
