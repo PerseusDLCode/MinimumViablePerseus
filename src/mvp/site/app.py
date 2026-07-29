@@ -44,7 +44,7 @@ PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 # embarrassingly parallel (independent per document / per URL), so both
 # phases of `mvp-build` fan out across this many worker processes. Defaults
 # to all cores; set to 1 to force the old sequential behavior.
-BUILD_WORKERS = 1  # max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
+BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
 
 # Bump when the manifest.json shape below changes incompatibly, so a global
 # build can refuse to merge manifests it doesn't know how to read instead of

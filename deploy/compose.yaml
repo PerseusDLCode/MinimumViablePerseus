@@ -21,3 +21,10 @@ services:
       - "${BUILD_TARGET_DIR:-./build}:/app/build:z"
     environment:
       MORPH_URL: "${MORPH_URL:?MORPH_URL is required}"
+      # Pinned to 1: this build still runs on the shared production VM
+      # (until deploy is migrated to pulling pre-built per-corpus
+      # artifacts — see mvp-deploy), and multiprocess freezing locked the
+      # server up under load. CI's per-corpus build runs on a dedicated,
+      # ephemeral runner and is not subject to that constraint, so it
+      # doesn't set this and gets full parallelism (see build-corpus.yml).
+      MVP_BUILD_WORKERS: "1"
