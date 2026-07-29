@@ -11,20 +11,10 @@ services:
       - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro,z"
     restart: unless-stopped
 
-  build:
-    image: "${IMAGE:-ghcr.io/perseusdlcode/minimumviableperseus}:${IMAGE_TAG:-dev-latest}"
-    container_name: "${BUILD_CTR:-perseus-build}"
-    profiles: ["build"]
-    volumes:
-      # Writes into the currently-inactive blue-green directory, not the
-      # symlink `serve` reads from — see cron-deploy.sh.
-      - "${BUILD_TARGET_DIR:-./build}:/app/build:z"
-    environment:
-      MORPH_URL: "${MORPH_URL:?MORPH_URL is required}"
-      # Pinned to 1: this build still runs on the shared production VM
-      # (until deploy is migrated to pulling pre-built per-corpus
-      # artifacts — see mvp-deploy), and multiprocess freezing locked the
-      # server up under load. CI's per-corpus build runs on a dedicated,
-      # ephemeral runner and is not subject to that constraint, so it
-      # doesn't set this and gets full parallelism (see build-corpus.yml).
-      MVP_BUILD_WORKERS: "1"
+  # No `build` service anymore: the freeze now runs in CI (see
+  # MinimumViablePerseus's build-corpus.yml/build-global.yml), which
+  # produces finished static pages as GHCR artifacts. cron-deploy.sh pulls
+  # and extracts those directly — nothing runs a build container on this
+  # host anymore, which is also why MVP_BUILD_WORKERS being pinned to 1
+  # here previously (multiprocess freezing locked this VM up under load)
+  # is no longer relevant to this file.
