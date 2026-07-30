@@ -315,6 +315,29 @@ def _load_index_chunks(index_file: Path) -> list[dict]:
         return json.load(f).get("chunks", [])
 
 
+def _merge_sibling_chunks(chunks: list[_Chunk]) -> _Chunk:
+    """Concatenate a contiguous run of a sibling's own chunks into one _Chunk.
+
+    Used when the sibling was compiled at a finer granularity than the
+    currently-displayed base chunk (e.g. the base is a "scene" but the
+    sibling is chunked by "card") — see _build_sibling_data. ``chunks`` must
+    already be sorted in citation order. The merged chunk's cts_urn/prev_urn
+    point at the *first* piece (a valid, resolvable passage for the sibling's
+    own "focus" link) and next_urn at the last piece's next_urn, so paging
+    within the sibling from this merged view still lands correctly.
+    """
+    first, last = chunks[0], chunks[-1]
+    return _Chunk(
+        cts_urn=first.cts_urn,
+        prev_urn=first.prev_urn,
+        next_urn=last.next_urn,
+        title=first.title,
+        base_urn=first.base_urn,
+        language=first.language,
+        elements=[element for c in chunks for element in c.elements],
+    )
+
+
 def _build_sibling_data(
     corpus: str,
     textgroup: str,
@@ -322,25 +345,31 @@ def _build_sibling_data(
     version: str,
     chunk: str,
     current_line: tuple[int, ...],
+    current_end: tuple[int, ...],
     catalog: CTSCatalog,
     base_urn: str,
+    scheme: str | None = None,
 ) -> dict:
     """Build sibling edition/translation chunk data using catalog + citation value.
 
-    For each sibling version, loads its index.json and finds the corresponding
-    chunk by:
-      Strategy 1 — exact passage reference match
-      Strategy 2 — nearest chunk to the same citation value, before or after
+    For each sibling version, loads its index.json and finds the chunk(s)
+    covering the same citation range as the currently-displayed base chunk
+    (``current_line``-``current_end``):
+      Strategy 1 — every one of the sibling's own chunks whose start falls
+        within that range, concatenated via _merge_sibling_chunks
+      Strategy 2 — if none fall inside the range (the base chunk is entirely
+        contained within one coarser sibling chunk, or granularities are
+        otherwise offset), the nearest chunk to the range's start
 
     Chunk boundaries can differ in granularity between sibling versions (e.g.
-    a card-chunked edition against a line-chunked translation), so falling
-    back to raw chunk position (as opposed to citation value) can land on a
-    wildly mismatched passage; see _chunk_start_line/_find_nearest_chunk.
-    This lookup runs symmetrically for both edition_chunks and
-    translation_chunks regardless of which version is currently displayed
+    a card-chunked edition against a scene-chunked translation), so without
+    this, siblings would show whatever arbitrary span their own chunking
+    happens to produce instead of the same passage the reader is looking at
+    in the base text. This lookup runs symmetrically for both edition_chunks
+    and translation_chunks regardless of which version is currently displayed
     (base_urn), so alignment is consistent in both directions: reading an
     edition aligns sibling translations, and reading a translation aligns
-    sibling editions, to the nearest counterpart passage.
+    sibling editions, to the same passage range.
 
     Returns dict with keys:
       current_version: CTSVersion | None
@@ -354,7 +383,16 @@ def _build_sibling_data(
         if sib_id == version:
             return sib, None
 
-        index_file = PROTO_DIR / corpus / textgroup / work / sib_id / "index.json"
+        # Match the base text's own citeStructure scheme when the sibling
+        # offers it too (e.g. base is viewed "by card" — align siblings at
+        # the same card granularity, not their default/scene-level chunks,
+        # or a coarser sibling chunk would swallow far more than the base
+        # chunk's own range). Falls back to the sibling's default scheme
+        # when it has no same-named scheme subdirectory.
+        sib_dir = PROTO_DIR / corpus / textgroup / work / sib_id
+        data_dir = sib_dir / scheme if scheme and (sib_dir / scheme).is_dir() else sib_dir
+
+        index_file = data_dir / "index.json"
         sib_chunks = _load_index_chunks(index_file)
         if not sib_chunks:
             return sib, None
@@ -368,22 +406,37 @@ def _build_sibling_data(
         if current_line < min(starts) or current_line > max(starts):
             return None
 
-        # Strategy 1: exact passage-reference match.
-        entry = next(
-            (c for c in sib_chunks if c["cts_urn"].endswith(f":{chunk}")),
-            None,
-        )
+        # Strategy 1: every sibling chunk whose start lies within the base
+        # chunk's own citation range, so the sibling's content spans exactly
+        # the same passage regardless of the sibling's own chunk_unit.
+        in_range = [
+            c
+            for c in sib_chunks
+            if current_line <= _chunk_start_line(c["cts_urn"]) <= current_end
+        ]
+        entries = in_range
         # Strategy 2: nearest chunk to the same citation value, before or after.
-        if entry is None:
-            entry = _find_nearest_chunk(sib_chunks, current_line) or sib_chunks[0]
-        if entry is None:
+        if not entries:
+            nearest = _find_nearest_chunk(sib_chunks, current_line) or sib_chunks[0]
+            entries = [nearest] if nearest else []
+        if not entries:
             return sib, None
 
-        chunk_file = PROTO_DIR / corpus / textgroup / work / sib_id / entry["file"]
-        if not chunk_file.exists():
+        parsed_chunks = []
+        for entry in entries:
+            chunk_file = data_dir / entry["file"]
+            if not chunk_file.exists():
+                continue
+            parsed_chunk, _ = _parse_chunk(chunk_file)
+            parsed_chunks.append(parsed_chunk)
+        if not parsed_chunks:
             return sib, None
 
-        sib_chunk, _ = _parse_chunk(chunk_file)
+        sib_chunk = (
+            parsed_chunks[0]
+            if len(parsed_chunks) == 1
+            else _merge_sibling_chunks(parsed_chunks)
+        )
         return sib, sib_chunk
 
     return {
@@ -698,6 +751,23 @@ def _scheme_dirs(version_dir: Path) -> list[str]:
 
 
 _LEADING_INT_RE = re.compile(r"\d+")
+
+
+def _chunk_end_line(cts_urn: str) -> tuple[int, ...]:
+    """Return the ending position of a chunk's passage citation as a sortable key.
+
+    Mirrors _chunk_start_line but reads the last dash-separated segment of the
+    passage (e.g. the "93" in "1-93") instead of the first, so callers can
+    test whether some other citation value falls anywhere within this chunk's
+    full range, not just at its start.
+    """
+    passage = cts_urn.rsplit(":", 1)[-1]
+    last_segment = passage.split("-", 1)[-1]
+    key = []
+    for component in last_segment.split("."):
+        match = _LEADING_INT_RE.match(component)
+        key.append(int(match.group()) if match else 0)
+    return tuple(key)
 
 
 def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
@@ -1189,6 +1259,7 @@ def create_app(
             else None
         )
         current_line = _chunk_start_line(chunk_obj.cts_urn)
+        current_end = _chunk_end_line(chunk_obj.cts_urn)
         scheme_links = _scheme_toggle_links(
             version_dir,
             corpus,
@@ -1204,7 +1275,16 @@ def create_app(
         work_base_urn = base_urn.rsplit(".", 1)[0]  # drop version component
 
         sibling_data = _build_sibling_data(
-            corpus, textgroup, work, version, chunk, current_line, catalog, base_urn
+            corpus,
+            textgroup,
+            work,
+            version,
+            chunk,
+            current_line,
+            current_end,
+            catalog,
+            base_urn,
+            scheme=scheme,
         )
 
         commentary = links_for_passage(catalog, work_base_urn, chunk)
