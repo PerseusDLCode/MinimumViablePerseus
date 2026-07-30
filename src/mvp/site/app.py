@@ -373,15 +373,30 @@ def _build_sibling_data(
 
     Returns dict with keys:
       current_version: CTSVersion | None
-      edition_chunks: list[(CTSVersion, _Chunk | None)]
-      translation_chunks: list[(CTSVersion, _Chunk | None)]
+      edition_chunks: list[(CTSVersion, _Chunk | None, str | None)]
+      translation_chunks: list[(CTSVersion, _Chunk | None, str | None)]
+    The third tuple element is the sibling's "focus" URL (None when there's
+    no chunk to focus), already routed through the sibling's own scheme
+    when the chunk was read from a scheme subdirectory — see _focus_url.
     """
     work_urn = base_urn.rsplit(".", 1)[0]
 
-    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None] | None:
+    def _focus_url(sib_id: str, sib_scheme: str | None, sib_chunk: _Chunk) -> str:
+        # The sibling chunk may have been read from a scheme subdirectory
+        # (see sib_scheme below), whose index.json chunks passages
+        # differently than the sibling's default index. A bare cts_urn
+        # href would route through reading_view (no scheme), resolve
+        # against the *default* index, and either 404 or land on the
+        # wrong-bounded chunk. Route through the same scheme the chunk was
+        # actually read under, matching how NavigationItem.html.jinja and
+        # _redirect_to_first_chunk build reading-view links.
+        passage = sib_chunk.cts_urn.rsplit(":", 1)[-1]
+        return _reading_view_url(corpus, textgroup, work, sib_id, passage, sib_scheme)
+
+    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None, str | None] | None:
         sib_id = sib.urn.split(":")[3].split(".")[-1]
         if sib_id == version:
-            return sib, None
+            return sib, None, None
 
         # Match the base text's own citeStructure scheme when the sibling
         # offers it too (e.g. base is viewed "by card" — align siblings at
@@ -390,14 +405,13 @@ def _build_sibling_data(
         # chunk's own range). Falls back to the sibling's default scheme
         # when it has no same-named scheme subdirectory.
         sib_dir = PROTO_DIR / corpus / textgroup / work / sib_id
-        data_dir = (
-            sib_dir / scheme if scheme and (sib_dir / scheme).is_dir() else sib_dir
-        )
+        sib_scheme = scheme if scheme and (sib_dir / scheme).is_dir() else None
+        data_dir = sib_dir / sib_scheme if sib_scheme else sib_dir
 
         index_file = data_dir / "index.json"
         sib_chunks = _load_index_chunks(index_file)
         if not sib_chunks:
-            return sib, None
+            return sib, None, None
 
         # A partial version (e.g. a translation covering only a few chapters
         # of a work) shouldn't be shown as a sibling of every chunk in the
@@ -422,7 +436,7 @@ def _build_sibling_data(
             nearest = _find_nearest_chunk(sib_chunks, current_line) or sib_chunks[0]
             entries = [nearest] if nearest else []
         if not entries:
-            return sib, None
+            return sib, None, None
 
         parsed_chunks = []
         for entry in entries:
@@ -432,14 +446,14 @@ def _build_sibling_data(
             parsed_chunk, _ = _parse_chunk(chunk_file)
             parsed_chunks.append(parsed_chunk)
         if not parsed_chunks:
-            return sib, None
+            return sib, None, None
 
         sib_chunk = (
             parsed_chunks[0]
             if len(parsed_chunks) == 1
             else _merge_sibling_chunks(parsed_chunks)
         )
-        return sib, sib_chunk
+        return sib, sib_chunk, _focus_url(sib_id, sib_scheme, sib_chunk)
 
     return {
         "current_version": catalog.version_for(base_urn),
@@ -743,6 +757,23 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     return chunk, pub_info
 
 
+def _reading_view_url(
+    corpus: str, textgroup: str, work: str, version: str, chunk: str, scheme: str | None = None
+) -> str:
+    """Return the reading-view path for a chunk, built without url_for.
+
+    Called once per chunk per sibling/prev/next/scheme-link during a full
+    site freeze (thousands of chunks x multiple lookups each), so this
+    mirrors the route patterns directly instead of paying url_for's
+    per-call routing-table lookup at that volume. Keep in sync with the
+    reading_view/reading_view_scheme route rules in create_app.
+    """
+    base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
+    if scheme:
+        base_path += f"/{scheme}"
+    return f"{base_path}:{chunk}/"
+
+
 def _scheme_dirs(version_dir: Path) -> list[str]:
     """Return the names of alternate citeStructure scheme subdirectories.
 
@@ -867,12 +898,10 @@ def _scheme_toggle_links(
             continue
         target = _find_chunk_for_line(chunks, current_line) or chunks[0]
         passage = target["cts_urn"].rsplit(":", 1)[-1]
-        base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
-        if scheme:
-            base_path += f"/{scheme}"
         chunk_unit = _load_chunk_unit(data_dir / "metadata.json") or scheme or "scene"
         label = f"By {chunk_unit.capitalize()}"
-        links.append({"label": label, "url": f"{base_path}:{passage}/"})
+        url = _reading_view_url(corpus, textgroup, work, version, passage, scheme)
+        links.append({"label": label, "url": url})
     return links
 
 
@@ -1247,16 +1276,19 @@ def create_app(
             data_dir / "metadata.json", corpus, textgroup, work, version, scheme
         )
 
-        base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
-        if scheme:
-            base_path += f"/{scheme}"
         prev_url = (
-            f"{base_path}:{chunk_obj.prev_urn.rsplit(':', 1)[-1]}"
+            _reading_view_url(
+                corpus, textgroup, work, version,
+                chunk_obj.prev_urn.rsplit(":", 1)[-1], scheme,
+            )
             if chunk_obj.prev_urn
             else None
         )
         next_url = (
-            f"{base_path}:{chunk_obj.next_urn.rsplit(':', 1)[-1]}"
+            _reading_view_url(
+                corpus, textgroup, work, version,
+                chunk_obj.next_urn.rsplit(":", 1)[-1], scheme,
+            )
             if chunk_obj.next_urn
             else None
         )

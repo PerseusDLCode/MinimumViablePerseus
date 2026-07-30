@@ -121,12 +121,12 @@
                         <div class="bg-neutral-400 p-4">
                             <h4 class="font-bold">Editions</h4>
                         </div>
-                        {% for sib, sib_chunk in sibling_data.edition_chunks %}
+                        {% for sib, sib_chunk, focus_url in sibling_data.edition_chunks %}
                             <details class="bg-neutral-300">
                                 <summary class="p-4 cursor-pointer font-bold">
                                     {{ sib.label }}
                                     ({{ sib.description }})
-                                    {% if sib_chunk %}<a href="/{{ sib_chunk.cts_urn }}" class="link">focus</a>{% endif %}
+                                    {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                 </summary>
                                 <div class="p-4">
                                     {% if sib_chunk %}
@@ -152,12 +152,12 @@
                         <div class="bg-neutral-400 p-4">
                             <h4 class="font-bold">Translations</h4>
                         </div>
-                        {% for sib, sib_chunk in sibling_data.translation_chunks %}
+                        {% for sib, sib_chunk, focus_url in sibling_data.translation_chunks %}
                             <details class="bg-neutral-300">
                                 <summary class="p-4 cursor-pointer font-bold">
                                     {{ sib.label }}
                                     ({{ sib.description }})
-                                    {% if sib_chunk %}<a href="/{{ sib_chunk.cts_urn }}" class="link">focus</a>{% endif %}
+                                    {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                 </summary>
 
 
@@ -198,17 +198,18 @@
                 </div>
             {% endif %}
 
+            {# for debug purposes only #}
+            {# {% for warning in commentary_warnings %}
+                <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
+            {% endfor %} #}
             <!-- Commentaries -->
-            {% if commentary_groups or commentary_warnings %}
+            {% if commentary_groups %}
                 <div class="mb-4">
                     <div class="bg-neutral-400 p-4">
                         <h4 class="font-bold">Commentary</h4>
                     </div>
 
-                    {# for debug purposes only #}
-                    {# {% for warning in commentary_warnings %}
-                        <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
-                    {% endfor %} #}
+
 
                     {% for group in commentary_groups %}
                         <details class="bg-neutral-300">
