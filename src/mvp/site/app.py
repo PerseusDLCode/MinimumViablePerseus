@@ -447,7 +447,9 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
                     tg["id"], {"id": tg["id"], "author": tg["author"], "works": {}}
                 )
                 for work in tg["works"]:
-                    w = t["works"].setdefault(work["id"], {"id": work["id"], "versions": {}})
+                    w = t["works"].setdefault(
+                        work["id"], {"id": work["id"], "versions": {}}
+                    )
                     for version in work["versions"]:
                         w["versions"][version["id"]] = version
 
@@ -754,9 +756,18 @@ def _scheme_toggle_links(
         base_path = f"/urn:cts:{corpus}:{textgroup}.{work}.{version}"
         if scheme:
             base_path += f"/{scheme}"
-        label = f"By {scheme.capitalize()}" if scheme else "By Scene"
+        chunk_unit = _load_chunk_unit(data_dir / "metadata.json") or scheme or "scene"
+        label = f"By {chunk_unit.capitalize()}"
         links.append({"label": label, "url": f"{base_path}:{passage}/"})
     return links
+
+
+def _load_chunk_unit(metadata_path: Path) -> str:
+    """Return the ``chunk_unit`` recorded in a compiled scheme's metadata.json."""
+    if not metadata_path.exists():
+        return ""
+    with open(metadata_path, encoding="utf-8") as f:
+        return json.load(f).get("chunk_unit", "")
 
 
 def _subdirs(path: Path) -> list[Path]:
