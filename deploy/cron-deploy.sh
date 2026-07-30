@@ -153,7 +153,8 @@ fi
 # unchanged pull transfers no new bytes, just re-extracts what's already
 # local to the registry cache.
 log "Rebuilding inactive slot ${INACTIVE_DIR}..."
-rm -rf "${INACTIVE_DIR:?}"/*
+rm -rf "${INACTIVE_DIR:?}"
+mkdir -p "${INACTIVE_DIR}"
 
 PULL_TMP="$(mktemp -d)"
 trap 'rm -rf "$PULL_TMP"' EXIT
