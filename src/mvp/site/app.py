@@ -468,6 +468,34 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
     return collections
 
 
+def _flatten_search_index(collections: list[dict]) -> list[dict]:
+    """Flatten a collections tree into a list of typeahead search entries.
+
+    Each entry pairs a version's display fields with the href a click
+    should land on. Requires every version to already carry a resolved
+    ``href`` (as `collections_override` does, and as the live `/collections/
+    `route arranges via url_for before calling this) rather than resolving
+    urls itself, so this stays agnostic to whether it's called inside a
+    request context.
+    """
+    entries = []
+    for corpus in collections:
+        for textgroup in corpus["textgroups"]:
+            for work in textgroup["works"]:
+                for version in work["versions"]:
+                    entries.append(
+                        {
+                            "title": version["title"],
+                            "author": textgroup["author"] or textgroup["id"],
+                            "corpus": corpus["label"],
+                            "language": version["language_label"],
+                            "editors": version.get("editors", ""),
+                            "url": version["href"],
+                        }
+                    )
+    return entries
+
+
 def _build_corpus_manifest(
     app: Flask, proto_dir: Path, catalog: CTSCatalog, source_digest: str
 ) -> dict:
@@ -1027,6 +1055,25 @@ def create_app(
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
+    @app.get("/collections/search-index.json")
+    def get_collections_search_index():
+        if collections_override is not None:
+            collections = collections_override
+        else:
+            collections = _build_collections(PROTO_DIR, catalog)
+            for corpus in collections:
+                for textgroup in corpus["textgroups"]:
+                    for work in textgroup["works"]:
+                        for version in work["versions"]:
+                            version["href"] = url_for(
+                                "reading_view", **version["first_chunk_kwargs"]
+                            )
+        return (
+            _flatten_search_index(collections),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
     @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN, encoding="utf-8") as f:
@@ -1321,6 +1368,14 @@ def build():
             )
 
             yield corpus, textgroup, work, version, scheme, metadata_path
+
+    @freezer.register_generator
+    def get_collections_search_index():
+        # Mirrors the with_no_argument_rules guard above: a corpus-only
+        # build's search index would only cover this one corpus, and a
+        # later global-only build produces the real one anyway.
+        if args.mode != "corpus-only":
+            yield "/collections/search-index.json"
 
     @freezer.register_generator
     def get_first_chunk():

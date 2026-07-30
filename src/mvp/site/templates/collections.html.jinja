@@ -12,6 +12,21 @@
 <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-6">Collections</h1>
 
+    <div class="mb-6">
+        <input
+            type="search"
+            id="collections-search"
+            autocomplete="off"
+            placeholder="Search by title, author, or editor…"
+            class="input input-bordered w-full"
+        />
+        <div id="collections-search-results" class="collapse bg-base-100 border border-neutral-300 border-t-0 rounded-b">
+            <div class="collapse-content !p-0">
+                <ul class="max-h-96 overflow-y-auto divide-y divide-neutral-200"></ul>
+            </div>
+        </div>
+    </div>
+
     {% for corpus in collections|sort(attribute="label") %}
     <section class="mb-6">
         <details>
@@ -52,4 +67,11 @@
     <p class="text-neutral-500">No collections available.</p>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/ecmascript" src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
+<script type="text/ecmascript">
+    collectionsSearch('collections-search', 'collections-search-results');
+</script>
 {% endblock %}
