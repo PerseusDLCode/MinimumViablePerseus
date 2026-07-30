@@ -390,7 +390,9 @@ def _build_sibling_data(
         # chunk's own range). Falls back to the sibling's default scheme
         # when it has no same-named scheme subdirectory.
         sib_dir = PROTO_DIR / corpus / textgroup / work / sib_id
-        data_dir = sib_dir / scheme if scheme and (sib_dir / scheme).is_dir() else sib_dir
+        data_dir = (
+            sib_dir / scheme if scheme and (sib_dir / scheme).is_dir() else sib_dir
+        )
 
         index_file = data_dir / "index.json"
         sib_chunks = _load_index_chunks(index_file)
