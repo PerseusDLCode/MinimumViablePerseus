@@ -34,7 +34,6 @@ ARG CORPUS_NAME
 ARG CORPUS_REPO_URL
 ARG CORPUS_BRANCH=editing
 ARG CORPUS_SHA=latest
-ARG PDLREFWK_SHA=latest
 
 RUN test -n "$CORPUS_NAME" || (echo "CORPUS_NAME build-arg is required" >&2 && exit 1)
 RUN test -n "$CORPUS_REPO_URL" || (echo "CORPUS_REPO_URL build-arg is required" >&2 && exit 1)
@@ -43,13 +42,15 @@ RUN echo "${CORPUS_NAME} @ ${CORPUS_SHA}" && \
     git clone --depth 1 --branch "${CORPUS_BRANCH}" \
     "${CORPUS_REPO_URL}" "${CORPORA_DIR}/${CORPUS_NAME}"
 
-# Commentary linking (perseus_cts.commentary) reads pdlrefwk data
-# regardless of which corpus is being built, so every corpus-only image
-# needs it too — same private repo as Dockerfile.
-RUN echo "canonical-pdlrefwk @ ${PDLREFWK_SHA}" && \
-    git clone --depth 1 --branch dev \
-    https://github.com/PerseusDLCode/canonical-pdlrefwk \
-    "${CORPORA_DIR}/canonical-pdlrefwk"
+# Commentary linking (perseus_cts.commentary) reads canonical-pdlrefwk data
+# (public repo) regardless of which corpus is being built, so every
+# corpus-only image needs it too. Copied from the build context instead of
+# git-cloned here: the workflow fetches it once (see fetch-pdlrefwk job in
+# build-corpus.yml) and shares that single checkout across all three matrix
+# legs, rather than each of the three re-cloning it independently. A COPY's
+# cache key is the copied content's own checksum, so no SHA build-arg is
+# needed to invalidate it the way the git clone above needs CORPUS_SHA.
+COPY canonical-pdlrefwk/ "${CORPORA_DIR}/canonical-pdlrefwk/"
 
 WORKDIR /app
 
@@ -59,9 +60,6 @@ COPY uv.lock .
 
 ENV UV_PYTHON=3.12
 RUN uv sync --no-dev --no-install-project --no-cache
-
-# pdl_refwk (private repo, checked out by the workflow before `docker build`)
-COPY canonical_pdlrefwk/ /app/data/
 
 COPY src/ src/
 RUN uv sync --no-dev --no-cache
