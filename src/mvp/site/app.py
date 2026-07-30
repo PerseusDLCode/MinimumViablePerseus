@@ -23,7 +23,7 @@ from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from perseus_cts.chunker import Chunker
 from perseus_cts.commentary import CommentaryLookup, links_for_passage
-from perseus_cts.cts_resolver import available_refsDecl_ids
+from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 from mvp.site_map import SiteMap
 
@@ -140,30 +140,51 @@ def _annotate_toc(
     version: str,
     scheme: str | None = None,
 ) -> list[dict]:
-    """Recursively add endpoint/route_kwargs to leaf TOC entries.
+    """Recursively add endpoint/route_kwargs to routable TOC entries.
 
     ReferenceParser.toc() returns entries with urn/label/subpassages but no
-    routing info.  NavigationItem.html.jinja needs endpoint/route_kwargs on
-    leaf nodes to build hrefs via url_for(item.endpoint, **item.route_kwargs).
+    routing info. NavigationItem.html.jinja needs endpoint/route_kwargs on
+    every entry a reader should be able to click to build hrefs via
+    url_for(item.endpoint, **item.route_kwargs).
+
+    An entry compiled with a unit_scheme_map (see CTSResolver.toc) carries
+    its own "scheme" key — None for a level that isn't independently
+    paginated (e.g. "book"), or the scheme slug to route to otherwise
+    (possibly a *different* scheme than the one this TOC file lives under,
+    e.g. a "chapter" entry inside the "section" scheme's own TOC). That lets
+    every hierarchically-nested paginated level be clickable, not just the
+    leaf. An entry compiled without a map (single-scheme documents, and
+    schemes like tragedy's card/scene that aren't a depth-truncation of one
+    shared tree) has no "scheme" key at all, so it falls back to the old
+    behavior: only leaves are linked, always within the current ``scheme``.
     """
-    endpoint = "reading_view_scheme" if scheme else "reading_view"
     for entry in entries:
         if entry.get("subpassages"):
             _annotate_toc(
                 entry["subpassages"], corpus, textgroup, work, version, scheme
             )
+
+        has_own_scheme = "scheme" in entry
+        if has_own_scheme:
+            target_scheme = entry["scheme"]
+            if target_scheme is None:
+                continue
+        elif entry.get("subpassages"):
+            continue
         else:
-            route_kwargs = {
-                "corpus": corpus,
-                "textgroup": textgroup,
-                "work": work,
-                "version": version,
-                "chunk": entry["urn"].rsplit(":", 1)[-1],
-            }
-            if scheme:
-                route_kwargs["scheme"] = scheme
-            entry["endpoint"] = endpoint
-            entry["route_kwargs"] = route_kwargs
+            target_scheme = scheme
+
+        route_kwargs = {
+            "corpus": corpus,
+            "textgroup": textgroup,
+            "work": work,
+            "version": version,
+            "chunk": entry["urn"].rsplit(":", 1)[-1],
+        }
+        if target_scheme:
+            route_kwargs["scheme"] = target_scheme
+        entry["endpoint"] = "reading_view_scheme" if target_scheme else "reading_view"
+        entry["route_kwargs"] = route_kwargs
     return entries
 
 
@@ -758,7 +779,12 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
 
 
 def _reading_view_url(
-    corpus: str, textgroup: str, work: str, version: str, chunk: str, scheme: str | None = None
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+    chunk: str,
+    scheme: str | None = None,
 ) -> str:
     """Return the reading-view path for a chunk, built without url_for.
 
@@ -1037,10 +1063,42 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
             return "skipped", None
         if site_map.manifest_path(doc.metadata.urn).exists():
             return "skipped", None
+        compilers: list[tuple[str, Chunker]] = []
         for refsDecl_id in available_refsDecl_ids(doc):
             scheme = _scheme_slug(refsDecl_id)
-            compiler = Chunker(doc, refsDecl_id=refsDecl_id)
-            compiler.compile(site_map.chunk_dir(doc.metadata.urn, scheme or None))
+            compilers.append((scheme, Chunker(doc, refsDecl_id=refsDecl_id)))
+
+        # A document whose default citeStructure nests three or more levels
+        # deep (e.g. book/chapter/section) gets an extra scheme for free at
+        # the adjacent level (e.g. book/chapter), skipped when a corpus has
+        # already hand-declared it under its own refsDecl (see
+        # auto_chunk_units) so this never compiles the same scheme twice.
+        compiled_schemes = {scheme for scheme, _ in compilers}
+        for chunk_unit in auto_chunk_units(doc):
+            if chunk_unit in compiled_schemes:
+                continue
+            compilers.append((chunk_unit, Chunker(doc, chunk_unit=chunk_unit)))
+            compiled_schemes.add(chunk_unit)
+
+        # unit -> scheme slug, shared across every scheme's own TOC so a
+        # reader can jump directly to any other *hierarchically nested*
+        # paginated level (e.g. chapter <-> section) from the left nav, not
+        # just the level currently being read (see CTSResolver.toc). A
+        # scheme unrelated to this tree (e.g. tragedy's card scheme) simply
+        # never appears while walking any of these trees, so including it
+        # here is harmless.
+        unit_scheme_map = {
+            compiler.citation_chunks[0].unit: scheme
+            for scheme, compiler in compilers
+            if compiler.citation_chunks
+        }
+
+        for scheme, compiler in compilers:
+            compiler.compile(
+                site_map.chunk_dir(doc.metadata.urn, scheme or None),
+                unit_scheme_map=unit_scheme_map,
+            )
+
         return "ok", None
     except Exception as exc:
         return "failed", f"{xml_path}: {exc}"
@@ -1278,16 +1336,24 @@ def create_app(
 
         prev_url = (
             _reading_view_url(
-                corpus, textgroup, work, version,
-                chunk_obj.prev_urn.rsplit(":", 1)[-1], scheme,
+                corpus,
+                textgroup,
+                work,
+                version,
+                chunk_obj.prev_urn.rsplit(":", 1)[-1],
+                scheme,
             )
             if chunk_obj.prev_urn
             else None
         )
         next_url = (
             _reading_view_url(
-                corpus, textgroup, work, version,
-                chunk_obj.next_urn.rsplit(":", 1)[-1], scheme,
+                corpus,
+                textgroup,
+                work,
+                version,
+                chunk_obj.next_urn.rsplit(":", 1)[-1],
+                scheme,
             )
             if chunk_obj.next_urn
             else None
