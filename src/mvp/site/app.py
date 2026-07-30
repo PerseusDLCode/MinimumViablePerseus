@@ -49,7 +49,7 @@ BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
 # Bump when the manifest.json shape below changes incompatibly, so a global
 # build can refuse to merge manifests it doesn't know how to read instead of
 # silently mis-rendering.
-_MANIFEST_SCHEMA_VERSION = 1
+_MANIFEST_SCHEMA_VERSION = 2
 
 _CORPUS_LABELS = {
     "greekLit": "Greek",
@@ -419,36 +419,83 @@ def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
     return index
 
 
+def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
+    """Merge N _build_collections()-shaped lists into one collections tree.
+
+    A single CTS namespace can be contributed to by more than one source:
+    e.g. First1KGreek's documents declare urn:cts:greekLit:... (it's
+    supplementary Greek literature from a different repo than
+    canonical-greekLit, not a namespace of its own — see the
+    hebrewLit/First1KGreek note in build-corpus.yml), and a single corpus
+    repo can itself contain a stray document mistagged under a different
+    namespace than the rest of its content. Either way, two contributions
+    to the same corpus id must combine into one collections entry — not
+    sit side by side as visually duplicate entries (e.g. two "Greek"
+    sections) or silently overwrite each other. Matches by id at every
+    level (corpus, textgroup, work); a version id collision (least likely,
+    hardest to define "merge" for) is resolved last-write-wins.
+    """
+    corpora: dict[str, dict] = {}
+    for collections in all_collections:
+        for corpus in collections:
+            c = corpora.setdefault(
+                corpus["id"],
+                {"id": corpus["id"], "label": corpus["label"], "textgroups": {}},
+            )
+            for tg in corpus["textgroups"]:
+                t = c["textgroups"].setdefault(
+                    tg["id"], {"id": tg["id"], "author": tg["author"], "works": {}}
+                )
+                for work in tg["works"]:
+                    w = t["works"].setdefault(work["id"], {"id": work["id"], "versions": {}})
+                    for version in work["versions"]:
+                        w["versions"][version["id"]] = version
+
+    collections = []
+    for corpus in corpora.values():
+        textgroups = []
+        for tg in corpus["textgroups"].values():
+            works = [
+                {"id": w["id"], "versions": list(w["versions"].values())}
+                for w in tg["works"].values()
+            ]
+            textgroups.append({"id": tg["id"], "author": tg["author"], "works": works})
+        collections.append(
+            {"id": corpus["id"], "label": corpus["label"], "textgroups": textgroups}
+        )
+    return collections
+
+
 def _build_corpus_manifest(
     app: Flask, proto_dir: Path, catalog: CTSCatalog, source_digest: str
 ) -> dict:
-    """Build one corpus's manifest.json payload for a `--mode corpus-only` build.
+    """Build one build's manifest.json payload for a `--mode corpus-only` build.
 
-    Mirrors _build_collections/_build_urn_index exactly (a --mode global-only
-    build reassembles them via _merge_manifests), except each version's
-    first_chunk_kwargs is resolved to a concrete href via url_for here —
-    the global build has no Flask app of its own and can't resolve them.
-    url_for needs a request context, which a build process never otherwise
-    has, hence test_request_context().
+    Deliberately not "one corpus's manifest": a single corpus-only build's
+    proto-page tree can itself span more than one CTS namespace (see
+    _merge_collections), so this carries the *full* _build_collections()
+    result — however many namespaces it contains — rather than assuming
+    exactly one. A --mode global-only build reassembles these via
+    _merge_manifests. Each version's first_chunk_kwargs is resolved to a
+    concrete href via url_for here — the global build has no Flask app of
+    its own and can't resolve them. url_for needs a request context, which
+    a build process never otherwise has, hence test_request_context().
     """
     collections = _build_collections(proto_dir, catalog)
-    corpus_entry = collections[0] if collections else None
-    textgroups = corpus_entry["textgroups"] if corpus_entry else []
 
     with app.test_request_context():
-        for textgroup in textgroups:
-            for work in textgroup["works"]:
-                for version in work["versions"]:
-                    kwargs = version.pop("first_chunk_kwargs")
-                    version["href"] = url_for("reading_view", **kwargs)
+        for corpus in collections:
+            for textgroup in corpus["textgroups"]:
+                for work in textgroup["works"]:
+                    for version in work["versions"]:
+                        kwargs = version.pop("first_chunk_kwargs")
+                        version["href"] = url_for("reading_view", **kwargs)
 
     return {
         "schema_version": _MANIFEST_SCHEMA_VERSION,
-        "corpus_id": corpus_entry["id"] if corpus_entry else "",
-        "corpus_label": corpus_entry["label"] if corpus_entry else "",
         "built_at": datetime.now(timezone.utc).isoformat(),
         "source_digest": source_digest,
-        "textgroups": textgroups,
+        "collections": collections,
         "urn_index": _build_urn_index(proto_dir),
     }
 
@@ -458,14 +505,13 @@ def _merge_manifests(
 ) -> tuple[list[dict], dict[str, dict[str, str]]]:
     """Reassemble the global collections tree and URN index for a `--mode global-only` build.
 
-    Each manifest's textgroups are re-wrapped under a corpus-level dict
-    matching _build_collections's own shape, so collections.html.jinja
-    renders identically whether the tree came from one process walking all
-    corpora or was stitched together from N independent corpus builds.
     urn_index keys embed their corpus namespace (see _build_urn_index), so a
-    plain dict union across manifests can't collide.
+    plain dict union across manifests can't collide the way collections can
+    (see _merge_collections) — but a work_urn's language->prefix mapping
+    could theoretically be contributed by more than one manifest, so this
+    still merges per-key rather than blindly overwriting.
     """
-    collections = []
+    all_collections: list[list[dict]] = []
     urn_index: dict[str, dict[str, str]] = {}
 
     for path in manifest_paths:
@@ -478,15 +524,11 @@ def _merge_manifests(
                 f"!= expected {_MANIFEST_SCHEMA_VERSION!r}"
             )
 
-        collections.append(
-            {
-                "id": manifest["corpus_id"],
-                "label": manifest["corpus_label"],
-                "textgroups": manifest["textgroups"],
-            }
-        )
+        all_collections.append(manifest["collections"])
         for work_urn, versions in manifest["urn_index"].items():
             urn_index.setdefault(work_urn, {}).update(versions)
+
+    collections = _merge_collections(all_collections)
 
     return collections, urn_index
 

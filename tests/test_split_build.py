@@ -183,7 +183,7 @@ class TestSplitBuildMatchesCombinedBuild:
         manifest = appmod._build_corpus_manifest(
             app, greek_only, app.catalog, "digest-greek"
         )
-        version = manifest["textgroups"][0]["works"][0]["versions"][0]
+        version = manifest["collections"][0]["textgroups"][0]["works"][0]["versions"][0]
 
         assert "first_chunk_kwargs" not in version
         assert (
@@ -192,13 +192,86 @@ class TestSplitBuildMatchesCombinedBuild:
         )
 
 
+class TestCrossRepoNamespaceOverlap:
+    """Regression coverage for a real production bug: a corpus-only build's
+    proto-page tree is not guaranteed to contain exactly one CTS namespace.
+
+    Two ways that assumption breaks, both observed for real:
+      1. Two different source repos (different CI matrix legs) can both
+         contribute documents under the *same* namespace — e.g.
+         First1KGreek's own documents declare urn:cts:greekLit:..., the
+         same namespace canonical-greekLit's build produces. Their
+         manifests must merge into one "greekLit" collections entry, not
+         sit side by side as two separate "Greek" sections.
+      2. A single source repo's proto-page tree can itself contain more
+         than one namespace (e.g. a mistagged document) — the earlier
+         `collections[0]` implementation silently dropped every namespace
+         but the alphabetically-first one, which is how an entire corpus's
+         real content (e.g. all of Latin) can vanish behind one stray
+         mistagged document.
+    """
+
+    def test_two_manifests_contributing_to_the_same_namespace_merge(
+        self, app_with_no_real_corpora, tmp_path
+    ):
+        app = app_with_no_real_corpora
+
+        canonical_greek = tmp_path / "proto-canonical-greek"
+        first1k = tmp_path / "proto-first1k"
+        canonical_greek.mkdir()
+        first1k.mkdir()
+        # Different repos, same namespace, different textgroups — exactly
+        # the canonical-greekLit / First1KGreek situation.
+        _write_version(canonical_greek, "greekLit", "tlg0001", "tlg001", "perseus-grc2", "grc")
+        _write_version(first1k, "greekLit", "ggm0001", "ggm001", "1st1K-grc1", "grc")
+
+        m1 = appmod._build_corpus_manifest(app, canonical_greek, app.catalog, "d1")
+        m2 = appmod._build_corpus_manifest(app, first1k, app.catalog, "d2")
+        paths = []
+        for name, manifest in [("m1", m1), ("m2", m2)]:
+            path = tmp_path / f"{name}.json"
+            path.write_text(json.dumps(manifest))
+            paths.append(path)
+
+        collections, urn_index = appmod._merge_manifests(paths)
+
+        # One "greekLit" entry, not two — with both textgroups combined.
+        assert len(collections) == 1
+        assert collections[0]["id"] == "greekLit"
+        textgroup_ids = {tg["id"] for tg in collections[0]["textgroups"]}
+        assert textgroup_ids == {"tlg0001", "ggm0001"}
+        assert set(urn_index) == {
+            "urn:cts:greekLit:tlg0001.tlg001",
+            "urn:cts:greekLit:ggm0001.ggm001",
+        }
+
+    def test_one_manifest_spanning_two_namespaces_keeps_both(
+        self, app_with_no_real_corpora, tmp_path
+    ):
+        app = app_with_no_real_corpora
+
+        mixed = tmp_path / "proto-mixed"
+        mixed.mkdir()
+        # A "latinLit" build whose proto tree also contains one stray
+        # document under "greekLit" — alphabetically first, which is
+        # exactly what made collections[0] pick the wrong one.
+        _write_version(mixed, "greekLit", "viaf2603144", "viaf001", "perseus-eng1", "eng")
+        _write_version(mixed, "latinLit", "phi1017", "phi007", "perseus-lat2", "lat")
+
+        manifest = appmod._build_corpus_manifest(app, mixed, app.catalog, "d1")
+
+        ids = {corpus["id"] for corpus in manifest["collections"]}
+        assert ids == {"greekLit", "latinLit"}, (
+            "the real (larger) namespace must not be dropped just because "
+            "a smaller stray namespace sorts first"
+        )
+
+
 class TestMergeManifestsSchemaVersion:
     def test_rejects_mismatched_schema_version(self, tmp_path):
         bad_manifest = {
             "schema_version": appmod._MANIFEST_SCHEMA_VERSION + 1,
-            "corpus_id": "greekLit",
-            "corpus_label": "Greek",
-            "textgroups": [],
+            "collections": [],
             "urn_index": {},
         }
         path = tmp_path / "manifest.json"

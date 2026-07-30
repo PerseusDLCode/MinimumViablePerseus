@@ -69,6 +69,16 @@ command -v "$ORAS_BIN" >/dev/null 2>&1 || {
   exit 1
 }
 
+# GNU tar's --zstd shells out to an external zstd binary rather than linking
+# it in (unlike gzip) — without this check, a missing zstd only surfaces
+# deep inside tar's own error output during extraction, well after the
+# (large, slow) artifact pull has already completed.
+command -v zstd >/dev/null 2>&1 || {
+  echo "ERROR: zstd not found on PATH — install it once as root/admin" \
+       "(e.g. 'dnf install -y zstd' or 'yum install -y zstd')." >&2
+  exit 1
+}
+
 mkdir -p "$STATE_DIR"
 
 # ----- Optional registry login (needed only if packages are private) ------

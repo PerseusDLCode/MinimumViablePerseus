@@ -21,6 +21,14 @@ on:
           Build only this corpus (greekLit, latinLit, First1KGreek).
           Leave blank to build all three.
         required: false
+      force:
+        description: >-
+          Rebuild and push even if this corpus's SHA already has a pushed
+          artifact. The skip check only keys on the corpus's own git SHA,
+          not on mvp-build's code — so a build-image/app.py-only change
+          (no corpus content change) needs this to actually take effect.
+        type: boolean
+        default: false
   push:
     branches: [dev]
     paths:
@@ -125,6 +133,11 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         id: skip
         run: |
+          if [ "${{ inputs.force }}" = "true" ]; then
+            echo "force=true; rebuilding regardless of cached SHA."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           TAG="ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}"
           if oras manifest fetch "$TAG" >/dev/null 2>&1; then
             echo "Already built: $TAG"
