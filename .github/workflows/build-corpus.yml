@@ -69,7 +69,7 @@ jobs:
           path: canonical-pdlrefwk
 
       - name: Upload as a shared artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: canonical-pdlrefwk
           path: canonical-pdlrefwk
@@ -126,7 +126,7 @@ jobs:
 
       - name: Download shared canonical-pdlrefwk artifact
         if: steps.gate.outputs.run == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: canonical-pdlrefwk
           path: canonical-pdlrefwk
