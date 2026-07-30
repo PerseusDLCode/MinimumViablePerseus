@@ -11,4 +11,4 @@
 {%- set note_content -%}
     {{- render_children(text_container) -}}
 {%- endset -%}
-{%- set _ = notes.items.append({"id": note_id, "number": note_number, "content": note_content}) -%}
+{%- set _ = notes.items.append({"id": note_id, "number": note_number, "content": note_content, "source": note_source if note_source is defined else None}) -%}

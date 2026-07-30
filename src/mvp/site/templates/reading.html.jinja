@@ -8,6 +8,7 @@
             <div>
                 <h1 class="text-xl font-bold">
                     {{ pub_info.author }} <em>{{ work_title }}</em>
+                    <span class="text-base font-normal">{{ chunk.cts_urn.rsplit(':', 1)[-1] }}</span>
                 </h1>
                 {% if pub_info.editors %}
                     <h2 class="text-lg font-bold">{{ pub_info.editors }}</h2>
@@ -74,7 +75,7 @@
 
             <div class="prose">
                 {% for element in chunk.elements %}
-                    {% with text_container = element %}
+                    {% with text_container = element, note_source = chunk.title %}
                         {%  include 'components/ReadableTextContainer.html.jinja' %}
                     {% endwith %}
                 {% endfor %}
@@ -129,11 +130,13 @@
                                 </summary>
                                 <div class="p-4">
                                     {% if sib_chunk %}
-                                        {% for element in sib_chunk.elements %}
-                                            {% with text_container = element %}
-                                                {% include 'components/ReadableTextContainer.html.jinja' %}
-                                            {% endwith %}
-                                        {% endfor %}
+                                        {% with notes = namespace(items=[]) %}
+                                            {% for element in sib_chunk.elements %}
+                                                {% with text_container = element %}
+                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endwith %}
                                     {% else %}
                                         <p class="italic">No corresponding passage available</p>
                                     {% endif %}
@@ -160,11 +163,13 @@
 
                                 <div class="p-4">
                                     {% if sib_chunk %}
-                                        {% for element in sib_chunk.elements %}
-                                            {% with text_container = element %}
-                                                {% include 'components/ReadableTextContainer.html.jinja' %}
-                                            {% endwith %}
-                                        {% endfor %}
+                                        {% with notes = namespace(items=[]) %}
+                                            {% for element in sib_chunk.elements %}
+                                                {% with text_container = element %}
+                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endwith %}
                                     {% else %}
                                         <p class="italic">No corresponding passage available</p>
                                     {% endif %}
@@ -180,6 +185,9 @@
                 <div class="mb-4">
                     <div class="bg-neutral-400 p-4">
                         <h4 class="font-bold">Notes</h4>
+                        {% if notes.items[0].source %}
+                            <p class="italic text-neutral-600">{{ notes.items[0].source }}</p>
+                        {% endif %}
                     </div>
                     {% for note in notes.items %}
                         <div id="{{ note.id }}" class="bg-neutral-300 p-4 text-xs">
@@ -206,6 +214,7 @@
                         <details class="bg-neutral-300">
                             <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
                             <div class="p-4">
+                                {% with notes = namespace(items=[]) %}
                                 {% for entry in group.entries %}
                                     <p class="my-2">
                                         {% if entry.line_ref %}
@@ -231,6 +240,7 @@
                                         {% endif %}
                                     </p>
                                 {% endfor %}
+                                {% endwith %}
                             </div>
                         </details>
                     {% endfor %}
