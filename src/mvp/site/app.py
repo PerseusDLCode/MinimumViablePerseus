@@ -249,7 +249,16 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
                     versions.append(version)
 
                 if versions:
-                    works.append({"id": work_dir.name, "versions": versions})
+                    work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
+                    works.append(
+                        {
+                            "id": work_dir.name,
+                            "title": _work_title(
+                                catalog, work_urn, fallback=work_dir.name
+                            ),
+                            "versions": versions,
+                        }
+                    )
 
             if works:
                 textgroups.append(
@@ -448,7 +457,8 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
                 )
                 for work in tg["works"]:
                     w = t["works"].setdefault(
-                        work["id"], {"id": work["id"], "versions": {}}
+                        work["id"],
+                        {"id": work["id"], "title": work["title"], "versions": {}},
                     )
                     for version in work["versions"]:
                         w["versions"][version["id"]] = version
@@ -458,7 +468,11 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
         textgroups = []
         for tg in corpus["textgroups"].values():
             works = [
-                {"id": w["id"], "versions": list(w["versions"].values())}
+                {
+                    "id": w["id"],
+                    "title": w["title"],
+                    "versions": list(w["versions"].values()),
+                }
                 for w in tg["works"].values()
             ]
             textgroups.append({"id": tg["id"], "author": tg["author"], "works": works})
@@ -860,9 +874,12 @@ def _version_entry(
     language = document.get("language", "")
     first_passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
     work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
+    version_urn = f"{work_urn}.{version_dir.name}"
+    cts_version = catalog.version_for(version_urn)
     version = {
         "id": version_dir.name,
         "title": _work_title(catalog, work_urn, fallback=work_dir.name),
+        "label": (cts_version.label if cts_version else "") or version_dir.name,
         "language": language,
         "language_label": _LANGUAGE_LABELS.get(language, language),
         "editors": _format_editors(document.get("editors", [])),

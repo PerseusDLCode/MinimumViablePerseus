@@ -38,22 +38,33 @@
                     <details>
                         <summary class="text-base font-semibold text-neutral-700 cursor-pointer">{{ tg.author or tg.id }}</summary>
 
-                        <ul class="pl-6 mt-1">
-                            {% for work in tg.works %}
+                        <ul class="pl-6 mt-1 space-y-1">
+                            {% for work in tg.works|sort(attribute="title,id") %}
                             <li class="mb-1">
-                                <ul class="pl-6 space-y-0.5">
-                                    {% for version in work.versions|sort(attribute="title,id") %}
-                                    {# A live combined build resolves first_chunk_kwargs via url_for here;
-                                       a global build stitched from per-corpus manifests (see
-                                       _build_corpus_manifest) has no kwargs to resolve — it already
-                                       carries the resolved href, computed at corpus-build time. #}
-                                    <li>
-                                        <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
-                                            {{ version.title }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                        </a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                                {% if work.versions|length == 1 %}
+                                {% set version = work.versions[0] %}
+                                {# A live combined build resolves first_chunk_kwargs via url_for here;
+                                   a global build stitched from per-corpus manifests (see
+                                   _build_corpus_manifest) has no kwargs to resolve — it already
+                                   carries the resolved href, computed at corpus-build time. #}
+                                <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm font-semibold">
+                                    {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                </a>
+                                {% else %}
+                                <details>
+                                    <summary class="text-sm font-semibold cursor-pointer">{{ work.title }}</summary>
+
+                                    <ul class="pl-6 mt-1 space-y-0.5">
+                                        {% for version in work.versions|sort(attribute="label,id") %}
+                                        <li>
+                                            <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
+                                                {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </details>
+                                {% endif %}
                             </li>
                             {% endfor %}
                         </ul>
