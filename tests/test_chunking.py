@@ -13,6 +13,8 @@
 from __future__ import annotations
 
 from mvp.site.app import (
+    _Chunk,
+    _chunk_citation_range,
     _chunk_distance,
     _chunk_start_line,
     _find_chunk_for_line,
@@ -57,6 +59,74 @@ class TestChunkStartLine:
         end_of_book_one = _chunk_start_line("urn:...:1.93")
         start_of_book_two = _chunk_start_line("urn:...:2.1")
         assert end_of_book_one < start_of_book_two
+
+
+# ---------------------------------------------------------------------------
+# _chunk_citation_range
+# ---------------------------------------------------------------------------
+
+def _el(n: str | None = None, children: list[dict] | None = None) -> dict:
+    """Build a TEIParser-shaped element dict (see kodon_py.tei_parser).
+
+    Only elements carrying their own ``n`` (e.g. a bare ``<l n="49">``, with
+    no ``type`` attribute) are citable leaves; wrapper elements like ``div``
+    or ``sp`` have no ``n`` of their own here, matching real parsed output.
+    """
+    el = {"children": children or []}
+    if n is not None:
+        el["n"] = n
+    return el
+
+
+def _card_chunk(cts_urn: str, elements: list[dict]) -> _Chunk:
+    return _Chunk(
+        cts_urn=cts_urn,
+        prev_urn=None,
+        next_urn=None,
+        title="",
+        base_urn=cts_urn.rsplit(":", 1)[0],
+        language="grc",
+        elements=elements,
+    )
+
+
+class TestChunkCitationRange:
+    """A card's cts_urn only carries its first milestone's citation (see
+    perseus_cts.cts_resolver._milestone_chunks); this recovers the true span
+    from the chunk's own rendered elements, which is what commentary lookup
+    (links_for_passage) must be given instead of the raw cts_urn/chunk to
+    surface commentary for every line in a multi-line card."""
+
+    BASE = "urn:cts:greekLit:tlg0011.tlg001.perseus-grc2"
+
+    def test_single_line_card_returns_that_line(self):
+        chunk = _card_chunk(
+            f"{self.BASE}:49",
+            [_el(children=[_el("49", [_el(children=[])])])],
+        )
+        assert _chunk_citation_range(chunk) == "49"
+
+    def test_multi_line_card_spans_every_rendered_line(self):
+        """Regression test: a card whose cts_urn is stamped "49" but whose
+        elements actually include lines 49-51 (e.g. split dialogue across a
+        speaker change) must report the full range, not just "49" — mirrors
+        Trachiniae card 1, whose <milestone unit="card" n="1"/> is followed
+        by <l n="1">..<l n="48"> before the next card milestone."""
+        chunk = _card_chunk(
+            f"{self.BASE}:49",
+            [
+                _el(children=[  # e.g. a <div>/<sp> wrapper with no n of its own
+                    _el("49"),
+                    _el("50"),
+                    _el("51"),
+                ]),
+            ],
+        )
+        assert _chunk_citation_range(chunk) == "49-51"
+
+    def test_no_citable_elements_falls_back_to_cts_urn(self):
+        chunk = _card_chunk(f"{self.BASE}:49", [_el(children=[_el()])])
+        assert _chunk_citation_range(chunk) == "49"
 
 
 # ---------------------------------------------------------------------------

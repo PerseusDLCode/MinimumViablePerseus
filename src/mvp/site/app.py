@@ -3,30 +3,26 @@ import json
 import multiprocessing
 import os
 import re
-
 from collections.abc import Iterator
 from contextlib import suppress
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from functools import lru_cache, partial
+from datetime import UTC, datetime
+from functools import cache, lru_cache, partial
 from pathlib import Path
 from typing import Any
 
-import markdown
-
-from flask import Flask, abort, render_template, redirect, url_for
-from lxml import etree
-
 import citation_resolution
-
+import markdown
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
+from flask import Flask, abort, redirect, render_template, url_for
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
+from lxml import etree
 from perseus_cts.chunker import Chunker
 from perseus_cts.commentary import CommentaryLookup, links_for_passage
 from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
-from mvp.site_map import SiteMap
 
+from mvp.site_map import SiteMap
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
@@ -322,7 +318,7 @@ def _build_commentary_groups(lookup: CommentaryLookup) -> list[_CommentaryGroup]
     return list(groups.values())
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_index_chunks(index_file: Path) -> list[dict]:
     """Load and cache an index.json's chunk list.
 
@@ -627,7 +623,7 @@ def _build_corpus_manifest(
 
     return {
         "schema_version": _MANIFEST_SCHEMA_VERSION,
-        "built_at": datetime.now(timezone.utc).isoformat(),
+        "built_at": datetime.now(UTC).isoformat(),
         "source_digest": source_digest,
         "collections": collections,
         "urn_index": _build_urn_index(proto_dir),
@@ -715,7 +711,7 @@ def _gazetteer() -> Gazetteer:
     return Gazetteer.from_json(GAZETTEER_PATH)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
 
@@ -850,6 +846,48 @@ def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
         match = _LEADING_INT_RE.match(component)
         key.append(int(match.group()) if match else 0)
     return tuple(key)
+
+
+def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
+    """Yield every element's own ``n`` citation value, recursively.
+
+    TEIParser only stamps an element's ``urn`` field when it carries *both*
+    ``type`` and ``n`` (see kodon_py.tei_parser.handle_element) — but a
+    verse-line milestone scheme like Sophocles' commonly cites via bare
+    ``<l n="...">`` (no ``type``), so ``urn`` stays None throughout and can't
+    be used here. Structural wrapper elements (``div``, ``sp``, ``speaker``,
+    etc.) never carry their own ``n``, so reading ``n`` directly off each
+    element, whatever its tag, reliably picks out just the citable leaves.
+    """
+    for element in elements:
+        n = element.get("n")
+        if n:
+            yield n
+        yield from _iter_citation_values(element.get("children", []))
+
+
+def _chunk_citation_range(chunk_obj: "_Chunk") -> str:
+    """Return the citation range actually spanned by a chunk's rendered elements.
+
+    A milestone-based scheme (e.g. tragedy's "card") stamps a chunk's own
+    cts_urn with only its *starting* milestone's citation value (see
+    perseus_cts.cts_resolver._milestone_chunks), even though the chunk's
+    elements can include several further lines up to the next milestone
+    (e.g. card 1 of Trachiniae spans lines 1-48, all the way to the next
+    <milestone unit="card">). Using the raw cts_urn/chunk value for a
+    commentary lookup therefore only matches commentary anchored to that
+    first line. This instead scans every citable value actually present in
+    the chunk and returns the full "start-end" span (or a single value when
+    the chunk covers only one line), so callers like links_for_passage see
+    the whole rendered passage.
+    """
+    values = list(_iter_citation_values(chunk_obj.elements))
+    if not values:
+        return chunk_obj.cts_urn.rsplit(":", 1)[-1]
+
+    start = min(values, key=_chunk_start_line).split("-", 1)[0]
+    end = max(values, key=_chunk_end_line).rsplit("-", 1)[-1]
+    return start if start == end else f"{start}-{end}"
 
 
 def _find_chunk_for_line(chunks: list[dict], line: tuple[int, ...]) -> dict | None:
@@ -1010,13 +1048,13 @@ def _version_entry(
         "language": language,
         "language_label": _LANGUAGE_LABELS.get(language, language),
         "editors": _format_editors(document.get("editors", [])),
-        "first_chunk_kwargs": dict(
-            corpus=corpus,
-            textgroup=textgroup_dir.name,
-            work=work_dir.name,
-            version=version_dir.name,
-            chunk=first_passage,
-        ),
+        "first_chunk_kwargs": {
+            "corpus": corpus,
+            "textgroup": textgroup_dir.name,
+            "work": work_dir.name,
+            "version": version_dir.name,
+            "chunk": first_passage,
+        },
     }
     return version, document
 
@@ -1196,7 +1234,7 @@ def create_app(
     generate_proto_pages(PROTO_DIR, corpora)
 
     catalog = CTSCatalog([c.root for c in corpora])
-    app.catalog = catalog
+    app.catalog = catalog  # ty: ignore[unresolved-attribute]
 
     @app.get("/urn-index.json")
     def urn_index():
@@ -1274,13 +1312,13 @@ def create_app(
 
         passage = chunks[0]["cts_urn"].rsplit(":", 1)[-1]
 
-        route_kwargs = dict(
-            corpus=corpus,
-            textgroup=textgroup,
-            work=work,
-            version=version,
-            chunk=passage,
-        )
+        route_kwargs = {
+            "corpus": corpus,
+            "textgroup": textgroup,
+            "work": work,
+            "version": version,
+            "chunk": passage,
+        }
         if scheme:
             route_kwargs["scheme"] = scheme
         return redirect(
@@ -1387,7 +1425,9 @@ def create_app(
             scheme=scheme,
         )
 
-        commentary = links_for_passage(catalog, work_base_urn, chunk)
+        commentary = links_for_passage(
+            catalog, work_base_urn, _chunk_citation_range(chunk_obj)
+        )
         commentary_groups = _build_commentary_groups(commentary)
         work_title = _work_title(catalog, work_base_urn, fallback=f"{textgroup}.{work}")
 
@@ -1451,7 +1491,7 @@ _ACTIVE_FREEZER = None
 def _freeze_one(url_and_last_modified: tuple[str, Any]) -> Path:
     """Render and write one frozen page. Runs in a worker process."""
     url, last_modified = url_and_last_modified
-    return _ACTIVE_FREEZER._build_one(url, last_modified)
+    return _ACTIVE_FREEZER._build_one(url, last_modified)  # ty: ignore[unresolved-attribute]
 
 
 def _parse_build_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1578,21 +1618,24 @@ def build():
     def get_first_chunk():
         for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
             if scheme is None:
-                yield dict(
-                    corpus=corpus, textgroup=textgroup, work=work, version=version
-                )
+                yield {
+                    "corpus": corpus,
+                    "textgroup": textgroup,
+                    "work": work,
+                    "version": version,
+                }
 
     @freezer.register_generator
     def get_first_scheme_chunk():
         for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
             if scheme is not None:
-                yield dict(
-                    corpus=corpus,
-                    textgroup=textgroup,
-                    work=work,
-                    version=version,
-                    scheme=scheme,
-                )
+                yield {
+                    "corpus": corpus,
+                    "textgroup": textgroup,
+                    "work": work,
+                    "version": version,
+                    "scheme": scheme,
+                }
 
     @freezer.register_generator
     def reading_view():
