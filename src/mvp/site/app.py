@@ -880,6 +880,35 @@ def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
         yield from _iter_citation_values(element.get("children", []))
 
 
+def _qualify_citation_value(value: str, cts_citation: str) -> str:
+    """Prepend leading dotted components missing from a bare citation value.
+
+    A nested cite structure (e.g. Cicero's <div type="speech" n="1"><div
+    type="section" n="1">) stamps a chunk-root element with only its own
+    local ``n`` ("1" for the section), not the composite "1.1" (speech.
+    section) that the chunk's own ``cts_urn`` carries and that commentary
+    links are keyed against. When a value has fewer dot-separated
+    components than the chunk's own citation, the missing leading
+    components (e.g. the speech number) are taken from that citation.
+    Flat schemes (e.g. tragedy's single-component "49") already match the
+    chunk citation's depth, so this is a no-op for them. Range values
+    ("94-140") are qualified on each side independently.
+    """
+    cts_parts = cts_citation.split(".")
+
+    def qualify(part: str) -> str:
+        part_components = part.split(".")
+        missing = len(cts_parts) - len(part_components)
+        if missing <= 0:
+            return part
+        return ".".join([*cts_parts[:missing], *part_components])
+
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return f"{qualify(start)}-{qualify(end)}"
+    return qualify(value)
+
+
 def _chunk_citation_range(chunk_obj: "_Chunk") -> str:
     """Return the citation range actually spanned by a chunk's rendered elements.
 
@@ -895,10 +924,12 @@ def _chunk_citation_range(chunk_obj: "_Chunk") -> str:
     the chunk covers only one line), so callers like links_for_passage see
     the whole rendered passage.
     """
+    cts_citation = chunk_obj.cts_urn.rsplit(":", 1)[-1]
     values = list(_iter_citation_values(chunk_obj.elements))
     if not values:
-        return chunk_obj.cts_urn.rsplit(":", 1)[-1]
+        return cts_citation
 
+    values = [_qualify_citation_value(v, cts_citation) for v in values]
     start = min(values, key=_chunk_start_line).split("-", 1)[0]
     end = max(values, key=_chunk_end_line).rsplit("-", 1)[-1]
     return start if start == end else f"{start}-{end}"

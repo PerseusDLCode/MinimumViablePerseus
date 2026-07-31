@@ -27,9 +27,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
-from lxml import etree
-
 from kodon_py.tei_parser import TEIParser, TEIParserError
+from lxml import etree
 
 
 def _is_punct(text: str) -> bool:
