@@ -1,6 +1,6 @@
 {% extends 'base.html.jinja' %}
 
-{% block title %}Research – Perseus Digital Library{% endblock %}
+{% block title %}{{ page_title }} – Perseus Digital Library{% endblock %}
 
 {% block header %}
     <div class="py-4">
@@ -11,9 +11,7 @@
 {% block content %}
     <main class="p-8">
 
-    {% with markdown_content = research_markdown %}
-        {% include 'components/MarkdownContainer.html.jinja' %}
-    {% endwith %}
+    {% include 'components/MarkdownContainer.html.jinja' %}
 
     </main>
 {% endblock %}

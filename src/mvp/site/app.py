@@ -19,7 +19,11 @@ from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from lxml import etree
 from perseus_cts.chunker import Chunker
 from perseus_cts.commentary import CommentaryLookup, links_for_passage
-from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
+from perseus_cts.cts_resolver import (
+    auto_chunk_units,
+    available_refsDecl_ids,
+    section_scheme_unit,
+)
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 
 from mvp.site_map import SiteMap
@@ -32,7 +36,11 @@ _DEFAULT_GAZETTEER = (
 GAZETTEER_PATH = Path(os.getenv("GAZETTEER_PATH", _DEFAULT_GAZETTEER))
 CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
+ABOUT_MARKDOWN = MARKDOWN_DIR / "about.md"
+GRANTS_MARKDOWN = MARKDOWN_DIR / "grants.md"
+HELP_MARKDOWN = MARKDOWN_DIR / "help.md"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"
+OPEN_SOURCE_MARKDOWN = MARKDOWN_DIR / "open-source.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
 MORPH_URL = os.getenv("MORPH_URL", "http://localhost:8000/morph")
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
@@ -164,7 +172,13 @@ def _annotate_toc(
         if has_own_scheme:
             target_scheme = entry["scheme"]
             if target_scheme is None:
-                continue
+                if entry.get("subpassages"):
+                    continue
+                # A true leaf (e.g. "section" under chapter/section, with no
+                # further nesting) still needs a link even when its own unit
+                # isn't in the unit_scheme_map — it just isn't independently
+                # paginated, so it routes within the ambient scheme.
+                target_scheme = scheme
         elif entry.get("subpassages"):
             continue
         else:
@@ -1118,6 +1132,15 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
             compilers.append((chunk_unit, Chunker(doc, chunk_unit=chunk_unit)))
             compiled_schemes.add(chunk_unit)
 
+        # Every "section" division is meant to be individually readable,
+        # even in a hierarchy too shallow for auto_chunk_units' three-level
+        # threshold (e.g. Aeneas Tacticus's two-level chapter/section) — see
+        # perseus_cts.section_scheme_unit.
+        section_unit = section_scheme_unit(doc)
+        if section_unit and section_unit not in compiled_schemes:
+            compilers.append((section_unit, Chunker(doc, chunk_unit=section_unit)))
+            compiled_schemes.add(section_unit)
+
         # unit -> scheme slug, shared across every scheme's own TOC so a
         # reader can jump directly to any other *hierarchically nested*
         # paginated level (e.g. chapter <-> section) from the left nav, not
@@ -1288,13 +1311,77 @@ def create_app(
             {"Content-Type": "application/json"},
         )
 
+    @app.get("/about/")
+    def get_about():
+        with open(ABOUT_MARKDOWN, encoding="utf-8") as f:
+            markdown_content = markdown.markdown(f.read())
+
+        return (
+            render_template(
+                "markdown.html.jinja",
+                markdown_content=markdown_content,
+                page_title="Grants",
+            ),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get("/grants/")
+    def get_grants():
+        with open(GRANTS_MARKDOWN, encoding="utf-8") as f:
+            markdown_content = markdown.markdown(f.read())
+
+        return (
+            render_template(
+                "markdown.html.jinja",
+                markdown_content=markdown_content,
+                page_title="Grants",
+            ),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get("/help/")
+    def get_help():
+        with open(HELP_MARKDOWN, encoding="utf-8") as f:
+            markdown_content = markdown.markdown(f.read())
+
+        return (
+            render_template(
+                "markdown.html.jinja",
+                markdown_content=markdown_content,
+                page_title="Grants",
+            ),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get("/open-source/")
+    def get_open_source():
+        with open(OPEN_SOURCE_MARKDOWN, encoding="utf-8") as f:
+            markdown_content = markdown.markdown(f.read())
+
+        return (
+            render_template(
+                "markdown.html.jinja",
+                markdown_content=markdown_content,
+                page_title="Grants",
+            ),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
     @app.get("/research/")
     def get_research():
         with open(RESEARCH_MARKDOWN, encoding="utf-8") as f:
             research_markdown = markdown.markdown(f.read())
 
         return (
-            render_template("research.html.jinja", research_markdown=research_markdown),
+            render_template(
+                "markdown.html.jinja",
+                markdown_content=research_markdown,
+                page_title="Research",
+            ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
         )

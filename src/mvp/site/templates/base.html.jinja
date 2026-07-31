@@ -19,10 +19,10 @@
             <a href="{{ url_for('get_collections') }}" class="hover:text-base-content">Collections/Texts</a>
             <a href="https://catalog.perseus.org" class="hover:text-base-content">Perseus Catalog</a>
             <a href="{{ url_for('get_research') }}" class="hover:text-base-content">Research</a>
-            <a href="#" class="hover:text-base-content">Grants</a>
-            <a href="#" class="hover:text-base-content">Open Source</a>
-            <a href="#" class="hover:text-base-content">About</a>
-            <a href="#" class="hover:text-base-content">Help</a>
+            <a href="{{ url_for('get_grants') }}" class="hover:text-base-content">Grants</a>
+            <a href="{{ url_for('get_open_source') }}" class="hover:text-base-content">Open Source</a>
+            <a href="{{ url_for('get_about') }}" class="hover:text-base-content">About</a>
+            <a href="{{ url_for('get_help') }}" class="hover:text-base-content">Help</a>
         </nav>
         {% block content %}
         {% endblock %}
