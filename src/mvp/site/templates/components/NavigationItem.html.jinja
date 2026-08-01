@@ -1,9 +1,9 @@
 <li>
     {% if item.get("subpassages", [])|length > 0 %}
-        <details {% if current_urn.startswith(item.urn) %}open="true"{% endif %}>
+        <details>
             <summary>
                 {% if item.get("endpoint") %}
-                    <a href="{{ url_for(item.endpoint, **item.route_kwargs) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label }}</a>
+                    <a id="{{ item.urn }}" href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
                 {% else %}
                     <span>
                         {{ item.label }}
@@ -19,7 +19,7 @@
             </ul>
         </details>
     {% elif item.get("endpoint") %}
-        <a href="{{ url_for(item.endpoint, **item.route_kwargs) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label }}</a>
+        <a id="{{ item.urn }}" href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
     {% else %}
         <span>{{ item.label }}</span>
     {% endif %}

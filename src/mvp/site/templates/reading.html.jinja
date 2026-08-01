@@ -23,7 +23,7 @@
 
     <main class="flex pt-4 w-full items-start">
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
-        <div class="text-base-content text-xs w-1/5 sticky top-0 self-start max-h-screen overflow-y-auto">
+        <div class="text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex flex-col">
             <div class="bg-neutral-400 p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -40,16 +40,18 @@
                 </ul>
             </div>
 
-            <div class="bg-neutral-400 p-4 mb-4">
-                <h3 class="font-bold">Table of Contents:</h3>
-                <ul class="menu [&_li>*]:rounded-none flex-nowrap w-full">
-                    {% for nav_item in toc.get("table_of_contents", []) %}
-                      {% with item = nav_item %}
-                        {% include 'components/NavigationItem.html.jinja' %}
-                      {% endwith %}
-                    {% endfor %}
-                </ul>
-            </div>
+            <!-- Table of contents lives in its own frozen page (one per
+            work+scheme, shared across every chunk) and is embedded here
+            rather than inlined, so its markup isn't duplicated into every
+            chunk page. The current chunk's urn is passed as a fragment so
+            the fragment page's `a:target` rule (and the browser's native
+            ancestor-<details>-expand-on-target behavior) can highlight and
+            reveal the current position without any JS. -->
+            <iframe
+                src="{{ nav_fragment_url }}#{{ current_urn }}"
+                title="Table of Contents"
+                class="w-full flex-1 border-0 bg-neutral-400"
+            ></iframe>
         </div>
 
         <!-- Base text -->

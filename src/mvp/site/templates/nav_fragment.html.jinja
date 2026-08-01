@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <!-- Links here must navigate the outer reading page, not this
+             iframe's own document. -->
+        <base target="_parent" />
+        <link
+            href="{{ url_for('static', filename="css/output.css") }}"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <style>
+            /* Replaces the old server-rendered .menu-active class: this
+               fragment is shared across every chunk of a work, so there's
+               no single "current" item at render time. */
+            a:target {
+                color: var(--menu-active-fg);
+                background-color: var(--menu-active-bg);
+            }
+        </style>
+    </head>
+    <body class="bg-neutral-400 text-xs p-4" data-theme="wireframe">
+        <h3 class="font-bold">Table of Contents:</h3>
+        <ul class="menu [&_li>*]:rounded-none flex-nowrap w-full">
+            {% for nav_item in toc.get("table_of_contents", []) %}
+                {% with item = nav_item %}
+                    {% include 'components/NavigationItem.html.jinja' %}
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </body>
+</html>

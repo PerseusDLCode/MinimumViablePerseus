@@ -1443,6 +1443,33 @@ def create_app(
             corpus, textgroup, work, version, scheme, index_file
         )
 
+    def _render_nav_fragment(corpus, textgroup, work, version, scheme=None):
+        version_dir = PROTO_DIR / corpus / textgroup / work / version
+        data_dir = version_dir / scheme if scheme else version_dir
+
+        toc = _toc_from_metadata(
+            data_dir / "metadata.json", corpus, textgroup, work, version, scheme
+        )
+
+        return (
+            render_template("nav_fragment.html.jinja", toc=toc),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>/_toc/"
+    )
+    def get_nav_fragment(corpus, textgroup, work, version):
+        return _render_nav_fragment(corpus, textgroup, work, version)
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        "/<string:scheme>/_toc/"
+    )
+    def get_nav_fragment_scheme(corpus, textgroup, work, version, scheme):
+        return _render_nav_fragment(corpus, textgroup, work, version, scheme=scheme)
+
     def _render_reading_view(corpus, textgroup, work, version, chunk, scheme=None):
         version_dir = PROTO_DIR / corpus / textgroup / work / version
         data_dir = version_dir / scheme if scheme else version_dir
@@ -1467,8 +1494,17 @@ def create_app(
             abort(404)
 
         chunk_obj, pub_info = _parse_chunk(chunk_file)
-        toc = _toc_from_metadata(
-            data_dir / "metadata.json", corpus, textgroup, work, version, scheme
+        nav_route_kwargs = {
+            "corpus": corpus,
+            "textgroup": textgroup,
+            "work": work,
+            "version": version,
+        }
+        if scheme:
+            nav_route_kwargs["scheme"] = scheme
+        nav_fragment_url = url_for(
+            "get_nav_fragment_scheme" if scheme else "get_nav_fragment",
+            **nav_route_kwargs,
         )
 
         prev_url = (
@@ -1544,13 +1580,13 @@ def create_app(
                 sibling_data=sibling_data,
                 language_labels=_LANGUAGE_LABELS,
                 morph_url=MORPH_URL,
+                nav_fragment_url=nav_fragment_url,
                 next_url=next_url,
                 prev_url=prev_url,
                 pub_info=pub_info,
                 scheme_links=scheme_links,
                 text_uri=f"http://catalog.perseus.org/texts/{base_urn}",
                 textgroup_urn=f"urn:cts:{corpus}:{textgroup}",
-                toc=toc,
                 work_uri=f"http://catalog.perseus.org/texts/{work_base_urn}",
                 work_urn=f"urn:cts:{corpus}:{textgroup}.{work}",
                 xml_src_url=_xml_src_url(corpus, textgroup, work, version),
@@ -1726,6 +1762,29 @@ def build():
 
     @freezer.register_generator
     def get_first_scheme_chunk():
+        for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
+            if scheme is not None:
+                yield {
+                    "corpus": corpus,
+                    "textgroup": textgroup,
+                    "work": work,
+                    "version": version,
+                    "scheme": scheme,
+                }
+
+    @freezer.register_generator
+    def get_nav_fragment():
+        for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
+            if scheme is None:
+                yield {
+                    "corpus": corpus,
+                    "textgroup": textgroup,
+                    "work": work,
+                    "version": version,
+                }
+
+    @freezer.register_generator
+    def get_nav_fragment_scheme():
         for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
             if scheme is not None:
                 yield {
