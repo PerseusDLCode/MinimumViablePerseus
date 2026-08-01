@@ -19,11 +19,7 @@ from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
 from lxml import etree
 from perseus_cts.chunker import Chunker
 from perseus_cts.commentary import CommentaryLookup, links_for_passage
-from perseus_cts.cts_resolver import (
-    auto_chunk_units,
-    available_refsDecl_ids,
-    section_scheme_unit,
-)
+from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 
 from mvp.site_map import SiteMap
@@ -172,13 +168,7 @@ def _annotate_toc(
         if has_own_scheme:
             target_scheme = entry["scheme"]
             if target_scheme is None:
-                if entry.get("subpassages"):
-                    continue
-                # A true leaf (e.g. "section" under chapter/section, with no
-                # further nesting) still needs a link even when its own unit
-                # isn't in the unit_scheme_map — it just isn't independently
-                # paginated, so it routes within the ambient scheme.
-                target_scheme = scheme
+                continue
         elif entry.get("subpassages"):
             continue
         else:
@@ -1162,15 +1152,6 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
                 continue
             compilers.append((chunk_unit, Chunker(doc, chunk_unit=chunk_unit)))
             compiled_schemes.add(chunk_unit)
-
-        # Every "section" division is meant to be individually readable,
-        # even in a hierarchy too shallow for auto_chunk_units' three-level
-        # threshold (e.g. Aeneas Tacticus's two-level chapter/section) — see
-        # perseus_cts.section_scheme_unit.
-        section_unit = section_scheme_unit(doc)
-        if section_unit and section_unit not in compiled_schemes:
-            compilers.append((section_unit, Chunker(doc, chunk_unit=section_unit)))
-            compiled_schemes.add(section_unit)
 
         # unit -> scheme slug, shared across every scheme's own TOC so a
         # reader can jump directly to any other *hierarchically nested*
