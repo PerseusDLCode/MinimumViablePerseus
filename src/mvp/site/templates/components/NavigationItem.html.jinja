@@ -18,7 +18,9 @@
                 {% endfor %}
             </ul>
         </details>
-    {% else %}
+    {% elif item.get("endpoint") %}
         <a href="{{ url_for(item.endpoint, **item.route_kwargs) }}"{% if item.urn == current_urn %} class="menu-active"{% endif %}>{{ item.label }}</a>
+    {% else %}
+        <span>{{ item.label }}</span>
     {% endif %}
 </li>
