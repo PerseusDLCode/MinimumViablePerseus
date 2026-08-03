@@ -164,11 +164,18 @@ for corpus in $CORPORA; do
   log "Pulling ${ref}..."
   "$ORAS_BIN" pull "$ref" -o "${PULL_TMP}/${corpus}"
   tar --zstd -xf "${PULL_TMP}/${corpus}/pages.tar.zst" -C "$INACTIVE_DIR"
+  # Free this corpus's compressed artifact immediately rather than waiting
+  # for the EXIT trap — otherwise every corpus pulled so far sits fully
+  # resident in PULL_TMP for the rest of the run, on top of the untouched
+  # (still-active) other slot and the inactive slot's own growing content,
+  # which can exhaust disk well before either slot alone would.
+  rm -rf "${PULL_TMP:?}/${corpus}"
 done
 
 log "Pulling ${REGISTRY}/mvp-global:latest..."
 "$ORAS_BIN" pull "${REGISTRY}/mvp-global:latest" -o "${PULL_TMP}/global"
 tar --zstd -xf "${PULL_TMP}/global/global.tar.zst" -C "$INACTIVE_DIR"
+rm -rf "${PULL_TMP:?}/global"
 
 # ----- 3. Flip symlink, restart serve, write state --------------------------
 log "Switching ${BUILD_DIR} -> $(basename "$INACTIVE_DIR")..."
