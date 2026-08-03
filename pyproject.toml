@@ -18,6 +18,7 @@ dependencies = [
     "perseus-cts",
     "citation-resolution",
     "kodon-py",
+    "zstandard>=0.23.0",
 ]
 requires-python = ">=3.12"
 readme = "README.md"

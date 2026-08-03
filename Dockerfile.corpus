@@ -67,6 +67,13 @@ RUN uv sync --no-dev --no-cache
 ENV CORPORA_DIR=${CORPORA_DIR}
 ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages
 
+# Token sidecars are pulled and unpacked on the host, then bind-mounted
+# into this path at `docker run` time (see build-corpus.yml) — they never
+# live inside the image. MVP_TOKENS_DIR only needs to be set when a
+# sidecar tree is actually mounted there; the reading view renders fine
+# without it.
+ENV MVP_TOKENS_DIR=/app/tokens
+
 # ENTRYPOINT (rather than CMD) so `docker run <image> --source-digest sha256:...`
 # appends to `--mode corpus-only`, instead of replacing it outright.
 # MORPH_URL must still be passed via `-e` at runtime, same as Dockerfile.

@@ -3,6 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 
 
+def token_sidecar_name(chunk_path: Path) -> str:
+    """Return the token sidecar filename for a compiled chunk XML file.
+
+    e.g. ``10.xml`` -> ``10.tokens.json.zst``. Shared between the tokenizer
+    (src/tools/run_tokenizer.py, which writes these) and the reading-view
+    render path (mvp.site.app, which reads them), so both agree on the
+    per-chunk, individually-compressed naming that makes lazy per-chunk
+    decompression possible.
+    """
+    return chunk_path.with_suffix("").name + ".tokens.json.zst"
+
+
 class SiteMap:
     """Output path and URL scheme for all Perseus6 compiled artifacts.
 

@@ -1,0 +1,190 @@
+name: Build token sidecar artifacts
+
+# Generates token-level sidecars (.tokens.json.zst, one per compiled chunk,
+# individually zstd-compressed — see src/tools/run_tokenizer.py) for one
+# corpus and pushes them as a separate OCI artifact from that corpus's
+# pages/manifest (see build-corpus.yml). Kept out of build-corpus.yml and
+# out of the push trigger entirely: tokenizing a full corpus means calling
+# an external NLP server (github.com/PerseusDLCode/nlp_pipeline) once per
+# chunk, which is slow, costs runner time proportional to corpus size, and
+# depends on that server being reachable — none of which should block or
+# slow down an ordinary corpus/pages rebuild. Run this manually (or on
+# whatever cadence the NLP pipeline's output actually changes) rather than
+# on every push.
+#
+# build-corpus.yml pulls whatever this workflow last pushed for a given
+# corpus (ghcr.io/perseusdlcode/mvp-tokens-{tag_name}:latest); if nothing
+# has been pushed yet, that pull is a no-op and pages build without
+# token-level rendering.
+#
+# NOTE: This has not yet been run for real —
+# exercise it via workflow_dispatch against a real nlp_pipeline deployment
+# before relying on it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      corpus:
+        description: "Corpus to tokenize (greekLit, latinLit, First1KGreek)"
+        required: true
+      nlp_url:
+        description: "Base URL of a reachable nlp_pipeline server (its /tokenize endpoint is used)"
+        required: true
+      force:
+        description: "Re-tokenize chunks that already have a sidecar (passes --force to run_tokenizer.py)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  fetch-pdlrefwk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve canonical-pdlrefwk HEAD SHA
+        id: sha
+        run: |
+          SHA=$(git ls-remote https://github.com/PerseusDLCode/canonical-pdlrefwk refs/heads/dev | cut -f1)
+          if [ -z "$SHA" ]; then
+            echo "Could not resolve HEAD SHA for canonical-pdlrefwk@dev" >&2
+            exit 1
+          fi
+          echo "pdlrefwk=${SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout canonical-pdlrefwk
+        uses: actions/checkout@v7
+        with:
+          repository: PerseusDLCode/canonical-pdlrefwk
+          ref: dev
+          path: canonical-pdlrefwk
+
+      - name: Upload as a shared artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: canonical-pdlrefwk
+          path: canonical-pdlrefwk
+          retention-days: 1
+
+  tokenize:
+    needs: fetch-pdlrefwk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve corpus matrix values
+        id: corpus
+        run: |
+          case "${{ inputs.corpus }}" in
+            greekLit)
+              echo "tag_name=greeklit" >> "$GITHUB_OUTPUT"
+              echo "repo_url=https://github.com/PerseusDLCode/canonical-greekLit" >> "$GITHUB_OUTPUT"
+              ;;
+            latinLit)
+              echo "tag_name=latinlit" >> "$GITHUB_OUTPUT"
+              echo "repo_url=https://github.com/PerseusDLCode/canonical-latinLit" >> "$GITHUB_OUTPUT"
+              ;;
+            First1KGreek)
+              echo "tag_name=first1kgreek" >> "$GITHUB_OUTPUT"
+              echo "repo_url=https://github.com/PerseusDLCode/First1KGreek" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unknown corpus: ${{ inputs.corpus }}" >&2
+              exit 1
+              ;;
+          esac
+          echo "branch=editing" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+
+      - name: Download shared canonical-pdlrefwk artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: canonical-pdlrefwk
+          path: canonical-pdlrefwk
+
+      - name: Resolve corpus HEAD SHA
+        id: sha
+        run: |
+          CORPUS_SHA=$(git ls-remote "${{ steps.corpus.outputs.repo_url }}" "refs/heads/${{ steps.corpus.outputs.branch }}" | cut -f1)
+          if [ -z "$CORPUS_SHA" ]; then
+            echo "Could not resolve HEAD SHA for ${{ steps.corpus.outputs.repo_url }}@${{ steps.corpus.outputs.branch }}" >&2
+            exit 1
+          fi
+          echo "corpus=${CORPUS_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install oras
+        uses: oras-project/setup-oras@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build corpus builder image (not pushed — reused for its cloned corpus + installed deps)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.corpus
+          push: false
+          load: true
+          tags: mvp-corpus-builder:${{ inputs.corpus }}
+          build-args: |
+            CORPUS_NAME=${{ inputs.corpus }}
+            CORPUS_REPO_URL=${{ steps.corpus.outputs.repo_url }}
+            CORPUS_BRANCH=${{ steps.corpus.outputs.branch }}
+            CORPUS_SHA=${{ steps.sha.outputs.corpus }}
+          cache-from: type=gha,scope=corpus-${{ inputs.corpus }}
+          cache-to: type=gha,mode=max,scope=corpus-${{ inputs.corpus }}
+
+      # ---------------------------------------------------------- #
+      # Two container runs against the same image, entrypoint
+      # overridden: first compile proto-pages (chunk XML — needed as
+      # tokenizer input but never itself shipped by this workflow),
+      # then tokenize them against the NLP server. Both write into the
+      # same host-mounted directory.
+      # ---------------------------------------------------------- #
+      - name: Compile proto-pages
+        run: |
+          mkdir -p "$PWD/proto-pages"
+          docker run --rm \
+            --entrypoint uv \
+            -v "$PWD/proto-pages:/app/proto-pages" \
+            mvp-corpus-builder:${{ inputs.corpus }} \
+            run mvp-proto
+
+      - name: Run tokenizer against nlp_pipeline
+        run: |
+          docker run --rm \
+            --entrypoint uv \
+            --network host \
+            -v "$PWD/proto-pages:/app/proto-pages" \
+            mvp-corpus-builder:${{ inputs.corpus }} \
+            run python src/tools/run_tokenizer.py \
+              --proto-dir /app/proto-pages \
+              --nlp-url "${{ inputs.nlp_url }}" \
+              ${{ inputs.force == 'true' && '--force' || '' }}
+
+      # ---------------------------------------------------------- #
+      # Package *only* the sidecars (each already independently
+      # zstd-compressed by run_tokenizer.py) — never the chunk XML,
+      # which build-corpus.yml's own corpus checkout already provides.
+      # Wrapping already-compressed files in `tar --zstd` adds
+      # negligible overhead but keeps this consistent with pages.tar.zst.
+      # ---------------------------------------------------------- #
+      - name: Package token sidecars
+        run: |
+          find proto-pages -name '*.tokens.json.zst' -print0 \
+            | tar --null -T - --zstd -cf tokens.tar.zst --transform 's,^proto-pages/,,'
+
+      - name: Push tokens artifact
+        run: |
+          oras push "ghcr.io/perseusdlcode/mvp-tokens-${{ steps.corpus.outputs.tag_name }}:${{ steps.sha.outputs.corpus }}" \
+            tokens.tar.zst:application/vnd.perseus.mvp.tokens
+          oras tag "ghcr.io/perseusdlcode/mvp-tokens-${{ steps.corpus.outputs.tag_name }}:${{ steps.sha.outputs.corpus }}" latest

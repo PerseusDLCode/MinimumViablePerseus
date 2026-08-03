@@ -5,11 +5,6 @@ name: Build global pages
 # artifacts (see build-corpus.yml / `mvp-build --mode global-only`).
 # Deliberately pulls only the small manifest artifacts, never the (much
 # larger) per-corpus page tarballs — see _merge_manifests in app.py.
-#
-# NOTE: like build-corpus.yml, this has not yet been run for real.
-# workflow_dispatch it once all three corpora have a `:latest` manifest
-# artifact pushed, and inspect the result before relying on the
-# workflow_run-triggered path.
 
 on:
   workflow_dispatch:

@@ -16,7 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-from mvp.site_map import SiteMap
+from mvp.site_map import SiteMap, token_sidecar_name
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -218,3 +218,22 @@ class TestCatalogPath:
         first  = sm.catalog_path("grc")
         second = sm.catalog_path("grc")
         assert first == second
+
+
+# ---------------------------------------------------------------------------
+# token_sidecar_name
+# ---------------------------------------------------------------------------
+
+class TestTokenSidecarName:
+
+    def test_replaces_xml_suffix(self):
+        assert token_sidecar_name(Path("10.xml")) == "10.tokens.json.zst"
+
+    def test_preserves_stem_with_dots(self):
+        """Chunk stems can contain their own dots (e.g. '1.1'); only the
+        trailing .xml suffix should be stripped."""
+        assert token_sidecar_name(Path("1.1.xml")) == "1.1.tokens.json.zst"
+
+    def test_ignores_parent_directory(self):
+        path = Path("/proto-pages/greekLit/tlg0011/tlg001/perseus-grc2/10.xml")
+        assert token_sidecar_name(path) == "10.tokens.json.zst"

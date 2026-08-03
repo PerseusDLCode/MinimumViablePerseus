@@ -52,6 +52,23 @@ You will need to change `./proto-pages` and `http://localhost:8000` to your own
 proto-page directory and the URL where the running [nlp_pipeline](https://github.com/PerseusDLCode/nlp_pipeline)
 is reachable.
 
+This writes one `.tokens.json.zst` sidecar per compiled chunk, alongside its
+chunk XML, individually zstd-compressed (not bundled into one archive) —
+tokens.json runs to ~50x the size of its source chunk XML uncompressed, so a
+fully-tokenized corpus is tens of GB uncompressed but only a couple GB
+compressed. Per-file compression means the reading-view render path can
+decompress exactly the one sidecar it needs at a time (`_load_token_sidecar`
+in `src/mvp/site/app.py`) instead of ever materializing the whole tree on
+disk.
+
+For a deployed build, sidecars aren't generated inline with `mvp-build` — they're
+generated and pushed separately (`.github/workflows/build-tokens.yml`) as their own
+OCI artifact per corpus, decoupled from that corpus's pages/manifest build
+(`.github/workflows/build-corpus.yml`). Point `mvp-build`/`mvp-dev` at an unpacked
+sidecar tree via `MVP_TOKENS_DIR` (mirroring `PROTOPAGE_OUTPUT_DIR`'s
+`corpus/textgroup/work/version` layout); if unset, or a given chunk has no sidecar
+there, the reading view still renders — just without token-level markup.
+
 ## Building the static site for deployment
 
 The static site can be built by running

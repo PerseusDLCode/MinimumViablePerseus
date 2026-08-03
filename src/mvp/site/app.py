@@ -13,6 +13,7 @@ from typing import Any
 
 import citation_resolution
 import markdown
+import zstandard
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
 from flask import Flask, abort, redirect, render_template, url_for
 from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
@@ -22,7 +23,7 @@ from perseus_cts.commentary import CommentaryLookup, links_for_passage
 from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog, CTSVersion
 
-from mvp.site_map import SiteMap
+from mvp.site_map import SiteMap, token_sidecar_name
 
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
@@ -40,6 +41,14 @@ OPEN_SOURCE_MARKDOWN = MARKDOWN_DIR / "open-source.md"
 RESEARCH_MARKDOWN = MARKDOWN_DIR / "research.md"
 MORPH_URL = os.getenv("MORPH_URL", "http://localhost:8000/morph")
 PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
+# Token sidecars (.tokens.json.zst) live in their own tree, mirroring
+# PROTO_DIR's corpus/textgroup/work/version layout, rather than in the
+# proto-pages checkout itself: they're generated and shipped separately
+# (see src/tools/run_tokenizer.py) so a corpus build never has to pull or
+# regenerate them. Unset by default — reading views render fine without
+# token-level data.
+_tokens_dir_env = os.getenv("MVP_TOKENS_DIR")
+TOKENS_DIR = Path(_tokens_dir_env) if _tokens_dir_env else None
 # Proto-page compilation and page freezing are both CPU-bound and
 # embarrassingly parallel (independent per document / per URL), so both
 # phases of `mvp-build` fan out across this many worker processes. Defaults
@@ -715,6 +724,47 @@ def _gazetteer() -> Gazetteer:
     return Gazetteer.from_json(GAZETTEER_PATH)
 
 
+@lru_cache(maxsize=1)
+def _zstd_decompressor() -> zstandard.ZstdDecompressor:
+    return zstandard.ZstdDecompressor()
+
+
+def _load_token_sidecar(chunk_path: Path) -> dict[str, Any] | None:
+    """Return the parsed token sidecar for a chunk, decompressing on demand.
+
+    Each sidecar is its own independently zstd-compressed file (see
+    src/tools/run_tokenizer.py) rather than part of one bulk archive, so a
+    single chunk's tokens can be decompressed in isolation without ever
+    materializing the full token tree on disk — the uncompressed set runs
+    to tens of GB for a large corpus, well past CI runner disk budgets.
+
+    Checked in order: TOKENS_DIR (the separate, pre-generated sidecar tree,
+    mirroring PROTO_DIR's layout), then a sidecar co-located with the chunk
+    XML itself (compressed or, for old local checkouts, plain JSON) — the
+    layout `run_tokenizer.py` writes when pointed directly at proto-pages
+    for local development.
+    """
+    name = token_sidecar_name(chunk_path)
+    candidates = []
+    if TOKENS_DIR is not None:
+        with suppress(ValueError):
+            rel_dir = chunk_path.parent.resolve().relative_to(PROTO_DIR.resolve())
+            candidates.append(TOKENS_DIR / rel_dir / name)
+    candidates.append(chunk_path.parent / name)
+
+    for candidate in candidates:
+        if candidate.exists():
+            raw = _zstd_decompressor().decompress(candidate.read_bytes())
+            return json.loads(raw)
+
+    legacy = chunk_path.with_suffix(".tokens.json")
+    if legacy.exists():
+        with open(legacy, encoding="utf-8") as f:
+            return json.load(f)
+
+    return None
+
+
 @cache
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
@@ -761,10 +811,9 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
 
     parser = TEIParser(content_el, base_urn, chunk_unit)
 
-    sidecar = path.with_suffix(".tokens.json")
-    if sidecar.exists():
-        with open(sidecar, encoding="utf-8") as f:
-            inject_tokens(parser.elements, json.load(f).get("tokens", []))
+    tokens_data = _load_token_sidecar(path)
+    if tokens_data is not None:
+        inject_tokens(parser.elements, tokens_data.get("tokens", []))
 
     chunk = _Chunk(
         cts_urn=cts_urn,
