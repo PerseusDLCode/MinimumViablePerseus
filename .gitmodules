@@ -1,6 +1,0 @@
-[submodule "data/First1KGreek"]
-	path = data/First1KGreek
-	url = https://github.com/OpenGreekAndLatin/First1KGreek
-[submodule "data/csel"]
-	path = data/csel
-	url = https://github.com/OpenGreekAndLatin/csel-dev
