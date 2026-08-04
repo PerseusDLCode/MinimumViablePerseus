@@ -1,10 +1,12 @@
+import Fuse from './vendor/fuse.js';
+
 function collectionsSearch(inputId, resultsId) {
     const input = document.getElementById(inputId);
     const results = document.getElementById(resultsId);
     const list = results ? results.querySelector('.collapse-content ul') : null;
     if (!input || !results || !list) return;
 
-    var entries = null;
+    var fuse = null;
 
     function render(matches) {
         list.innerHTML = '';
@@ -12,7 +14,7 @@ function collectionsSearch(inputId, resultsId) {
             results.classList.remove('collapse-open');
             return;
         }
-        matches.slice(0, 20).forEach(function (entry) {
+        matches.slice(0, 50).forEach(function (entry) {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = entry.url;
@@ -27,30 +29,29 @@ function collectionsSearch(inputId, resultsId) {
     }
 
     function search(query) {
-        query = query.trim().toLowerCase();
+        query = query.trim();
         if (!query) {
             render([]);
             return;
         }
-        const matches = entries.filter(function (entry) {
-            return (
-                entry.title.toLowerCase().includes(query) ||
-                entry.author.toLowerCase().includes(query) ||
-                entry.editors.toLowerCase().includes(query)
-            );
+        const matches = fuse.search(query, { limit: 100 }).map(function (result) {
+            return result.item;
         });
         render(matches);
     }
 
     input.addEventListener('input', function () {
-        if (entries) {
+        if (fuse) {
             search(input.value);
             return;
         }
         fetch('/collections/search-index.json')
             .then(function (r) { return r.json(); })
             .then(function (data) {
-                entries = data;
+                fuse = new Fuse(data, {
+                    keys: ['title', 'author', 'editors'],
+                    threshold: 0.3,
+                });
                 search(input.value);
             });
     });
@@ -61,3 +62,5 @@ function collectionsSearch(inputId, resultsId) {
         }
     });
 }
+
+window.collectionsSearch = collectionsSearch;

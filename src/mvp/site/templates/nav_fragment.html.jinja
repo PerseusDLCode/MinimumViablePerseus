@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html class="overscroll-contain">
     <head>
         <meta charset="utf-8" />
         <!-- Links here must navigate the outer reading page, not this
@@ -20,7 +20,7 @@
             }
         </style>
     </head>
-    <body class="bg-neutral-400 text-xs p-4" data-theme="wireframe">
+    <body class="bg-neutral-400 text-xs p-4 overscroll-contain" data-theme="wireframe">
         <h3 class="font-bold">Table of Contents:</h3>
         <ul class="menu [&_li>*]:rounded-none flex-nowrap w-full">
             {% for nav_item in toc.get("table_of_contents", []) %}

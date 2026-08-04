@@ -81,8 +81,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="text/ecmascript" src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
-<script type="text/ecmascript">
-    collectionsSearch('collections-search', 'collections-search-results');
+<script type="module" src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
+<script type="module">
+    window.collectionsSearch('collections-search', 'collections-search-results');
 </script>
 {% endblock %}

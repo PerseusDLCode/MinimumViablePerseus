@@ -2045,9 +2045,6 @@
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
   }
-  .max-h-400 {
-    max-height: calc(var(--spacing) * 400);
-  }
   .max-h-screen {
     max-height: 100vh;
   }
@@ -2154,8 +2151,8 @@
   .overflow-y-auto {
     overflow-y: auto;
   }
-  .overflow-y-scroll {
-    overflow-y: scroll;
+  .overscroll-contain {
+    overscroll-behavior: contain;
   }
   .rounded-b {
     border-bottom-right-radius: 0.25rem;
@@ -2344,6 +2341,9 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .will-change-transform {
+    will-change: transform;
   }
   .select-none {
     -webkit-user-select: none;

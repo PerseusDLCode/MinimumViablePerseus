@@ -23,7 +23,7 @@
 
     <main class="flex pt-4 w-full items-start">
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
-        <div class="text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex flex-col">
+        <div class="text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex flex-col will-change-transform">
             <div class="bg-neutral-400 p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Base text -->
-        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto" data-lang="{{ chunk.language }}">
+        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto overscroll-contain will-change-transform" data-lang="{{ chunk.language }}">
             {% if scheme_links %}
                 <div class="flex gap-2 mb-2 text-xs">
                     <span>View:</span>
@@ -101,7 +101,7 @@
         </article>
 
         <!-- Paratexts / Editions / Translations -->
-        <div class="text-xs w-2/5 sticky top-0 self-start max-h-screen overflow-y-auto">
+        <div class="text-xs w-2/5 sticky top-0 self-start max-h-screen overflow-y-auto overscroll-contain will-change-transform">
             {% if sibling_data and sibling_data.current_version %}
                 <!-- Current version -->
                 <div class="mb-4">
