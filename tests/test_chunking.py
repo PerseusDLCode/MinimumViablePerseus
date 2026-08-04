@@ -1,6 +1,6 @@
 # tests/test_chunking.py
 #
-# Tests for the chunk-alignment logic in mvp.site.app: given a passage
+# Tests for the chunk-alignment logic in mvp.site.chunks: given a passage
 # citation from one chunking scheme (e.g. Perseus "card" numbers), find the
 # corresponding chunk in a sibling version that may be chunked at a
 # different granularity (e.g. scene-based line ranges).
@@ -8,11 +8,11 @@
 # _chunk_start_line and _find_chunk_for_line are private but are the core
 # logic fixed by the card/translation-alignment bug: card chunking used to
 # fall back to raw positional indexing across chunk lists of very different
-# density, landing on unrelated passages (see _build_sibling_data).
+# density, landing on unrelated passages (see mvp.site.siblings._build_sibling_data).
 
 from __future__ import annotations
 
-from mvp.site.app import (
+from mvp.site.chunks import (
     _Chunk,
     _chunk_citation_range,
     _chunk_distance,
@@ -25,6 +25,7 @@ from mvp.site.app import (
 # ---------------------------------------------------------------------------
 # _chunk_start_line
 # ---------------------------------------------------------------------------
+
 
 class TestChunkStartLine:
     """Parsing a chunk's passage citation into a sortable key."""
@@ -55,7 +56,7 @@ class TestChunkStartLine:
         assert _chunk_start_line(urn) == (0,)
 
     def test_book_rollover_sorts_correctly(self):
-        """"2.1" must sort after "1.93", unlike naive whole-string parsing."""
+        """ "2.1" must sort after "1.93", unlike naive whole-string parsing."""
         end_of_book_one = _chunk_start_line("urn:...:1.93")
         start_of_book_two = _chunk_start_line("urn:...:2.1")
         assert end_of_book_one < start_of_book_two
@@ -64,6 +65,7 @@ class TestChunkStartLine:
 # ---------------------------------------------------------------------------
 # _chunk_citation_range
 # ---------------------------------------------------------------------------
+
 
 def _el(n: str | None = None, children: list[dict] | None = None) -> dict:
     """Build a TEIParser-shaped element dict (see kodon_py.tei_parser).
@@ -115,11 +117,13 @@ class TestChunkCitationRange:
         chunk = _card_chunk(
             f"{self.BASE}:49",
             [
-                _el(children=[  # e.g. a <div>/<sp> wrapper with no n of its own
-                    _el("49"),
-                    _el("50"),
-                    _el("51"),
-                ]),
+                _el(
+                    children=[  # e.g. a <div>/<sp> wrapper with no n of its own
+                        _el("49"),
+                        _el("50"),
+                        _el("51"),
+                    ]
+                ),
             ],
         )
         assert _chunk_citation_range(chunk) == "49-51"
@@ -132,6 +136,7 @@ class TestChunkCitationRange:
 # ---------------------------------------------------------------------------
 # _find_chunk_for_line
 # ---------------------------------------------------------------------------
+
 
 def _chunk(urn: str) -> dict:
     return {"cts_urn": urn, "file": f"{urn.rsplit(':', 1)[-1]}.html"}
@@ -147,7 +152,10 @@ class TestFindChunkForLine:
         _chunk("urn:cts:greekLit:tlg0011.tlg001.perseus-eng3:497-530"),
     ]
 
-    CARD_CHUNKS = [_chunk(f"urn:cts:greekLit:tlg0011.tlg001.perseus-grc2:{n}") for n in (1, 90, 94, 95, 100)]
+    CARD_CHUNKS = [
+        _chunk(f"urn:cts:greekLit:tlg0011.tlg001.perseus-grc2:{n}")
+        for n in (1, 90, 94, 95, 100)
+    ]
 
     def test_card_number_lands_in_containing_scene(self):
         """The bug this guards against: a card-94 citation must resolve to
@@ -189,6 +197,7 @@ class TestFindChunkForLine:
 # ---------------------------------------------------------------------------
 # _find_nearest_chunk
 # ---------------------------------------------------------------------------
+
 
 class TestFindNearestChunk:
     """Finding the chunk whose start is closest to a target, before or after.
@@ -269,6 +278,7 @@ class TestFindNearestChunk:
 # ---------------------------------------------------------------------------
 # _chunk_distance
 # ---------------------------------------------------------------------------
+
 
 class TestChunkDistance:
     def test_higher_order_component_outweighs_lower(self):

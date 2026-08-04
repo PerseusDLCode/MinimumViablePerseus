@@ -1,11 +1,11 @@
 # tests/test_split_build.py
 #
 # End-to-end coverage for the corpus-only/global-only split (see
-# _build_corpus_manifest, _merge_manifests, and create_app's
-# collections_override/urn_index_override in mvp.site.app): building each
-# corpus's manifest independently and merging them must reproduce exactly
-# what a single combined build would have produced for /collections/ and
-# /urn-index.json.
+# _build_corpus_manifest, _merge_manifests in mvp.site.manifest, and
+# create_app's collections_override/urn_index_override in mvp.site.app):
+# building each corpus's manifest independently and merging them must
+# reproduce exactly what a single combined build would have produced for
+# /collections/ and /urn-index.json.
 #
 # This drives the real _build_collections/_build_urn_index/_version_entry
 # code paths against a hand-built proto-page tree (index.json/metadata.json
@@ -21,6 +21,9 @@ from pathlib import Path
 import pytest
 
 from mvp.site import app as appmod
+from mvp.site import build as buildmod
+from mvp.site import config
+from mvp.site import manifest as manifestmod
 
 
 # ---------------------------------------------------------------------------
@@ -92,8 +95,8 @@ def app_with_no_real_corpora(monkeypatch, tmp_path, combined_and_split_proto_dir
     builds still produce identical labels.
     """
     combined, _, _ = combined_and_split_proto_dirs
-    monkeypatch.setattr(appmod, "CORPORA_DIR", tmp_path / "empty-corpora")
-    monkeypatch.setattr(appmod, "PROTO_DIR", combined)
+    monkeypatch.setattr(config, "CORPORA_DIR", tmp_path / "empty-corpora")
+    monkeypatch.setattr(config, "PROTO_DIR", combined)
     return appmod.create_app()
 
 
@@ -112,10 +115,10 @@ class TestSplitBuildMatchesCombinedBuild:
 
         baseline_html = client.get("/collections/").get_data(as_text=True)
 
-        greek_manifest = appmod._build_corpus_manifest(
+        greek_manifest = manifestmod._build_corpus_manifest(
             app, greek_only, app.catalog, "digest-greek"
         )
-        latin_manifest = appmod._build_corpus_manifest(
+        latin_manifest = manifestmod._build_corpus_manifest(
             app, latin_only, app.catalog, "digest-latin"
         )
         manifest_paths = []
@@ -127,14 +130,12 @@ class TestSplitBuildMatchesCombinedBuild:
             path.write_text(json.dumps(manifest))
             manifest_paths.append(path)
 
-        collections, urn_index = appmod._merge_manifests(manifest_paths)
+        collections, urn_index = manifestmod._merge_manifests(manifest_paths)
 
         split_app = appmod.create_app(
             collections_override=collections, urn_index_override=urn_index
         )
-        split_html = split_app.test_client().get("/collections/").get_data(
-            as_text=True
-        )
+        split_html = split_app.test_client().get("/collections/").get_data(as_text=True)
 
         assert split_html == baseline_html
 
@@ -147,10 +148,10 @@ class TestSplitBuildMatchesCombinedBuild:
 
         baseline_index = client.get("/urn-index.json").get_json()
 
-        greek_manifest = appmod._build_corpus_manifest(
+        greek_manifest = manifestmod._build_corpus_manifest(
             app, greek_only, app.catalog, "digest-greek"
         )
-        latin_manifest = appmod._build_corpus_manifest(
+        latin_manifest = manifestmod._build_corpus_manifest(
             app, latin_only, app.catalog, "digest-latin"
         )
         manifest_paths = []
@@ -162,13 +163,17 @@ class TestSplitBuildMatchesCombinedBuild:
             path.write_text(json.dumps(manifest))
             manifest_paths.append(path)
 
-        _, urn_index = appmod._merge_manifests(manifest_paths)
+        _, urn_index = manifestmod._merge_manifests(manifest_paths)
 
         assert urn_index == baseline_index
         # Sanity check it's non-trivial, not two empty dicts matching by accident.
         assert urn_index == {
-            "urn:cts:greekLit:tlg0001.tlg001": {"grc": "/greekLit:tlg0001.tlg001.perseus-grc2"},
-            "urn:cts:latinLit:phi1017.phi007": {"lat": "/latinLit:phi1017.phi007.perseus-lat2"},
+            "urn:cts:greekLit:tlg0001.tlg001": {
+                "grc": "/greekLit:tlg0001.tlg001.perseus-grc2"
+            },
+            "urn:cts:latinLit:phi1017.phi007": {
+                "lat": "/latinLit:phi1017.phi007.perseus-lat2"
+            },
         }
 
     def test_manifest_href_resolves_to_the_real_reading_view_route(
@@ -180,16 +185,13 @@ class TestSplitBuildMatchesCombinedBuild:
         _, greek_only, _ = combined_and_split_proto_dirs
         app = app_with_no_real_corpora
 
-        manifest = appmod._build_corpus_manifest(
+        manifest = manifestmod._build_corpus_manifest(
             app, greek_only, app.catalog, "digest-greek"
         )
         version = manifest["collections"][0]["textgroups"][0]["works"][0]["versions"][0]
 
         assert "first_chunk_kwargs" not in version
-        assert (
-            version["href"]
-            == "/urn:cts:greekLit:tlg0001.tlg001.perseus-grc2:1/"
-        )
+        assert version["href"] == "/urn:cts:greekLit:tlg0001.tlg001.perseus-grc2:1/"
 
 
 class TestCrossRepoNamespaceOverlap:
@@ -222,18 +224,20 @@ class TestCrossRepoNamespaceOverlap:
         first1k.mkdir()
         # Different repos, same namespace, different textgroups — exactly
         # the canonical-greekLit / First1KGreek situation.
-        _write_version(canonical_greek, "greekLit", "tlg0001", "tlg001", "perseus-grc2", "grc")
+        _write_version(
+            canonical_greek, "greekLit", "tlg0001", "tlg001", "perseus-grc2", "grc"
+        )
         _write_version(first1k, "greekLit", "ggm0001", "ggm001", "1st1K-grc1", "grc")
 
-        m1 = appmod._build_corpus_manifest(app, canonical_greek, app.catalog, "d1")
-        m2 = appmod._build_corpus_manifest(app, first1k, app.catalog, "d2")
+        m1 = manifestmod._build_corpus_manifest(app, canonical_greek, app.catalog, "d1")
+        m2 = manifestmod._build_corpus_manifest(app, first1k, app.catalog, "d2")
         paths = []
         for name, manifest in [("m1", m1), ("m2", m2)]:
             path = tmp_path / f"{name}.json"
             path.write_text(json.dumps(manifest))
             paths.append(path)
 
-        collections, urn_index = appmod._merge_manifests(paths)
+        collections, urn_index = manifestmod._merge_manifests(paths)
 
         # One "greekLit" entry, not two — with both textgroups combined.
         assert len(collections) == 1
@@ -255,10 +259,12 @@ class TestCrossRepoNamespaceOverlap:
         # A "latinLit" build whose proto tree also contains one stray
         # document under "greekLit" — alphabetically first, which is
         # exactly what made collections[0] pick the wrong one.
-        _write_version(mixed, "greekLit", "viaf2603144", "viaf001", "perseus-eng1", "eng")
+        _write_version(
+            mixed, "greekLit", "viaf2603144", "viaf001", "perseus-eng1", "eng"
+        )
         _write_version(mixed, "latinLit", "phi1017", "phi007", "perseus-lat2", "lat")
 
-        manifest = appmod._build_corpus_manifest(app, mixed, app.catalog, "d1")
+        manifest = manifestmod._build_corpus_manifest(app, mixed, app.catalog, "d1")
 
         ids = {corpus["id"] for corpus in manifest["collections"]}
         assert ids == {"greekLit", "latinLit"}, (
@@ -270,7 +276,7 @@ class TestCrossRepoNamespaceOverlap:
 class TestMergeManifestsSchemaVersion:
     def test_rejects_mismatched_schema_version(self, tmp_path):
         bad_manifest = {
-            "schema_version": appmod._MANIFEST_SCHEMA_VERSION + 1,
+            "schema_version": manifestmod._MANIFEST_SCHEMA_VERSION + 1,
             "collections": [],
             "urn_index": {},
         }
@@ -278,7 +284,7 @@ class TestMergeManifestsSchemaVersion:
         path.write_text(json.dumps(bad_manifest))
 
         with pytest.raises(ValueError, match="schema_version"):
-            appmod._merge_manifests([path])
+            manifestmod._merge_manifests([path])
 
 
 # ---------------------------------------------------------------------------
@@ -288,24 +294,24 @@ class TestMergeManifestsSchemaVersion:
 
 class TestParseBuildArgs:
     def test_defaults_to_full_mode(self):
-        args = appmod._parse_build_args([])
+        args = buildmod._parse_build_args([])
         assert args.mode == "full"
         assert args.manifest == []
         assert args.source_digest == ""
 
     def test_corpus_only_accepts_source_digest(self):
-        args = appmod._parse_build_args(
+        args = buildmod._parse_build_args(
             ["--mode", "corpus-only", "--source-digest", "abc123"]
         )
         assert args.mode == "corpus-only"
         assert args.source_digest == "abc123"
 
     def test_global_only_accepts_repeated_manifest_flag(self):
-        args = appmod._parse_build_args(
+        args = buildmod._parse_build_args(
             ["--mode", "global-only", "--manifest", "a.json", "--manifest", "b.json"]
         )
         assert args.manifest == ["a.json", "b.json"]
 
     def test_global_only_without_manifest_is_rejected(self):
         with pytest.raises(SystemExit):
-            appmod._parse_build_args(["--mode", "global-only"])
+            buildmod._parse_build_args(["--mode", "global-only"])

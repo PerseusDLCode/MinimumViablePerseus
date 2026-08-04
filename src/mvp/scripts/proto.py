@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
 
-from mvp.site.app import _discover_corpora, generate_proto_pages
+from mvp.site.catalog_tree import _discover_corpora
+from mvp.site.proto_pages import generate_proto_pages
 
 
 def main() -> None:

@@ -1,7 +1,7 @@
 # tests/test_sibling_focus_url.py
 #
 # Regression test for the sibling "focus" link in reading.html.jinja
-# (see _build_sibling_data / _focus_url in mvp.site.app).
+# (see _build_sibling_data / _focus_url in mvp.site.siblings).
 #
 # _build_sibling_data may resolve a sibling version's chunk from a
 # citeStructure *scheme* subdirectory, to match the granularity the base
@@ -25,7 +25,10 @@ import pytest
 from perseus_cts.models import CTSVersion
 
 from mvp.site import app as appmod
-from mvp.site.app import _Chunk, _chunk_end_line, _chunk_start_line
+from mvp.site import chunks as chunksmod
+from mvp.site import config
+from mvp.site import siblings as siblingsmod
+from mvp.site.chunks import _Chunk, _chunk_end_line, _chunk_start_line
 
 
 CORPUS, TEXTGROUP, WORK = "greekLit", "tlg0011", "tlg001"
@@ -66,7 +69,9 @@ def _write_index(dir_: Path, urn_by_file: dict[str, str]) -> dict[Path, str]:
     under their own directory) and a filename-only key would collide.
     """
     dir_.mkdir(parents=True, exist_ok=True)
-    chunks = [{"cts_urn": urn, "file": filename} for filename, urn in urn_by_file.items()]
+    chunks = [
+        {"cts_urn": urn, "file": filename} for filename, urn in urn_by_file.items()
+    ]
     (dir_ / "index.json").write_text(json.dumps({"chunks": chunks}))
     urn_by_path = {}
     for filename, urn in urn_by_file.items():
@@ -101,7 +106,7 @@ def _install_fake_parse_chunk(monkeypatch, urn_by_path: dict[Path, str]) -> None
         }
         return chunk, pub_info
 
-    monkeypatch.setattr(appmod, "_parse_chunk", fake_parse_chunk)
+    monkeypatch.setattr(chunksmod, "_parse_chunk", fake_parse_chunk)
 
 
 _CTS_XML = f"""<ti:work xmlns:ti="http://chs.harvard.edu/xmlns/cts"
@@ -128,10 +133,10 @@ def app(tmp_path, monkeypatch):
     care about proto-page-tree-driven reading-view routes, not the
     __cts__.xml-derived catalog (a _FakeCatalog is passed in directly
     where a catalog is needed)."""
-    monkeypatch.setattr(appmod, "CORPORA_DIR", tmp_path / "empty-corpora")
+    monkeypatch.setattr(config, "CORPORA_DIR", tmp_path / "empty-corpora")
     proto_dir = tmp_path / "proto"
     proto_dir.mkdir()
-    monkeypatch.setattr(appmod, "PROTO_DIR", proto_dir)
+    monkeypatch.setattr(config, "PROTO_DIR", proto_dir)
     return appmod.create_app()
 
 
@@ -145,10 +150,10 @@ def app_with_real_catalog(tmp_path, monkeypatch):
     corpora_dir = tmp_path / "corpora"
     (corpora_dir / "fixture-corpus").mkdir(parents=True)
     (corpora_dir / "fixture-corpus" / "__cts__.xml").write_text(_CTS_XML)
-    monkeypatch.setattr(appmod, "CORPORA_DIR", corpora_dir)
+    monkeypatch.setattr(config, "CORPORA_DIR", corpora_dir)
     proto_dir = tmp_path / "proto"
     proto_dir.mkdir()
-    monkeypatch.setattr(appmod, "PROTO_DIR", proto_dir)
+    monkeypatch.setattr(config, "PROTO_DIR", proto_dir)
     return appmod.create_app()
 
 
@@ -219,7 +224,7 @@ class TestBuildSiblingDataFocusUrl:
         current_end = _chunk_end_line(urns["base_urn"])
 
         with app.test_request_context():
-            sibling_data = appmod._build_sibling_data(
+            sibling_data = siblingsmod._build_sibling_data(
                 CORPUS,
                 TEXTGROUP,
                 WORK,
@@ -234,7 +239,10 @@ class TestBuildSiblingDataFocusUrl:
 
         [(sib, sib_chunk, focus_url)] = sibling_data["translation_chunks"]
         assert sib_chunk.cts_urn == urns["sib_scheme_urn"]
-        assert focus_url == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}/{SCHEME}:94/"
+        assert (
+            focus_url
+            == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}/{SCHEME}:94/"
+        )
 
     def test_focus_url_omits_scheme_when_sibling_has_no_matching_scheme_dir(
         self, app, tmp_path, monkeypatch
@@ -278,7 +286,7 @@ class TestBuildSiblingDataFocusUrl:
         current_end = _chunk_end_line(base_urn)
 
         with app.test_request_context():
-            sibling_data = appmod._build_sibling_data(
+            sibling_data = siblingsmod._build_sibling_data(
                 CORPUS,
                 TEXTGROUP,
                 WORK,
@@ -293,7 +301,9 @@ class TestBuildSiblingDataFocusUrl:
 
         [(sib, sib_chunk, focus_url)] = sibling_data["translation_chunks"]
         assert sib_chunk.cts_urn == sib_urn
-        assert focus_url == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:94-140/"
+        assert (
+            focus_url == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:94-140/"
+        )
 
 
 class TestReadingViewFocusLinkResolves:
@@ -315,7 +325,9 @@ class TestReadingViewFocusLinkResolves:
         assert resp.status_code == 200
         html = resp.get_data(as_text=True)
 
-        expected_focus_href = f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}/{SCHEME}:94/"
+        expected_focus_href = (
+            f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}/{SCHEME}:94/"
+        )
         assert f'href="{expected_focus_href}"' in html
 
         # The pre-fix bare-URN link would have pointed here instead, which

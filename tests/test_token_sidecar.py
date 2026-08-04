@@ -16,9 +16,13 @@ import json
 import pytest
 import zstandard
 
-from mvp.site import app as appmod
+from mvp.site import chunks as chunksmod
+from mvp.site import config
 
-TOKENS_PAYLOAD = {"urn": "urn:cts:latinLit:phi1017.phi007.perseus-lat2:57", "tokens": [{"text": "foo"}]}
+TOKENS_PAYLOAD = {
+    "urn": "urn:cts:latinLit:phi1017.phi007.perseus-lat2:57",
+    "tokens": [{"text": "foo"}],
+}
 
 
 def _zst(payload: dict) -> bytes:
@@ -31,55 +35,52 @@ def _zst(payload: dict) -> bytes:
 def proto_dir(tmp_path, monkeypatch):
     d = tmp_path / "proto-pages" / "latinLit" / "phi1017" / "phi007" / "perseus-lat2"
     d.mkdir(parents=True)
-    monkeypatch.setattr(appmod, "PROTO_DIR", tmp_path / "proto-pages")
+    monkeypatch.setattr(config, "PROTO_DIR", tmp_path / "proto-pages")
     return d
 
 
 class TestNoSidecar:
-
     def test_returns_none_when_nothing_exists(self, proto_dir, monkeypatch):
-        monkeypatch.setattr(appmod, "TOKENS_DIR", None)
+        monkeypatch.setattr(config, "TOKENS_DIR", None)
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
-        assert appmod._load_token_sidecar(chunk) is None
+        assert chunksmod._load_token_sidecar(chunk) is None
 
 
 class TestCoLocatedSidecar:
-
     def test_reads_compressed_co_located_sidecar(self, proto_dir, monkeypatch):
-        monkeypatch.setattr(appmod, "TOKENS_DIR", None)
+        monkeypatch.setattr(config, "TOKENS_DIR", None)
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
         (proto_dir / "57.tokens.json.zst").write_bytes(_zst(TOKENS_PAYLOAD))
 
-        result = appmod._load_token_sidecar(chunk)
+        result = chunksmod._load_token_sidecar(chunk)
         assert result == TOKENS_PAYLOAD
 
     def test_reads_legacy_uncompressed_sidecar(self, proto_dir, monkeypatch):
-        monkeypatch.setattr(appmod, "TOKENS_DIR", None)
+        monkeypatch.setattr(config, "TOKENS_DIR", None)
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
         (proto_dir / "57.tokens.json").write_text(json.dumps(TOKENS_PAYLOAD))
 
-        result = appmod._load_token_sidecar(chunk)
+        result = chunksmod._load_token_sidecar(chunk)
         assert result == TOKENS_PAYLOAD
 
 
 class TestExternalTokensDir:
-
     def test_reads_from_tokens_dir_mirroring_proto_dir_layout(
         self, tmp_path, proto_dir, monkeypatch
     ):
         tokens_dir = tmp_path / "tokens"
         rel = tokens_dir / "latinLit" / "phi1017" / "phi007" / "perseus-lat2"
         rel.mkdir(parents=True)
-        monkeypatch.setattr(appmod, "TOKENS_DIR", tokens_dir)
+        monkeypatch.setattr(config, "TOKENS_DIR", tokens_dir)
 
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
         (rel / "57.tokens.json.zst").write_bytes(_zst(TOKENS_PAYLOAD))
 
-        result = appmod._load_token_sidecar(chunk)
+        result = chunksmod._load_token_sidecar(chunk)
         assert result == TOKENS_PAYLOAD
 
     def test_tokens_dir_takes_priority_over_co_located(
@@ -88,7 +89,7 @@ class TestExternalTokensDir:
         tokens_dir = tmp_path / "tokens"
         rel = tokens_dir / "latinLit" / "phi1017" / "phi007" / "perseus-lat2"
         rel.mkdir(parents=True)
-        monkeypatch.setattr(appmod, "TOKENS_DIR", tokens_dir)
+        monkeypatch.setattr(config, "TOKENS_DIR", tokens_dir)
 
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
@@ -99,7 +100,7 @@ class TestExternalTokensDir:
             _zst({"urn": "from-co-located", "tokens": []})
         )
 
-        result = appmod._load_token_sidecar(chunk)
+        result = chunksmod._load_token_sidecar(chunk)
         assert result["urn"] == "from-tokens-dir"
 
     def test_falls_back_to_co_located_when_missing_from_tokens_dir(
@@ -107,13 +108,13 @@ class TestExternalTokensDir:
     ):
         tokens_dir = tmp_path / "tokens"
         tokens_dir.mkdir()
-        monkeypatch.setattr(appmod, "TOKENS_DIR", tokens_dir)
+        monkeypatch.setattr(config, "TOKENS_DIR", tokens_dir)
 
         chunk = proto_dir / "57.xml"
         chunk.write_text("<x/>")
         (proto_dir / "57.tokens.json.zst").write_bytes(_zst(TOKENS_PAYLOAD))
 
-        result = appmod._load_token_sidecar(chunk)
+        result = chunksmod._load_token_sidecar(chunk)
         assert result == TOKENS_PAYLOAD
 
     def test_does_not_raise_when_chunk_outside_proto_dir(self, tmp_path, monkeypatch):
@@ -121,12 +122,12 @@ class TestExternalTokensDir:
         must not blow up computing the TOKENS_DIR candidate."""
         tokens_dir = tmp_path / "tokens"
         tokens_dir.mkdir()
-        monkeypatch.setattr(appmod, "TOKENS_DIR", tokens_dir)
-        monkeypatch.setattr(appmod, "PROTO_DIR", tmp_path / "elsewhere")
+        monkeypatch.setattr(config, "TOKENS_DIR", tokens_dir)
+        monkeypatch.setattr(config, "PROTO_DIR", tmp_path / "elsewhere")
 
         outside = tmp_path / "somewhere-else"
         outside.mkdir()
         chunk = outside / "57.xml"
         chunk.write_text("<x/>")
 
-        assert appmod._load_token_sidecar(chunk) is None
+        assert chunksmod._load_token_sidecar(chunk) is None
