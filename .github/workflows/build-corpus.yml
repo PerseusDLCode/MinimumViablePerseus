@@ -153,7 +153,7 @@ jobs:
 
       - name: Install oras
         if: steps.gate.outputs.run == 'true'
-        uses: oras-project/setup-oras@v1
+        uses: oras-project/setup-oras@v2
 
       - name: Skip if this corpus's SHA is already built
         if: steps.gate.outputs.run == 'true'
