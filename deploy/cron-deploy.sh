@@ -52,6 +52,10 @@ ENV_FILE="${ENV_FILE:-$(dirname "$0")/.env}"
 
 REGISTRY="${REGISTRY:-ghcr.io/perseusdlcode}"
 CORPORA="${CORPORA:-greeklit latinlit first1kgreek}"
+# Which alias of the corpus/global artifacts to pull — main's builds tag
+# `latest` (production), dev's tag `staging` (see build-corpus.yml /
+# build-global.yml). Staging hosts set TAG=staging.
+TAG="${TAG:-latest}"
 ORAS_BIN="${ORAS_BIN:-oras}"
 export BUILD_DIR="${BUILD_DIR:-./build}"
 STATE_DIR="${STATE_DIR:-./state}"
@@ -116,10 +120,10 @@ ARTIFACT_NAMES=()
 ARTIFACT_REFS=()
 for corpus in $CORPORA; do
   ARTIFACT_NAMES+=("$corpus")
-  ARTIFACT_REFS+=("${REGISTRY}/mvp-corpus-${corpus}:latest")
+  ARTIFACT_REFS+=("${REGISTRY}/mvp-corpus-${corpus}:${TAG}")
 done
 ARTIFACT_NAMES+=("global")
-ARTIFACT_REFS+=("${REGISTRY}/mvp-global:latest")
+ARTIFACT_REFS+=("${REGISTRY}/mvp-global:${TAG}")
 
 CHANGED=0
 declare -A NEW_DIGEST
@@ -160,7 +164,7 @@ PULL_TMP="$(mktemp -d)"
 trap 'rm -rf "$PULL_TMP"' EXIT
 
 for corpus in $CORPORA; do
-  ref="${REGISTRY}/mvp-corpus-${corpus}:latest"
+  ref="${REGISTRY}/mvp-corpus-${corpus}:${TAG}"
   log "Pulling ${ref}..."
   "$ORAS_BIN" pull "$ref" -o "${PULL_TMP}/${corpus}"
   tar --zstd -xf "${PULL_TMP}/${corpus}/pages.tar.zst" -C "$INACTIVE_DIR"
@@ -172,8 +176,8 @@ for corpus in $CORPORA; do
   rm -rf "${PULL_TMP:?}/${corpus}"
 done
 
-log "Pulling ${REGISTRY}/mvp-global:latest..."
-"$ORAS_BIN" pull "${REGISTRY}/mvp-global:latest" -o "${PULL_TMP}/global"
+log "Pulling ${REGISTRY}/mvp-global:${TAG}..."
+"$ORAS_BIN" pull "${REGISTRY}/mvp-global:${TAG}" -o "${PULL_TMP}/global"
 tar --zstd -xf "${PULL_TMP}/global/global.tar.zst" -C "$INACTIVE_DIR"
 rm -rf "${PULL_TMP:?}/global"
 

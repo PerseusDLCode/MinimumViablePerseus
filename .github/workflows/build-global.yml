@@ -11,7 +11,7 @@ on:
   workflow_run:
     workflows: ["Build corpus artifacts"]
     types: [completed]
-    branches: [dev]
+    branches: [dev, main]
 
 permissions:
   contents: read
@@ -25,9 +25,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # ---------------------------------------------------------- #
+      # Mirrors build-corpus.yml's main->latest (production) /
+      # dev->staging alias split. For a workflow_run trigger, the
+      # branch that matters is the *upstream* build-corpus run's
+      # branch (head_branch), not this workflow's own ref; for a
+      # manual workflow_dispatch, fall back to whichever branch was
+      # selected to run it from (github.ref_name).
+      # ---------------------------------------------------------- #
+      - name: Determine triggering branch and artifact alias
+        id: ctx
+        run: |
+          BRANCH="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}"
+          if [ "$BRANCH" = "main" ]; then ALIAS=latest; else ALIAS=staging; fi
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "alias=${ALIAS}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v7
         with:
-          ref: dev
+          ref: ${{ steps.ctx.outputs.branch }}
 
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -57,7 +73,7 @@ jobs:
             # matrix.tag_name comment) — ${name,,} lowercases here since this
             # loop, unlike the matrix, has no separate tag_name to reach for.
             tag_name="${name,,}"
-            oras pull "ghcr.io/perseusdlcode/mvp-corpus-${tag_name}-manifest:latest" \
+            oras pull "ghcr.io/perseusdlcode/mvp-corpus-${tag_name}-manifest:${{ steps.ctx.outputs.alias }}" \
               -o "manifests/${name}"
             args="${args} --manifest manifests/${name}/manifest.json"
           done
@@ -79,4 +95,4 @@ jobs:
           tar --zstd -cf global.tar.zst -C build .
           oras push "ghcr.io/perseusdlcode/mvp-global:${{ steps.digest.outputs.digest }}" \
             global.tar.zst:application/vnd.perseus.mvp.pages
-          oras tag "ghcr.io/perseusdlcode/mvp-global:${{ steps.digest.outputs.digest }}" latest
+          oras tag "ghcr.io/perseusdlcode/mvp-global:${{ steps.digest.outputs.digest }}" "${{ steps.ctx.outputs.alias }}"

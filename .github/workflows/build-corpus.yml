@@ -25,7 +25,7 @@ on:
         type: boolean
         default: false
   push:
-    branches: [dev]
+    branches: [dev, main]
     paths:
       - Dockerfile.corpus
       - src/**
@@ -73,6 +73,10 @@ jobs:
   build:
     needs: fetch-pdlrefwk
     runs-on: ubuntu-latest
+    # Selects the GitHub Environment matching the triggering branch (dev or
+    # main), so ${{ vars.MORPH_URL }} below resolves to that environment's
+    # own MORPH_URL variable instead of a single repo-wide value.
+    environment: ${{ github.ref_name }}
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -117,7 +121,7 @@ jobs:
       - uses: actions/checkout@v7
         if: steps.gate.outputs.run == 'true'
         with:
-          ref: dev
+          ref: ${{ github.ref_name }}
 
       - name: Download shared canonical-pdlrefwk artifact
         if: steps.gate.outputs.run == 'true'
@@ -252,11 +256,25 @@ jobs:
         run: |
           oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}" \
             pages.tar.zst:application/vnd.perseus.mvp.pages
-          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}" latest
 
       - name: Push manifest artifact
         if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
         run: |
           oras push "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}-manifest:${{ steps.sha.outputs.corpus }}" \
             manifest.json:application/vnd.perseus.mvp.manifest+json
-          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}-manifest:${{ steps.sha.outputs.corpus }}" latest
+
+      # ---------------------------------------------------------- #
+      # Point this branch's alias (main -> latest = production,
+      # dev -> staging) at the corpus-SHA-tagged artifact. Runs
+      # whenever the SHA-tagged artifact exists in GHCR — whether it
+      # was just pushed above, or already existed from the other
+      # branch resolving the same corpus SHA (see the "Skip if
+      # already built" step) — so a skipped build still moves this
+      # branch's alias forward instead of leaving it stale.
+      # ---------------------------------------------------------- #
+      - name: Tag pages/manifest artifacts with this branch's alias
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          ALIAS="${{ github.ref_name == 'main' && 'latest' || 'staging' }}"
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}:${{ steps.sha.outputs.corpus }}" "$ALIAS"
+          oras tag "ghcr.io/perseusdlcode/mvp-corpus-${{ matrix.tag_name }}-manifest:${{ steps.sha.outputs.corpus }}" "$ALIAS"
