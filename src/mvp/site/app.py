@@ -136,7 +136,7 @@ def create_app(
 
     @app.get("/about/")
     def get_about():
-        return _render_markdown_page(config.ABOUT_MARKDOWN, "Grants")
+        return _render_markdown_page(config.ABOUT_MARKDOWN, "About")
 
     @app.get("/grants/")
     def get_grants():
@@ -144,11 +144,15 @@ def create_app(
 
     @app.get("/help/")
     def get_help():
-        return _render_markdown_page(config.HELP_MARKDOWN, "Grants")
+        return _render_markdown_page(config.HELP_MARKDOWN, "Help")
+
+    @app.get("/history/")
+    def get_history():
+        return _render_markdown_page(config.HISTORY_MARKDOWN, "History")
 
     @app.get("/open-source/")
     def get_open_source():
-        return _render_markdown_page(config.OPEN_SOURCE_MARKDOWN, "Grants")
+        return _render_markdown_page(config.OPEN_SOURCE_MARKDOWN, "Open Source")
 
     @app.get("/research/")
     def get_research():

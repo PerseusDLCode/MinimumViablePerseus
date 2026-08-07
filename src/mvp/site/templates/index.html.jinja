@@ -11,11 +11,58 @@
 {% block content %}
 <main class="p-8">
     <section class="mx-auto text-center">
-        <h1 class="text-xl font-bold">Welcome to Perseus (Parcus)</h1>
+        <h1 class="text-xl font-bold">Welcome to Perseus</h1>
         <p class="text-md">A statically compiled reading environment of the Perseus digital library</p>
         <p>
-            Read more on the <a href="#" class="link">Perseus version history</a>.
+            Read more on the <a href="{{ url_for("get_history") }}" class="link">Perseus version history</a>.
         </p>
+    </section>
+
+    <section class="flex my-4 mx-auto justify-center">
+        {% with card = {
+            "image_src": url_for("static", filename="images/homer-bust.jpg"),
+            "image_alt": "Homer at the British Museum 2024. Photograph by Mike Peel (www.mikepeel.net)., CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons",
+            "title": "Homer",
+            "subtitle": "The <em>Iliad</em>",
+            "read_url": url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg001", version="perseus-eng3"),
+            "attribution": '<a href="https://commons.wikimedia.org/wiki/File:Homer_At_the_British_Museum_2024_(3x4_cropped).jpg">Photo © Mike Peel (www.mikepeel.net).</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons',
+        } %}
+            {%- include 'components/Card.html.jinja' -%}
+        {% endwith %}
+
+        {% with card = {
+            "image_src": url_for("static", filename="images/plato-bust.jpg"),
+            "image_alt": "Plato Silanion Musei Capitolini © Marie-Lan Nguyen / Wikimedia Commons",
+            "title": "Plato",
+            "subtitle": "<em>Republic</em>",
+            "read_url": url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2"),
+            "attribution": '<a href="https://commons.wikimedia.org/wiki/File:Plato_Silanion_Musei_Capitolini_MC1377.jpg">Photo</a> © Marie-Lan Nguyen&nbsp;/&nbsp;<a href="/wiki/Main_Page" title="Main Page">Wikimedia Commons</a>',
+        } %}
+            {%- include 'components/Card.html.jinja' -%}
+        {% endwith %}
+
+        {% with card = {
+            "image_src": url_for("static", filename="images/caesar-bello-gallico.jpg"),
+            "image_alt": "Editio princeps of Caesar's De Bello Gallico. Public Domain",
+            "title": "Caesar",
+            "subtitle": "<em>De Bello Gallico</em>",
+            "read_url": url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2"),
+            "attribution": 'Image by <a title="Caesar, unbekannter Illustrator, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Caesar_bsb_beck.jpg">Wikimedia</a>. Public domain.',
+        } %}
+            {%- include 'components/Card.html.jinja' -%}
+        {% endwith %}
+
+
+        {% with card = {
+            "image_src": url_for("static", filename="images/horace-medallion.jpg"),
+            "image_alt": "Bronze medallion depicting Horace, 4th–5th century",
+            "title": "Horace",
+            "subtitle": "<em>Odes</em>",
+            "read_url": url_for("get_first_chunk", corpus="latinLit", textgroup="phi0893", work="phi001", version="perseus-eng2"),
+            "attribution": 'Image by <a title="Horace, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Caesar_bsb_beck.jpg">Wikimedia</a>. Public domain.',
+        } %}
+            {%- include 'components/Card.html.jinja' -%}
+        {% endwith %}
     </section>
 
 {% with markdown_content = news_markdown %}

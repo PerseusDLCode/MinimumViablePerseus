@@ -1,0 +1,15 @@
+<div class="card bg-base-100 w-48 shadow-sm mx-4">
+    <figure class="h-48 w-full overflow-hidden">
+        <img class="h-full w-full object-cover" src="{{ card.image_src }}" alt="{{ card.image_alt }}" />
+    </figure>
+    <div class="card-body h-60">
+        <h2 class="card-title line-clamp-1">{{ card.title }}</h2>
+        <p class="line-clamp-1">{{ card.subtitle | safe }}</p>
+        <div class="card-actions">
+            <a href="{{ card.read_url }}" class="btn btn-primary">Read Now</a>
+        </div>
+        <small class="line-clamp-3 mt-auto">
+            {{ card.attribution | safe }}
+        </small>
+    </div>
+</div>
