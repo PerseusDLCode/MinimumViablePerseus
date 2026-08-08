@@ -36,6 +36,12 @@ PROTO_DIR = Path(os.getenv("PROTOPAGE_OUTPUT_DIR", ROOT_DIR / "proto-pages"))
 # token-level data.
 _tokens_dir_env = os.getenv("MVP_TOKENS_DIR")
 TOKENS_DIR = Path(_tokens_dir_env) if _tokens_dir_env else None
+# New Alexandria Commentaries (see src/tools/fetch_new_alexandria.py and
+# mvp.site.new_alexandria) are fetched separately from the main build, same
+# reasoning as TOKENS_DIR above. Unset by default — reading views render
+# fine without them.
+_new_alexandria_dir_env = os.getenv("NEW_ALEXANDRIA_DIR")
+NEW_ALEXANDRIA_DIR = Path(_new_alexandria_dir_env) if _new_alexandria_dir_env else None
 # Proto-page compilation and page freezing are both CPU-bound and
 # embarrassingly parallel (independent per document / per URL), so both
 # phases of `mvp-build` fan out across this many worker processes. Defaults

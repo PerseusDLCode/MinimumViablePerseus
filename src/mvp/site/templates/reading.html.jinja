@@ -55,7 +55,7 @@
         </div>
 
         <!-- Base text -->
-        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto overscroll-contain will-change-transform" data-lang="{{ chunk.language }}">
+        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto will-change-transform" data-lang="{{ chunk.language }}">
             {% if scheme_links %}
                 <div class="flex gap-2 mb-2 text-xs">
                     <span>View:</span>
@@ -102,6 +102,36 @@
 
         <!-- Paratexts / Editions / Translations -->
         <div class="text-xs w-2/5 sticky top-0 self-start max-h-screen overflow-y-auto overscroll-contain will-change-transform">
+            <!-- New Alexandria Commentaries -->
+            {% if new_alexandria_groups %}
+                <div class="mb-4">
+                    <div class="bg-neutral-400 p-4">
+                        <h4 class="font-bold">New Alexandria Commentaries</h4>
+                    </div>
+
+                    {% for group in new_alexandria_groups %}
+                        <details class="bg-neutral-300">
+                            <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
+                            <div class="p-4">
+                                {% for entry in group.entries %}
+                                    <div class="my-2">
+                                        {% if entry.section %}
+                                            <p class="font-bold">{{ entry.section }}</p>
+                                        {% endif %}
+                                        <div class="prose prose-sm max-w-none">
+                                            {{ entry.body_html }}
+                                        </div>
+                                        {% if entry.source_url %}
+                                            <a href="{{ entry.source_url }}" class="link" target="_blank" rel="noopener">source</a>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% if sibling_data and sibling_data.current_version %}
                 <!-- Current version -->
                 <div class="mb-4">

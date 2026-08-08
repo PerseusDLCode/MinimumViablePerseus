@@ -70,8 +70,39 @@ jobs:
           path: canonical-pdlrefwk
           retention-days: 1
 
+  # Fetches New Alexandria Commentaries (curated Markdown from three
+  # opencommentaries.org repos, see src/tools/fetch_new_alexandria.py)
+  # exactly once and shares it with all three matrix legs below, for the
+  # same reason as fetch-pdlrefwk above — only the greekLit leg actually
+  # renders a passage any of these commentaries cover, but every leg
+  # would otherwise redundantly hit GitHub for the same ~15 files.
+  fetch-new-alexandria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install project
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --no-dev
+
+      - name: Fetch New Alexandria Commentaries
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run python src/tools/fetch_new_alexandria.py --out-dir new-alexandria
+
+      - name: Upload as a shared artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: new-alexandria
+          path: new-alexandria
+          retention-days: 1
+
   build:
-    needs: fetch-pdlrefwk
+    needs: [fetch-pdlrefwk, fetch-new-alexandria]
     runs-on: ubuntu-latest
     # Selects the GitHub Environment matching the triggering branch (dev or
     # main), so ${{ vars.MORPH_URL }} below resolves to that environment's
@@ -129,6 +160,13 @@ jobs:
         with:
           name: canonical-pdlrefwk
           path: canonical-pdlrefwk
+
+      - name: Download shared New Alexandria Commentaries artifact
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: new-alexandria
+          path: new-alexandria
 
       # ---------------------------------------------------------- #
       # Resolve this corpus's HEAD SHA — doubles as the Docker
@@ -235,6 +273,7 @@ jobs:
             -e MORPH_URL="${{ vars.MORPH_URL }}" \
             -v "$PWD/out:/app/build" \
             -v "$PWD/tokens:/app/tokens:ro" \
+            -v "$PWD/new-alexandria:/app/new-alexandria:ro" \
             mvp-corpus-builder:${{ matrix.name }} \
             --source-digest "${{ steps.sha.outputs.corpus }}"
 

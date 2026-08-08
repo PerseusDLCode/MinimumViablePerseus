@@ -17,6 +17,7 @@ from mvp.site.catalog_tree import (
 )
 from mvp.site.chunks import _chunk_citation_range, _chunk_end_line, _chunk_start_line
 from mvp.site.commentary import _build_commentary_groups
+from mvp.site.new_alexandria import build_new_alexandria_index
 from mvp.site.proto_pages import generate_proto_pages
 from mvp.site.siblings import _build_sibling_data, _reading_view_url
 from mvp.site.toc import _scheme_toggle_links, _toc_from_metadata
@@ -67,6 +68,9 @@ def create_app(
 
     catalog = CTSCatalog([c.root for c in corpora])
     app.catalog = catalog  # ty: ignore[unresolved-attribute]
+    app.new_alexandria = build_new_alexandria_index(  # ty: ignore[unresolved-attribute]
+        config.NEW_ALEXANDRIA_DIR
+    )
 
     @app.get("/urn-index.json")
     def urn_index():
@@ -328,10 +332,12 @@ def create_app(
             scheme=scheme,
         )
 
-        commentary = links_for_passage(
-            catalog, work_base_urn, _chunk_citation_range(chunk_obj)
-        )
+        citation_range = _chunk_citation_range(chunk_obj)
+        commentary = links_for_passage(catalog, work_base_urn, citation_range)
         commentary_groups = _build_commentary_groups(commentary)
+        new_alexandria_groups = app.new_alexandria.entries_for_passage(
+            work_base_urn, citation_range
+        )
         work_title = _work_title(catalog, work_base_urn, fallback=f"{textgroup}.{work}")
 
         return (
@@ -342,6 +348,7 @@ def create_app(
                 work_title=work_title,
                 commentary_groups=commentary_groups,
                 commentary_warnings=commentary.warnings,
+                new_alexandria_groups=new_alexandria_groups,
                 citation_uri=f"http://catalog.perseus.org/citations/{chunk_obj.cts_urn}",
                 current_urn=urn,
                 document_id=f"{textgroup}.{work}.{version}",

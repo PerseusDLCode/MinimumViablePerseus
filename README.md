@@ -69,6 +69,26 @@ sidecar tree via `MVP_TOKENS_DIR` (mirroring `PROTOPAGE_OUTPUT_DIR`'s
 `corpus/textgroup/work/version` layout); if unset, or a given chunk has no sidecar
 there, the reading view still renders — just without token-level markup.
 
+## New Alexandria Commentaries
+
+New Alexandria Commentaries are curated, attributed Markdown commentaries
+pulled from three [opencommentaries.org](https://opencommentaries.org) GitHub
+repos (Pausanias, Homer, Pindar) and shown in a dedicated panel at the top of
+the reading view's sidebar. Unlike the site's other corpora, they're fetched
+directly from those repos rather than checked into a `corpora/` clone, since
+the source Markdown changes frequently. Fetch a local copy with
+
+```sh
+uv run python src/tools/fetch_new_alexandria.py --out-dir ./new-alexandria
+```
+
+then point `mvp-dev`/`mvp-build` at it via `NEW_ALEXANDRIA_DIR`. Like
+`MVP_TOKENS_DIR` above, this is optional — if unset, the reading view renders
+fine without the panel. Re-run the fetch script any time to pick up newly
+added entries; see `src/mvp/site/new_alexandria.py` for the parsing/matching
+logic and `.github/workflows/build-corpus.yml`'s `fetch-new-alexandria` job
+for how a deployed build fetches it once and shares it across corpora.
+
 ## Building the static site for deployment
 
 The static site can be built by running
