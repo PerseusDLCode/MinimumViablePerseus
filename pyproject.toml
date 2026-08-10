@@ -43,7 +43,7 @@ packages = ["src/mvp"]
 [tool.uv.sources]
 citation-resolution = {git = "https://github.com/PerseusDLCode/citation-resolution", rev = "d28f14e160cc2f12ae832abe47925f40ede0af95"}
 kodon-py = {git="https://github.com/PerseusDLCode/kodon-py", rev = "b925cf4cb7254e641ab50075dbb1048fc9bc5cfc"}
-perseus-cts = { git = "https://github.com/PerseusDLCode/perseus-cts.git", rev = "0c8ef0cfd3ec748f9274460fd12208aff1c5f8db" }
+perseus-cts = { git = "https://github.com/PerseusDLCode/perseus-cts.git", rev = "32e5f033064393e98eed29eb392d4aad8c876ba9" }
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
