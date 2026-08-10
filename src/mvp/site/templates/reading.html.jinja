@@ -21,9 +21,43 @@
 {% block content %}
     {% set notes = namespace(items=[]) %}
 
-    <main class="flex pt-4 w-full items-start">
-        <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page -->
-        <div class="text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex flex-col will-change-transform">
+    <main class="pt-4 w-full flex flex-col lg:flex-row lg:items-start">
+        <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
+        main content. Hidden at lg+, where the static sidebar below takes over. -->
+        <div class="dropdown w-full lg:hidden mb-4">
+            <div tabindex="0" role="button" class="btn btn-block bg-neutral-400 text-base-content justify-between font-bold">
+                Table of Contents
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full bg-neutral-400 p-4 shadow text-xs">
+                <h3 class="font-bold">Search the Perseus Catalog for:</h3>
+                <ul class="mb-4">
+                    <li>
+                        <a href="//catalog.perseus.org/catalog/{{ work_urn }}" class="link">
+                            Editions/Translations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//catalog.perseus.org/catalog/{{ textgroup_urn }}" class="link">
+                            Author Group
+                        </a>
+                    </li>
+                </ul>
+
+                <iframe
+                    src="{{ nav_fragment_url }}#{{ current_urn }}"
+                    title="Table of Contents"
+                    loading="lazy"
+                    class="w-full h-96 border-0 bg-neutral-300"
+                ></iframe>
+            </div>
+        </div>
+
+        <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
+        Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
+        <div class="hidden lg:flex text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex-col will-change-transform">
             <div class="bg-neutral-400 p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -55,7 +89,7 @@
         </div>
 
         <!-- Base text -->
-        <article class="w-2/5 mx-4 text-sm sticky top-0 self-start max-h-screen overflow-y-auto will-change-transform" data-lang="{{ chunk.language }}">
+        <article class="w-full lg:w-2/5 lg:mx-4 text-sm lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto will-change-transform" data-lang="{{ chunk.language }}">
             {% if scheme_links %}
                 <div class="flex gap-2 mb-2 text-xs">
                     <span>View:</span>
@@ -101,7 +135,7 @@
         </article>
 
         <!-- Paratexts / Editions / Translations -->
-        <div class="text-xs w-2/5 sticky top-0 self-start max-h-screen overflow-y-auto overscroll-contain will-change-transform">
+        <div class="text-xs w-full lg:w-2/5 mt-8 lg:mt-0 lg:sticky lg:top-0 lg:self-start lg:max-h-screen overflow-y-auto overscroll-contain will-change-transform">
 
 
             {% if sibling_data and sibling_data.current_version %}
