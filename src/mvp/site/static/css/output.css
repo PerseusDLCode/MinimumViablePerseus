@@ -2685,6 +2685,9 @@
   .flex-wrap {
     flex-wrap: wrap;
   }
+  .items-center {
+    align-items: center;
+  }
   .items-start {
     align-items: flex-start;
   }
@@ -3192,6 +3195,21 @@
           grid-auto-flow: row dense;
         }
       }
+    }
+  }
+  .sm\:flex-col {
+    @media (width >= 40rem) {
+      flex-direction: column;
+    }
+  }
+  .sm\:flex-row {
+    @media (width >= 40rem) {
+      flex-direction: row;
+    }
+  }
+  .sm\:flex-wrap {
+    @media (width >= 40rem) {
+      flex-wrap: wrap;
     }
   }
   .lg\:flex {
