@@ -1,3 +1,0 @@
-#!/bin/bash
-rsync -avz \
-  /Users/pnadel01/desktop/MinimumViablePerseus/build pnadel01@10.250.224.77:~/
