@@ -1,6 +1,8 @@
 {% if text_container.n %}
-{%- set id = text_container.unit + "-" + text_container.get("n", "") -%}<span id="{{ id }}" data-n="{{ text_container.get("n", "") }}" data-unit="{{ text_container.unit }}" class="tei-milestone text-neutral-500 text-xs" title="{{ text_container.unit|default("") }} {{ text_container.n }}"> {{ text_container.n }}</span>
+    {%- set id = text_container.unit + "-" + text_container.get("n", "") -%}<span id="{{ id }}" data-n="{{ text_container.get("n", "") }}" data-unit="{{ text_container.unit }}" class="tei-milestone text-neutral-500 text-xs" title="{{ text_container.unit|default("") }} {{ text_container.n }}"> {{ text_container.n }}</span>
 {% endif %}
+
 {% if text_container.unit == "para" %}
-<span class="indent-8 inline-block">&nbsp;</span>
+    <br />
+    <span class="indent-8 inline-block">&nbsp;</span>
 {% endif %}
