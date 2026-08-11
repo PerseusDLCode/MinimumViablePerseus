@@ -18,56 +18,101 @@
         </p>
     </section>
 
-    <section class="flex flex-col sm:flex-row sm:flex-wrap my-4 mx-auto items-center justify-center gap-4">
-        {% with card = {
-            "image_src": url_for("static", filename="images/homer-bust.jpg"),
-            "image_alt": "Homer at the British Museum 2024. Photograph by Mike Peel (www.mikepeel.net)., CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons",
-            "title": "Homer",
-            "subtitle": "The <em>Iliad</em>",
-            "read_url": url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg001", version="perseus-eng3"),
-            "attribution": '<a href="https://commons.wikimedia.org/wiki/File:Homer_At_the_British_Museum_2024_(3x4_cropped).jpg">Photo © Mike Peel (www.mikepeel.net).</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons',
-        } %}
-            {%- include 'components/Card.html.jinja' -%}
-        {% endwith %}
+    <div class="grid gap-4 lg:grid-cols-3">
+        <section class="prose">
+            {% with markdown_content = news_markdown %}
+                {% include 'components/MarkdownContainer.html.jinja' %}
+            {% endwith %}
+        </section>
 
-        {% with card = {
-            "image_src": url_for("static", filename="images/plato-bust.jpg"),
-            "image_alt": "Plato Silanion Musei Capitolini © Marie-Lan Nguyen / Wikimedia Commons",
-            "title": "Plato",
-            "subtitle": "<em>Republic</em>",
-            "read_url": url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2"),
-            "attribution": '<a href="https://commons.wikimedia.org/wiki/File:Plato_Silanion_Musei_Capitolini_MC1377.jpg">Photo</a> © Marie-Lan Nguyen&nbsp;/&nbsp;<a href="/wiki/Main_Page" title="Main Page">Wikimedia Commons</a>',
-        } %}
-            {%- include 'components/Card.html.jinja' -%}
-        {% endwith %}
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <h2 class="col-span-1 lg:col-span-2 my-4 text-xl font-bold">Perseus Art & Archaeology</h2>
 
-        {% with card = {
-            "image_src": url_for("static", filename="images/caesar-bello-gallico.jpg"),
-            "image_alt": "Editio princeps of Caesar's De Bello Gallico. Public Domain",
-            "title": "Caesar",
-            "subtitle": "<em>De Bello Gallico</em>",
-            "read_url": url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2"),
-            "attribution": 'Image by <a title="Caesar, unbekannter Illustrator, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Caesar_bsb_beck.jpg">Wikimedia</a>. Public domain.',
-        } %}
-            {%- include 'components/Card.html.jinja' -%}
-        {% endwith %}
+            <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
+                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_5573.html#i1992070563" title="View on Perseus Art & Archaeology">
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Name vase of the Orpheus Painter, Berlin V. I. 3172" src="//iiif.perseus.tufts.edu/iiif/3/1992.07.0563/full/max/0/default.jpg" />
+                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <p>Name vase of the Orpheus Painter, Berlin V. I. 3172</p>
+                    </div>
+                </a>
+            </div>
+            <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
+                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_954.html#i1997030009" title="View on Perseus Art & Archaeology">
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Coin with bust of Nero, Boston 1997.93" src="//iiif.perseus.tufts.edu/iiif/3/1997.03.0009/full/max/0/default.jpg" />
+                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <p>Coin with bust of Nero, Boston 1997.93</p>
+                    </div>
+                </a>
+            </div>
+            <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
+                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_163.html#i1989010041" title="View on Perseus Art & Archaeology">
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Tholos at Delphi" src="//iiif.perseus.tufts.edu/iiif/3/1989.01.0041/full/max/0/default.jpg" />
+                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <p>Tholos at Delphi</p>
+                    </div>
+                </a>
+            </div>
+            <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
+                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_2634.html#i1997990211" title="View on Perseus Art & Archaeology">
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Roman copy of Nemesis Rhamnous" src="//iiif.perseus.tufts.edu/iiif/3/1997.99.0211/full/max/0/default.jpg" />
+                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <p>Marble statue of Nemesis Rhamnous (Roman copy), photograph by Amy C. Smith</p>
+                    </div>
+                </a>
+            </div>
+
+        </section>
+        <section class="my-4 mx-auto">
+            <h2 class="text-lg font-bold">Popular Texts</h2>
+            <ul role="list" class="list-disc">
+
+                <li>
+                    Caesar, <em>Gallic War</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-lat2") }}")>Latin</a>)
+                </li>
+
+                <li>
+                    Catullus, <em>Carmina</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-eng3") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-lat2") }}")>Latin</a>)
+                </li>
+
+                <li>
+                    Cicero, <em>In Catilinam</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-eng2") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-lat2") }}")>Latin</a>)
+                </li>
+
+                <li>
+                    Vergil, <em>Aeneid</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-eng2") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-lat2") }}")>Latin</a>)
+                </li>
+
+                <li>
+                    Homer,
+                    <em>Odyssey</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-eng4") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-grc2") }}">Greek</a>)
+                </li>
 
 
-        {% with card = {
-            "image_src": url_for("static", filename="images/horace-medallion.jpg"),
-            "image_alt": "Bronze medallion depicting Horace, 4th–5th century",
-            "title": "Horace",
-            "subtitle": "<em>Odes</em>",
-            "read_url": url_for("get_first_chunk", corpus="latinLit", textgroup="phi0893", work="phi001", version="perseus-eng2"),
-            "attribution": 'Image by <a title="Horace, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Caesar_bsb_beck.jpg">Wikimedia</a>. Public domain.',
-        } %}
-            {%- include 'components/Card.html.jinja' -%}
-        {% endwith %}
-    </section>
+                <li>
+                    Herodotus,
+                    <em>Histories</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-eng2") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-grc2") }}">Greek</a>)
+                </li>
 
-{% with markdown_content = news_markdown %}
-    {% include 'components/MarkdownContainer.html.jinja' %}
-{% endwith %}
+
+                <li>
+                    Plato,
+                    <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2") }}">English</a>,
+                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-grc2") }}">Greek</a>)
+                </li>
+            </ul>
+        </section>
+    </div>
+
+
 </main>
 
 <footer class="footer sm:footer-horizontal bg-neutral-300 p-4 text-neutral-800">
