@@ -2881,9 +2881,6 @@
   .text-center {
     text-align: center;
   }
-  .indent-4 {
-    text-indent: calc(var(--spacing) * 4);
-  }
   .indent-8 {
     text-indent: calc(var(--spacing) * 8);
   }
