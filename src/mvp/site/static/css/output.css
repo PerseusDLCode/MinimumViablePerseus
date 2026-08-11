@@ -2836,9 +2836,6 @@
   .bg-neutral-400 {
     background-color: var(--color-neutral-400);
   }
-  .bg-neutral-500 {
-    background-color: var(--color-neutral-500);
-  }
   .bg-warning {
     background-color: var(--color-warning);
   }
@@ -2863,14 +2860,8 @@
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
   }
-  .px-8 {
-    padding-inline: calc(var(--spacing) * 8);
-  }
   .py-1\.5 {
     padding-block: calc(var(--spacing) * 1.5);
-  }
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
   }
   .py-4 {
     padding-block: calc(var(--spacing) * 4);
@@ -2935,8 +2926,11 @@
   .text-blue-700 {
     color: var(--color-blue-700);
   }
-  .text-neutral-200 {
-    color: var(--color-neutral-200);
+  .text-neutral-50 {
+    color: var(--color-neutral-50);
+  }
+  .text-neutral-100 {
+    color: var(--color-neutral-100);
   }
   .text-neutral-500 {
     color: var(--color-neutral-500);

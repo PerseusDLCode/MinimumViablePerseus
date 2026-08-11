@@ -15,21 +15,9 @@
             type="text/css"
         />
     </head>
-    <body class="bg-neutral-50 p-4 min-h-screen" data-theme="wireframe">
+    <body class="bg-neutral-50 min-h-screen" data-theme="wireframe">
         {% block header %}{% endblock %}
-<!--        <nav
-            class="bg-neutral-500 text-neutral-200 font-bold flex justify-between mb-4 px-8 py-2 text-sm"
-        >
-            <a href="{{ url_for('index') }}" class="hover:text-base-content">Home</a>
-            <a href="{{ url_for('get_collections') }}" class="hover:text-base-content">Collections/Texts</a>
-            <a href="https://catalog.perseus.org" class="hover:text-base-content">Perseus Catalog</a>
-            <a href="{{ url_for('get_research') }}" class="hover:text-base-content">Research</a>
-            <a href="{{ url_for('get_grants') }}" class="hover:text-base-content">Grants</a>
-            <a href="{{ url_for('get_open_source') }}" class="hover:text-base-content">Open Source</a>
-            <a href="{{ url_for('get_about') }}" class="hover:text-base-content">About</a>
-            <a href="{{ url_for('get_help') }}" class="hover:text-base-content">Help</a>
-        </nav> -->
-            <div class="navbar bg-neutral-500 text-neutral-200 font-bold">
+            <div class="navbar bg-neutral-400 text-neutral-50 font-bold">
                 <div class="navbar-start">
                     <div class="dropdown">
                         <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
