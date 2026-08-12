@@ -237,6 +237,19 @@ def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
     return tuple(key)
 
 
+
+# TEI's documented values for grouped lyric subdivisions (Guidelines §6.4,
+# "Grouped and Nested Structures"): a <div> wrapping a strophe/antistrophe/
+# epode restarts its own local n ("1", "2", ...) per metrical unit within a
+# scene, independent of the play's continuous line-citation scheme — e.g.
+# Sophocles' Electra has <div n="1" type="strophe"> right after <milestone
+# unit="card" n="121">, whose n="1" must NOT be read as line 1. Other typed
+# divs with n (e.g. an epirrhematic <div n="1168" type="dialogue">) do carry
+# real line numbers on the play's own scheme, so only this specific,
+# well-known set of restart-per-unit markers is excluded.
+_NON_CITATION_DIV_TYPES = {"strophe", "antistrophe", "epode", "mesode", "pnigos", "systema"}
+
+
 def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
     """Yield every element's own ``n`` citation value, recursively.
 
@@ -245,12 +258,19 @@ def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
     verse-line milestone scheme like Sophocles' commonly cites via bare
     ``<l n="...">`` (no ``type``), so ``urn`` stays None throughout and can't
     be used here. Structural wrapper elements (``div``, ``sp``, ``speaker``,
-    etc.) never carry their own ``n``, so reading ``n`` directly off each
-    element, whatever its tag, reliably picks out just the citable leaves.
+    etc.) usually don't carry their own ``n``, so reading ``n`` directly off
+    each element, whatever its tag, generally picks out just the citable
+    leaves — except for the lyric-subdivision divs in
+    ``_NON_CITATION_DIV_TYPES``, whose ``n`` is a same-shaped but unrelated
+    counter and must be skipped (their children are still recursed into, so
+    the actual cited lines inside a strophe/antistrophe are still yielded).
     """
     for element in elements:
         n = element.get("n")
-        if n:
+        if n and not (
+            element.get("tagname") == "div"
+            and element.get("type") in _NON_CITATION_DIV_TYPES
+        ):
             yield n
         yield from _iter_citation_values(element.get("children", []))
 

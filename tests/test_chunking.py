@@ -67,16 +67,27 @@ class TestChunkStartLine:
 # ---------------------------------------------------------------------------
 
 
-def _el(n: str | None = None, children: list[dict] | None = None) -> dict:
+def _el(
+    n: str | None = None,
+    children: list[dict] | None = None,
+    tagname: str | None = None,
+    type: str | None = None,
+) -> dict:
     """Build a TEIParser-shaped element dict (see kodon_py.tei_parser).
 
     Only elements carrying their own ``n`` (e.g. a bare ``<l n="49">``, with
     no ``type`` attribute) are citable leaves; wrapper elements like ``div``
     or ``sp`` have no ``n`` of their own here, matching real parsed output.
+    ``tagname``/``type`` let a test build a ``<div type="strophe" n="...">``
+    lyric-subdivision wrapper, which does carry its own (unrelated) ``n``.
     """
     el = {"children": children or []}
     if n is not None:
         el["n"] = n
+    if tagname is not None:
+        el["tagname"] = tagname
+    if type is not None:
+        el["type"] = type
     return el
 
 
@@ -127,6 +138,31 @@ class TestChunkCitationRange:
             ],
         )
         assert _chunk_citation_range(chunk) == "49-51"
+
+    def test_strophe_div_n_is_not_read_as_a_line_number(self):
+        """Regression test: a choral scene's <div type="strophe" n="1">
+        restarts its own local counter per metrical unit, independent of the
+        play's continuous line numbering (see Sophocles' Electra, whose
+        <div n="1" type="strophe"> immediately follows <milestone unit="card"
+        n="121">). That "1" must not be read as a citable line — it used to
+        win the min() comparison against the real lines (121, 122, ...),
+        corrupting the range to "1-122" and pulling in every commentary note
+        from the start of the play instead of just this scene's."""
+        chunk = _card_chunk(
+            f"{self.BASE}:121",
+            [
+                _el(
+                    tagname="div",
+                    type="strophe",
+                    n="1",
+                    children=[
+                        _el("121", tagname="l"),
+                        _el("122", tagname="l"),
+                    ],
+                ),
+            ],
+        )
+        assert _chunk_citation_range(chunk) == "121-122"
 
     def test_no_citable_elements_falls_back_to_cts_urn(self):
         chunk = _card_chunk(f"{self.BASE}:49", [_el(children=[_el()])])
