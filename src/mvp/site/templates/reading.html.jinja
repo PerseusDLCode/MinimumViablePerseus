@@ -47,7 +47,8 @@
                 </ul>
 
                 <iframe
-                    src="{{ nav_fragment_url }}#{{ current_urn }}"
+                    src="{{ nav_fragment_url }}"
+                    data-current-urn="{{ current_urn }}"
                     title="Table of Contents"
                     loading="lazy"
                     class="w-full h-96 border-0 bg-neutral-300"
@@ -77,12 +78,14 @@
             <!-- Table of contents lives in its own frozen page (one per
             work+scheme, shared across every chunk) and is embedded here
             rather than inlined, so its markup isn't duplicated into every
-            chunk page. The current chunk's urn is passed as a fragment so
-            the fragment page's `a:target` rule (and the browser's native
-            ancestor-<details>-expand-on-target behavior) can highlight and
-            reveal the current position without any JS. -->
+            chunk page. The current chunk's urn is passed via a data-
+            attribute (not a URL fragment) so the fragment page's own script
+            can open the right <details> and scroll its own document into
+            view without triggering a fragment-navigation scroll on the
+            outer page. -->
             <iframe
-                src="{{ nav_fragment_url }}#{{ current_urn }}"
+                src="{{ nav_fragment_url }}"
+                data-current-urn="{{ current_urn }}"
                 title="Table of Contents"
                 class="w-full flex-1 border-0 bg-neutral-400"
             ></iframe>

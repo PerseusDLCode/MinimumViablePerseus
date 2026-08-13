@@ -10,15 +10,6 @@
             rel="stylesheet"
             type="text/css"
         />
-        <style>
-            /* Replaces the old server-rendered .menu-active class: this
-               fragment is shared across every chunk of a work, so there's
-               no single "current" item at render time. */
-            a:target {
-                color: var(--menu-active-fg);
-                background-color: var(--menu-active-bg);
-            }
-        </style>
     </head>
     <body class="bg-neutral-400 text-xs p-4 overscroll-contain" data-theme="wireframe">
         <h3 class="font-bold">Table of Contents:</h3>
@@ -29,5 +20,6 @@
                 {% endwith %}
             {% endfor %}
         </ul>
+        <script src="{{ url_for('static', filename='js/navFragmentCurrent.js') }}"></script>
     </body>
 </html>

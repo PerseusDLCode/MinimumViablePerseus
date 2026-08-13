@@ -1715,9 +1715,6 @@
   .my-4 {
     margin-block: calc(var(--spacing) * 4);
   }
-  .my-auto {
-    margin-block: auto;
-  }
   .label {
     @layer daisyui.l1.l2.l3 {
       display: inline-flex;
@@ -2407,14 +2404,6 @@
   .mb-6 {
     margin-bottom: calc(var(--spacing) * 6);
   }
-  .carousel-item {
-    @layer daisyui.l1.l2.l3 {
-      box-sizing: content-box;
-      display: flex;
-      flex: none;
-      scroll-snap-align: start;
-    }
-  }
   .status {
     @layer daisyui.l1.l2.l3 {
       display: inline-block;
@@ -2518,20 +2507,6 @@
       flex-shrink: 0;
     }
   }
-  .carousel {
-    @layer daisyui.l1.l2.l3 {
-      display: inline-flex;
-      overflow-x: scroll;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      @media (prefers-reduced-motion: no-preference) {
-        scroll-behavior: smooth;
-      }
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-  }
   .card-actions {
     @layer daisyui.l1.l2.l3 {
       display: flex;
@@ -2548,18 +2523,6 @@
       font-size: var(--cardtitle-fs, 1.125rem);
       font-weight: 600;
     }
-  }
-  .line-clamp-1 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-  }
-  .line-clamp-3 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
   }
   .prose {
     :root & {
@@ -2690,12 +2653,6 @@
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
-  .h-48 {
-    height: calc(var(--spacing) * 48);
-  }
-  .h-60 {
-    height: calc(var(--spacing) * 60);
-  }
   .h-96 {
     height: calc(var(--spacing) * 96);
   }
@@ -2704,9 +2661,6 @@
   }
   .h-screen {
     height: 100vh;
-  }
-  .max-h-48 {
-    max-height: calc(var(--spacing) * 48);
   }
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
@@ -2731,14 +2685,8 @@
   .w-24 {
     width: calc(var(--spacing) * 24);
   }
-  .w-48 {
-    width: calc(var(--spacing) * 48);
-  }
   .w-52 {
     width: calc(var(--spacing) * 52);
-  }
-  .w-96 {
-    width: calc(var(--spacing) * 96);
   }
   .w-full {
     width: 100%;
@@ -2788,26 +2736,14 @@
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   .flex-col {
     flex-direction: column;
-  }
-  .flex-row {
-    flex-direction: row;
   }
   .flex-nowrap {
     flex-wrap: nowrap;
   }
   .flex-wrap {
     flex-wrap: wrap;
-  }
-  .items-center {
-    align-items: center;
   }
   .items-end {
     align-items: flex-end;
@@ -2817,12 +2753,6 @@
   }
   .justify-between {
     justify-content: space-between;
-  }
-  .justify-center {
-    justify-content: center;
-  }
-  .justify-start {
-    justify-content: flex-start;
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
@@ -2870,9 +2800,6 @@
   .overscroll-contain {
     overscroll-behavior: contain;
   }
-  .overscroll-x-contain {
-    overscroll-behavior-x: contain;
-  }
   .menu-sm {
     @layer daisyui.l1.l2 {
       :where(li:not(.menu-title) > *:not(ul, details, .menu-title)), :where(li:not(.menu-title) > details > summary:not(.menu-title)) {
@@ -2886,12 +2813,6 @@
         padding-block: calc(0.25rem * 2);
       }
     }
-  }
-  .rounded-box {
-    border-radius: var(--radius-box);
-  }
-  .rounded-box {
-    border-radius: var(--radius-box);
   }
   .rounded-b {
     border-bottom-right-radius: 0.25rem;
@@ -3137,12 +3058,6 @@
   .will-change-transform {
     will-change: transform;
   }
-  .btn-primary {
-    @layer daisyui.l1.l2.l3 {
-      --btn-color: var(--color-primary);
-      --btn-fg: var(--color-primary-content);
-    }
-  }
   .select-none {
     -webkit-user-select: none;
     user-select: none;
@@ -3151,32 +3066,6 @@
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
         opacity: 100%;
-      }
-    }
-  }
-  .hover\:image-full {
-    &:hover {
-      @media (hover: hover) {
-        @layer daisyui.l1.l2 {
-          display: grid;
-          > * {
-            grid-column-start: 1;
-            grid-row-start: 1;
-          }
-          > .card-body {
-            position: relative;
-            color: var(--color-neutral-content);
-          }
-          :where(figure) {
-            overflow: hidden;
-            border-radius: inherit;
-          }
-          > figure img {
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(28%);
-          }
-        }
       }
     }
   }
