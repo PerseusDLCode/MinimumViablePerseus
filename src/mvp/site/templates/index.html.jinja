@@ -65,7 +65,6 @@
         <section class="my-4 mx-auto">
             <h2 class="text-lg font-bold">Popular Texts</h2>
             <ul role="list" class="list-disc">
-
                 <li>
                     Caesar, <em>Gallic War</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2") }}">English</a>,
                     <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-lat2") }}")>Latin</a>)
@@ -107,6 +106,24 @@
                     Plato,
                     <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2") }}">English</a>,
                     <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-grc2") }}">Greek</a>)
+                </li>
+            </ul>
+
+            <h2 class="text-lg font-bold mt-4">Popular Commentaries</h2>
+            <ul role="list" class="list-disc">
+                <li>
+                    Allen & Greenough on Cicero's <em>In Catilinam</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="latinLit", textgroup="sec00009", work="sec005a", version="perseus-eng1") }}">English</a>)
+                </li>
+
+                <li>
+                    Jebb on Sophocles' <em>Oedipus at Colonus</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="greekLit", textgroup="viaf2603144", work="viaf001", version="perseus-eng1") }}">English</a>)
+                </li>
+
+                <li>
+                    Marchant on Thucydides Book 6 (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit",
+                    textgroup="viaf76387703", work="viaf003", version="perseus-eng1") }}">English</a>)
                 </li>
             </ul>
         </section>

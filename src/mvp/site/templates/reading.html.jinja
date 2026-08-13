@@ -280,7 +280,11 @@
 
                     {% for group in commentary_groups %}
                         <details class="bg-neutral-300">
-                            <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
+                            <summary class="p-4 cursor-pointer font-bold">
+                                {{ group.label }}
+                                ({{ group.description }})
+                                {% if group.focus_url %}<a href="{{ group.focus_url }}" class="link">focus</a>{% endif %}
+                            </summary>
                             <div class="p-4">
                                 {% with notes = namespace(items=[]) %}
                                 {% for entry in group.entries %}

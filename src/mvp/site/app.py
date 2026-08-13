@@ -334,7 +334,7 @@ def create_app(
 
         citation_range = _chunk_citation_range(chunk_obj)
         commentary = links_for_passage(catalog, work_base_urn, citation_range)
-        commentary_groups = _build_commentary_groups(commentary)
+        commentary_groups = _build_commentary_groups(commentary, catalog)
         new_alexandria_groups = app.new_alexandria.entries_for_passage(
             work_base_urn, citation_range
         )
