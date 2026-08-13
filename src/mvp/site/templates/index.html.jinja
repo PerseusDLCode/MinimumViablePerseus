@@ -30,7 +30,7 @@
 
             <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
                 <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_5573.html#i1992070563" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Name vase of the Orpheus Painter, Berlin V. I. 3172" src="//iiif.perseus.tufts.edu/iiif/3/1992.07.0563/full/max/0/default.jpg" />
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Name vase of the Orpheus Painter, Berlin V. I. 3172" src="{{ url_for("static", filename="images/berlin-krater.jpg") }}" />
                     <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                         <p>Name vase of the Orpheus Painter, Berlin V. I. 3172</p>
                     </div>
@@ -38,7 +38,7 @@
             </div>
             <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
                 <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_954.html#i1997030009" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Coin with bust of Nero, Boston 1997.93" src="//iiif.perseus.tufts.edu/iiif/3/1997.03.0009/full/max/0/default.jpg" />
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Coin with bust of Nero, Boston 1997.93" src="{{ url_for("static", filename="images/nero.jpg") }}" />
                     <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                         <p>Coin with bust of Nero, Boston 1997.93</p>
                     </div>
@@ -46,7 +46,7 @@
             </div>
             <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
                 <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_163.html#i1989010041" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Tholos at Delphi" src="//iiif.perseus.tufts.edu/iiif/3/1989.01.0041/full/max/0/default.jpg" />
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Tholos at Delphi" src="{{ url_for("static", filename="images/delphi.jpg") }}" />
                     <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                         <p>Tholos at Delphi</p>
                     </div>
@@ -54,7 +54,7 @@
             </div>
             <div class="card bg-base-50 w-full shadow-sm overflow-hidden">
                 <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_2634.html#i1997990211" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Roman copy of Nemesis Rhamnous" src="//iiif.perseus.tufts.edu/iiif/3/1997.99.0211/full/max/0/default.jpg" />
+                    <img class="absolute inset-0 h-full w-full object-cover" alt="Roman copy of Nemesis Rhamnous" src="{{ url_for("static", filename="images/nemesis.jpg") }}" />
                     <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                         <p>Marble statue of Nemesis Rhamnous (Roman copy), photograph by Amy C. Smith</p>
                     </div>
@@ -111,6 +111,11 @@
 
             <h2 class="text-lg font-bold mt-4">Popular Commentaries</h2>
             <ul role="list" class="list-disc">
+                <li>
+                    Adam on Plato's <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
+                    corpus="greekLit", textgroup="viaf107078652", work="viaf002", version="perseus-eng1") }}">English</a>)
+                </li>
+
                 <li>
                     Allen & Greenough on Cicero's <em>In Catilinam</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
                     corpus="latinLit", textgroup="sec00009", work="sec005a", version="perseus-eng1") }}">English</a>)
