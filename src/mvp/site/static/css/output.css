@@ -3209,6 +3209,9 @@
 .tei-milestone[data-unit="para"]::after {
   content: "\a\a";
 }
+.tei-lg > .tei-l {
+  text-indent: 4em;
+}
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=wireframe]:checked),[data-theme=wireframe] {
     color-scheme: light;
