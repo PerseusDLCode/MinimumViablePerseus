@@ -62,6 +62,14 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
             compilers.append((chunk_unit, Chunker(doc, chunk_unit=chunk_unit)))
             compiled_schemes.add(chunk_unit)
 
+        if not compilers:
+            # No declared or inferable citeStructure, so there's nothing to
+            # compile. Deliberately not writing a manifest here: doing so
+            # would make the skip-check above treat this document as
+            # permanently handled, silently masking the case where a corpus
+            # is later fixed to declare a citeStructure.
+            return "no-schema", str(xml_path)
+
         # unit -> scheme slug, shared across every scheme's own TOC so a
         # reader can jump directly to any other *hierarchically nested*
         # paginated level (e.g. chapter <-> section) from the left nav, not
@@ -111,7 +119,7 @@ def generate_proto_pages(
                 continue
             work.append(xml_path)
 
-    generated = skipped = failed = 0
+    generated = skipped = no_schema = failed = 0
     total = len(work)
     ctx = multiprocessing.get_context("fork")
     with ctx.Pool(config.BUILD_WORKERS) as pool:
@@ -123,10 +131,16 @@ def generate_proto_pages(
                 generated += 1
             elif status == "skipped":
                 skipped += 1
+            elif status == "no-schema":
+                no_schema += 1
+                print(f"  NO-SCHEMA: {error}")
             else:
                 failed += 1
                 print(f"  FAILED:    {error}")
             if i % 500 == 0 or i == total:
                 print(f"  proto-pages: {i}/{total} processed")
 
-    print(f"Proto-pages: {generated} generated, {skipped} skipped, {failed} failed.")
+    print(
+        f"Proto-pages: {generated} generated, {skipped} skipped, "
+        f"{no_schema} no-schema, {failed} failed."
+    )
