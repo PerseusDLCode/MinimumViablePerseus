@@ -236,34 +236,12 @@ jobs:
           cache-to: type=gha,mode=max,scope=corpus-${{ matrix.name }}
 
       # ---------------------------------------------------------- #
-      # Token sidecars (.tokens.json.zst) live in a separate repo/
-      # artifact from the corpus itself (see mvp-tokens-{tag_name},
-      # pushed by build-tokens.yml) — pulled here and unpacked to the
-      # host, then bind-mounted into the container read-only. Each
-      # sidecar is independently zstd-compressed (one file per chunk),
-      # so unpacking this tarball only costs its packed size (a few
-      # hundred MB–low GB); nothing gets bulk-decompressed until
-      # _load_token_sidecar reads one specific chunk's sidecar during
-      # the freeze itself. If no tokens artifact has been pushed yet
-      # for this corpus, this step is a no-op and the build proceeds
-      # without token-level rendering.
-      # ---------------------------------------------------------- #
-      - name: Pull token sidecars (optional — skipped if none pushed yet)
-        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
-        run: |
-          mkdir -p "$PWD/tokens"
-          TAG="ghcr.io/perseusdlcode/mvp-tokens-${{ matrix.tag_name }}:latest"
-          if oras manifest fetch "$TAG" >/dev/null 2>&1; then
-            oras pull "$TAG" -o "$PWD/tokens-pull"
-            tar --zstd -xf "$PWD/tokens-pull/tokens.tar.zst" -C "$PWD/tokens"
-          else
-            echo "No tokens artifact pushed yet for ${{ matrix.name }}; building without token-level rendering."
-          fi
-
-      # ---------------------------------------------------------- #
       # Run the freeze. manifest.json is written inside FREEZER_
       # DESTINATION (see build() in app.py), so the one bind mount
-      # below captures both the frozen pages and the manifest.
+      # below captures both the frozen pages and the manifest. Token
+      # sidecars are no longer bind-mounted here — they're checked into
+      # the repo under tokenized-pages/ and baked into the image by
+      # Dockerfile.corpus.
       # ---------------------------------------------------------- #
       - name: Run corpus-only build
         if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
@@ -272,7 +250,6 @@ jobs:
           docker run --rm \
             -e MORPH_URL="${{ vars.MORPH_URL }}" \
             -v "$PWD/out:/app/build" \
-            -v "$PWD/tokens:/app/tokens:ro" \
             -v "$PWD/new-alexandria:/app/new-alexandria:ro" \
             mvp-corpus-builder:${{ matrix.name }} \
             --source-digest "${{ steps.sha.outputs.corpus }}"

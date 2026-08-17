@@ -3,19 +3,31 @@
 
 For each chunk XML file under PROTO_DIR, this script sends the chunk's
 primary text to the NLP server's /tokenize endpoint and writes a
-companion .tokens.json.zst sidecar alongside the chunk XML: one file per
-chunk, individually zstd-compressed (not a single archive), so the sidecar
-tree can be pulled and consumed without ever materializing the full
-uncompressed set on disk — tokens.json is ~50x the size of its source
-chunk XML uncompressed (mostly null morphological fields), but compresses
-~30x with zstd, so per-file compression keeps both the packaged artifact
-and the read path cheap.
+companion .tokens.json.zst sidecar: one file per chunk, individually
+zstd-compressed (not a single archive), so the sidecar tree can be pulled
+and consumed without ever materializing the full uncompressed set on disk
+— tokens.json is ~50x the size of its source chunk XML uncompressed
+(mostly null morphological fields), but compresses ~30x with zstd, so
+per-file compression keeps both the packaged artifact and the read path
+cheap.
+
+By default, each sidecar is written into --tokens-dir (falling back to
+mvp.site.config.TOKENS_DIR, i.e. the MVP_TOKENS_DIR env var) at the same
+relative path the chunk occupies under --proto-dir, mirroring PROTO_DIR's
+corpus/textgroup/work/version layout — the tree checked into this repo
+under tokenized-pages/ and baked into Dockerfile.corpus, and the same
+layout mvp.site.chunks._load_token_sidecar reads from at render time. If
+neither is set, sidecars are written alongside the chunk XML instead (the
+old co-located layout, still supported for ad hoc local use).
 
 Usage:
-    python src/tools/run_tokenizer.py --proto-dir ./proto-pages --nlp-url http://localhost:8001
+    python src/tools/run_tokenizer.py --proto-dir ./proto-pages --tokens-dir ./tokenized-pages --nlp-url http://localhost:8001 --workers 2
 
-Re-running is safe: chunks whose .tokens.json.zst already exists are
-skipped unless --force is given.
+Chunks are tokenized concurrently across --workers threads (default 2) --
+each request is an independent network round-trip to the NLP server, so
+threading (rather than multiprocessing) is enough to overlap them despite
+the GIL. Re-running is safe: chunks whose .tokens.json.zst already exists
+are skipped unless --force is given.
 """
 
 from __future__ import annotations
@@ -26,6 +38,7 @@ import sys
 import unicodedata
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import zstandard
@@ -35,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 from kodon_py.tei_parser import TEIParser, TEIParserError
 from lxml import etree
 
+from mvp.site import config
 from mvp.site_map import token_sidecar_name
 
 _ZSTD_LEVEL = 19
@@ -94,6 +108,54 @@ def _iter_chunk_files(proto_dir: Path):
                 yield chunk_file
 
 
+class _AbortTokenization(Exception):
+    """Raised to stop the whole run when the NLP server itself is unreachable.
+
+    Distinguished from a single chunk failing to parse/tokenize (recorded as
+    a per-chunk failure and skipped) -- an unreachable server means every
+    remaining request would fail too, so the run should stop instead of
+    burning through the rest of the queue one URLError at a time.
+    """
+
+
+def _process_chunk(
+    chunk_file: Path, proto_dir: Path, tokens_dir: Path | None, nlp_url: str, force: bool
+) -> str:
+    """Tokenize one chunk and write its sidecar. Returns "generated", "skipped", or "failed".
+
+    A fresh ZstdCompressor is used per call rather than one shared across
+    calls: ZstdCompressor instances aren't safe for concurrent use from
+    multiple threads (see _process_chunk's callers, which run this via a
+    thread pool), and compressor construction is cheap relative to a
+    network round-trip to the NLP server.
+    """
+    if tokens_dir is not None:
+        rel_dir = chunk_file.parent.resolve().relative_to(proto_dir)
+        sidecar_dir = tokens_dir / rel_dir
+        sidecar_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        sidecar_dir = chunk_file.parent
+    sidecar = sidecar_dir / token_sidecar_name(chunk_file)
+    if sidecar.exists() and not force:
+        return "skipped"
+
+    try:
+        cts_urn, primary_text = _primary_text(chunk_file)
+        tokens = _tokenize(nlp_url, cts_urn, primary_text)
+    except urllib.error.URLError as exc:
+        raise _AbortTokenization(f"NLP server unreachable: {exc}") from exc
+    except (TEIParserError, Exception) as exc:
+        print(f"  FAILED: {chunk_file.name}: {exc}", file=sys.stderr)
+        return "failed"
+
+    payload = json.dumps({"urn": cts_urn, "tokens": tokens}, ensure_ascii=False).encode(
+        "utf-8"
+    )
+    compressor = zstandard.ZstdCompressor(level=_ZSTD_LEVEL)
+    sidecar.write_bytes(compressor.compress(payload))
+    return "generated"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tokenize compiled chunk XML files")
     parser.add_argument(
@@ -108,6 +170,22 @@ def main() -> None:
         help="Base URL of the NLP server (e.g. http://localhost:8001)",
     )
     parser.add_argument(
+        "--tokens-dir",
+        type=Path,
+        default=config.TOKENS_DIR,
+        help=(
+            "Root directory to write sidecars into, mirroring --proto-dir's "
+            "layout (default: mvp.site.config.TOKENS_DIR / MVP_TOKENS_DIR env "
+            "var). If unset, sidecars are written alongside each chunk XML."
+        ),
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=2,
+        help="Number of chunks to tokenize concurrently (default: 2)",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Re-tokenize even if .tokens.json.zst already exists",
@@ -115,28 +193,30 @@ def main() -> None:
     args = parser.parse_args()
 
     nlp_url = args.nlp_url.rstrip("/")
+    proto_dir = args.proto_dir.resolve()
     generated = skipped = failed = 0
-    compressor = zstandard.ZstdCompressor(level=_ZSTD_LEVEL)
 
-    for chunk_file in _iter_chunk_files(args.proto_dir):
-        sidecar = chunk_file.parent / token_sidecar_name(chunk_file)
-        if sidecar.exists() and not args.force:
-            skipped += 1
-            continue
+    chunk_files = list(_iter_chunk_files(args.proto_dir))
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {
+            executor.submit(
+                _process_chunk, chunk_file, proto_dir, args.tokens_dir, nlp_url, args.force
+            ): chunk_file
+            for chunk_file in chunk_files
+        }
         try:
-            cts_urn, primary_text = _primary_text(chunk_file)
-            tokens = _tokenize(nlp_url, cts_urn, primary_text)
-            payload = json.dumps(
-                {"urn": cts_urn, "tokens": tokens}, ensure_ascii=False
-            ).encode("utf-8")
-            sidecar.write_bytes(compressor.compress(payload))
-            generated += 1
-        except urllib.error.URLError as exc:
-            print(f"  ERROR (NLP server): {chunk_file.name}: {exc}", file=sys.stderr)
+            for future in as_completed(futures):
+                result = future.result()
+                if result == "generated":
+                    generated += 1
+                elif result == "skipped":
+                    skipped += 1
+                else:
+                    failed += 1
+        except _AbortTokenization as exc:
+            executor.shutdown(cancel_futures=True)
+            print(f"  ERROR (NLP server): {exc}", file=sys.stderr)
             sys.exit(1)
-        except (TEIParserError, Exception) as exc:
-            print(f"  FAILED: {chunk_file.name}: {exc}", file=sys.stderr)
-            failed += 1
 
     print(f"Tokens: {generated} generated, {skipped} skipped, {failed} failed.")
 

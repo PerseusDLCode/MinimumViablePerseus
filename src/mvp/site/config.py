@@ -43,7 +43,7 @@ TOKENS_DIR = Path(_tokens_dir_env) if _tokens_dir_env else None
 _new_alexandria_dir_env = os.getenv("NEW_ALEXANDRIA_DIR")
 NEW_ALEXANDRIA_DIR = Path(_new_alexandria_dir_env) if _new_alexandria_dir_env else None
 # Proto-page compilation and page freezing are both CPU-bound and
-# embarrassingly parallel (independent per document / per URL), so both
+# parallel (independent per document / per URL), so both
 # phases of `mvp-build` fan out across this many worker processes. Defaults
 # to all cores; set to 1 to force the old sequential behavior.
 BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))

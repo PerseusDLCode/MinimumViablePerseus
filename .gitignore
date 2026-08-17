@@ -246,3 +246,6 @@ new-alexandria/
 
 # AI support
 opencode.json
+
+# these will need to be stored separately
+tokenized-pages

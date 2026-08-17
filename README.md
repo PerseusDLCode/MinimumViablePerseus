@@ -45,29 +45,33 @@ Primary texts can be cited via CTS URN down to the token level. To enable this
 level of granularity, run, e.g.,
 
 ```sh
-uv run python src/tools/run_tokenizer.py --proto-dir ./proto-pages --nlp-url http://localhost:8000
+export MVP_TOKENS_DIR=./tokenized-pages
+uv run python src/tools/run_tokenizer.py --proto-dir ./proto-pages --nlp-url http://localhost:8000 --workers 2
 ```
 
 You will need to change `./proto-pages` and `http://localhost:8000` to your own
 proto-page directory and the URL where the running [nlp_pipeline](https://github.com/PerseusDLCode/nlp_pipeline)
 is reachable.
 
-This writes one `.tokens.json.zst` sidecar per compiled chunk, alongside its
-chunk XML, individually zstd-compressed (not bundled into one archive) —
+This writes one `.tokens.json.zst` sidecar per compiled chunk into
+`MVP_TOKENS_DIR` (or wherever `--tokens-dir` points, if passed explicitly),
+mirroring `--proto-dir`'s `corpus/textgroup/work/version` layout — each
+sidecar individually zstd-compressed (not bundled into one archive), since
 tokens.json runs to ~50x the size of its source chunk XML uncompressed, so a
 fully-tokenized corpus is tens of GB uncompressed but only a couple GB
 compressed. Per-file compression means the reading-view render path can
 decompress exactly the one sidecar it needs at a time (`_load_token_sidecar`
-in `src/mvp/site/app.py`) instead of ever materializing the whole tree on
-disk.
+in `src/mvp/site/chunks.py`) instead of ever materializing the whole tree on
+disk. If neither `--tokens-dir` nor `MVP_TOKENS_DIR` is set, sidecars are
+written alongside each chunk's XML instead.
 
-For a deployed build, sidecars aren't generated inline with `mvp-build` — they're
-generated and pushed separately (`.github/workflows/build-tokens.yml`) as their own
-OCI artifact per corpus, decoupled from that corpus's pages/manifest build
-(`.github/workflows/build-corpus.yml`). Point `mvp-build`/`mvp-dev` at an unpacked
-sidecar tree via `MVP_TOKENS_DIR` (mirroring `PROTOPAGE_OUTPUT_DIR`'s
-`corpus/textgroup/work/version` layout); if unset, or a given chunk has no sidecar
-there, the reading view still renders — just without token-level markup.
+Sidecars are checked into this repo under `tokenized-pages/` (mirroring
+`PROTOPAGE_OUTPUT_DIR`'s layout, as above) and baked into the corpus builder
+image by `Dockerfile.corpus`, rather than being generated or fetched by a
+GitHub workflow — regenerate them locally with the command above and commit
+the result. `mvp-build`/`mvp-dev` read whatever tree `MVP_TOKENS_DIR` points
+at; if unset, or a given chunk has no sidecar there, the reading view still
+renders — just without token-level markup.
 
 ## New Alexandria Commentaries
 
