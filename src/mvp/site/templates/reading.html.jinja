@@ -3,7 +3,7 @@
 {% block title %}{{ pub_info.author }}, {{ work_title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
 
 {% block header %}
-    <header class="hero mb-4">
+    <header class="hero p-4">
         <div class="text-base-content w-full">
             <div>
                 <h1 class="text-xl font-bold">
@@ -232,7 +232,7 @@
                         {% endif %}
                     </div>
                     {% for note in notes.items %}
-                        <div id="{{ note.id }}" class="bg-neutral-300 p-4 text-xs">
+                        <div id="{{ note.id }}" class="bg-neutral-300 px-4 py-1 text-xs">
                             <span class="font-bold">{{ note.number }}.</span>
                             {{ note.content }}
                         </div>
