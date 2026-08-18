@@ -58,7 +58,7 @@ COPY canonical-pdlrefwk/ "${CORPORA_DIR}/canonical-pdlrefwk/"
 # than bind-mounted at `docker run` time, since they now travel with the
 # rest of the build context instead of being pulled from a separate OCI
 # artifact.
-COPY tokenized-pages/ /app/tokens/
+# COPY tokenized-pages/ /app/tokens/
 
 WORKDIR /app
 
@@ -78,7 +78,7 @@ ENV PROTOPAGE_OUTPUT_DIR=/app/proto-pages
 # Matches the COPY above. MVP_TOKENS_DIR only needs to be set when a
 # sidecar tree actually exists there; the reading view renders fine
 # without it.
-ENV MVP_TOKENS_DIR=/app/tokens
+# ENV MVP_TOKENS_DIR=/app/tokens
 
 # New Alexandria Commentaries (see src/tools/fetch_new_alexandria.py) are
 # fetched once per workflow run and bind-mounted here at `docker run` time
