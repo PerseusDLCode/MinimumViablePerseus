@@ -237,7 +237,6 @@ def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
     return tuple(key)
 
 
-
 # TEI's documented values for grouped lyric subdivisions (Guidelines §6.4,
 # "Grouped and Nested Structures"): a <div> wrapping a strophe/antistrophe/
 # epode restarts its own local n ("1", "2", ...) per metrical unit within a
@@ -247,7 +246,15 @@ def _chunk_start_line(cts_urn: str) -> tuple[int, ...]:
 # divs with n (e.g. an epirrhematic <div n="1168" type="dialogue">) do carry
 # real line numbers on the play's own scheme, so only this specific,
 # well-known set of restart-per-unit markers is excluded.
-_NON_CITATION_DIV_TYPES = {"strophe", "antistrophe", "epode", "mesode", "pnigos", "systema"}
+_NON_CITATION_DIV_TYPES = {
+    "antistrophe",
+    "episode",
+    "epode",
+    "mesode",
+    "pnigos",
+    "strophe",
+    "systema",
+}
 
 
 def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
@@ -323,7 +330,6 @@ def _chunk_citation_range(chunk_obj: "_Chunk") -> str:
     values = list(_iter_citation_values(chunk_obj.elements))
     if not values:
         return cts_citation
-
     values = [_qualify_citation_value(v, cts_citation) for v in values]
     start = min(values, key=_chunk_start_line).split("-", 1)[0]
     end = max(values, key=_chunk_end_line).rsplit("-", 1)[-1]
