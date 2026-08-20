@@ -1,6 +1,15 @@
 {% extends "base.html.jinja" %}
 
-{% block title %}{{ pub_info.author }}, {{ work_title }}, {{ chunk.cts_urn.rsplit(':', 1)[-1] }}{% endblock %}
+{% block title %}
+    {% if pub_info.author %}
+        {{ pub_info.author }},
+    {% endif %}
+    {{ work_title }},
+    {% if pub_info.editors %}
+        {{ pub_info.editors }},
+    {% endif %}
+    {{ chunk.cts_urn.rsplit(':', 1)[-1] }}
+{% endblock %}
 
 {% block header %}
     <header class="hero p-4">
