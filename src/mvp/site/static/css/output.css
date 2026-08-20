@@ -2404,6 +2404,9 @@
   .mb-6 {
     margin-bottom: calc(var(--spacing) * 6);
   }
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
+  }
   .status {
     @layer daisyui.l1.l2.l3 {
       display: inline-block;
@@ -2691,6 +2694,12 @@
   .w-full {
     width: 100%;
   }
+  .max-w-3\/5 {
+    max-width: calc(3 / 5 * 100%);
+  }
+  .max-w-4\/5 {
+    max-width: calc(4 / 5 * 100%);
+  }
   .max-w-4xl {
     max-width: var(--container-4xl);
   }
@@ -2903,9 +2912,6 @@
   }
   .py-1\.5 {
     padding-block: calc(var(--spacing) * 1.5);
-  }
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
   }
   .py-4 {
     padding-block: calc(var(--spacing) * 4);

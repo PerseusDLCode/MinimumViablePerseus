@@ -62,7 +62,7 @@
             </div>
 
         </section>
-        <section class="my-4 mx-auto">
+        <section class="my-4 mx-auto ml-2">
             <h2 class="text-lg font-bold">Popular Texts</h2>
             <ul role="list" class="list-disc">
                 <li>
@@ -106,6 +106,11 @@
                     Plato,
                     <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2") }}">English</a>,
                     <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-grc2") }}">Greek</a>)
+                </li>
+
+                <li>
+                    Tom Martin,
+                    <em>Overview of Classical Greek History from Mycenae to Alexander</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="viaf108815313", work="viaf001", version="perseus-eng1") }}">English</a>)
                 </li>
             </ul>
 
