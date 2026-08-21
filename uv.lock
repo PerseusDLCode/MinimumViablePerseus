@@ -113,7 +113,7 @@ wheels = [
 [[package]]
 name = "citation-resolution"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/citation-resolution?rev=d28f14e160cc2f12ae832abe47925f40ede0af95#d28f14e160cc2f12ae832abe47925f40ede0af95" }
+source = { git = "https://github.com/PerseusDLCode/citation-resolution?rev=c8c6b421c49e1d75afadee58c4c0a46997ffe006#c8c6b421c49e1d75afadee58c4c0a46997ffe006" }
 dependencies = [
     { name = "lxml" },
     { name = "rdflib" },
@@ -675,14 +675,14 @@ morph = [
 
 [package.metadata]
 requires-dist = [
-    { name = "citation-resolution", git = "https://github.com/PerseusDLCode/citation-resolution?rev=d28f14e160cc2f12ae832abe47925f40ede0af95" },
+    { name = "citation-resolution", git = "https://github.com/PerseusDLCode/citation-resolution?rev=c8c6b421c49e1d75afadee58c4c0a46997ffe006" },
     { name = "fastapi", specifier = ">=0.136.1" },
     { name = "frozen-flask", specifier = ">=1.0.2" },
     { name = "kodon-py", git = "https://github.com/PerseusDLCode/kodon-py?rev=b925cf4cb7254e641ab50075dbb1048fc9bc5cfc" },
     { name = "lxml", specifier = ">=6.0.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },
     { name = "markdown", specifier = ">=3.10.2" },
-    { name = "perseus-cts", git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=3a5bda6060ae1f1061efea0f23a6d2b6872b3dfc" },
+    { name = "perseus-cts", git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=276d2327b0e2ef4a13df5b3aa3fe6bcb10e63077" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "saxonche", specifier = ">=12.9.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.46.0" },
@@ -786,7 +786,7 @@ wheels = [
 [[package]]
 name = "perseus-cts"
 version = "0.1.0"
-source = { git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=3a5bda6060ae1f1061efea0f23a6d2b6872b3dfc#3a5bda6060ae1f1061efea0f23a6d2b6872b3dfc" }
+source = { git = "https://github.com/PerseusDLCode/perseus-cts.git?rev=276d2327b0e2ef4a13df5b3aa3fe6bcb10e63077#276d2327b0e2ef4a13df5b3aa3fe6bcb10e63077" }
 dependencies = [
     { name = "lxml" },
     { name = "lxml-stubs" },

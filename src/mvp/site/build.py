@@ -159,6 +159,17 @@ def build():
                 }
 
     @freezer.register_generator
+    def get_chunk_index():
+        for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
+            if scheme is None:
+                yield {
+                    "corpus": corpus,
+                    "textgroup": textgroup,
+                    "work": work,
+                    "version": version,
+                }
+
+    @freezer.register_generator
     def get_first_scheme_chunk():
         for corpus, textgroup, work, version, scheme, _ in _iter_version_metadata():
             if scheme is not None:

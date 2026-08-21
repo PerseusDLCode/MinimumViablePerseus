@@ -7,6 +7,11 @@ from perseus_cts.commentary import links_for_passage
 from perseus_cts.models import CTSCatalog
 
 from mvp.site import chunks, config
+from mvp.site.abbreviations import (
+    _build_abbreviation_page_entries,
+    _build_citation_index,
+    _load_gazetteer,
+)
 from mvp.site.catalog_tree import (
     _build_collections,
     _build_urn_index,
@@ -80,6 +85,31 @@ def create_app(
             else _build_urn_index(config.PROTO_DIR)
         )
         return data, 200, {"Content-Type": "application/json"}
+
+    @app.get("/citation-index.json")
+    def citation_index():
+        data = (
+            urn_index_override
+            if urn_index_override is not None
+            else _build_urn_index(config.PROTO_DIR)
+        )
+        index = _build_citation_index(_load_gazetteer(), data, catalog)
+        return index, 200, {"Content-Type": "application/json"}
+
+    @app.get("/abbreviations/")
+    def get_abbreviations():
+        data = (
+            urn_index_override
+            if urn_index_override is not None
+            else _build_urn_index(config.PROTO_DIR)
+        )
+        index = _build_citation_index(_load_gazetteer(), data, catalog)
+        entries = _build_abbreviation_page_entries(index, data)
+        return (
+            render_template("abbreviations.html.jinja", entries=entries),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
 
     @app.get("/")
     def index():
@@ -161,6 +191,33 @@ def create_app(
     @app.get("/research/")
     def get_research():
         return _render_markdown_page(config.RESEARCH_MARKDOWN, "Research")
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        "/chunks.json"
+    )
+    def get_chunk_index(corpus, textgroup, work, version):
+        # This site is frozen to static files: a passage citation only
+        # resolves if some chunk's own cts_urn equals it exactly, and
+        # chunking granularity varies per work (a whole scene, a single
+        # line, a book.chapter.section leaf, ...). A citation typed by a
+        # reader (or parsed out of an abbreviation lookup) very often
+        # names a coarser passage than any single chunk -- e.g. "Thuc. 5.4"
+        # names a chapter, but Thucydides is chunked at the section level
+        # ("5.4.1", "5.4.2", ...). This endpoint ships just the sorted
+        # list of this version's chunk passages (no titles/filenames) so a
+        # client can find the right chunk to land on, the same way
+        # mvp.site.toc._find_chunk_for_line does server-side for internal
+        # navigation.
+        index_file = (
+            config.PROTO_DIR / corpus / textgroup / work / version / "index.json"
+        )
+        if not index_file.exists():
+            abort(404)
+        with open(index_file, encoding="utf-8") as f:
+            chunks = json.load(f).get("chunks") or []
+        passages = [c["cts_urn"].rsplit(":", 1)[-1] for c in chunks]
+        return passages, 200, {"Content-Type": "application/json"}
 
     def _redirect_to_first_chunk(corpus, textgroup, work, version, scheme, index_file):
         if not index_file.exists():

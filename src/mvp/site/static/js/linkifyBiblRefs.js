@@ -20,7 +20,7 @@ function linkifyBiblRefs(preferredLang) {
                 const prefix = versions[preferredLang] || Object.values(versions)[0];
                 if (!prefix) return;
 
-                el.href = prefix + ':' + passage + '/';
+                el.href = '/urn:cts:' + prefix.slice(1) + ':' + passage + '/';
             });
         });
 }
