@@ -267,19 +267,37 @@ def _iter_citation_values(elements: list[Any]) -> Iterator[str]:
     be used here. Structural wrapper elements (``div``, ``sp``, ``speaker``,
     etc.) usually don't carry their own ``n``, so reading ``n`` directly off
     each element, whatever its tag, generally picks out just the citable
-    leaves — except for the lyric-subdivision divs in
-    ``_NON_CITATION_DIV_TYPES``, whose ``n`` is a same-shaped but unrelated
-    counter and must be skipped (their children are still recursed into, so
-    the actual cited lines inside a strophe/antistrophe are still yielded).
+    leaves — with two exceptions:
+
+    - Lyric-subdivision divs in ``_NON_CITATION_DIV_TYPES`` (e.g. Sophocles'
+      Electra's <div n="1" type="strophe">) carry a same-shaped but unrelated
+      restart-per-unit counter, never a real citation, so their own ``n`` is
+      always skipped regardless of what their descendants yield.
+    - Any other div whose descendants themselves yield citation values is a
+      multi-line/multi-section *container*, not itself a single citable
+      point — e.g. every chunk in a book-and-line scheme is rooted directly
+      inside <div type="book" n="B">, and the same holds one level down for
+      a chapter div wrapping section divs. That div's own ``n`` is a
+      coarser, leading component the chunk's own citation already carries,
+      not a new leaf value; yielding it anyway would have
+      _qualify_citation_value misread it as a bare *trailing* line number
+      relative to the chunk's citation (book div n="1" qualified against
+      chunk citation "1.51" becomes "1.1"), which then wins the min() in
+      _chunk_citation_range and corrupts every chunk's computed start down
+      to the book's first line regardless of the chunk's actual content. So
+      a div's own ``n`` is only used as a fallback when it has no
+      citation-bearing descendants of its own (a genuine leaf-level div).
     """
     for element in elements:
+        child_values = list(_iter_citation_values(element.get("children", [])))
         n = element.get("n")
-        if n and not (
+        is_non_citation_div = (
             element.get("tagname") == "div"
             and element.get("type") in _NON_CITATION_DIV_TYPES
-        ):
+        )
+        if n and not is_non_citation_div and not child_values:
             yield n
-        yield from _iter_citation_values(element.get("children", []))
+        yield from child_values
 
 
 def _qualify_citation_value(value: str, cts_citation: str) -> str:
