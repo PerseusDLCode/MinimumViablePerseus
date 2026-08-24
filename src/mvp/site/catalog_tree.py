@@ -322,9 +322,13 @@ def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
 
 
 def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
+    """Deprecated. This lookup will often fail (e.g., for First1KGreek). Should we
+    instead have a static page of source repositories with instructions for finding
+    specific works therein?
+    """
     repo = config._CORPUS_REPO.get(corpus, f"canonical-{corpus}")
     filename = f"{textgroup}.{work}.{version}.xml"
     return (
-        f"https://raw.githubusercontent.com/PerseusDL/{repo}/master"
+        f"https://raw.githubusercontent.com/PerseusDLCode/{repo}/master"
         f"/data/{textgroup}/{work}/{filename}"
     )
