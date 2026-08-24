@@ -56,6 +56,9 @@ jobs:
           FIRST1K=$(git ls-remote \
             https://github.com/PerseusDLCode/First1KGreek \
             refs/heads/editing | cut -f1)
+          NDDLC=$(git ls-remote \
+            https://github.com/PerseusDLCode/Notre-Dame-Digitized-Latin-Collection \
+            refs/heads/main | cut -f1)
           PDLREFWK=$(git ls-remote \
             https://github.com/PerseusDLCode/canonical-pdlrefwk \
             refs/heads/dev | cut -f1)
@@ -63,6 +66,7 @@ jobs:
           echo "latin=${LATIN}" >> "$GITHUB_OUTPUT"
           echo "first1k=${FIRST1K}" >> "$GITHUB_OUTPUT"
           echo "pdlrefwk=${PDLREFWK}" >> "$GITHUB_OUTPUT"
+          echo "nddlc=${NDDLC}" >> "$GITHUB_OUTPUT"
 
       # ---------------------------------------------------------- #
       # 3. LOGIN TO GHCR
@@ -102,5 +106,6 @@ jobs:
             LATIN_CORPUS_SHA=${{ steps.corpus.outputs.latin }}
             FIRST_1K_GREEK_SHA=${{ steps.corpus.outputs.first1k }}
             PDLREFWK_SHA=${{ steps.corpus.outputs.pdlrefwk }}
+            NDDLC_SHA=${{ steps.corpus.outputs.nddlc }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
