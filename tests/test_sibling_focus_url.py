@@ -306,6 +306,111 @@ class TestBuildSiblingDataFocusUrl:
         )
 
 
+class TestBuildSiblingDataAboutUrn:
+    """A commentary's own <ti:about> urn (surfaced as _Chunk.about_urn from
+    metadata.json's document.about) should be used to find the work whose
+    editions/translations are shown as siblings, since a commentary has no
+    work family of its own to align against."""
+
+    def test_about_urn_overrides_base_urn_for_sibling_work_lookup(self):
+        seen_work_urns = []
+
+        class _RecordingCatalog:
+            def version_for(self, urn):
+                return None
+
+            def editions_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+            def translations_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+        commentary_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.commentary-version"
+        about_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}"
+
+        siblingsmod._build_sibling_data(
+            CORPUS,
+            TEXTGROUP,
+            "commentary-work",
+            "commentary-version",
+            "1",
+            (1,),
+            (1,),
+            _RecordingCatalog(),
+            base_urn=commentary_urn,
+            about_urn=about_urn,
+        )
+
+        assert seen_work_urns == [about_urn, about_urn]
+
+    def test_about_urn_with_citation_suffix_is_stripped_to_work_level(self):
+        seen_work_urns = []
+
+        class _RecordingCatalog:
+            def version_for(self, urn):
+                return None
+
+            def editions_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+            def translations_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+        work_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}"
+        about_urn = f"{work_urn}.{BASE_VERSION}:1.1-1.10"
+
+        siblingsmod._build_sibling_data(
+            CORPUS,
+            TEXTGROUP,
+            "commentary-work",
+            "commentary-version",
+            "1",
+            (1,),
+            (1,),
+            _RecordingCatalog(),
+            base_urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.commentary-version",
+            about_urn=about_urn,
+        )
+
+        assert seen_work_urns == [work_urn, work_urn]
+
+    def test_no_about_urn_falls_back_to_base_urn(self):
+        seen_work_urns = []
+
+        class _RecordingCatalog:
+            def version_for(self, urn):
+                return None
+
+            def editions_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+            def translations_of(self, work_urn):
+                seen_work_urns.append(work_urn)
+                return []
+
+        base_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}"
+
+        siblingsmod._build_sibling_data(
+            CORPUS,
+            TEXTGROUP,
+            WORK,
+            BASE_VERSION,
+            "1",
+            (1,),
+            (1,),
+            _RecordingCatalog(),
+            base_urn=base_urn,
+        )
+
+        expected = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}"
+        assert seen_work_urns == [expected, expected]
+
+
 class TestReadingViewFocusLinkResolves:
     """End-to-end: the rendered focus link must actually resolve, and must
     land on the scheme-aligned chunk rather than 404ing or resolving to the

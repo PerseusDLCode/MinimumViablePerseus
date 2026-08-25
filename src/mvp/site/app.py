@@ -69,10 +69,10 @@ def create_app(
 
     corpora = _discover_corpora(config.CORPORA_DIR)
 
-    generate_proto_pages(config.PROTO_DIR, corpora)
-
     catalog = CTSCatalog([c.root for c in corpora])
     app.catalog = catalog  # ty: ignore[unresolved-attribute]
+
+    generate_proto_pages(config.PROTO_DIR, corpora, catalog=catalog)
     app.new_alexandria = build_new_alexandria_index(  # ty: ignore[unresolved-attribute]
         config.NEW_ALEXANDRIA_DIR
     )
@@ -387,6 +387,7 @@ def create_app(
             catalog,
             base_urn,
             scheme=scheme,
+            about_urn=chunk_obj.about_urn,
         )
 
         citation_range = _chunk_citation_range(chunk_obj)

@@ -33,6 +33,7 @@ class _Chunk:
     base_urn: str
     language: str
     elements: list[Any]
+    about_urn: str | None = None
 
 
 def _format_editors(editors: list[dict]) -> str:
@@ -182,6 +183,7 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
         base_urn=cts_urn.rsplit(":", 1)[0],
         language=document.get("language", ""),
         elements=parser.elements,
+        about_urn=document.get("about"),
     )
     return chunk, pub_info
 

@@ -56,6 +56,23 @@ def _merge_sibling_chunks(chunks: list[_Chunk]) -> _Chunk:
     )
 
 
+def _work_urn_of(urn: str) -> str:
+    """Return the work-level urn (``group.work``) implied by a CTS urn.
+
+    Handles a plain version urn (``group.work.version``), a bare work urn
+    (``group.work``, as named by a commentary's ``<ti:about>``), and either
+    form with a trailing ``:citation`` range stripped first.
+    """
+    parts = urn.split(":")
+    if len(parts) == 5:  # urn:cts:namespace:workpart:citation
+        parts = parts[:4]
+    components = parts[-1].split(".")
+    if len(components) >= 3:
+        components = components[:2]
+    parts[-1] = ".".join(components)
+    return ":".join(parts)
+
+
 def _build_sibling_data(
     corpus: str,
     textgroup: str,
@@ -67,6 +84,7 @@ def _build_sibling_data(
     catalog: CTSCatalog,
     base_urn: str,
     scheme: str | None = None,
+    about_urn: str | None = None,
 ) -> dict:
     """Build sibling edition/translation chunk data using catalog + citation value.
 
@@ -89,6 +107,14 @@ def _build_sibling_data(
     edition aligns sibling translations, and reading a translation aligns
     sibling editions, to the same passage range.
 
+    ``about_urn`` is the currently-displayed version's ``<ti:about>`` urn
+    (recorded in metadata.json's ``document.about`` by perseus_cts's
+    Chunker), set on commentary versions to name the work/passage they
+    comment on. A commentary has no work family of its own to align
+    siblings against, so when present this is used instead of ``base_urn``
+    to find the work whose editions/translations should be shown alongside
+    the commentary.
+
     Returns dict with keys:
       current_version: CTSVersion | None
       edition_chunks: list[(CTSVersion, _Chunk | None, str | None)]
@@ -97,7 +123,7 @@ def _build_sibling_data(
     no chunk to focus), already routed through the sibling's own scheme
     when the chunk was read from a scheme subdirectory — see _focus_url.
     """
-    work_urn = base_urn.rsplit(".", 1)[0]
+    work_urn = _work_urn_of(about_urn) if about_urn else base_urn.rsplit(".", 1)[0]
 
     def _focus_url(sib_id: str, sib_scheme: str | None, sib_chunk: _Chunk) -> str:
         # The sibling chunk may have been read from a scheme subdirectory

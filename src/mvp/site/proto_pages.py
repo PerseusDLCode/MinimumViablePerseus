@@ -6,7 +6,7 @@ from pathlib import Path
 
 from perseus_cts.chunker import Chunker
 from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
-from perseus_cts.models import Corpus
+from perseus_cts.models import Corpus, CTSCatalog
 
 from mvp.site import config
 from mvp.site_map import SiteMap
@@ -23,7 +23,9 @@ def _scheme_slug(refsDecl_id: str) -> str:
     return refsDecl_id.removeprefix("CTS-") or refsDecl_id.lower()
 
 
-def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | None]:
+def _compile_proto_page(
+    xml_path: Path, proto_dir: Path, catalog: CTSCatalog | None = None
+) -> tuple[str, str | None]:
     """Parse, urn/skip-check, and compile one TEI document.
 
     Runs in a worker process (see generate_proto_pages) — must never raise,
@@ -35,6 +37,12 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
     be pickled through Pool.imap_unordered's task queue, and re-parsing here
     (instead of once in the caller, then again in the worker) avoids paying
     for the parse twice.
+
+    ``catalog`` (built from the same corpora's __cts__.xml files) is passed
+    to each Chunker so metadata.json's document.title/about are populated
+    from the catalog rather than left at their document-only fallbacks —
+    document.about in particular is what lets a commentary's sibling
+    editions/translations be found later (see mvp.site.siblings).
     """
     from perseus_cts.models.document import TEIDocument
 
@@ -48,7 +56,9 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
         compilers: list[tuple[str, Chunker]] = []
         for refsDecl_id in available_refsDecl_ids(doc):
             scheme = _scheme_slug(refsDecl_id)
-            compilers.append((scheme, Chunker(doc, refsDecl_id=refsDecl_id)))
+            compilers.append(
+                (scheme, Chunker(doc, refsDecl_id=refsDecl_id, catalog=catalog))
+            )
 
         # A document whose default citeStructure nests three or more levels
         # deep (e.g. book/chapter/section) gets an extra scheme for free at
@@ -59,7 +69,9 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
         for chunk_unit in auto_chunk_units(doc):
             if chunk_unit in compiled_schemes:
                 continue
-            compilers.append((chunk_unit, Chunker(doc, chunk_unit=chunk_unit)))
+            compilers.append(
+                (chunk_unit, Chunker(doc, chunk_unit=chunk_unit, catalog=catalog))
+            )
             compiled_schemes.add(chunk_unit)
 
         if not compilers:
@@ -97,6 +109,7 @@ def _compile_proto_page(xml_path: Path, proto_dir: Path) -> tuple[str, str | Non
 def generate_proto_pages(
     proto_dir: Path,
     corpora: list[Corpus],
+    catalog: CTSCatalog | None = None,
 ) -> None:
     """Generate proto-page XML for all corpus documents.
 
@@ -111,6 +124,11 @@ def generate_proto_pages(
     BUILD_WORKERS processes (see _compile_proto_page) — only the cheap,
     parse-free directory walk (mirroring Corpus.documents()'s file
     discovery) stays single-threaded here.
+
+    ``catalog``, when given, is threaded down to each Chunker so
+    metadata.json's document.title/about are populated from __cts__.xml
+    (see _compile_proto_page). It's passed once here as a plain function
+    argument to Pool.imap_unordered, which pickles it to each worker.
     """
     work = []
     for corpus in corpora:
@@ -124,7 +142,7 @@ def generate_proto_pages(
     ctx = multiprocessing.get_context("fork")
     with ctx.Pool(config.BUILD_WORKERS) as pool:
         results = pool.imap_unordered(
-            partial(_compile_proto_page, proto_dir=proto_dir), work
+            partial(_compile_proto_page, proto_dir=proto_dir, catalog=catalog), work
         )
         for i, (status, error) in enumerate(results, 1):
             if status == "ok":
