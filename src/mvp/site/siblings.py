@@ -56,6 +56,21 @@ def _merge_sibling_chunks(chunks: list[_Chunk]) -> _Chunk:
     )
 
 
+def _corpus_textgroup_work(work_urn: str) -> tuple[str, str, str]:
+    """Split a work-level urn (``urn:cts:namespace:textgroup.work``) into its parts.
+
+    Used to locate a sibling's own proto-page directory/URL by its actual
+    work, rather than assuming it shares the currently-displayed document's
+    textgroup/work — true for ordinary editions/translations of the same
+    work, but false for a commentary's siblings, which live under the work
+    named by its ``<ti:about>`` urn, not under the commentary's own
+    (nonexistent) work family.
+    """
+    _, _, corpus, workpart = work_urn.split(":", 3)
+    textgroup, work = workpart.split(".", 1)
+    return corpus, textgroup, work
+
+
 def _work_urn_of(urn: str) -> str:
     """Return the work-level urn (``group.work``) implied by a CTS urn.
 
@@ -125,7 +140,14 @@ def _build_sibling_data(
     """
     work_urn = _work_urn_of(about_urn) if about_urn else base_urn.rsplit(".", 1)[0]
 
-    def _focus_url(sib_id: str, sib_scheme: str | None, sib_chunk: _Chunk) -> str:
+    def _focus_url(
+        sib_corpus: str,
+        sib_textgroup: str,
+        sib_work: str,
+        sib_id: str,
+        sib_scheme: str | None,
+        sib_chunk: _Chunk,
+    ) -> str:
         # The sibling chunk may have been read from a scheme subdirectory
         # (see sib_scheme below), whose index.json chunks passages
         # differently than the sibling's default index. A bare cts_urn
@@ -135,12 +157,22 @@ def _build_sibling_data(
         # actually read under, matching how NavigationItem.html.jinja and
         # _redirect_to_first_chunk build reading-view links.
         passage = sib_chunk.cts_urn.rsplit(":", 1)[-1]
-        return _reading_view_url(corpus, textgroup, work, sib_id, passage, sib_scheme)
+        return _reading_view_url(
+            sib_corpus, sib_textgroup, sib_work, sib_id, passage, sib_scheme
+        )
 
     def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None, str | None] | None:
         sib_id = sib.urn.split(":")[3].split(".")[-1]
         if sib_id == version:
             return sib, None, None
+
+        # A sibling found via about_urn belongs to a different work than the
+        # currently-displayed document (e.g. a commentary's siblings are the
+        # editions/translations of the work it comments on), so its
+        # proto-page directory and reading-view URL must be built from its
+        # own work urn rather than the outer corpus/textgroup/work — which
+        # only happen to match for ordinary same-work siblings.
+        sib_corpus, sib_textgroup, sib_work = _corpus_textgroup_work(sib.work_urn)
 
         # Match the base text's own citeStructure scheme when the sibling
         # offers it too (e.g. base is viewed "by card" — align siblings at
@@ -148,7 +180,7 @@ def _build_sibling_data(
         # or a coarser sibling chunk would swallow far more than the base
         # chunk's own range). Falls back to the sibling's default scheme
         # when it has no same-named scheme subdirectory.
-        sib_dir = config.PROTO_DIR / corpus / textgroup / work / sib_id
+        sib_dir = config.PROTO_DIR / sib_corpus / sib_textgroup / sib_work / sib_id
         sib_scheme = scheme if scheme and (sib_dir / scheme).is_dir() else None
         data_dir = sib_dir / sib_scheme if sib_scheme else sib_dir
 
@@ -197,7 +229,9 @@ def _build_sibling_data(
             if len(parsed_chunks) == 1
             else _merge_sibling_chunks(parsed_chunks)
         )
-        return sib, sib_chunk, _focus_url(sib_id, sib_scheme, sib_chunk)
+        return sib, sib_chunk, _focus_url(
+            sib_corpus, sib_textgroup, sib_work, sib_id, sib_scheme, sib_chunk
+        )
 
     return {
         "current_version": catalog.version_for(base_urn),
