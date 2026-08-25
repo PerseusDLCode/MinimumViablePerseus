@@ -13,8 +13,8 @@ on:
     inputs:
       corpus:
         description: >-
-          Build only this corpus (greekLit, latinLit, First1KGreek, Notre-Dame-Digitized-Latin-Collection).
-          Leave blank to build all four.
+          Build only this corpus (greekLit, latinLit, First1KGreek, Notre-Dame-Digitized-Latin-Collection, grcnewxml).
+          Leave blank to build all five.
         required: false
       force:
         description: >-
@@ -142,6 +142,10 @@ jobs:
           - name: Notre-Dame-Digitized-Latin-Collection
             tag_name: nd-dlc
             repo_url: https://github.com/PerseusDLCode/Notre-Dame-Digitized-Latin-Collection
+            branch: main
+          - name: grcnewxml
+            tag_name: grcnewxml
+            repo_url: https://github.com/gregorycrane/grcnewxml.git
             branch: main
     steps:
       - name: Skip corpora not requested via workflow_dispatch

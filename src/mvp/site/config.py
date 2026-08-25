@@ -53,6 +53,8 @@ _CORPUS_LABELS = {
     "greekLit": "Greek",
     "hebrewlit": "Hebrew",
     "latinLit": "Latin",
+    "Notre-Dame-Digitized-Latin-Collection": "Notre Dame Digitized Latin Collection",
+    "grcnewxml": "Greek (New XML)",
 }
 
 ### Deprecated. Do not use.

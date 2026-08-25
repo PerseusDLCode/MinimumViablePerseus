@@ -15,7 +15,7 @@
 #   CORPORA         space-separated list of corpus tag_names to pull — must
 #                   match the lowercase tag_name values in build-corpus.yml's
 #                   matrix, not the case-sensitive corpus directory names
-#                   (default: greeklit latinlit first1kgreek)
+#                   (default: greeklit latinlit first1kgreek nd-dlc grcnewxml)
 #   ORAS_BIN        path to the oras CLI (default: oras, i.e. on PATH)
 #   BUILD_DIR       Symlink path `serve` mounts; points at whichever of the two
 #                   blue-green directories (BUILD_DIR-a / BUILD_DIR-b) is live
@@ -51,7 +51,7 @@ ENV_FILE="${ENV_FILE:-$(dirname "$0")/.env}"
 [ -f "$ENV_FILE" ] && . "$ENV_FILE"
 
 REGISTRY="${REGISTRY:-ghcr.io/perseusdlcode}"
-CORPORA="${CORPORA:-greeklit latinlit first1kgreek}"
+CORPORA="${CORPORA:-greeklit latinlit first1kgreek nd-dlc grcnewxml}"
 # Which alias of the corpus/global artifacts to pull — main's builds tag
 # `latest` (production), dev's tag `staging` (see build-corpus.yml /
 # build-global.yml). Staging hosts set TAG=staging.

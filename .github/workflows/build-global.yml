@@ -68,11 +68,14 @@ jobs:
         run: |
           mkdir -p manifests
           args=""
-          for name in greekLit latinLit First1KGreek; do
-            # GHCR repository paths must be lowercase (see build-corpus.yml's
-            # matrix.tag_name comment) — ${name,,} lowercases here since this
-            # loop, unlike the matrix, has no separate tag_name to reach for.
-            tag_name="${name,,}"
+          # name:tag_name pairs, matching build-corpus.yml's matrix — kept
+          # explicit (rather than lowercasing `name`) because some tag_names
+          # aren't just a lowercased name (e.g. Notre-Dame-Digitized-Latin-
+          # Collection -> nd-dlc).
+          for pair in "greekLit:greeklit" "latinLit:latinlit" "First1KGreek:first1kgreek" \
+                      "Notre-Dame-Digitized-Latin-Collection:nd-dlc" "grcnewxml:grcnewxml"; do
+            name="${pair%%:*}"
+            tag_name="${pair##*:}"
             oras pull "ghcr.io/perseusdlcode/mvp-corpus-${tag_name}-manifest:${{ steps.ctx.outputs.alias }}" \
               -o "manifests/${name}"
             args="${args} --manifest manifests/${name}/manifest.json"
