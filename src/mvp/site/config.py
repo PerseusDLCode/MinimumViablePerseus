@@ -49,7 +49,7 @@ NEW_ALEXANDRIA_DIR = Path(_new_alexandria_dir_env) if _new_alexandria_dir_env el
 BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
 
 _CORPUS_LABELS = {
-    "englishLit": "English",
+    "engLit": "English",
     "greekLit": "Greek",
     "hebrewlit": "Hebrew",
     "latinLit": "Latin",
