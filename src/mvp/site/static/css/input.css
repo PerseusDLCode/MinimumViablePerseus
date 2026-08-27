@@ -6,7 +6,7 @@
 @plugin "@tailwindcss/typography";
 
 @plugin "./daisyui.mjs" {
-    themes: wireframe --default;
+    themes: wireframe --default, corporate, retro, cyberpunk, lofi, nord, autumn;
 }
 
 .tei-milestone {

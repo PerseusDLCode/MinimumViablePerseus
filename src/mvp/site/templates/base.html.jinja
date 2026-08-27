@@ -15,46 +15,151 @@
             type="text/css"
         />
     </head>
-    <body class="bg-neutral-50 min-h-screen" data-theme="wireframe">
+    <body class="bg-base-100 min-h-screen">
         {% block header %}{% endblock %}
-            <div class="navbar bg-neutral-400 text-neutral-50 font-bold">
+            <div class="navbar bg-primary text-primary-content font-bold">
                 <div class="navbar-start">
                     <div class="dropdown">
-                        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                        <div tabindex="0" role="button" class="btn lg:hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
                             </svg>
                         </div>
                         <ul tabindex="-1"
-                            class="menu menu-sm dropdown-content bg-neutral-400 z-1 mt-3 w-52 p-2 shadow">
-                            <li><a href="{{ url_for('index') }}" class="hover:text-base-content">Home</a></li>
-                            <li><a href="{{ url_for('get_collections') }}" class="hover:text-base-content">Collections/Texts</a></li>
-                            <li><a href="https://catalog.perseus.org" class="hover:text-base-content">Perseus Catalog</a></li>
-                            <li><a href="{{ url_for('get_research') }}" class="hover:text-base-content">Research</a></li>
-                            <li><a href="{{ url_for('get_grants') }}" class="hover:text-base-content">Grants</a></li>
-                            <li><a href="{{ url_for('get_open_source') }}" class="hover:text-base-content">Open Source</a></li>
-                            <li><a href="{{ url_for('get_about') }}" class="hover:text-base-content">About</a></li>
-                            <li><a href="{{ url_for('get_abbreviations') }}" class="hover:text-base-content">Abbreviations</a></li>
-                            <li><a href="{{ url_for('get_help') }}" class="hover:text-base-content">Help</a></li>
+                            class="menu menu-sm dropdown-content bg-primary z-1 mt-3 w-52 p-2 shadow">
+                            <li><a href="{{ url_for('index') }}" class="hover:text-primary-content">Home</a></li>
+                            <li><a href="{{ url_for('get_collections') }}" class="hover:text-primary-content">Collections/Texts</a></li>
+                            <li><a href="https://catalog.perseus.org" class="hover:text-primary-content">Perseus Catalog</a></li>
+                            <li><a href="{{ url_for('get_research') }}" class="hover:text-primary-content">Research</a></li>
+                            <li><a href="{{ url_for('get_grants') }}" class="hover:text-primary-content">Grants</a></li>
+                            <li><a href="{{ url_for('get_open_source') }}" class="hover:text-primary-content">Open Source</a></li>
+                            <li><a href="{{ url_for('get_about') }}" class="hover:text-primary-content">About</a></li>
+                            <li><a href="{{ url_for('get_abbreviations') }}" class="hover:text-primary-content">Abbreviations</a></li>
+                            <li><a href="{{ url_for('get_help') }}" class="hover:text-primary-content">Help</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="navbar-center hidden lg:flex">
                     <ul class="menu menu-horizontal px-1">
-                        <li><a href="{{ url_for('index') }}" class="hover:text-base-content">Home</a></li>
-                        <li><a href="{{ url_for('get_collections') }}" class="hover:text-base-content">Collections/Texts</a></li>
-                        <li><a href="https://catalog.perseus.org" class="hover:text-base-content">Perseus Catalog</a></li>
-                        <li><a href="{{ url_for('get_research') }}" class="hover:text-base-content">Research</a></li>
-                        <li><a href="{{ url_for('get_grants') }}" class="hover:text-base-content">Grants</a></li>
-                        <li><a href="{{ url_for('get_open_source') }}" class="hover:text-base-content">Open Source</a></li>
-                        <li><a href="{{ url_for('get_about') }}" class="hover:text-base-content">About</a></li>
-                        <li><a href="{{ url_for('get_abbreviations') }}" class="hover:text-base-content">Abbreviations</a></li>
-                        <li><a href="{{ url_for('get_help') }}" class="hover:text-base-content">Help</a></li>
+                        <li><a href="{{ url_for('index') }}" class="hover:text-primary-content">Home</a></li>
+                        <li><a href="{{ url_for('get_collections') }}" class="hover:text-primary-content">Collections/Texts</a></li>
+                        <li><a href="https://catalog.perseus.org" class="hover:text-primary-content">Perseus Catalog</a></li>
+                        <li><a href="{{ url_for('get_research') }}" class="hover:text-primary-content">Research</a></li>
+                        <li><a href="{{ url_for('get_grants') }}" class="hover:text-primary-content">Grants</a></li>
+                        <li><a href="{{ url_for('get_open_source') }}" class="hover:text-primary-content">Open Source</a></li>
+                        <li><a href="{{ url_for('get_about') }}" class="hover:text-primary-content">About</a></li>
+                        <li><a href="{{ url_for('get_abbreviations') }}" class="hover:text-primary-content">Abbreviations</a></li>
+                        <li><a href="{{ url_for('get_help') }}" class="hover:text-primary-content">Help</a></li>
                     </ul>
                 </div>
-                <div class="navbar-end" />
+                <div class="navbar-end">
+                    <div class="dropdown hidden">
+                      <div tabindex="0" role="button" class="btn m-1">
+                        Theme
+                        <svg
+                          width="12px"
+                          height="12px"
+                          class="inline-block h-2 w-2 fill-current opacity-60"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 2048 2048">
+                          <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+                        </svg>
+                      </div>
+                      <ul tabindex="-1" class="dropdown-content bg-primary rounded-box z-1 w-52 p-2 shadow-2xl">
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="wireframe"
+                            value="wireframe" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="corporate"
+                            value="corporate" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="retro"
+                            value="retro" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="cyberpunk"
+                            value="cyberpunk" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="lofi"
+                            value="lofi" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="nord"
+                            value="nord" />
+                        </li>
+                        <li>
+                          <input
+                            type="radio"
+                            name="theme-dropdown"
+                            class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                            aria-label="autumn"
+                            value="autumn" />
+                        </li>
+                      </ul>
+                    </div>
+                </div>
             </div>
         </div>
+        <script>
+        (function () {
+            // The table-of-contents nav lives in a same-origin iframe (see
+            // nav_fragment.html.jinja), which is a separate document and so
+            // doesn't pick up daisyUI's CSS-only theme-controller mechanism
+            // (`:root:has(.theme-controller:checked)`). Mirror the chosen
+            // theme onto every iframe's document explicitly instead.
+            function applyThemeToFrames(theme) {
+                document.querySelectorAll('iframe').forEach(function (iframe) {
+                    const doc = iframe.contentDocument;
+                    if (doc && doc.documentElement) {
+                        doc.documentElement.setAttribute('data-theme', theme);
+                    }
+                });
+            }
+
+
+            document.querySelectorAll('input.theme-controller').forEach(function (input) {
+                input.addEventListener('change', function () {
+                    if (input.checked) applyThemeToFrames(input.value);
+                });
+            });
+
+            // Lazily-loaded iframes (e.g. the mobile TOC dropdown) may finish
+            // loading after a theme has already been chosen; sync them too.
+            document.querySelectorAll('iframe').forEach(function (iframe) {
+                iframe.addEventListener('load', function () {
+                    const checked = document.querySelector('input.theme-controller:checked');
+                    if (checked) applyThemeToFrames(checked.value);
+                });
+            });
+        }());
+        </script>
         {% block content %}
         {% endblock %}
         {% block scripts %}{% endblock %}

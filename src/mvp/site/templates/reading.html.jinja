@@ -34,13 +34,13 @@
         <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
         main content. Hidden at lg+, where the static sidebar below takes over. -->
         <div class="dropdown w-full lg:hidden mb-4">
-            <div tabindex="0" role="button" class="btn btn-block bg-neutral-400 text-base-content justify-between font-bold">
+            <div tabindex="0" role="button" class="btn btn-block text-base-content justify-between font-bold bg-primary text-primary-content">
                 Table of Contents
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full bg-neutral-400 p-4 shadow text-xs">
+            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full p-4 shadow text-xs bg-primary text-primary-content">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul class="mb-4">
                     <li>
@@ -60,15 +60,15 @@
                     data-current-urn="{{ current_urn }}"
                     title="Table of Contents"
                     loading="lazy"
-                    class="w-full h-96 border-0 bg-neutral-300"
+                    class="w-full h-96 border-0 bg-primary"
                 ></iframe>
             </div>
         </div>
 
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
         Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
-        <div class="hidden lg:flex text-base-content text-xs w-1/5 h-screen sticky top-0 self-start flex-col will-change-transform">
-            <div class="bg-neutral-400 p-4 mb-4">
+        <div class="hidden lg:flex text-base-content text-xs w-1/5 sticky top-0 self-stretch flex-col will-change-transform bg-primary text-primary-content">
+            <div class="p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
                     <li>
@@ -96,283 +96,285 @@
                 src="{{ nav_fragment_url }}"
                 data-current-urn="{{ current_urn }}"
                 title="Table of Contents"
-                class="w-full flex-1 border-0 bg-neutral-400"
+                class="w-full flex-1 border-0 bg-primary"
             ></iframe>
         </div>
 
-        <!-- Base text -->
-        <article class="w-full lg:w-2/5 lg:mx-4 text-sm lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto will-change-transform" data-lang="{{ chunk.language }}">
-            {% if scheme_links %}
-                <div class="flex gap-2 mb-2 text-xs">
-                    <span>View:</span>
-                    {% for scheme_link in scheme_links %}
-                        <a href="{{ scheme_link.url }}" class="link">{{ scheme_link.label }}</a>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <div class="flex justify-between mb-4 text-xs">
-                {% if prev_url %}
-                    <a href="{{ prev_url }}" class="link">&larr; Previous</a>
-                {% else %}
-                    <span></span>
-                {% endif %}
-                {% if next_url %}
-                    <a href="{{ next_url }}" class="link">Next &rarr;</a>
-                {% endif %}
-            </div>
-
-            <div class="prose">
-                {% for element in chunk.elements %}
-                    {% with text_container = element, note_source = chunk.title %}
-                        {%  include 'components/ReadableTextContainer.html.jinja' %}
-                    {% endwith %}
-                {% endfor %}
-            </div>
-
-            <div class="pt-8">
-                <p class="mb-4">
-                    {{ work_title }}.
-                    {{ pub_info.author }}.
-                    {% if pub_info.editors %}{{ pub_info.editors }}.{% endif %}
-                    {{ pub_info.pub_place }}.
-                    {{ pub_info.pub_date }}.
-                </p>
-                <p class="mb-4">Tufts University provided support for entering this text.</p>
-                <p>
-                    This text was converted to electronic form by professional
-                    data entry and has been proofread to a medium level of
-                    accuracy.
-                </p>
-            </div>
-        </article>
-
-        <!-- Paratexts / Editions / Translations -->
-        <div class="text-xs w-full lg:w-2/5 mt-8 lg:mt-0 lg:sticky lg:top-0 lg:self-start lg:max-h-screen overflow-y-auto overscroll-contain will-change-transform">
-
-
-            {% if sibling_data and sibling_data.current_version %}
-                <!-- Current version -->
-                <div class="mb-4">
-                    <div class="bg-neutral-400 p-4">
-                        <h4 class="font-bold">
-                            Current:
-                            {{ sibling_data.current_version.label }}
-                            {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang)  %}
-                            {% if lang_label %}
-                                ({{ lang_label }})
-                            {% endif %}
-                            ({{ sibling_data.current_version.description }})
-                        </h4>
-                    </div>
-                </div>
-
-                <!-- Editions -->
-                {% if sibling_data.edition_chunks %}
-                    <div class="mb-4">
-                        <div class="bg-neutral-400 p-4">
-                            <h4 class="font-bold">Editions</h4>
-                        </div>
-                        {% for sib, sib_chunk, focus_url in sibling_data.edition_chunks %}
-                            <details class="bg-neutral-300">
-                                <summary class="p-4 cursor-pointer font-bold">
-                                    {{ sib.label }}
-                                    ({{ sib.description }})
-                                    {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
-                                </summary>
-                                <div class="p-4">
-                                    {% if sib_chunk %}
-                                        {% with notes = namespace(items=[]) %}
-                                            {% for element in sib_chunk.elements %}
-                                                {% with text_container = element %}
-                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                {% endwith %}
-                                            {% endfor %}
-                                        {% endwith %}
-                                    {% else %}
-                                        <p class="italic">No corresponding passage available</p>
-                                    {% endif %}
-                                </div>
-                            </details>
+        <div class="w-full sm:grid sm:grid-cols-2 sm:gap-4 lg:w-4/5 lg:mx-4 text-sm lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto will-change-transform">
+            <!-- Base text -->
+            <article data-lang="{{ chunk.language }}">
+                {% if scheme_links %}
+                    <div class="flex gap-2 mb-2 text-xs">
+                        <span>View:</span>
+                        {% for scheme_link in scheme_links %}
+                            <a href="{{ scheme_link.url }}" class="link">{{ scheme_link.label }}</a>
                         {% endfor %}
                     </div>
                 {% endif %}
+                <div class="flex justify-between mb-4 text-xs">
+                    {% if prev_url %}
+                        <a href="{{ prev_url }}" class="link">&larr; Previous</a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                    {% if next_url %}
+                        <a href="{{ next_url }}" class="link">Next &rarr;</a>
+                    {% endif %}
+                </div>
 
-                <!-- Translations -->
-                {% if sibling_data.translation_chunks %}
-                    <div class="mb-4">
-                        <div class="bg-neutral-400 p-4">
-                            <h4 class="font-bold">Translations</h4>
-                        </div>
-                        {% for sib, sib_chunk, focus_url in sibling_data.translation_chunks %}
-                            <details class="bg-neutral-300">
-                                <summary class="p-4 cursor-pointer font-bold">
-                                    {{ sib.label }}
-                                    ({{ sib.description }})
-                                    {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
-                                </summary>
-
-
-                                <div class="p-4">
-                                    {% if sib_chunk %}
-                                        {% with notes = namespace(items=[]) %}
-                                            {% for element in sib_chunk.elements %}
-                                                {% with text_container = element %}
-                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                {% endwith %}
-                                            {% endfor %}
-                                        {% endwith %}
-                                    {% else %}
-                                        <p class="italic">No corresponding passage available</p>
-                                    {% endif %}
-                                </div>
-                            </details>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endif %}
-
-            <!-- Notes -->
-            {% if notes.items %}
-                <div class="mb-4">
-                    <div class="bg-neutral-400 p-4">
-                        <h4 class="font-bold">Notes</h4>
-                        {% if notes.items[0].source %}
-                            <p class="italic text-neutral-600">{{ notes.items[0].source }}</p>
-                        {% endif %}
-                    </div>
-                    {% for note in notes.items %}
-                        <div id="{{ note.id }}" class="bg-neutral-300 px-4 py-1 text-xs">
-                            <span class="font-bold">{{ note.number }}.</span>
-                            {{ note.content }}
-                        </div>
+                <div class="prose">
+                    {% for element in chunk.elements %}
+                        {% with text_container = element, note_source = chunk.title %}
+                            {%  include 'components/ReadableTextContainer.html.jinja' %}
+                        {% endwith %}
                     {% endfor %}
                 </div>
-            {% endif %}
 
-            <!-- New Alexandria Commentaries -->
-            {% if new_alexandria_groups %}
-                <div class="mb-4">
-                    <div class="bg-neutral-400 p-4">
-                        <h4 class="font-bold">New Alexandria Commentaries</h4>
+                <div class="pt-8">
+                    <p class="mb-4">
+                        {{ work_title }}.
+                        {{ pub_info.author }}.
+                        {% if pub_info.editors %}{{ pub_info.editors }}.{% endif %}
+                        {{ pub_info.pub_place }}.
+                        {{ pub_info.pub_date }}.
+                    </p>
+                    <p class="mb-4">Tufts University provided support for entering this text.</p>
+                    <p>
+                        This text was converted to electronic form by professional
+                        data entry and has been proofread to a medium level of
+                        accuracy.
+                    </p>
+                </div>
+            </article>
+
+            <!-- Paratexts / Editions / Translations -->
+            <div class="text-primary-content">
+                {% if sibling_data and sibling_data.current_version %}
+                    <!-- Current version -->
+                    <div class="mb-4 bg-primary">
+                        <div class="p-4">
+                            <h4 class="font-bold">
+                                Current:
+                                {{ sibling_data.current_version.label }}
+                                {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang)  %}
+                                {% if lang_label %}
+                                    ({{ lang_label }})
+                                {% endif %}
+                                ({{ sibling_data.current_version.description }})
+                            </h4>
+                        </div>
                     </div>
 
-                    {% for group in new_alexandria_groups %}
-                        <details class="bg-neutral-300">
-                            <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
+                    <!-- Editions -->
+                    {% if sibling_data.edition_chunks %}
+                        <div class="mb-4 bg-primary">
                             <div class="p-4">
-                                {% for entry in group.entries %}
-                                    <div class="my-2">
-                                        {% if entry.section %}
-                                            <p class="font-bold">{{ entry.section }}</p>
-                                        {% endif %}
-                                        <div class="prose prose-sm max-w-none">
-                                            {{ entry.body_html }}
-                                        </div>
-                                        {% if entry.source_url %}
-                                            <a href="{{ entry.source_url }}" class="link" target="_blank" rel="noopener">source</a>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
+                                <h4 class="font-bold">Editions</h4>
                             </div>
-                        </details>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {# for debug purposes only #}
-            {# {% for warning in commentary_warnings %}
-                <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
-            {% endfor %} #}
-            <!-- Commentaries -->
-            {% if commentary_groups %}
-                <div class="mb-4">
-                    <div class="bg-neutral-400 p-4">
-                        <h4 class="font-bold">Commentary</h4>
-                    </div>
-
-                    {% for group in commentary_groups %}
-                        <details class="bg-neutral-300">
-                            <summary class="p-4 cursor-pointer font-bold">
-                                {{ group.label }}
-                                ({{ group.description }})
-                                {% if group.focus_url %}<a href="{{ group.focus_url }}" class="link">focus</a>{% endif %}
-                            </summary>
-                            <div class="p-4">
-                                {% with notes = namespace(items=[]) %}
-                                {% for entry in group.entries %}
-                                    <p class="my-2">
-                                        {% if entry.line_ref %}
-                                            <span class="font-bold">{{ entry.line_ref }}.</span>
-                                        {% endif %}
-                                        {% if entry.lemma_elements %}
-                                            <strong>
-                                                {% for element in entry.lemma_elements %}
+                            {% for sib, sib_chunk, focus_url in sibling_data.edition_chunks %}
+                                <details class="bg-primary">
+                                    <summary class="p-4 cursor-pointer font-bold">
+                                        {{ sib.label }}
+                                        ({{ sib.description }})
+                                        {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
+                                    </summary>
+                                    <div class="p-4">
+                                        {% if sib_chunk %}
+                                            {% with notes = namespace(items=[]) %}
+                                                {% for element in sib_chunk.elements %}
                                                     {% with text_container = element %}
                                                         {% include 'components/ReadableTextContainer.html.jinja' %}
                                                     {% endwith %}
                                                 {% endfor %}
-                                            </strong>
+                                            {% endwith %}
                                         {% else %}
-                                            <strong>{{ entry.anchor_id }}</strong>
+                                            <p class="italic">No corresponding passage available</p>
                                         {% endif %}
-                                        {% if entry.comment_elements %}
-                                            {% for element in entry.comment_elements %}
-                                                {% with text_container = element %}
-                                                    {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                {% endwith %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    </p>
-                                {% endfor %}
-                                {% endwith %}
+                                    </div>
+                                </details>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Translations -->
+                    {% if sibling_data.translation_chunks %}
+                        <div class="mb-4 bg-primary">
+                            <div class="p-4">
+                                <h4 class="font-bold">Translations</h4>
                             </div>
-                        </details>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                            {% for sib, sib_chunk, focus_url in sibling_data.translation_chunks %}
+                                <details class="bg-primary">
+                                    <summary class="p-4 cursor-pointer font-bold">
+                                        {{ sib.label }}
+                                        ({{ sib.description }})
+                                        {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
+                                    </summary>
 
-            <!-- Stable identifiers -->
-            <div class="mb-4 hidden">
-                <div class="bg-neutral-400 flex justify-between p-4">
-                    <h4 class="font-bold">Stable identifiers</h4>
-                </div>
 
-                <div class="bg-neutral-300 p-4 text-xs">
-                    <p>Citation URI: <a href="{{ citation_uri }}" class="link">{{ citation_uri }}</a></p>
-                    <p>Text URI: <a href="{{ text_uri }}" class="link">{{ text_uri }}</a></p>
-                    <p>Work URI: <a href="{{ work_uri }}" class="link">{{ work_uri }}</a></p>
-                    <p>Catalog Record URI: <a href="{{ catalog_record_uri }}" class="link">{{ catalog_record_uri }}</a></p>
+                                    <div class="p-4">
+                                        {% if sib_chunk %}
+                                            {% with notes = namespace(items=[]) %}
+                                                {% for element in sib_chunk.elements %}
+                                                    {% with text_container = element %}
+                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <p class="italic">No corresponding passage available</p>
+                                        {% endif %}
+                                    </div>
+                                </details>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Notes -->
+                {% if notes.items %}
+                    <div class="mb-4 bg-primary">
+                        <div class="p-4">
+                            <h4 class="font-bold">Notes</h4>
+                            {% if notes.items[0].source %}
+                                <p class="italic text-neutral-600">{{ notes.items[0].source }}</p>
+                            {% endif %}
+                        </div>
+                        {% for note in notes.items %}
+                            <div id="{{ note.id }}" class="px-4 py-1 text-xs">
+                                <span class="font-bold">{{ note.number }}.</span>
+                                {{ note.content }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- New Alexandria Commentaries -->
+                {% if new_alexandria_groups %}
+                    <div class="mb-4 bg-primary">
+                        <div class="p-4">
+                            <h4 class="font-bold">New Alexandria Commentaries</h4>
+                        </div>
+
+                        {% for group in new_alexandria_groups %}
+                            <details class="bg-primary">
+                                <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
+                                <div class="p-4">
+                                    {% for entry in group.entries %}
+                                        <div class="my-2">
+                                            {% if entry.section %}
+                                                <p class="font-bold">{{ entry.section }}</p>
+                                            {% endif %}
+                                            <div class="prose prose-sm max-w-none">
+                                                {{ entry.body_html }}
+                                            </div>
+                                            {% if entry.source_url %}
+                                                <a href="{{ entry.source_url }}" class="link" target="_blank" rel="noopener">source</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# for debug purposes only #}
+                {# {% for warning in commentary_warnings %}
+                    <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
+                {% endfor %} #}
+                <!-- Commentaries -->
+                {% if commentary_groups %}
+                    <div class="mb-4 bg-primary">
+                        <div class="p-4">
+                            <h4 class="font-bold">Commentary</h4>
+                        </div>
+
+                        {% for group in commentary_groups %}
+                            <details class="bg-primary">
+                                <summary class="p-4 cursor-pointer font-bold">
+                                    {{ group.label }}
+                                    ({{ group.description }})
+                                    {% if group.focus_url %}<a href="{{ group.focus_url }}" class="link">focus</a>{% endif %}
+                                </summary>
+                                <div class="p-4">
+                                    {% with notes = namespace(items=[]) %}
+                                    {% for entry in group.entries %}
+                                        <p class="my-2">
+                                            {% if entry.line_ref %}
+                                                <span class="font-bold">{{ entry.line_ref }}.</span>
+                                            {% endif %}
+                                            {% if entry.lemma_elements %}
+                                                <strong>
+                                                    {% for element in entry.lemma_elements %}
+                                                        {% with text_container = element %}
+                                                            {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                        {% endwith %}
+                                                    {% endfor %}
+                                                </strong>
+                                            {% else %}
+                                                <strong>{{ entry.anchor_id }}</strong>
+                                            {% endif %}
+                                            {% if entry.comment_elements %}
+                                                {% for element in entry.comment_elements %}
+                                                    {% with text_container = element %}
+                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </p>
+                                    {% endfor %}
+                                    {% endwith %}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Stable identifiers -->
+                <div class="mb-4 hidden bg-primary">
+                    <div class="flex justify-between p-4">
+                        <h4 class="font-bold">Stable identifiers</h4>
+                    </div>
+
+                    <div class="p-4 text-xs">
+                        <p>Citation URI: <a href="{{ citation_uri }}" class="link">{{ citation_uri }}</a></p>
+                        <p>Text URI: <a href="{{ text_uri }}" class="link">{{ text_uri }}</a></p>
+                        <p>Work URI: <a href="{{ work_uri }}" class="link">{{ work_uri }}</a></p>
+                        <p>Catalog Record URI: <a href="{{ catalog_record_uri }}" class="link">{{ catalog_record_uri }}</a></p>
+                    </div>
                 </div>
             </div>
+
+            <footer class="text-xs col-span-2 p-4 bottom-0 bg-primary text-primary-content">
+                <div class="rights_info">
+                    <div class="cc_rights flex items-start gap-4 mb-2">
+                        <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                            <img
+                                alt="Creative Commons License"
+                                style="border-width: 0"
+                                src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
+                            />
+                        </a>
+                        <p>
+                            This work is licensed under a
+                            <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                                Creative Commons Attribution-ShareAlike 3.0 United States License
+                            </a>.
+                        </p>
+                    </div>
+                    <p class="xml_download">
+                        An <a href="{{ xml_src_url }}">XML version</a>
+                        of this text is available for download, with the additional restriction
+                        that you offer Perseus any modifications you make. Perseus provides
+                        credit for all accepted changes, storing new additions in a versioning
+                        system.
+                    </p>
+                </div>
+            </footer>
         </div>
     </main>
 
-    <footer class="text-xs bg-neutral-300 p-4 bottom-0">
-        <div class="rights_info">
-            <div class="cc_rights flex items-start gap-4 mb-2">
-                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                    <img
-                        alt="Creative Commons License"
-                        style="border-width: 0"
-                        src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
-                    />
-                </a>
-                <p>
-                    This work is licensed under a
-                    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                        Creative Commons Attribution-ShareAlike 3.0 United States License
-                    </a>.
-                </p>
-            </div>
-            <p class="xml_download">
-                An <a href="{{ xml_src_url }}">XML version</a>
-                of this text is available for download, with the additional restriction
-                that you offer Perseus any modifications you make. Perseus provides
-                credit for all accepted changes, storing new additions in a versioning
-                system.
-            </p>
-        </div>
-    </footer>
+
 {% endblock %}
 
 {% block scripts %}

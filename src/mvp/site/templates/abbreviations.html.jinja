@@ -41,7 +41,7 @@
         <section class="mb-4 abbrev-entry" data-search="{{ (entry.name ~ ' ' ~ entry.name_abbrevs|join(' '))|lower }}">
             <h2 class="text-base font-semibold">
                 {{ entry.name }}
-                <span class="text-neutral-500 font-normal">({{ entry.name_abbrevs|join(', ') }})</span>
+                <span class="text-neutral-600 font-normal">({{ entry.name_abbrevs|join(', ') }})</span>
             </h2>
             <ul class="pl-6 mt-1 space-y-0.5">
                 {% for work in entry.works %}
@@ -52,7 +52,7 @@
                     {{ work.title }}
                     {% endif %}
                     {% if work.title_abbrevs %}
-                    <span class="text-neutral-500">({{ work.title_abbrevs|join(', ') }})</span>
+                    <span class="text-neutral-600">({{ work.title_abbrevs|join(', ') }})</span>
                     {% endif %}
                     {% if work.is_default %}<span class="badge badge-sm badge-ghost ml-1">default</span>{% endif %}
                     {% if work.scheme and work.scheme != 'flat' %}
@@ -63,7 +63,7 @@
             </ul>
         </section>
         {% else %}
-        <p class="text-neutral-500">No abbreviations available.</p>
+        <p class="text-neutral-600">No abbreviations available.</p>
         {% endfor %}
     </div>
 </div>

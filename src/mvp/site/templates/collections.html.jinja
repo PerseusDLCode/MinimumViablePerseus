@@ -20,7 +20,7 @@
             placeholder="Search by title, author, or editor…"
             class="input input-bordered w-full"
         />
-        <div id="collections-search-results" class="collapse bg-base-100 border border-neutral-300 border-t-0 rounded-b">
+        <div id="collections-search-results" class="collapse bg-base-100">
             <div class="collapse-content !p-0">
                 <ul class="max-h-96 overflow-y-auto divide-y divide-neutral-200"></ul>
             </div>
@@ -36,7 +36,7 @@
                 {% for tg in corpus.textgroups|sort(attribute="author,id") %}
                 <div class="mb-3">
                     <details>
-                        <summary class="text-base font-semibold text-neutral-700 cursor-pointer">{{ tg.author or tg.id }}</summary>
+                        <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
 
                         <ul class="pl-6 mt-1 space-y-1">
                             {% for work in tg.works|sort(attribute="title,id") %}
@@ -75,7 +75,7 @@
         </details>
     </section>
     {% else %}
-    <p class="text-neutral-500">No collections available.</p>
+    <p>No collections available.</p>
     {% endfor %}
 </div>
 {% endblock %}
