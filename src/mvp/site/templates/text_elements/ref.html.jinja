@@ -1,0 +1,10 @@
+{% from "components/macros.html.jinja" import render_children with context %}
+{% if text_container.target %}
+<a href="#" data-ref="{{ text_container.target }}" class="perseus-reference tei-ref">
+    {{- render_children(text_container) -}}
+</a>
+{% else %}
+<span class="tei-ref">
+    {{- render_children(text_container) -}}
+</span>
+{% endif %}

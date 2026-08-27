@@ -34,13 +34,13 @@
         <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
         main content. Hidden at lg+, where the static sidebar below takes over. -->
         <div class="dropdown w-full lg:hidden mb-4">
-            <div tabindex="0" role="button" class="btn btn-block text-base-content justify-between font-bold bg-primary text-primary-content">
+            <div tabindex="0" role="button" class="btn btn-block text-base-content justify-between font-bold bg-base-300 text-base-content">
                 Table of Contents
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full p-4 shadow text-xs bg-primary text-primary-content">
+            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full p-4 shadow text-xs bg-base-300 text-base-content">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul class="mb-4">
                     <li>
@@ -60,14 +60,14 @@
                     data-current-urn="{{ current_urn }}"
                     title="Table of Contents"
                     loading="lazy"
-                    class="w-full h-96 border-0 bg-primary"
+                    class="w-full h-96 border-0 bg-base-300"
                 ></iframe>
             </div>
         </div>
 
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
         Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
-        <div class="hidden lg:flex text-base-content text-xs w-1/5 sticky top-0 self-stretch flex-col will-change-transform bg-primary text-primary-content">
+        <div class="hidden lg:flex text-base-content text-xs w-1/5 sticky top-0 self-stretch flex-col will-change-transform bg-base-300 text-base-content">
             <div class="p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -96,7 +96,7 @@
                 src="{{ nav_fragment_url }}"
                 data-current-urn="{{ current_urn }}"
                 title="Table of Contents"
-                class="w-full flex-1 border-0 bg-primary"
+                class="w-full flex-1 border-0 bg-base-300"
             ></iframe>
         </div>
 
@@ -148,10 +148,10 @@
             </article>
 
             <!-- Paratexts / Editions / Translations -->
-            <div class="text-primary-content">
+            <div class="text-base-content">
                 {% if sibling_data and sibling_data.current_version %}
                     <!-- Current version -->
-                    <div class="mb-4 bg-primary">
+                    <div class="mb-4 bg-base-300">
                         <div class="p-4">
                             <h4 class="font-bold">
                                 Current:
@@ -167,12 +167,12 @@
 
                     <!-- Editions -->
                     {% if sibling_data.edition_chunks %}
-                        <div class="mb-4 bg-primary">
+                        <div class="mb-4 bg-base-300">
                             <div class="p-4">
                                 <h4 class="font-bold">Editions</h4>
                             </div>
                             {% for sib, sib_chunk, focus_url in sibling_data.edition_chunks %}
-                                <details class="bg-primary">
+                                <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
                                         ({{ sib.description }})
@@ -198,12 +198,12 @@
 
                     <!-- Translations -->
                     {% if sibling_data.translation_chunks %}
-                        <div class="mb-4 bg-primary">
+                        <div class="mb-4 bg-base-300">
                             <div class="p-4">
                                 <h4 class="font-bold">Translations</h4>
                             </div>
                             {% for sib, sib_chunk, focus_url in sibling_data.translation_chunks %}
-                                <details class="bg-primary">
+                                <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
                                         ({{ sib.description }})
@@ -232,11 +232,11 @@
 
                 <!-- Notes -->
                 {% if notes.items %}
-                    <div class="mb-4 bg-primary">
+                    <div class="mb-4 bg-base-300">
                         <div class="p-4">
                             <h4 class="font-bold">Notes</h4>
                             {% if notes.items[0].source %}
-                                <p class="italic text-neutral-600">{{ notes.items[0].source }}</p>
+                                <p class="italic text-primary-600">{{ notes.items[0].source }}</p>
                             {% endif %}
                         </div>
                         {% for note in notes.items %}
@@ -250,13 +250,13 @@
 
                 <!-- New Alexandria Commentaries -->
                 {% if new_alexandria_groups %}
-                    <div class="mb-4 bg-primary">
+                    <div class="mb-4 bg-base-300">
                         <div class="p-4">
                             <h4 class="font-bold">New Alexandria Commentaries</h4>
                         </div>
 
                         {% for group in new_alexandria_groups %}
-                            <details class="bg-primary">
+                            <details>
                                 <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
                                 <div class="p-4">
                                     {% for entry in group.entries %}
@@ -284,13 +284,13 @@
                 {% endfor %} #}
                 <!-- Commentaries -->
                 {% if commentary_groups %}
-                    <div class="mb-4 bg-primary">
+                    <div class="mb-4 bg-base-300">
                         <div class="p-4">
                             <h4 class="font-bold">Commentary</h4>
                         </div>
 
                         {% for group in commentary_groups %}
-                            <details class="bg-primary">
+                            <details>
                                 <summary class="p-4 cursor-pointer font-bold">
                                     {{ group.label }}
                                     ({{ group.description }})
@@ -331,7 +331,7 @@
                 {% endif %}
 
                 <!-- Stable identifiers -->
-                <div class="mb-4 hidden bg-primary">
+                <div class="mb-4 hidden bg-base-300">
                     <div class="flex justify-between p-4">
                         <h4 class="font-bold">Stable identifiers</h4>
                     </div>
@@ -345,7 +345,7 @@
                 </div>
             </div>
 
-            <footer class="text-xs col-span-2 p-4 bottom-0 bg-primary text-primary-content">
+            <footer class="text-xs col-span-2 p-4 bottom-0 bg-base-300 text-base-content">
                 <div class="rights_info">
                     <div class="cc_rights flex items-start gap-4 mb-2">
                         <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">

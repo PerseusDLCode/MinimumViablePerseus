@@ -1,5 +1,13 @@
 {% from "components/macros.html.jinja" import render_children with context %}
-<div class="tei-p">
-    {%- if leading_prefix %}{{ leading_prefix }}{% endif -%}
-    {{- render_children(text_container) -}}
+
+<div class="tei-p flex justify-between gap-2 w-full mb-2">
+    <div>
+        {%- if leading_prefix %}{{ leading_prefix }}{% endif -%}
+        {{- render_children(text_container) -}}
+    </div>
+
+    {% set n = text_container.get("n") | int %}
+    {% if n %}
+        <span class="select-none">{{ n }}</span>
+    {% endif %}
 </div>

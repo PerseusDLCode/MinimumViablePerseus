@@ -2,6 +2,8 @@ function linkifyBiblRefs(preferredLang) {
     const refs = document.querySelectorAll('a.perseus-reference[data-ref]');
     if (!refs.length) return;
 
+    // refs need to be shortened to work-level URN
+    // editions are then matched by language
     fetch('/urn-index.json')
         .then(function (r) { return r.json(); })
         .then(function (index) {
