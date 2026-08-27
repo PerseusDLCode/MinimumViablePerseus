@@ -1,8 +1,11 @@
 {% from "components/macros.html.jinja" import render_children with context %}
 {% if text_container.ref %}
-<a href="#" data-ref="{{ text_container.ref }}" class="perseus-reference tei-bibl">
-    {{- render_children(text_container) -}}
-</a>
+<span class="dropdown perseus-reference-versions-wrap">
+    <a href="#" data-ref="{{ text_container.ref }}" role="button" tabindex="0" class="perseus-reference tei-bibl">
+        {{- render_children(text_container) -}}
+    </a>
+    <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-200 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box perseus-reference-versions"></ul>
+</span>
 {% else %}
 <span class="tei-bibl">
     {{- render_children(text_container) -}}

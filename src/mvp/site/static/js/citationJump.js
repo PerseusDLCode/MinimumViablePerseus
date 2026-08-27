@@ -23,14 +23,23 @@ const LANGUAGE_PREFERENCE = ['grc', 'lat'];
 const MAX_LEADING_TOKENS = 3;
 const SCOPE_RE = /^([0-9]+(?:\.[0-9]+)*[a-z]?)(?:[-–—]([0-9]+(?:\.[0-9]+)*[a-z]?))?\.?$/;
 
-function pickLanguage(versions) {
+// Pick which of a work's versions (urn-index.json's per-work list) to jump
+// to, preferring a source-language edition (LANGUAGE_PREFERENCE) per issue
+// #169, then falling back to whatever's available.
+function pickVersion(versions) {
     for (const lang of LANGUAGE_PREFERENCE) {
-        if (versions[lang]) return lang;
+        const match = versions.find((v) => v.language === lang);
+        if (match) return match;
     }
-    const nonEng = Object.keys(versions).filter((l) => l !== 'eng');
-    if (nonEng.length) return nonEng.sort()[0];
-    const langs = Object.keys(versions);
-    return langs.length ? langs.sort()[0] : null;
+    const nonEng = versions.filter((v) => v.language !== 'eng');
+    const pool = nonEng.length ? nonEng : versions;
+    if (!pool.length) return null;
+    return pool.slice().sort((a, b) => a.language.localeCompare(b.language))[0];
+}
+
+function versionBase(version) {
+    const { corpus, textgroup, work, version: ver } = version.route_kwargs;
+    return '/urn:cts:' + corpus + ':' + textgroup + '.' + work + '.' + ver;
 }
 
 function normalizeScope(raw) {
@@ -241,10 +250,10 @@ function citationJump(inputId, buttonId, resultsId) {
     // { workUrn, passage } -> Promise<string|null>
     function resolveHref(target, urnIndex) {
         const versions = urnIndex[target.workUrn];
-        if (!versions) return Promise.resolve(null);
-        const lang = pickLanguage(versions);
-        if (!lang) return Promise.resolve(null);
-        const base = '/urn:cts:' + versions[lang].slice(1); // no trailing slash
+        if (!versions || !versions.length) return Promise.resolve(null);
+        const version = pickVersion(versions);
+        if (!version) return Promise.resolve(null);
+        const base = versionBase(version); // no trailing slash
         if (!target.passage) return Promise.resolve(base + '/');
         return fetchChunkPassages(base).then((passages) => {
             const chunk = floorChunk(passages, target.passage);

@@ -49,23 +49,23 @@ def _build_corpus_manifest(
         "built_at": datetime.now(UTC).isoformat(),
         "source_digest": source_digest,
         "collections": collections,
-        "urn_index": _build_urn_index(proto_dir),
+        "urn_index": _build_urn_index(proto_dir, catalog),
     }
 
 
 def _merge_manifests(
     manifest_paths: list[Path],
-) -> tuple[list[dict], dict[str, dict[str, str]]]:
+) -> tuple[list[dict], dict[str, list[dict]]]:
     """Reassemble the global collections tree and URN index for a `--mode global-only` build.
 
     urn_index keys embed their corpus namespace (see _build_urn_index), so a
     plain dict union across manifests can't collide the way collections can
-    (see _merge_collections) — but a work_urn's language->prefix mapping
-    could theoretically be contributed by more than one manifest, so this
-    still merges per-key rather than blindly overwriting.
+    (see _merge_collections) — but a work_urn's version list could
+    theoretically be contributed by more than one manifest, so this still
+    merges per-key (deduped by version id) rather than blindly overwriting.
     """
     all_collections: list[list[dict]] = []
-    urn_index: dict[str, dict[str, str]] = {}
+    urn_index: dict[str, dict[str, dict]] = {}
 
     for path in manifest_paths:
         with open(path, encoding="utf-8") as f:
@@ -79,8 +79,13 @@ def _merge_manifests(
 
         all_collections.append(manifest["collections"])
         for work_urn, versions in manifest["urn_index"].items():
-            urn_index.setdefault(work_urn, {}).update(versions)
+            by_id = urn_index.setdefault(work_urn, {})
+            for version in versions:
+                by_id[version["id"]] = version
 
     collections = _merge_collections(all_collections)
+    merged_urn_index = {
+        work_urn: list(by_id.values()) for work_urn, by_id in urn_index.items()
+    }
 
-    return collections, urn_index
+    return collections, merged_urn_index

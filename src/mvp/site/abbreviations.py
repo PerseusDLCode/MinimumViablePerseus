@@ -10,7 +10,6 @@ offers to resolve a passage the site can't render.
 from __future__ import annotations
 
 import json
-import re
 
 from mvp.site import config
 from mvp.site.catalog_tree import _group_name, _work_title
@@ -20,32 +19,18 @@ from mvp.site.catalog_tree import _group_name, _work_title
 # source text as focus". Falls through to whatever's available.
 _LANGUAGE_PREFERENCE = ("grc", "lat")
 
-_URL_PREFIX_RE = re.compile(r"^/([^:]+):([^.]+)\.([^.]+)\.(.+)$")
 
-
-def _pick_language(versions: dict[str, str]) -> str | None:
-    """Pick which language's edition to link to for a work, given
-    urn-index.json's {language: url_prefix} map for that work.
+def _version_sort_key(version: dict) -> tuple:
+    """Order a work's versions source-language-first (see
+    _LANGUAGE_PREFERENCE), then other non-English languages, then English
+    last -- the order a popover of editions should list them in.
     """
-    for lang in _LANGUAGE_PREFERENCE:
-        if lang in versions:
-            return lang
-    if not versions:
-        return None
-    non_eng = [lang_ for lang_ in versions if lang_ != "eng"]
-    if non_eng:
-        return min(non_eng)
-    return min(versions)
-
-
-def _parse_url_prefix(prefix: str) -> dict[str, str] | None:
-    """Split a urn-index.json url_prefix ("/greekLit:tlg0011.tlg003.perseus-grc2")
-    into get_first_chunk's route kwargs."""
-    m = _URL_PREFIX_RE.match(prefix)
-    if not m:
-        return None
-    corpus, textgroup, work, version = m.groups()
-    return {"corpus": corpus, "textgroup": textgroup, "work": work, "version": version}
+    lang = version["language"]
+    if lang in _LANGUAGE_PREFERENCE:
+        return (0, _LANGUAGE_PREFERENCE.index(lang), version["label"])
+    if lang == "eng":
+        return (2, lang, version["label"])
+    return (1, lang, version["label"])
 
 
 def _load_gazetteer() -> dict:
@@ -54,7 +39,7 @@ def _load_gazetteer() -> dict:
 
 
 def _build_citation_index(
-    gazetteer: dict, urn_index: dict[str, dict[str, str]], catalog
+    gazetteer: dict, urn_index: dict[str, list[dict]], catalog
 ) -> dict:
     """Filter the gazetteer to textgroups/works with an available edition.
 
@@ -122,21 +107,20 @@ def _build_citation_index(
 
 
 def _build_abbreviation_page_entries(
-    citation_index: dict, urn_index: dict[str, dict[str, str]]
+    citation_index: dict, urn_index: dict[str, list[dict]]
 ) -> list[dict]:
     """Flatten the citation index into rows for the /abbreviations/ page,
-    sorted by author display name. Each work carries route_kwargs for
-    url_for("get_first_chunk", **route_kwargs), pointing at the preferred
-    (source-language-first) edition, or None if the work's editions aren't
-    parseable route prefixes.
+    sorted by author display name. Each work carries every available
+    version (source-language-first, see _version_sort_key), each with
+    route_kwargs for url_for("get_first_chunk", **route_kwargs), so the
+    template can offer a reader every edition that resolves rather than
+    silently picking one.
     """
     entries = []
     for rec in citation_index.values():
         works = []
         for work_urn, w in rec["works"].items():
-            versions = urn_index.get(work_urn, {})
-            lang = _pick_language(versions)
-            route_kwargs = _parse_url_prefix(versions[lang]) if lang else None
+            versions = sorted(urn_index.get(work_urn, []), key=_version_sort_key)
             works.append(
                 {
                     "title": w["title"],
@@ -144,7 +128,7 @@ def _build_abbreviation_page_entries(
                     "scheme": w["scheme"],
                     "work_urn": work_urn,
                     "is_default": work_urn == rec["default_work_urn"],
-                    "route_kwargs": route_kwargs,
+                    "versions": versions,
                 }
             )
         works.sort(key=lambda w: w["title"])

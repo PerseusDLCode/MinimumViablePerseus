@@ -281,15 +281,23 @@ def _flatten_search_index(collections: list[dict]) -> list[dict]:
     return entries
 
 
-def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
-    """Map work-level CTS URNs to a language→URL-prefix dict.
+def _build_urn_index(
+    proto_dir: Path, catalog: CTSCatalog
+) -> dict[str, list[dict]]:
+    """Map work-level CTS URNs to the list of versions available for that work.
 
-    e.g. "urn:cts:latinLit:phi0917.phi001" -> {"lat": "/latinLit:phi0917.phi001.perseus-lat1/",
-                                                "eng": "/latinLit:phi0917.phi001.perseus-eng2/"}
-    For each language, the first version found (sorted) wins.
-    The JS appends the passage and a trailing slash to the chosen prefix.
+    e.g. "urn:cts:latinLit:phi0917.phi001" -> [
+        {"id": "perseus-lat1", "label": "...", "language": "lat",
+         "language_label": "Latin",
+         "route_kwargs": {"corpus": "latinLit", "textgroup": "phi0917",
+                           "work": "phi001", "version": "perseus-lat1"}},
+        {"id": "perseus-eng2", ..., "language": "eng", ...},
+    ]
+    Every version this work has gets an entry (not just one per language),
+    so a caller can offer a reader every edition that resolves, e.g. as a
+    popover menu, rather than silently picking one.
     """
-    index: dict[str, dict[str, str]] = {}
+    index: dict[str, list[dict]] = {}
 
     for corpus_dir, tg_dir, work_dir, ver_dir in _iter_version_dirs(proto_dir):
         meta_file = ver_dir / "metadata.json"
@@ -302,8 +310,21 @@ def _build_urn_index(proto_dir: Path) -> dict[str, dict[str, str]]:
 
         corpus = corpus_dir.name
         work_urn = f"urn:cts:{corpus}:{tg_dir.name}.{work_dir.name}"
-        url_prefix = f"/{corpus}:{tg_dir.name}.{work_dir.name}.{ver_dir.name}"
-        index.setdefault(work_urn, {}).setdefault(language, url_prefix)
+        version_urn = f"{work_urn}.{ver_dir.name}"
+        cts_version = catalog.version_for(version_urn)
+        version = {
+            "id": ver_dir.name,
+            "label": (cts_version.label if cts_version else "") or ver_dir.name,
+            "language": language,
+            "language_label": config._LANGUAGE_LABELS.get(language, language),
+            "route_kwargs": {
+                "corpus": corpus,
+                "textgroup": tg_dir.name,
+                "work": work_dir.name,
+                "version": ver_dir.name,
+            },
+        }
+        index.setdefault(work_urn, []).append(version)
 
     return index
 

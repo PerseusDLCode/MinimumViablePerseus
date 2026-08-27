@@ -31,7 +31,7 @@ from mvp.site.toc import _scheme_toggle_links, _toc_from_metadata
 def create_app(
     test_config=None,
     collections_override: list[dict] | None = None,
-    urn_index_override: dict[str, dict[str, str]] | None = None,
+    urn_index_override: dict[str, list[dict]] | None = None,
 ):
     """Build the Flask app.
 
@@ -82,7 +82,7 @@ def create_app(
         data = (
             urn_index_override
             if urn_index_override is not None
-            else _build_urn_index(config.PROTO_DIR)
+            else _build_urn_index(config.PROTO_DIR, catalog)
         )
         return data, 200, {"Content-Type": "application/json"}
 
@@ -91,7 +91,7 @@ def create_app(
         data = (
             urn_index_override
             if urn_index_override is not None
-            else _build_urn_index(config.PROTO_DIR)
+            else _build_urn_index(config.PROTO_DIR, catalog)
         )
         index = _build_citation_index(_load_gazetteer(), data, catalog)
         return index, 200, {"Content-Type": "application/json"}
@@ -101,7 +101,7 @@ def create_app(
         data = (
             urn_index_override
             if urn_index_override is not None
-            else _build_urn_index(config.PROTO_DIR)
+            else _build_urn_index(config.PROTO_DIR, catalog)
         )
         index = _build_citation_index(_load_gazetteer(), data, catalog)
         entries = _build_abbreviation_page_entries(index, data)

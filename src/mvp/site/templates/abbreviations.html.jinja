@@ -46,8 +46,22 @@
             <ul class="pl-6 mt-1 space-y-0.5">
                 {% for work in entry.works %}
                 <li class="text-sm">
-                    {% if work.route_kwargs %}
-                    <a href="{{ url_for('get_first_chunk', **work.route_kwargs) }}" class="link">{{ work.title }}</a>
+                    {% if work.versions|length > 1 %}
+                    <div class="dropdown">
+                        <div tabindex="0" role="button" class="link">{{ work.title }}</div>
+                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box">
+                            {% for version in work.versions %}
+                            <li>
+                                <a href="{{ url_for('get_first_chunk', **version.route_kwargs) }}">
+                                    {{ version.language_label }}
+                                    <span class="text-neutral-500">({{ version.label }})</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% elif work.versions %}
+                    <a href="{{ url_for('get_first_chunk', **work.versions[0].route_kwargs) }}" class="link">{{ work.title }}</a>
                     {% else %}
                     {{ work.title }}
                     {% endif %}

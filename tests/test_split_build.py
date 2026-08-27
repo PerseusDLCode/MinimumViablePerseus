@@ -168,12 +168,34 @@ class TestSplitBuildMatchesCombinedBuild:
         assert urn_index == baseline_index
         # Sanity check it's non-trivial, not two empty dicts matching by accident.
         assert urn_index == {
-            "urn:cts:greekLit:tlg0001.tlg001": {
-                "grc": "/greekLit:tlg0001.tlg001.perseus-grc2"
-            },
-            "urn:cts:latinLit:phi1017.phi007": {
-                "lat": "/latinLit:phi1017.phi007.perseus-lat2"
-            },
+            "urn:cts:greekLit:tlg0001.tlg001": [
+                {
+                    "id": "perseus-grc2",
+                    "label": "perseus-grc2",
+                    "language": "grc",
+                    "language_label": "Greek",
+                    "route_kwargs": {
+                        "corpus": "greekLit",
+                        "textgroup": "tlg0001",
+                        "work": "tlg001",
+                        "version": "perseus-grc2",
+                    },
+                }
+            ],
+            "urn:cts:latinLit:phi1017.phi007": [
+                {
+                    "id": "perseus-lat2",
+                    "label": "perseus-lat2",
+                    "language": "lat",
+                    "language_label": "Latin",
+                    "route_kwargs": {
+                        "corpus": "latinLit",
+                        "textgroup": "phi1017",
+                        "work": "phi007",
+                        "version": "perseus-lat2",
+                    },
+                }
+            ],
         }
 
     def test_manifest_href_resolves_to_the_real_reading_view_route(
