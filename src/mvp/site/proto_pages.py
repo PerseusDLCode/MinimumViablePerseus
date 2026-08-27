@@ -82,6 +82,26 @@ def _compile_proto_page(
             # is later fixed to declare a citeStructure.
             return "no-schema", str(xml_path)
 
+        # A document's refsDecls are compiled independently, and one being
+        # misconfigured (e.g. a citeStructure with no reachable n="chunk"
+        # level -- see CTSResolver._find_chunk_cs) must not take the whole
+        # document down with it: accessing citation_chunks is what
+        # actually triggers that resolution, so it's done per-compiler,
+        # up front, with failures skipped rather than left to propagate
+        # out of the dict comprehension below and abort every other
+        # (perfectly fine) scheme for this same document.
+        usable_compilers: list[tuple[str, Chunker]] = []
+        for scheme, compiler in compilers:
+            try:
+                compiler.citation_chunks
+            except Exception as exc:
+                print(f"  SCHEME-FAILED: {xml_path} [{scheme or 'default'}]: {exc}")
+                continue
+            usable_compilers.append((scheme, compiler))
+
+        if not usable_compilers:
+            return "failed", f"{xml_path}: no citeStructure scheme compiled"
+
         # unit -> scheme slug, shared across every scheme's own TOC so a
         # reader can jump directly to any other *hierarchically nested*
         # paginated level (e.g. chapter <-> section) from the left nav, not
@@ -91,11 +111,11 @@ def _compile_proto_page(
         # here is harmless.
         unit_scheme_map = {
             compiler.citation_chunks[0].unit: scheme
-            for scheme, compiler in compilers
+            for scheme, compiler in usable_compilers
             if compiler.citation_chunks
         }
 
-        for scheme, compiler in compilers:
+        for scheme, compiler in usable_compilers:
             compiler.compile(
                 site_map.chunk_dir(doc.metadata.urn, scheme or None),
                 unit_scheme_map=unit_scheme_map,
