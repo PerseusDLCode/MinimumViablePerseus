@@ -15,8 +15,12 @@
             type="text/css"
         />
     </head>
-    <body class="bg-base-100 min-h-screen">
-        {% block header %}{% endblock %}
+    <body class="bg-base-200 min-h-screen">
+        {% block header %}
+            <div class="p-4">
+                <img src="{{ url_for('static', filename='images/perseus-banner.png') }}" />
+            </div>
+        {% endblock %}
             <div class="navbar bg-primary text-primary-content font-bold">
                 <div class="navbar-start">
                     <div class="dropdown">

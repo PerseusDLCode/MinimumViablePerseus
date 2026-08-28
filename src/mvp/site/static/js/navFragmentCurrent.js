@@ -10,7 +10,7 @@
     const target = document.getElementById(currentUrn);
     if (!target) return;
 
-    target.classList.add('menu-active');
+    target.closest('li').classList.add('menu-active');
 
     let ancestor = target.closest('details');
     while (ancestor) {
