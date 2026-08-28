@@ -16,7 +16,7 @@ from mvp.site.catalog_tree import (
 # Bump when the manifest.json shape below changes incompatibly, so a global
 # build can refuse to merge manifests it doesn't know how to read instead of
 # silently mis-rendering.
-_MANIFEST_SCHEMA_VERSION = 2
+_MANIFEST_SCHEMA_VERSION = 3
 
 
 def _build_corpus_manifest(
