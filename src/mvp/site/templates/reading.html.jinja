@@ -13,7 +13,8 @@
 
 {% block header %}
     <header class="hero p-4">
-        <div class="text-base-content w-full">
+        <div class="text-base-content w-full flex">
+            <img class="w-24 h-24" src="{{ url_for('static', filename='images/perseus-running-man.png') }}" />
             <div>
                 <h1 class="text-xl font-bold">
                     {{ pub_info.author }} <em>{{ work_title }}</em>
