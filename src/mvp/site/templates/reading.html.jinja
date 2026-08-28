@@ -31,7 +31,7 @@
 {% block content %}
     {% set notes = namespace(items=[]) %}
 
-    <main class="pt-4 w-full flex flex-col lg:flex-row lg:items-start">
+    <main class="py-4 w-full flex flex-col lg:flex-row lg:items-start">
         <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
         main content. Hidden at lg+, where the static sidebar below takes over. -->
         <div class="dropdown w-full lg:hidden mb-4">
@@ -68,7 +68,7 @@
 
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
         Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
-        <div class="hidden lg:flex text-base-content text-xs w-1/5 sticky top-0 h-[90vh] flex-col will-change-transform bg-base-300 text-base-content">
+        <div class="hidden lg:flex text-base-content text-xs w-1/6 sticky top-0 h-[90vh] flex-col will-change-transform bg-base-300 text-base-content">
             <div class="p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -101,9 +101,9 @@
             ></iframe>
         </div>
 
-        <div class="w-full px-2 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 lg:w-4/5 lg:mx-4 text-sm lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto will-change-transform">
+        <div class="w-full px-2 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-4 lg:w-5/6 lg:mx-4 text-sm lg:items-start">
             <!-- Base text -->
-            <article data-lang="{{ chunk.language }}">
+            <article data-lang="{{ chunk.language }}" class="col-span-2 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform">
                 {% if scheme_links %}
                     <div class="flex gap-2 mb-2 text-xs">
                         <span>View:</span>
@@ -149,7 +149,7 @@
             </article>
 
             <!-- Paratexts / Editions / Translations -->
-            <div class="text-base-content">
+            <div class="text-base-content lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform">
                 {% if sibling_data and sibling_data.current_version %}
                     <!-- Current version -->
                     <div class="mb-4 bg-base-300">
@@ -345,36 +345,36 @@
                     </div>
                 </div>
             </div>
-
-            <footer class="text-xs col-span-2 p-4 bottom-0 bg-base-300 text-base-content">
-                <div class="rights_info">
-                    <div class="cc_rights flex items-start gap-4 mb-2">
-                        <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                            <img
-                                alt="Creative Commons License"
-                                style="border-width: 0"
-                                src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
-                            />
-                        </a>
-                        <p>
-                            This work is licensed under a
-                            <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                                Creative Commons Attribution-ShareAlike 3.0 United States License
-                            </a>.
-                        </p>
-                    </div>
-                    <p class="xml_download">
-                        An <a href="{{ xml_src_url }}">XML version</a>
-                        of this text is available for download, with the additional restriction
-                        that you offer Perseus any modifications you make. Perseus provides
-                        credit for all accepted changes, storing new additions in a versioning
-                        system.
-                    </p>
-                </div>
-            </footer>
         </div>
     </main>
 
+
+    <footer class="text-xs p-4 bottom-0 bg-base-300 text-base-content">
+        <div class="rights_info">
+            <div class="cc_rights flex items-start gap-4 mb-2">
+                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                    <img
+                        alt="Creative Commons License"
+                        style="border-width: 0"
+                        src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
+                    />
+                </a>
+                <p>
+                    This work is licensed under a
+                    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                        Creative Commons Attribution-ShareAlike 3.0 United States License
+                    </a>.
+                </p>
+            </div>
+            <p class="xml_download">
+                An <a href="{{ xml_src_url }}">XML version</a>
+                of this text is available for download, with the additional restriction
+                that you offer Perseus any modifications you make. Perseus provides
+                credit for all accepted changes, storing new additions in a versioning
+                system.
+            </p>
+        </div>
+    </footer>
 
 {% endblock %}
 
