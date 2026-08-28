@@ -7,13 +7,20 @@
     <h1 class="text-2xl font-bold mb-6">Collections</h1>
 
     <div class="mb-6">
-        <input
-            type="search"
-            id="collections-search"
-            autocomplete="off"
-            placeholder="Search by title, author, or editor…"
-            class="input input-bordered w-full"
-        />
+        <div class="relative">
+            <input
+                type="search"
+                id="collections-search"
+                autocomplete="off"
+                placeholder="Search by title, author, or editor…"
+                class="input input-bordered w-full"
+            />
+            <span
+                id="collections-search-spinner"
+                class="loading loading-spinner loading-sm absolute -right-8 top-1/2 -translate-y-1/2 hidden"
+                aria-hidden="true"
+            ></span>
+        </div>
         <div id="collections-search-results" class="collapse bg-base-100">
             <div class="collapse-content !p-0">
                 <ul class="max-h-96 overflow-y-auto divide-y divide-neutral-200"></ul>
@@ -77,6 +84,6 @@
 {% block scripts %}
 <script type="module" src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
 <script type="module">
-    window.collectionsSearch('collections-search', 'collections-search-results');
+    window.collectionsSearch('collections-search', 'collections-search-results', 'collections-search-spinner');
 </script>
 {% endblock %}
