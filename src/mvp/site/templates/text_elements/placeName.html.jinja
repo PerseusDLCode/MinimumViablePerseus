@@ -1,4 +1,3 @@
 {% from "components/macros.html.jinja" import render_children with context %}
-<a href="#{{ text_container.get("key", text_container.get("urn")) }}" class="tei-placeName hover:font-extrabold">
-    {{- render_children(text_container) -}}
-</a>
+<a href="#{{ text_container.get("key", text_container.get("urn")) }}"
+   class="tei-placeName hover:font-extrabold">{{- render_children(text_container) -}}</a>

@@ -1,15 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="overscroll-contain bg-base-300">
     <head>
         <meta charset="utf-8" />
         <!-- Links here must navigate the outer reading page, not this
              iframe's own document. -->
         <base target="_parent" />
-        <link
-            href="{{ url_for('static', filename="css/output.css") }}"
-            rel="stylesheet"
-            type="text/css"
-        />
+        <link href="{{ url_for('static', filename="css/output.css") }}"
+              rel="stylesheet"
+              type="text/css" />
     </head>
     <body class="text-xs text-base-content p-4 overscroll-contain">
         <h3 class="font-bold">Table of Contents:</h3>

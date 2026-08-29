@@ -1,5 +1,4 @@
 {% extends "base.html.jinja" %}
-
 {% block title %}
     {% if pub_info.author %}
         {{ pub_info.author }},
@@ -10,11 +9,11 @@
     {% endif %}
     {{ chunk.cts_urn.rsplit(':', 1)[-1] }}
 {% endblock %}
-
 {% block header %}
     <header class="p-4">
         <div class="text-base-content w-full flex items-center gap-4">
-            <img class="w-24 h-24" src="{{ url_for('static', filename='images/perseus-running-man.png') }}" />
+            <img class="w-24 h-24"
+                 src="{{ url_for('static', filename='images/perseus-running-man.png') }}" />
             <div>
                 <h1 class="text-xl font-bold">
                     {{ pub_info.author }} <em>{{ work_title }}</em>
@@ -27,45 +26,42 @@
         </div>
     </header>
 {% endblock %}
-
 {% block content %}
     {% set notes = namespace(items=[]) %}
-
     <main class="py-4 w-full flex flex-col lg:flex-row lg:items-start">
         <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
         main content. Hidden at lg+, where the static sidebar below takes over. -->
         <div class="dropdown w-full lg:hidden mb-4">
-            <div tabindex="0" role="button" class="btn btn-block text-base-content justify-between font-bold bg-base-300 text-base-content">
+            <div tabindex="0"
+                 role="button"
+                 class="btn btn-block text-base-content justify-between font-bold bg-base-300 text-base-content">
                 Table of Contents
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            <div tabindex="-1" class="dropdown-content z-20 mt-2 w-full p-4 shadow text-xs bg-base-300 text-base-content">
+            <div tabindex="-1"
+                 class="dropdown-content z-20 mt-2 w-full p-4 shadow text-xs bg-base-300 text-base-content">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul class="mb-4">
                     <li>
-                        <a href="//catalog.perseus.org/catalog/{{ work_urn }}" class="link">
-                            Editions/Translations
-                        </a>
+                        <a href="//catalog.perseus.org/catalog/{{ work_urn }}" class="link">Editions/Translations</a>
                     </li>
                     <li>
-                        <a href="//catalog.perseus.org/catalog/{{ textgroup_urn }}" class="link">
-                            Author Group
-                        </a>
+                        <a href="//catalog.perseus.org/catalog/{{ textgroup_urn }}" class="link">Author Group</a>
                     </li>
                 </ul>
-
-                <iframe
-                    src="{{ nav_fragment_url }}"
-                    data-current-urn="{{ current_urn }}"
-                    title="Table of Contents"
-                    loading="lazy"
-                    class="w-full h-96 border-0 bg-base-300"
-                ></iframe>
+                <iframe src="{{ nav_fragment_url }}"
+                        data-current-urn="{{ current_urn }}"
+                        title="Table of Contents"
+                        loading="lazy"
+                        class="w-full h-96 border-0 bg-base-300"></iframe>
             </div>
         </div>
-
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
         Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
         <div class="hidden lg:flex text-base-content text-xs w-1/6 sticky top-0 h-[90vh] flex-col will-change-transform bg-base-300 text-base-content rounded-box shadow-md overflow-hidden border-l-4 border-primary">
@@ -73,18 +69,13 @@
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
                     <li>
-                        <a href="//catalog.perseus.org/catalog/{{ work_urn }}" class="link">
-                            Editions/Translations
-                        </a>
+                        <a href="//catalog.perseus.org/catalog/{{ work_urn }}" class="link">Editions/Translations</a>
                     </li>
                     <li>
-                        <a href="//catalog.perseus.org/catalog/{{ textgroup_urn }}" class="link">
-                            Author Group
-                        </a>
+                        <a href="//catalog.perseus.org/catalog/{{ textgroup_urn }}" class="link">Author Group</a>
                     </li>
                 </ul>
             </div>
-
             <!-- Table of contents lives in its own frozen page (one per
             work+scheme, shared across every chunk) and is embedded here
             rather than inlined, so its markup isn't duplicated into every
@@ -93,17 +84,15 @@
             can open the right <details> and scroll its own document into
             view without triggering a fragment-navigation scroll on the
             outer page. -->
-            <iframe
-                src="{{ nav_fragment_url }}"
-                data-current-urn="{{ current_urn }}"
-                title="Table of Contents"
-                class="w-full flex-1 border-0 bg-base-300"
-            ></iframe>
+            <iframe src="{{ nav_fragment_url }}"
+                    data-current-urn="{{ current_urn }}"
+                    title="Table of Contents"
+                    class="w-full flex-1 border-0 bg-base-300"></iframe>
         </div>
-
         <div class="w-full px-2 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-4 lg:w-5/6 lg:mx-4 text-sm lg:items-start">
             <!-- Base text -->
-            <article data-lang="{{ chunk.language }}" class="col-span-2 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform bg-base-100 rounded-box drop-shadow-xl p-4">
+            <article data-lang="{{ chunk.language }}"
+                     class="col-span-2 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform bg-base-100 rounded-box drop-shadow-xl p-4">
                 {% if scheme_links %}
                     <div class="flex gap-2 mb-2 text-xs">
                         <span>View:</span>
@@ -122,15 +111,13 @@
                         <a href="{{ next_url }}" class="link">Next &rarr;</a>
                     {% endif %}
                 </div>
-
                 <div class="prose">
                     {% for element in chunk.elements %}
                         {% with text_container = element, note_source = chunk.title %}
-                            {%  include 'components/ReadableTextContainer.html.jinja' %}
+                            {% include 'components/ReadableTextContainer.html.jinja' %}
                         {% endwith %}
                     {% endfor %}
                 </div>
-
                 <div class="pt-8">
                     <p class="mb-4">
                         {{ work_title }}.
@@ -147,19 +134,16 @@
                     </p>
                 </div>
             </article>
-
             <!-- Paratexts / Editions / Translations -->
             <div class="text-base-content lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform">
                 {% if sibling_data and sibling_data.current_version %}
                     <!-- Current version -->
                     <div class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-primary">
                         <div class="p-4">
-                            <h4 class="font-bold">
-                                Current edition
-                            </h4>
+                            <h4 class="font-bold">Current edition</h4>
                             <p>
                                 {{ sibling_data.current_version.label }}
-                                {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang)  %}
+                                {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) %}
                                 {% if lang_label %}
                                     ({{ lang_label }})
                                 {% endif %}
@@ -167,13 +151,10 @@
                             </p>
                         </div>
                     </div>
-
                     <!-- Editions -->
                     {% if sibling_data.edition_chunks %}
                         <details class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-info">
-                            <summary class="p-4 font-bold">
-                                Editions ({{ sibling_data.edition_chunks|length }})
-                            </summary>
+                            <summary class="p-4 font-bold">Editions ({{ sibling_data.edition_chunks|length }})</summary>
                             {% for sib, sib_chunk, focus_url in sibling_data.edition_chunks %}
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
@@ -198,13 +179,10 @@
                             {% endfor %}
                         </details>
                     {% endif %}
-
                     <!-- Translations -->
                     {% if sibling_data.translation_chunks %}
                         <details class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-success">
-                            <summary class="p-4 font-bold">
-                                Translations ({{ sibling_data.translation_chunks|length }})
-                            </summary>
+                            <summary class="p-4 font-bold">Translations ({{ sibling_data.translation_chunks|length }})</summary>
                             {% for sib, sib_chunk, focus_url in sibling_data.translation_chunks %}
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
@@ -212,8 +190,6 @@
                                         ({{ sib.description }})
                                         {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
-
-
                                     <div class="p-4">
                                         {% if sib_chunk %}
                                             {% with notes = namespace(items=[]) %}
@@ -232,14 +208,13 @@
                         </details>
                     {% endif %}
                 {% endif %}
-
                 <!-- Notes -->
                 {% if notes.items %}
                     <div class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-warning">
                         <div class="p-4">
                             <h4 class="font-bold">Notes</h4>
                             {% if notes.items[0].source %}
-                                <p class="italic text-primary-600">{{ notes.items[0].source }}</p>
+                                <p class="italic text-base-content/70">{{ notes.items[0].source }}</p>
                             {% endif %}
                         </div>
                         {% for note in notes.items %}
@@ -250,14 +225,12 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-
                 <!-- New Alexandria Commentaries -->
                 {% if new_alexandria_groups %}
                     <div class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-accent">
                         <div class="p-4">
                             <h4 class="font-bold">New Alexandria Commentaries</h4>
                         </div>
-
                         {% for group in new_alexandria_groups %}
                             <details>
                                 <summary class="p-4 cursor-pointer font-bold">{{ group.label }}</summary>
@@ -267,11 +240,12 @@
                                             {% if entry.section %}
                                                 <p class="font-bold">{{ entry.section }}</p>
                                             {% endif %}
-                                            <div class="prose prose-sm max-w-none">
-                                                {{ entry.body_html }}
-                                            </div>
+                                            <div class="prose prose-sm max-w-none">{{ entry.body_html }}</div>
                                             {% if entry.source_url %}
-                                                <a href="{{ entry.source_url }}" class="link" target="_blank" rel="noopener">source</a>
+                                                <a href="{{ entry.source_url }}"
+                                                   class="link"
+                                                   target="_blank"
+                                                   rel="noopener">source</a>
                                             {% endif %}
                                         </div>
                                     {% endfor %}
@@ -280,7 +254,6 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-
                 {# for debug purposes only #}
                 {# {% for warning in commentary_warnings %}
                     <p class="bg-warning text-warning-content p-4">{{ warning }}</p>
@@ -291,7 +264,6 @@
                         <div class="p-4">
                             <h4 class="font-bold">Commentary</h4>
                         </div>
-
                         {% for group in commentary_groups %}
                             <details>
                                 <summary class="p-4 cursor-pointer font-bold">
@@ -301,44 +273,42 @@
                                 </summary>
                                 <div class="p-4">
                                     {% with notes = namespace(items=[]) %}
-                                    {% for entry in group.entries %}
-                                        <p class="my-2">
-                                            {% if entry.line_ref %}
-                                                <span class="font-bold">{{ entry.line_ref }}.</span>
-                                            {% endif %}
-                                            {% if entry.lemma_elements %}
-                                                <strong>
-                                                    {% for element in entry.lemma_elements %}
+                                        {% for entry in group.entries %}
+                                            <p class="my-2">
+                                                {% if entry.line_ref %}
+                                                    <span class="font-bold">{{ entry.line_ref }}.</span>
+                                                {% endif %}
+                                                {% if entry.lemma_elements %}
+                                                    <strong>
+                                                        {% for element in entry.lemma_elements %}
+                                                            {% with text_container = element %}
+                                                                {% include 'components/ReadableTextContainer.html.jinja' %}
+                                                            {% endwith %}
+                                                        {% endfor %}
+                                                    </strong>
+                                                {% else %}
+                                                    <strong>{{ entry.anchor_id }}</strong>
+                                                {% endif %}
+                                                {% if entry.comment_elements %}
+                                                    {% for element in entry.comment_elements %}
                                                         {% with text_container = element %}
                                                             {% include 'components/ReadableTextContainer.html.jinja' %}
                                                         {% endwith %}
                                                     {% endfor %}
-                                                </strong>
-                                            {% else %}
-                                                <strong>{{ entry.anchor_id }}</strong>
-                                            {% endif %}
-                                            {% if entry.comment_elements %}
-                                                {% for element in entry.comment_elements %}
-                                                    {% with text_container = element %}
-                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                    {% endwith %}
-                                                {% endfor %}
-                                            {% endif %}
-                                        </p>
-                                    {% endfor %}
+                                                {% endif %}
+                                            </p>
+                                        {% endfor %}
                                     {% endwith %}
                                 </div>
                             </details>
                         {% endfor %}
                     </div>
                 {% endif %}
-
                 <!-- Stable identifiers -->
                 <div class="mb-4 hidden bg-base-200">
                     <div class="flex justify-between p-4">
                         <h4 class="font-bold">Stable identifiers</h4>
                     </div>
-
                     <div class="p-4 text-xs">
                         <p>Citation URI: <a href="{{ citation_uri }}" class="link">{{ citation_uri }}</a></p>
                         <p>Text URI: <a href="{{ text_uri }}" class="link">{{ text_uri }}</a></p>
@@ -349,21 +319,19 @@
             </div>
         </div>
     </main>
-
-
     <footer class="text-xs p-4 bottom-0 bg-base-300 text-base-content">
         <div class="rights_info">
             <div class="cc_rights flex items-start gap-4 mb-2">
-                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                    <img
-                        alt="Creative Commons License"
-                        style="border-width: 0"
-                        src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png"
-                    />
+                <a rel="license"
+                   href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                    <img alt="Creative Commons License"
+                         style="border-width: 0"
+                         src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png" />
                 </a>
                 <p>
                     This work is licensed under a
-                    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+                    <a rel="license"
+                       href="https://creativecommons.org/licenses/by-sa/3.0/us/">
                         Creative Commons Attribution-ShareAlike 3.0 United States License
                     </a>.
                 </p>
@@ -377,13 +345,11 @@
             </p>
         </div>
     </footer>
-
 {% endblock %}
-
 {% block scripts %}
-<script type="text/ecmascript" src="{{ url_for("static", filename="js/linkifyBiblRefs.js") }}"></script>
-
-<script>
+    <script type="text/ecmascript"
+            src="{{ url_for("static", filename="js/linkifyBiblRefs.js") }}"></script>
+    <script>
 (function () {
     const lang = {{ chunk.language | tojson }};
     const morphUrl = {{ morph_url | tojson }};
@@ -454,5 +420,5 @@
     }
     nodes.forEach(linkifyTextNode);
 }());
-</script>
+    </script>
 {% endblock %}

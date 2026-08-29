@@ -1,89 +1,81 @@
 {% extends 'base.html.jinja' %}
-
 {% block title %}Collections – Perseus Digital Library{% endblock %}
-
 {% block content %}
-<div class="max-w-4xl mx-auto mt-6">
-    <h1 class="text-2xl font-bold mb-6">Collections</h1>
-
-    <div class="mb-6">
-        <div class="relative">
-            <input
-                type="search"
-                id="collections-search"
-                autocomplete="off"
-                placeholder="Search by title, author, or editor…"
-                class="input input-bordered w-full"
-            />
-            <span
-                id="collections-search-spinner"
-                class="loading loading-spinner loading-sm absolute -right-8 top-1/2 -translate-y-1/2 hidden"
-                aria-hidden="true"
-            ></span>
-        </div>
-        <div id="collections-search-results" class="collapse bg-base-100">
-            <div class="collapse-content !p-0">
-                <ul class="max-h-96 overflow-y-auto divide-y divide-neutral-200"></ul>
+    <div class="max-w-4xl mx-auto mt-6">
+        <h1 class="text-2xl font-bold mb-6">Collections</h1>
+        <div class="mb-6">
+            <div class="relative">
+                <input type="search"
+                       id="collections-search"
+                       autocomplete="off"
+                       placeholder="Search by title, author, or editor…"
+                       class="input input-bordered w-full" />
+                <span id="collections-search-spinner"
+                      class="loading loading-spinner loading-sm absolute -right-8 top-1/2 -translate-y-1/2 hidden"
+                      aria-hidden="true"></span>
+            </div>
+            <div id="collections-search-results" class="collapse bg-base-100 mt-4 shadow-md">
+                <div class="collapse-content">
+                    <ul class="max-h-96 overflow-y-auto divide-y divide-base-300">
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-
-    {% for corpus in collections|sort(attribute="label") %}
-    <section class="mb-6">
-        <details>
-            <summary class="text-xl font-semibold border-b border-neutral-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
-
-            <div class="pl-6 mt-2">
-                {% for tg in corpus.textgroups|sort(attribute="author,id") %}
-                <div class="mb-3">
-                    <details>
-                        <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
-
-                        <ul class="pl-6 mt-1 space-y-1">
-                            {% for work in tg.works|sort(attribute="title,id") %}
-                            <li class="mb-1">
-                                {% if work.versions|length == 1 %}
-                                {% set version = work.versions[0] %}
-                                {# A live combined build resolves first_chunk_kwargs via url_for here;
+        {% for corpus in collections|sort(attribute="label") %}
+            <section class="mb-6">
+                <details>
+                    <summary class="text-xl font-semibold border-b border-base-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
+                    <div class="pl-6 mt-2">
+                        {% for tg in corpus.textgroups|sort(attribute="author,id") %}
+                            <div class="mb-3">
+                                <details>
+                                    <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
+                                    <ul class="pl-6 mt-1 space-y-1">
+                                        {% for work in tg.works|sort(attribute="title,id") %}
+                                            <li class="mb-1">
+                                                {% if work.versions|length == 1 %}
+                                                    {% set version = work.versions[0] %}
+                                                    {# A live combined build resolves first_chunk_kwargs via url_for here;
                                    a global build stitched from per-corpus manifests (see
                                    _build_corpus_manifest) has no kwargs to resolve — it already
                                    carries the resolved href, computed at corpus-build time. #}
-                                <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm font-semibold">
-                                    {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                </a>
-                                {% else %}
-                                <details>
-                                    <summary class="text-sm font-semibold cursor-pointer">{{ work.title }}</summary>
-
-                                    <ul class="pl-6 mt-1 space-y-0.5">
-                                        {% for version in work.versions|sort(attribute="label,id") %}
-                                        <li>
-                                            <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}" class="link text-sm">
-                                                {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                            </a>
-                                        </li>
+                                                    <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
+                                                       class="link text-sm font-semibold">
+                                                        {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                                    </a>
+                                                {% else %}
+                                                    <details>
+                                                        <summary class="text-sm font-semibold cursor-pointer">{{ work.title }}</summary>
+                                                        <ul class="pl-6 mt-1 space-y-0.5">
+                                                            {% for version in work.versions|sort(attribute="label,id") %}
+                                                                <li>
+                                                                    <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
+                                                                       class="link text-sm">
+                                                                        {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                                                    </a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </details>
+                                                {% endif %}
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </details>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </details>
-                </div>
-                {% endfor %}
-            </div>
-        </details>
-    </section>
-    {% else %}
-    <p>No collections available.</p>
-    {% endfor %}
-</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </details>
+            </section>
+        {% else %}
+            <p>No collections available.</p>
+        {% endfor %}
+    </div>
 {% endblock %}
-
 {% block scripts %}
-<script type="module" src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
-<script type="module">
+    <script type="module"
+            src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
+    <script type="module">
     window.collectionsSearch('collections-search', 'collections-search-results', 'collections-search-spinner');
-</script>
+    </script>
 {% endblock %}

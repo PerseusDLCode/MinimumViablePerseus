@@ -1,13 +1,14 @@
-<div class="card card-side bg-base-100 cursor-pointer shadow-sm h-24 w-full" onclick="javascript:window.location={{ card.read_url }};">
+<div class="card card-side bg-base-100 cursor-pointer shadow-sm h-24 w-full"
+     onclick="javascript:window.location={{ card.read_url }};">
     <figure class="h-24 w-24 overflow-hidden">
-        <img class="object-cover" src="{{ card.image_src }}" alt="{{ card.image_alt }}" />
+        <img class="object-cover"
+             src="{{ card.image_src }}"
+             alt="{{ card.image_alt }}" />
     </figure>
     <div class="card-body">
         <h2 class="card-title">{{ card.title }} {{ card.subtitle | safe }}</h2>
         <div class="card-actions">
-            <small class="mt-auto">
-                {{ card.attribution | safe }}
-            </small>
+            <small class="mt-auto">{{ card.attribution | safe }}</small>
         </div>
     </div>
 </div>

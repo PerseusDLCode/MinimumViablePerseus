@@ -1,191 +1,290 @@
 {% extends "base.html.jinja" %}
-
 {% block title %}Perseus Digital Library{% endblock %}
-
 {% block content %}
-<main class="p-8">
-    <section class="mx-auto text-center">
-        <h1 class="text-xl font-bold">Welcome to Perseus</h1>
-        <p class="text-md">A statically compiled reading environment of the Perseus digital library</p>
-        <p>
-            Read more on the <a href="{{ url_for("get_history") }}" class="link">Perseus version history</a>.
-        </p>
-    </section>
-
-    <div class="grid gap-4 lg:grid-cols-3">
-        <section class="prose">
-            {% with markdown_content = news_markdown %}
-                {% include 'components/MarkdownContainer.html.jinja' %}
-            {% endwith %}
+    <main class="p-8">
+        <section class="mx-auto text-center">
+            <h1 class="text-xl font-bold">Welcome to Perseus</h1>
+            <p class="text-md">A statically compiled reading environment of the Perseus digital library</p>
+            <p>
+                Read more on the <a href="{{ url_for("get_history") }}" class="link">Perseus version history</a>.
+            </p>
         </section>
-
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <h2 class="col-span-1 lg:col-span-2 my-4 text-xl font-bold">Perseus Art & Archaeology</h2>
-
-            <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
-                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_5573.html#i1992070563" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Name vase of the Orpheus Painter, Berlin V. I. 3172" src="{{ url_for("static", filename="images/berlin-krater.jpg") }}" />
-                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <p>Name vase of the Orpheus Painter, Berlin V. I. 3172</p>
-                    </div>
-                </a>
-            </div>
-            <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
-                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_954.html#i1997030009" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Coin with bust of Nero, Boston 1997.93" src="{{ url_for("static", filename="images/nero.jpg") }}" />
-                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <p>Coin with bust of Nero, Boston 1997.93</p>
-                    </div>
-                </a>
-            </div>
-            <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
-                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_163.html#i1989010041" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Tholos at Delphi" src="{{ url_for("static", filename="images/delphi.jpg") }}" />
-                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <p>Tholos at Delphi</p>
-                    </div>
-                </a>
-            </div>
-            <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
-                <a class="group relative block aspect-square" href="https://perseus-aa.github.io/items/aa_2634.html#i1997990211" title="View on Perseus Art & Archaeology">
-                    <img class="absolute inset-0 h-full w-full object-cover" alt="Roman copy of Nemesis Rhamnous" src="{{ url_for("static", filename="images/nemesis.jpg") }}" />
-                    <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <p>Marble statue of Nemesis Rhamnous (Roman copy), photograph by Amy C. Smith</p>
-                    </div>
-                </a>
-            </div>
-
-        </section>
-        <section class="my-4 mx-auto ml-2">
-            <h2 class="text-lg font-bold">Popular Texts</h2>
-            <ul role="list" class="list-disc">
-                <li>
-                    Caesar, <em>Gallic War</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-lat2") }}")>Latin</a>)
-                </li>
-
-                <li>
-                    Catullus, <em>Carmina</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-eng3") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-lat2") }}")>Latin</a>)
-                </li>
-
-                <li>
-                    Cicero, <em>In Catilinam</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-eng2") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-lat2") }}")>Latin</a>)
-                </li>
-
-                <li>
-                    Vergil, <em>Aeneid</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-eng2") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-lat2") }}")>Latin</a>)
-                </li>
-
-                <li>
-                    Homer,
-                    <em>Odyssey</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-eng4") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-grc2") }}">Greek</a>)
-                </li>
-
-
-                <li>
-                    Herodotus,
-                    <em>Histories</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-eng2") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-grc2") }}">Greek</a>)
-                </li>
-
-
-                <li>
-                    Plato,
-                    <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2") }}">English</a>,
-                    <a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-grc2") }}">Greek</a>)
-                </li>
-
-                <li>
-                    Tom Martin,
-                    <em>Overview of Classical Greek History from Mycenae to Alexander</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="viaf108815313", work="viaf001", version="perseus-eng1") }}">English</a>)
-                </li>
-            </ul>
-
-            <h2 class="text-lg font-bold mt-4">Popular Commentaries</h2>
-            <ul role="list" class="list-disc">
-                <li>
-                    Adam on Plato's <em>Republic</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="greekLit", textgroup="viaf107078652", work="viaf002", version="perseus-eng1") }}">English</a>)
-                </li>
-
-                <li>
-                    Allen & Greenough on Cicero's <em>In Catilinam</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="latinLit", textgroup="sec00009", work="sec005a", version="perseus-eng1") }}">English</a>)
-                </li>
-
-                <li>
-                    Jebb on Sophocles' <em>Oedipus at Colonus</em> (<a title="Read now" class="link" href="{{ url_for("get_first_chunk",
-                    corpus="greekLit", textgroup="viaf2603144", work="viaf001", version="perseus-eng1") }}">English</a>)
-                </li>
-
-                <li>
-                    Marchant on Thucydides Book 6 (<a title="Read now" class="link" href="{{ url_for("get_first_chunk", corpus="greekLit",
-                    textgroup="viaf76387703", work="viaf003", version="perseus-eng1") }}">English</a>)
-                </li>
-            </ul>
-        </section>
-    </div>
-
-
-</main>
-
-<footer class="footer bottom-0 sm:absolute sm:footer-horizontal bg-base-300 p-4 text-neutral-900">
-    <div id="contact_info">
-        <p>Perseus contact and support <a href="/hopper/help">information</a>.</p>
-
-        <p>Perseus is a non-profit enterprise, located in the
-            <a class="link" target="_blank" href="//ase.tufts.edu/classics" onclick="javascript: pageTracker._trackPageview('/outgoing/ClassicsDept');">Department
-            of  Classical Studies</a>,
-            <a class="link" target="_blank" href="//www.tufts.edu" onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
-            University</a>.</p>
-
+        <div class="grid gap-4 lg:grid-cols-3">
+            <section class="prose">
+                {% with markdown_content = news_markdown %}
+                    {% include 'components/MarkdownContainer.html.jinja' %}
+                {% endwith %}
+            </section>
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <h2 class="col-span-1 lg:col-span-2 my-4 text-xl font-bold">Perseus Art & Archaeology</h2>
+                <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
+                    <a class="group relative block aspect-square"
+                       href="https://perseus-aa.github.io/items/aa_5573.html#i1992070563"
+                       title="View on Perseus Art & Archaeology">
+                        <img class="absolute inset-0 h-full w-full object-cover"
+                             alt="Name vase of the Orpheus Painter, Berlin V. I. 3172"
+                             src="{{ url_for("static", filename="images/berlin-krater.jpg") }}" />
+                        <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p>Name vase of the Orpheus Painter, Berlin V. I. 3172</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
+                    <a class="group relative block aspect-square"
+                       href="https://perseus-aa.github.io/items/aa_954.html#i1997030009"
+                       title="View on Perseus Art & Archaeology">
+                        <img class="absolute inset-0 h-full w-full object-cover"
+                             alt="Coin with bust of Nero, Boston 1997.93"
+                             src="{{ url_for("static", filename="images/nero.jpg") }}" />
+                        <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p>Coin with bust of Nero, Boston 1997.93</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
+                    <a class="group relative block aspect-square"
+                       href="https://perseus-aa.github.io/items/aa_163.html#i1989010041"
+                       title="View on Perseus Art & Archaeology">
+                        <img class="absolute inset-0 h-full w-full object-cover"
+                             alt="Tholos at Delphi"
+                             src="{{ url_for("static", filename="images/delphi.jpg") }}" />
+                        <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p>Tholos at Delphi</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card bg-base-100 w-full shadow-sm overflow-hidden">
+                    <a class="group relative block aspect-square"
+                       href="https://perseus-aa.github.io/items/aa_2634.html#i1997990211"
+                       title="View on Perseus Art & Archaeology">
+                        <img class="absolute inset-0 h-full w-full object-cover"
+                             alt="Roman copy of Nemesis Rhamnous"
+                             src="{{ url_for("static", filename="images/nemesis.jpg") }}" />
+                        <div class="absolute inset-0 flex items-end bg-black/70 p-4 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p>Marble statue of Nemesis Rhamnous (Roman copy), photograph by Amy C. Smith</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+            <section class="my-4 mx-auto ml-2">
+                <h2 class="text-lg font-bold">Popular Texts</h2>
+                <ul role="list" class="list-disc">
+                    <li>
+                        Caesar, <em>Gallic War</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-eng2") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0448", work="phi001", version="perseus-lat2") }}"
+                           )>Latin</a>)
+                    </li>
+                    <li>
+                        Catullus, <em>Carmina</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-eng3") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0472", work="phi001", version="perseus-lat2") }}"
+                           )>Latin</a>)
+                    </li>
+                    <li>
+                        Cicero, <em>In Catilinam</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-eng2") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0474", work="phi013", version="perseus-lat2") }}"
+                           )>Latin</a>)
+                    </li>
+                    <li>
+                        Vergil, <em>Aeneid</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-eng2") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="latinLit", textgroup="phi0690", work="phi003", version="perseus-lat2") }}"
+                           )>Latin</a>)
+                    </li>
+                    <li>
+                        Homer,
+                        <em>Odyssey</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-eng4") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0012", work="tlg002", version="perseus-grc2") }}">Greek</a>)
+                    </li>
+                    <li>
+                        Herodotus,
+                        <em>Histories</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-eng2") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0016", work="tlg001", version="perseus-grc2") }}">Greek</a>)
+                    </li>
+                    <li>
+                        Plato,
+                        <em>Republic</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-eng2") }}">English</a>,
+                        <a title="Read now"
+                           class="link"
+                           href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="tlg0059", work="tlg030", version="perseus-grc2") }}">Greek</a>)
+                    </li>
+                    <li>
+                        Tom Martin,
+                        <em>Overview of Classical Greek History from Mycenae to Alexander</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="greekLit", textgroup="viaf108815313", work="viaf001", version="perseus-eng1") }}">English</a>)
+                    </li>
+                </ul>
+                <h2 class="text-lg font-bold mt-4">Popular Commentaries</h2>
+                <ul role="list" class="list-disc">
+                    <li>
+                        Adam on Plato's <em>Republic</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="greekLit", textgroup="viaf107078652", work="viaf002", version="perseus-eng1") }}">English</a>)
+                    </li>
+                    <li>
+                        Allen & Greenough on Cicero's <em>In Catilinam</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="latinLit", textgroup="sec00009", work="sec005a", version="perseus-eng1") }}">English</a>)
+                    </li>
+                    <li>
+                        Jebb on Sophocles' <em>Oedipus at Colonus</em> (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk",
+ corpus="greekLit", textgroup="viaf2603144", work="viaf001", version="perseus-eng1") }}">English</a>)
+                    </li>
+                    <li>
+                        Marchant on Thucydides Book 6 (<a title="Read now"
+   class="link"
+   href="{{ url_for("get_first_chunk", corpus="greekLit",
+ textgroup="viaf76387703", work="viaf003", version="perseus-eng1") }}">English</a>)
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+    <footer class="footer bottom-0 sm:absolute sm:footer-horizontal bg-base-300 p-4 text-base-content">
+        <div id="contact_info">
+            <p>Perseus contact and support <a href="/hopper/help">information</a>.</p>
+            <p>
+                Perseus is a non-profit enterprise, located in the
+                <a class="link"
+                   target="_blank"
+                   href="//ase.tufts.edu/classics"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/ClassicsDept');">Department
+                    of  Classical Studies</a>,
+                <a class="link"
+                   target="_blank"
+                   href="//www.tufts.edu"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
+                    University</a>.
+            </p>
             <p>The Perseus Project has been supported by various funders throughout its history:</p>
-            <p>Perseus has been most recently funded by the <a class="link" target="_blank" href="//alpheios.net" onclick="javascript: pageTracker._trackPageview('/outgoing/Alpheios');">Alpheios
-            Project</a>, the
-            <a class="link" target="_blank" href="//www.mellon.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Mellon');">Andrew
-            W. Mellon Foundation</a>, the
-
-            <a class="link" target="_blank" href="//www.imls.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/IMLS');">Institute
-            of Museum and Library Services</a>, the
-            <a class="link" target="_blank" href="//www.neh.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NEH');">National
-                Endowment for the Humanities</a>, the
-                <a class="link" target="_blank" href="//www.nsf.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NSF');">National
+            <p>
+                Perseus has been most recently funded by the <a class="link"
+    target="_blank"
+    href="//alpheios.net"
+    onclick="javascript: pageTracker._trackPageview('/outgoing/Alpheios');">Alpheios
+                Project</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.mellon.org/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Mellon');">Andrew
+                    W. Mellon Foundation</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.imls.gov/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/IMLS');">Institute
+                    of Museum and Library Services</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.neh.gov/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/NEH');">National
+                    Endowment for the Humanities</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.nsf.gov/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/NSF');">National
                     Science Foundation</a>,
-                    <a href="/hopper/help/support.jsp">private donations</a>, and
-                    <a class="link" target="_blank" href="//www.tufts.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
-            University</a>.
-        </p>
-
-        <p>Prior support for the project has been provided by the
-            <a class="link" target="_blank" href="//www.learner.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Annenberg');">Annenberg/CPB
-            Project</a>,
-            <a class="link" target="_blank" href="//www.apple.com/" onclick="javascript: pageTracker._trackPageview('/outgoing/Apple');">Apple Computer</a>, the
-            <a class="link" target="_blank" href="//www.library.tufts.edu/tisch/Berger/bergerhome.html" onclick="javascript: pageTracker._trackPageview('/outgoing/Berger');">Berger
-            Family Technology Transfer Endowment</a>,
-            <a class="link" target="_blank" href="//www.dli2.nsf.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/DLI2');">Digital
-            Libraries Initiative Phase 2</a>,
-            the <a class="link" target="_blank" href="//www.ed.gov/FIPSE/" onclick="javascript: pageTracker._trackPageview('/outgoing/FIPSE');">Fund
-            for the Improvement of Postsecondary Education</a>
-            part of the <a class="link" target="_blank" href="//www.ed.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/DeptOfEd');">U.S.
-            Department of Education</a>,
-            the <a class="link" target="_blank" href="//www.getty.edu/grant/" onclick="javascript: pageTracker._trackPageview('/outgoing/Getty');">Getty
-            Grant program</a>, the
-            <a class="link" target="_blank" href="//www.mla.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/MLA');">Modern Language Association</a>, the
-            <a class="link" target="_blank" href="//arts.endow.gov/" onclick="javascript: pageTracker._trackPageview('/outgoing/NEA');">National
-            Endowment for the Arts</a>,  the
-            <a class="link" target="_blank" href="//www.packhum.org/" onclick="javascript: pageTracker._trackPageview('/outgoing/Packard');">Packard
-            Humanities Institute</a>,
-            <a class="link" target="_blank" href="//www.xerox.com/" onclick="javascript: pageTracker._trackPageview('/outgoing/Xerox');">Xerox Corporation</a>,
-            <a class="link" target="_blank" href="http://web.bu.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/BU');">Boston University</a>, and
-            <a class="link" target="_blank" href="//www.harvard.edu/" onclick="javascript: pageTracker._trackPageview('/outgoing/Harvard');">Harvard University</a>.
-        </p>
-    </div>
-</footer>
+                <a href="/hopper/help/support.jsp">private donations</a>, and
+                <a class="link"
+                   target="_blank"
+                   href="//www.tufts.edu/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
+                    University</a>.
+            </p>
+            <p>
+                Prior support for the project has been provided by the
+                <a class="link"
+                   target="_blank"
+                   href="//www.learner.org/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Annenberg');">Annenberg/CPB
+                    Project</a>,
+                <a class="link"
+                   target="_blank"
+                   href="//www.apple.com/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Apple');">Apple Computer</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.library.tufts.edu/tisch/Berger/bergerhome.html"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Berger');">Berger
+                    Family Technology Transfer Endowment</a>,
+                <a class="link"
+                   target="_blank"
+                   href="//www.dli2.nsf.gov/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/DLI2');">Digital
+                    Libraries Initiative Phase 2</a>,
+                the <a class="link"
+    target="_blank"
+    href="//www.ed.gov/FIPSE/"
+    onclick="javascript: pageTracker._trackPageview('/outgoing/FIPSE');">Fund
+                for the Improvement of Postsecondary Education</a>
+                part of the <a class="link"
+    target="_blank"
+    href="//www.ed.gov/"
+    onclick="javascript: pageTracker._trackPageview('/outgoing/DeptOfEd');">U.S.
+                Department of Education</a>,
+                the <a class="link"
+    target="_blank"
+    href="//www.getty.edu/grant/"
+    onclick="javascript: pageTracker._trackPageview('/outgoing/Getty');">Getty
+                Grant program</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//www.mla.org/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/MLA');">Modern Language Association</a>, the
+                <a class="link"
+                   target="_blank"
+                   href="//arts.endow.gov/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/NEA');">National
+                    Endowment for the Arts</a>,  the
+                <a class="link"
+                   target="_blank"
+                   href="//www.packhum.org/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Packard');">Packard
+                    Humanities Institute</a>,
+                <a class="link"
+                   target="_blank"
+                   href="//www.xerox.com/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Xerox');">Xerox Corporation</a>,
+                <a class="link"
+                   target="_blank"
+                   href="http://web.bu.edu/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/BU');">Boston University</a>, and
+                <a class="link"
+                   target="_blank"
+                   href="//www.harvard.edu/"
+                   onclick="javascript: pageTracker._trackPageview('/outgoing/Harvard');">Harvard University</a>.
+            </p>
+        </div>
+    </footer>
 {% endblock %}

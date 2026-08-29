@@ -6,3 +6,28 @@
         {%- endwith -%}
     {%- endfor -%}
 {% endmacro %}
+
+{% macro reference_dropdown(text_container, ref_value, tag_class) %}
+    <span class="dropdown perseus-reference-versions-wrap">
+        <a href="#"
+           data-ref="{{ ref_value }}"
+           role="button"
+           tabindex="0"
+           class="perseus-reference {{ tag_class }}">{{- render_children(text_container) -}}</a>
+        <ul tabindex="-1"
+            class="menu menu-sm dropdown-content bg-base-200 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box perseus-reference-versions">
+        </ul>
+    </span>
+{% endmacro %}
+
+{% macro nav_links(link_class="hover:text-primary-content") %}
+    <li><a href="{{ url_for("index") }}" class="{{ link_class }}">Home</a></li>
+    <li><a href="{{ url_for("get_collections") }}" class="{{ link_class }}">Collections/Texts</a></li>
+    <li><a href="https://catalog.perseus.org" class="{{ link_class }}">Perseus Catalog</a></li>
+    <li><a href="{{ url_for("get_research") }}" class="{{ link_class }}">Research</a></li>
+    <li><a href="{{ url_for("get_grants") }}" class="{{ link_class }}">Grants</a></li>
+    <li><a href="{{ url_for("get_open_source") }}" class="{{ link_class }}">Open Source</a></li>
+    <li><a href="{{ url_for("get_about") }}" class="{{ link_class }}">About</a></li>
+    <li><a href="{{ url_for("get_abbreviations") }}" class="{{ link_class }}">Abbreviations</a></li>
+    <li><a href="{{ url_for("get_help") }}" class="{{ link_class }}">Help</a></li>
+{% endmacro %}

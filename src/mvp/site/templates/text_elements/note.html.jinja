@@ -2,11 +2,9 @@
 {%- set note_id = "note-" ~ text_container.index -%}
 {%- set note_number = notes.items|length + 1 -%}
 <sup class="tei-note">
-    <a
-        href="#{{ note_id }}"
-        class="tei-note-trigger cursor-pointer text-blue-700 hover:text-blue-900"
-        aria-label="Jump to note {{ note_number }}"
-    >{{ note_number }}</a>
+    <a href="#{{ note_id }}"
+       class="tei-note-trigger cursor-pointer text-blue-700 hover:text-blue-900"
+       aria-label="Jump to note {{ note_number }}">{{ note_number }}</a>
 </sup>
 {%- set note_content -%}
     {{- render_children(text_container) -}}

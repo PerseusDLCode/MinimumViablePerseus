@@ -3,11 +3,10 @@
         <details>
             <summary>
                 {% if item.get("endpoint") %}
-                    <a id="{{ item.urn }}" href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
+                    <a id="{{ item.urn }}"
+                       href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
                 {% else %}
-                    <span>
-                        {{ item.label }}
-                    </span>
+                    <span>{{ item.label }}</span>
                 {% endif %}
             </summary>
             <ul>
@@ -19,7 +18,8 @@
             </ul>
         </details>
     {% elif item.get("endpoint") %}
-        <a id="{{ item.urn }}" href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
+        <a id="{{ item.urn }}"
+           href="{{ url_for(item.endpoint, **item.route_kwargs) }}">{{ item.label }}</a>
     {% else %}
         <span>{{ item.label }}</span>
     {% endif %}

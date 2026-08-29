@@ -1,94 +1,84 @@
 {% extends 'base.html.jinja' %}
-
 {% block title %}Abbreviations – Perseus Digital Library{% endblock %}
-
 {% block content %}
-<div class="max-w-4xl mx-auto mt-6">
-    <h1 class="text-2xl font-bold mb-2">Abbreviations</h1>
-    <p class="text-neutral-600 mb-6">
-        Standard scholarly abbreviations for authors and works available in this
-        library. Type an abbreviated citation (e.g. <code>Thuc. 5.4</code>) below
-        to jump straight to that passage.
-    </p>
-
-    <div class="mb-8">
-        <label for="citation-jump" class="block text-sm font-semibold mb-1">Jump to a citation</label>
-        <div class="flex gap-2">
-            <input
-                type="text"
-                id="citation-jump"
-                autocomplete="off"
-                placeholder="e.g. Thuc. 5.4, Hom. Il. 1.1, Soph. Aj. 100"
-                class="input input-bordered w-full"
-            />
-            <button id="citation-jump-go" class="btn" type="button">Go</button>
+    <div class="max-w-4xl mx-auto mt-6">
+        <h1 class="text-2xl font-bold mb-2">Abbreviations</h1>
+        <p class="text-base-content/60 mb-6">
+            Standard scholarly abbreviations for authors and works available in this
+            library. Type an abbreviated citation (e.g. <code>Thuc. 5.4</code>) below
+            to jump straight to that passage.
+        </p>
+        <div class="mb-8">
+            <label for="citation-jump" class="block text-sm font-semibold mb-1">Jump to a citation</label>
+            <div class="flex gap-2">
+                <input type="text"
+                       id="citation-jump"
+                       autocomplete="off"
+                       placeholder="e.g. Thuc. 5.4, Hom. Il. 1.1, Soph. Aj. 100"
+                       class="input input-bordered w-full" />
+                <button id="citation-jump-go" class="btn" type="button">Go</button>
+            </div>
+            <div id="citation-jump-results" class="mt-2"></div>
         </div>
-        <div id="citation-jump-results" class="mt-2"></div>
-    </div>
-
-    <div class="mb-4">
-        <input
-            type="search"
-            id="abbreviations-filter"
-            autocomplete="off"
-            placeholder="Filter by author or abbreviation…"
-            class="input input-bordered w-full"
-        />
-    </div>
-
-    <div id="abbreviations-list">
-        {% for entry in entries %}
-        <section class="mb-4 abbrev-entry" data-search="{{ (entry.name ~ ' ' ~ entry.name_abbrevs|join(' '))|lower }}">
-            <h2 class="text-base font-semibold">
-                {{ entry.name }}
-                <span class="text-neutral-600 font-normal">({{ entry.name_abbrevs|join(', ') }})</span>
-            </h2>
-            <ul class="pl-6 mt-1 space-y-0.5">
-                {% for work in entry.works %}
-                <li class="text-sm">
-                    {% if work.versions|length > 1 %}
-                    <div class="dropdown">
-                        <div tabindex="0" role="button" class="link">{{ work.title }}</div>
-                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box">
-                            {% for version in work.versions %}
-                            <li>
-                                <a href="{{ url_for('get_first_chunk', **version.route_kwargs) }}">
-                                    {{ version.language_label }}
-                                    <span class="text-neutral-500">({{ version.label }})</span>
-                                </a>
+        <div class="mb-4">
+            <input type="search"
+                   id="abbreviations-filter"
+                   autocomplete="off"
+                   placeholder="Filter by author or abbreviation…"
+                   class="input input-bordered w-full" />
+        </div>
+        <div id="abbreviations-list">
+            {% for entry in entries %}
+                <section class="mb-4 abbrev-entry"
+                         data-search="{{ (entry.name ~ ' ' ~ entry.name_abbrevs|join(" ") )|lower }}">
+                    <h2 class="text-base font-semibold">
+                        {{ entry.name }}
+                        <span class="text-base-content/60 font-normal">({{ entry.name_abbrevs|join(", ") }})</span>
+                    </h2>
+                    <ul class="pl-6 mt-1 space-y-0.5">
+                        {% for work in entry.works %}
+                            <li class="text-sm">
+                                {% if work.versions|length > 1 %}
+                                    <div class="dropdown">
+                                        <div tabindex="0" role="button" class="link">{{ work.title }}</div>
+                                        <ul tabindex="-1"
+                                            class="menu menu-sm dropdown-content bg-base-100 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box">
+                                            {% for version in work.versions %}
+                                                <li>
+                                                    <a href="{{ url_for('get_first_chunk', **version.route_kwargs) }}">
+                                                        {{ version.language_label }}
+                                                        <span class="text-base-content/50">({{ version.label }})</span>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% elif work.versions %}
+                                    <a href="{{ url_for('get_first_chunk', **work.versions[0].route_kwargs) }}"
+                                       class="link">{{ work.title }}</a>
+                                {% else %}
+                                    {{ work.title }}
+                                {% endif %}
+                                {% if work.title_abbrevs %}<span class="text-base-content/60">({{ work.title_abbrevs|join(", ") }})</span>{% endif %}
+                                {% if work.is_default %}<span class="badge badge-sm badge-ghost ml-1">default</span>{% endif %}
+                                {% if work.scheme and work.scheme != 'flat' %}
+                                    <span class="text-base-content/40 text-xs ml-1">[{{ work.scheme }}]</span>
+                                {% endif %}
                             </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% elif work.versions %}
-                    <a href="{{ url_for('get_first_chunk', **work.versions[0].route_kwargs) }}" class="link">{{ work.title }}</a>
-                    {% else %}
-                    {{ work.title }}
-                    {% endif %}
-                    {% if work.title_abbrevs %}
-                    <span class="text-neutral-600">({{ work.title_abbrevs|join(', ') }})</span>
-                    {% endif %}
-                    {% if work.is_default %}<span class="badge badge-sm badge-ghost ml-1">default</span>{% endif %}
-                    {% if work.scheme and work.scheme != 'flat' %}
-                    <span class="text-neutral-400 text-xs ml-1">[{{ work.scheme }}]</span>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
-        {% else %}
-        <p class="text-neutral-600">No abbreviations available.</p>
-        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% else %}
+                <p class="text-base-content/60">No abbreviations available.</p>
+            {% endfor %}
+        </div>
     </div>
-</div>
 {% endblock %}
-
 {% block scripts %}
-<script type="module" src="{{ url_for("static", filename="js/citationJump.js") }}"></script>
-<script type="module">
-    window.citationJump('citation-jump', 'citation-jump-go', 'citation-jump-results');
-</script>
-<script type="module">
+    <script type="module"
+            src="{{ url_for("static", filename="js/citationJump.js") }}"></script>
+    <script type="module">window.citationJump('citation-jump', 'citation-jump-go', 'citation-jump-results');</script>
+    <script type="module">
     (function () {
         const filterInput = document.getElementById('abbreviations-filter');
         const entries = document.querySelectorAll('.abbrev-entry');
@@ -100,5 +90,5 @@
             });
         });
     })();
-</script>
+    </script>
 {% endblock %}

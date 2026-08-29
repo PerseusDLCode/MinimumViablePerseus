@@ -1,13 +1,6 @@
-{% from "components/macros.html.jinja" import render_children with context %}
+{% from "components/macros.html.jinja" import render_children, reference_dropdown with context %}
 {% if text_container.ref %}
-<span class="dropdown perseus-reference-versions-wrap">
-    <a href="#" data-ref="{{ text_container.ref }}" role="button" tabindex="0" class="perseus-reference tei-bibl">
-        {{- render_children(text_container) -}}
-    </a>
-    <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-200 z-1 mt-1 w-max max-w-xs whitespace-nowrap p-2 shadow rounded-box perseus-reference-versions"></ul>
-</span>
+    {{ reference_dropdown(text_container, text_container.ref, "tei-bibl") }}
 {% else %}
-<span class="tei-bibl">
-    {{- render_children(text_container) -}}
-</span>
+    <span class="tei-bibl">{{- render_children(text_container) -}}</span>
 {% endif %}

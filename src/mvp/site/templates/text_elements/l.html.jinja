@@ -1,9 +1,6 @@
 {% from "components/macros.html.jinja" import render_children with context %}
 <div class="tei-l flex justify-between w-full">
-    <div>
-        {{- render_children(text_container) -}}
-    </div>
-
+    <div>{{- render_children(text_container) -}}</div>
     {% set n = text_container.get("n") | int %}
     {% if (n % 5 == 0 and n!= 0) or n == 1 %}
         <span class="select-none">{{ n }}</span>
