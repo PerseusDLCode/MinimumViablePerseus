@@ -16,9 +16,19 @@
     </head>
     <body class="bg-base-200 min-h-screen">
         {% block header %}
-            <div class="p-4">
-                <img src="{{ url_for('static', filename='images/perseus-banner.png') }}" />
-            </div>
+            <header class="p-4">
+                <div class="text-base-content w-full flex items-center gap-4">
+                    <img class="w-24 h-24"
+                         src="{{ url_for('static', filename='images/perseus-running-man.png') }}" />
+                    <div>
+                        <h1 class="text-xl font-bold small-caps text-shadow-sm">
+                            Perseus Digital Library
+                        </h1>
+                        <h2 class="text-lg font-bold text-shadow-xs">Gregory R. Crane, Editor-in-Chief</h2>
+                        <h2 class="text-lg font-bold text-shadow-xs">Tufts University</h2>
+                    </div>
+                </div>
+            </header>
         {% endblock %}
         <div class="navbar bg-primary text-primary-content font-bold">
             <div class="navbar-start">

@@ -60,6 +60,12 @@
     --noise: 0;
 }
 
+@layer utilities {
+  .small-caps {
+    font-variant: small-caps;
+  }
+}
+
 .tei-milestone {
     @apply mx-1;
     @apply border-l-2;
