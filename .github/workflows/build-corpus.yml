@@ -222,6 +222,24 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Pulled unconditionally as :latest (see mvp-tokenization's
+      # tokenize-corpus.yml, which is dispatched manually/separately from
+      # this workflow, not on every corpus SHA) -- not every corpus has been
+      # through that workflow yet, so a missing artifact just leaves
+      # tokenized-pages/ empty rather than failing the build; Dockerfile.
+      # corpus's COPY tolerates an empty directory, and the reading view
+      # renders fine without token sidecars.
+      - name: Fetch tokens artifact
+        if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
+        run: |
+          mkdir -p tokenized-pages
+          if oras pull "ghcr.io/perseusdlcode/mvp-tokens-${{ matrix.tag_name }}:latest"; then
+            tar --zstd -xf tokens.tar.zst -C tokenized-pages
+            rm tokens.tar.zst
+          else
+            echo "No tokens artifact yet for ${{ matrix.name }}; building without token sidecars."
+          fi
+
       - name: Set up Docker Buildx
         if: steps.gate.outputs.run == 'true' && steps.skip.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v4
