@@ -52,6 +52,7 @@ _CORPUS_LABELS = {
     "engLit": "English",
     "greekLit": "Greek",
     "hebrewlit": "Hebrew",
+    "itaLit": "Italian",
     "latinLit": "Latin",
     "Notre-Dame-Digitized-Latin-Collection": "Notre Dame Digitized Latin Collection",
     "grcnewxml": "Greek (New XML)",
