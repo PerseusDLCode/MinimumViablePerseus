@@ -1,7 +1,7 @@
 {% extends "base.html.jinja" %}
 {% block title %}Perseus Digital Library{% endblock %}
 {% block content %}
-    <main class="p-8">
+    <main class="p-8 min-h-100">
         <section class="mx-auto text-center">
             <h1 class="text-xl font-bold">Welcome to Perseus</h1>
             <p class="text-md">A statically compiled reading environment of the Perseus digital library</p>
@@ -172,7 +172,7 @@
             </section>
         </div>
     </main>
-    <footer class="footer bottom-0 sm:absolute sm:footer-horizontal bg-base-300 p-4 text-base-content">
+    <footer class="footer sm:footer-horizontal bg-base-300 p-4 text-base-content">
         <div id="contact_info">
             <p>Perseus contact and support <a href="/hopper/help">information</a>.</p>
             <p>
@@ -278,7 +278,7 @@
                    onclick="javascript: pageTracker._trackPageview('/outgoing/Xerox');">Xerox Corporation</a>,
                 <a class="link"
                    target="_blank"
-                   href="http://web.bu.edu/"
+                   href="//web.bu.edu/"
                    onclick="javascript: pageTracker._trackPageview('/outgoing/BU');">Boston University</a>, and
                 <a class="link"
                    target="_blank"

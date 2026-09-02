@@ -6,7 +6,6 @@
         {%- endwith -%}
     {%- endfor -%}
 {% endmacro %}
-
 {% macro reference_dropdown(text_container, ref_value, tag_class) %}
     <span class="dropdown perseus-reference-versions-wrap">
         <a href="#"
@@ -19,7 +18,6 @@
         </ul>
     </span>
 {% endmacro %}
-
 {% macro nav_links(link_class="hover:text-primary-content") %}
     <li><a href="{{ url_for("index") }}" class="{{ link_class }}">Home</a></li>
     <li><a href="{{ url_for("get_collections") }}" class="{{ link_class }}">Collections/Texts</a></li>
