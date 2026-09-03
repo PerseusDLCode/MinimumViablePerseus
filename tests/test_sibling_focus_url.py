@@ -411,6 +411,102 @@ class TestBuildSiblingDataAboutUrn:
         assert seen_work_urns == [expected, expected]
 
 
+class TestBuildSiblingDataLeafBaseAlignment:
+    """A base chunk that's itself a leaf at a coarser unit than its own
+    citeStructure normally reaches -- e.g. one of Livy's periochae, a
+    book-level summary with no chapter/section subdivisions (see
+    perseus_cts.cts_resolver's leaf fallback in _collect_cs_elements) --
+    should align to a finer-grained sibling's *whole* corresponding span,
+    not just the sibling's single nearest chunk (see _starts_within_range)."""
+
+    def test_leaf_base_merges_every_finer_sibling_chunk_in_its_range(
+        self, app, tmp_path, monkeypatch
+    ):
+        proto_dir = tmp_path / "proto"
+        urn_by_path: dict[Path, str] = {}
+
+        # Base: a leaf book-level chunk, "5" -- no chapter subdivision.
+        base_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}:5"
+        urn_by_path.update(
+            _write_index(
+                proto_dir / CORPUS / TEXTGROUP / WORK / BASE_VERSION,
+                {"5.xml": base_urn},
+            )
+        )
+
+        # Sibling: fully chaptered -- book 4 (before), three chapters of
+        # book 5, and book 6 (after). Only the book-5 chapters should be
+        # picked up and merged.
+        sib_urns = {
+            "4.xml": f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:4",
+            "5.1.xml": f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:5.1",
+            "5.2.xml": f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:5.2",
+            "5.3.xml": f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:5.3",
+            "6.xml": f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:6",
+        }
+        urn_by_path.update(
+            _write_index(
+                proto_dir / CORPUS / TEXTGROUP / WORK / SIB_VERSION,
+                sib_urns,
+            )
+        )
+
+        def fake_parse_chunk(path: Path):
+            urn = urn_by_path[path]
+            chunk = _Chunk(
+                cts_urn=urn,
+                prev_urn=None,
+                next_urn=None,
+                title="",
+                base_urn=urn.rsplit(":", 1)[0],
+                language="grc",
+                # A marker per chunk, so a merge across every book-5
+                # chapter (not just the nearest one) is actually verified
+                # below, rather than just the merged chunk's leading urn.
+                elements=[urn.rsplit(":", 1)[-1]],
+            )
+            return chunk, {}
+
+        monkeypatch.setattr(chunksmod, "_parse_chunk", fake_parse_chunk)
+
+        sib_version_obj = CTSVersion(
+            urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}",
+            work_urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}",
+            lang="eng",
+            label="A Translation",
+            description="trans.",
+            version_type="translation",
+        )
+        catalog = _FakeCatalog(translations=[sib_version_obj])
+
+        current_line = _chunk_start_line(base_urn)
+        current_end = _chunk_end_line(base_urn)
+        assert current_line == current_end == (5,)
+
+        with app.test_request_context():
+            sibling_data = siblingsmod._build_sibling_data(
+                CORPUS,
+                TEXTGROUP,
+                WORK,
+                BASE_VERSION,
+                "5",
+                current_line,
+                current_end,
+                catalog,
+                base_urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}",
+            )
+
+        [(sib, sib_chunk, focus_url)] = sibling_data["translation_chunks"]
+        # Merged chunk should span exactly the three book-5 chapters, in
+        # order -- not just the nearest single chapter (5.1).
+        assert sib_chunk.elements == ["5.1", "5.2", "5.3"]
+        assert sib_chunk.cts_urn == sib_urns["5.1.xml"]
+        assert (
+            focus_url
+            == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:5.1/"
+        )
+
+
 class TestReadingViewFocusLinkResolves:
     """End-to-end: the rendered focus link must actually resolve, and must
     land on the scheme-aligned chunk rather than 404ing or resolving to the

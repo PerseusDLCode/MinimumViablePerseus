@@ -110,9 +110,8 @@ def _compile_proto_page(
         # never appears while walking any of these trees, so including it
         # here is harmless.
         unit_scheme_map = {
-            compiler.citation_chunks[0].unit: scheme
+            compiler.cts_resolver.target_unit: scheme
             for scheme, compiler in usable_compilers
-            if compiler.citation_chunks
         }
 
         for scheme, compiler in usable_compilers:

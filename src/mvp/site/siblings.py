@@ -33,6 +33,39 @@ def _reading_view_url(
     return f"{base_path}:{chunk}/"
 
 
+def _starts_within_range(
+    start: tuple[int, ...],
+    current_line: tuple[int, ...],
+    current_end: tuple[int, ...],
+) -> bool:
+    """True when a sibling chunk's start falls within the base chunk's own
+    citation range, extended to treat a finer-grained sibling start as
+    "within" a single-point, coarser base range too.
+
+    The base chunk's own citation is usually a real range at the same
+    depth as any candidate start, so the plain tuple comparison covers
+    it. But a base chunk that's itself a leaf at a coarser unit than its
+    own citeStructure normally reaches -- e.g. one of Livy's periochae, a
+    book-level summary with no chapter/section subdivisions (see
+    perseus_cts.cts_resolver's leaf fallback in _collect_cs_elements) --
+    has current_line == current_end: a single point with no depth
+    information about how far "its own range" extends. Without this
+    extra check, a finer-grained sibling (e.g. a fully chaptered edition
+    of the same book) can never register as "in range" here (a deeper
+    start is never <= a shallower current_end), so a reader on a leaf
+    passage would only ever see the sibling's single nearest chapter
+    (Strategy 2 in _build_sibling_data) instead of its whole
+    corresponding book.
+    """
+    if current_line <= start <= current_end:
+        return True
+    return (
+        current_line == current_end
+        and len(current_line) < len(start)
+        and start[: len(current_line)] == current_line
+    )
+
+
 def _merge_sibling_chunks(chunks: list[_Chunk]) -> _Chunk:
     """Concatenate a contiguous run of a sibling's own chunks into one _Chunk.
 
@@ -107,7 +140,11 @@ def _build_sibling_data(
     covering the same citation range as the currently-displayed base chunk
     (``current_line``-``current_end``):
       Strategy 1 — every one of the sibling's own chunks whose start falls
-        within that range, concatenated via _merge_sibling_chunks
+        within that range, concatenated via _merge_sibling_chunks (see
+        _starts_within_range for how this extends to a coarser, single-point
+        base range, e.g. one of Livy's periochae, against a finer-grained
+        sibling -- the sibling's whole corresponding book, not just its
+        first chapter)
       Strategy 2 — if none fall inside the range (the base chunk is entirely
         contained within one coarser sibling chunk, or granularities are
         otherwise offset), the nearest chunk to the range's start
@@ -204,7 +241,9 @@ def _build_sibling_data(
         in_range = [
             c
             for c in sib_chunks
-            if current_line <= _chunk_start_line(c["cts_urn"]) <= current_end
+            if _starts_within_range(
+                _chunk_start_line(c["cts_urn"]), current_line, current_end
+            )
         ]
         entries = in_range
         # Strategy 2: nearest chunk to the same citation value, before or after.
