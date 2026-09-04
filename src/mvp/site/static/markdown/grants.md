@@ -2,11 +2,11 @@
 
 ## Current Support
 
-**Schmidt Sciences Humanities and AI Virtual Institute (HAVI).** **“Beyond Translation: Opening up the Human Record”** is supported by a **2025 Schmidt Sciences Humanities and AI Virtual Institute (HAVI) award**. Led by Gregory Crane at Tufts University and developed in collaboration with David Smith and his research team at Northeastern University and other collaborators, the project explores how generative AI can help readers move beyond translation to engage directly with texts in unfamiliar languages.
+**Schmidt Sciences Humanities and AI Virtual Institute (HAVI).** **“Beyond Translation: Opening up the Human Record”** is supported by a **2025 Schmidt Sciences Humanities and AI Virtual Institute (HAVI) award**. Led by Gregory Crane at Tufts University and developed in collaboration with David Smith and his research team at Northeastern University and other collaborators, the project explores how generative AI can help readers move beyond translation to engage directly with texts in unfamiliar languages. [https://sites.tufts.edu/havibeyond/](https://sites.tufts.edu/havibeyond/)
 
 **National Endowment for the Humanities — PW-290565-23.** **“Perseus on the Web: Preparing for the Next Thirty Years”** is supported by the National Endowment for the Humanities through its Humanities Collections and Reference Resources program. The project is developing the next generation of the Perseus Digital Library and its infrastructure for providing open access to Greek, Latin, and other historical-language resources.
 
-**National Endowment for the Humanities — RQ-306857-26.** **“Aristotle’s *Poetics* in Greek, Arabic and Latin: Towards a Variorum Edition”** is supported by the National Endowment for the Humanities through its Scholarly Editions and Translations program. The project is creating a new born-digital edition of Aristotle’s *Poetics* that brings together the Greek textual tradition with its Arabic and Latin transmission.
+**National Endowment for the Humanities — RQ-306857-26.** **“Aristotle’s *Poetics* in Greek, Arabic and Latin: Towards a Variorum Edition”** is supported by the National Endowment for the Humanities through its Scholarly Editions and Translations program. The project is creating a new born-digital edition of Aristotle’s *Poetics* that brings together the Greek textual tradition with its Arabic and Latin transmission. [https://sites.tufts.edu/nehpoetics](https://sites.tufts.edu/nehpoetics)
 
 ## Additional and Historical Support
 
