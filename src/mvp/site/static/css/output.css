@@ -2697,6 +2697,9 @@
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
   }
+  .min-h-100 {
+    min-height: calc(var(--spacing) * 100);
+  }
   .min-h-screen {
     min-height: 100vh;
   }
@@ -3207,11 +3210,6 @@
       @media (hover: hover) {
         text-decoration-line: underline;
       }
-    }
-  }
-  .sm\:absolute {
-    @media (width >= 40rem) {
-      position: absolute;
     }
   }
   .sm\:grid {

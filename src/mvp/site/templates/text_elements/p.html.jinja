@@ -1,7 +1,7 @@
 {% from "components/macros.html.jinja" import render_children with context %}
 {% if text_container.corresp %}
     {% set corresp = text_container.corresp.split(":", 4)[4] %}
-    <h3 class="text-md text-secondary-content">{{ corresp }}</h3>
+    <h3 class="text-md text-content">{{ corresp }}</h3>
     <hr />
 {% endif %}
 <div class="tei-p flex justify-between gap-2 w-full mb-2">
@@ -10,7 +10,7 @@
         {{- render_children(text_container) -}}
     </div>
     {% set n = text_container.get("n") | int %}
-    {% if n %}
+    {% if n and not text_container.corresp %}
         <span class="select-none">{{ n }}</span>
     {% endif %}
 </div>
