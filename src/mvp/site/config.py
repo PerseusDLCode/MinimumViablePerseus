@@ -21,6 +21,7 @@ CORPORA_DIR = Path(os.getenv("CORPORA_DIR", ROOT_DIR / "corpora"))
 MARKDOWN_DIR = APP_DIR / "static" / "markdown"
 ABOUT_MARKDOWN = MARKDOWN_DIR / "about.md"
 GRANTS_MARKDOWN = MARKDOWN_DIR / "grants.md"
+FUNDING_MARKDOWN = MARKDOWN_DIR / "funding.md"
 HELP_MARKDOWN = MARKDOWN_DIR / "help.md"
 HISTORY_MARKDOWN = MARKDOWN_DIR / "history.md"
 NEWS_MARKDOWN = MARKDOWN_DIR / "news.md"

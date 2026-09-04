@@ -173,9 +173,9 @@
         </div>
     </main>
     <footer class="footer sm:footer-horizontal bg-base-300 p-4 text-base-content">
-        <div id="contact_info">
-            <p>Perseus contact and support <a href="/hopper/help">information</a>.</p>
-            <p>
+        <div id="contact_info text-primary-content">
+            <p class="prose prose-sm">Perseus contact and support <a href="/hopper/help">information</a>.</p>
+            <p class="prose prose-sm max-w-none">
                 Perseus is a non-profit enterprise, located in the
                 <a class="link"
                    target="_blank"
@@ -188,103 +188,11 @@
                    onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
                     University</a>.
             </p>
-            <p>The Perseus Project has been supported by various funders throughout its history:</p>
-            <p>
-                Perseus has been most recently funded by the <a class="link"
-    target="_blank"
-    href="//alpheios.net"
-    onclick="javascript: pageTracker._trackPageview('/outgoing/Alpheios');">Alpheios
-                Project</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.mellon.org/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Mellon');">Andrew
-                    W. Mellon Foundation</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.imls.gov/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/IMLS');">Institute
-                    of Museum and Library Services</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.neh.gov/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/NEH');">National
-                    Endowment for the Humanities</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.nsf.gov/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/NSF');">National
-                    Science Foundation</a>,
-                <a href="/hopper/help/support.jsp">private donations</a>, and
-                <a class="link"
-                   target="_blank"
-                   href="//www.tufts.edu/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Tufts');">Tufts
-                    University</a>.
-            </p>
-            <p>
-                Prior support for the project has been provided by the
-                <a class="link"
-                   target="_blank"
-                   href="//www.learner.org/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Annenberg');">Annenberg/CPB
-                    Project</a>,
-                <a class="link"
-                   target="_blank"
-                   href="//www.apple.com/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Apple');">Apple Computer</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.library.tufts.edu/tisch/Berger/bergerhome.html"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Berger');">Berger
-                    Family Technology Transfer Endowment</a>,
-                <a class="link"
-                   target="_blank"
-                   href="//www.dli2.nsf.gov/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/DLI2');">Digital
-                    Libraries Initiative Phase 2</a>,
-                the <a class="link"
-    target="_blank"
-    href="//www.ed.gov/FIPSE/"
-    onclick="javascript: pageTracker._trackPageview('/outgoing/FIPSE');">Fund
-                for the Improvement of Postsecondary Education</a>
-                part of the <a class="link"
-    target="_blank"
-    href="//www.ed.gov/"
-    onclick="javascript: pageTracker._trackPageview('/outgoing/DeptOfEd');">U.S.
-                Department of Education</a>,
-                the <a class="link"
-    target="_blank"
-    href="//www.getty.edu/grant/"
-    onclick="javascript: pageTracker._trackPageview('/outgoing/Getty');">Getty
-                Grant program</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//www.mla.org/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/MLA');">Modern Language Association</a>, the
-                <a class="link"
-                   target="_blank"
-                   href="//arts.endow.gov/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/NEA');">National
-                    Endowment for the Arts</a>,  the
-                <a class="link"
-                   target="_blank"
-                   href="//www.packhum.org/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Packard');">Packard
-                    Humanities Institute</a>,
-                <a class="link"
-                   target="_blank"
-                   href="//www.xerox.com/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Xerox');">Xerox Corporation</a>,
-                <a class="link"
-                   target="_blank"
-                   href="//web.bu.edu/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/BU');">Boston University</a>, and
-                <a class="link"
-                   target="_blank"
-                   href="//www.harvard.edu/"
-                   onclick="javascript: pageTracker._trackPageview('/outgoing/Harvard');">Harvard University</a>.
-            </p>
+            <p class="prose prose-sm max-w-none">The Perseus Project has been supported by various funders throughout its history:</p>
+
+            <div class="prose prose-sm max-w-none">
+                {{ funding_markdown|safe }}
+            </div>
         </div>
     </footer>
 {% endblock %}

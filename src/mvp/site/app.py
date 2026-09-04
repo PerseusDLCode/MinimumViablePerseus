@@ -113,11 +113,18 @@ def create_app(
 
     @app.get("/")
     def index():
+        with open(config.FUNDING_MARKDOWN, encoding="utf-8") as f:
+            funding_markdown = markdown.markdown(f.read())
+
         with open(config.NEWS_MARKDOWN, encoding="utf-8") as f:
             news_markdown = markdown.markdown(f.read())
 
         return (
-            render_template("index.html.jinja", news_markdown=news_markdown),
+            render_template(
+                "index.html.jinja",
+                funding_markdown=funding_markdown,
+                news_markdown=news_markdown,
+            ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
         )
