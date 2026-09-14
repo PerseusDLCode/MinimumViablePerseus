@@ -161,7 +161,7 @@
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
-                                        ({{ sib.description }})
+                                        ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">
@@ -189,8 +189,7 @@
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
-                                        ({{ sib.description }})
-                                        {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
+                                        ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }} <a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">
                                         {% if sib_chunk %}
