@@ -175,7 +175,7 @@ jobs:
     environment: ${{ github.ref_name }}
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 5
       matrix:
         shard: [0, 1, 2, 3, 4]
     steps:
