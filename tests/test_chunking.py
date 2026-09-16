@@ -15,10 +15,13 @@ from __future__ import annotations
 from mvp.site.chunks import (
     _Chunk,
     _chunk_citation_range,
+    _chunk_corresp_range,
     _chunk_distance,
     _chunk_start_line,
+    _corresp_citation,
     _find_chunk_for_line,
     _find_nearest_chunk,
+    _work_urn_of,
 )
 
 
@@ -167,6 +170,89 @@ class TestChunkCitationRange:
     def test_no_citable_elements_falls_back_to_cts_urn(self):
         chunk = _card_chunk(f"{self.BASE}:49", [_el(children=[_el()])])
         assert _chunk_citation_range(chunk) == "49"
+
+
+# ---------------------------------------------------------------------------
+# _work_urn_of / _corresp_citation / _chunk_corresp_range
+# ---------------------------------------------------------------------------
+
+
+class TestWorkUrnOf:
+    def test_strips_version_component(self):
+        urn = "urn:cts:latinLit:phi0474.phi016.perseus-lat2"
+        assert _work_urn_of(urn) == "urn:cts:latinLit:phi0474.phi016"
+
+    def test_bare_work_urn_is_unchanged(self):
+        urn = "urn:cts:latinLit:phi0474.phi016"
+        assert _work_urn_of(urn) == "urn:cts:latinLit:phi0474.phi016"
+
+    def test_strips_trailing_citation_range(self):
+        urn = "urn:cts:latinLit:phi0474.phi013:2"
+        assert _work_urn_of(urn) == "urn:cts:latinLit:phi0474.phi013"
+
+
+class TestCorrespCitation:
+    ABOUT = "urn:cts:latinLit:phi0474.phi016"
+
+    def test_matching_work_returns_citation(self):
+        value = f"{self.ABOUT}:1"
+        assert _corresp_citation(value, self.ABOUT) == "1"
+
+    def test_subrange_about_matches_whole_work_corresp(self):
+        """A commentary whose <ti:about> names a specific subrange (e.g.
+        "phi0474.phi013:2", one actio of a multi-part speech) still matches
+        a corresp naming the work more broadly, and vice versa -- mirrors
+        perseus_cts.commentary._urns_overlap's prefix-in-either-direction
+        matching."""
+        about = "urn:cts:latinLit:phi0474.phi013:2"
+        value = "urn:cts:latinLit:phi0474.phi013:45"
+        assert _corresp_citation(value, _work_urn_of(about)) == "45"
+
+    def test_non_cts_value_returns_none(self):
+        assert _corresp_citation("1.51", self.ABOUT) is None
+
+    def test_unrelated_work_returns_none(self):
+        value = "urn:cts:greekLit:tlg0003.tlg001:1"
+        assert _corresp_citation(value, self.ABOUT) is None
+
+
+class TestChunkCorrespRange:
+    """A commentary's own citeStructure often doesn't share the citation
+    scheme of the work it comments on (e.g. Roman-numeral chapters vs. a
+    flat arabic section count), so aligning its sibling editions/
+    translations must use each element's `corresp` -- already expressed in
+    the target work's own scheme -- rather than the commentary's own
+    cts_urn (see _build_sibling_data / app._render_reading_view)."""
+
+    ABOUT_WORK = "urn:cts:latinLit:phi0474.phi016"
+    BASE = "urn:cts:latinLit:sec00009.sec006.perseus-eng1"
+
+    def test_single_corresp_value(self):
+        chunk = _card_chunk(
+            f"{self.BASE}:I.1",
+            [_el(children=[{"corresp": f"{self.ABOUT_WORK}:1", "children": []}])],
+        )
+        assert _chunk_corresp_range(chunk, self.ABOUT_WORK) == "1"
+
+    def test_spans_multiple_corresp_values(self):
+        chunk = _card_chunk(
+            f"{self.BASE}:I.1-4",
+            [
+                _el(
+                    children=[
+                        {"corresp": f"{self.ABOUT_WORK}:1", "children": []},
+                        {"corresp": f"{self.ABOUT_WORK}:4", "children": []},
+                    ]
+                )
+            ],
+        )
+        assert _chunk_corresp_range(chunk, self.ABOUT_WORK) == "1-4"
+
+    def test_no_corresp_returns_none(self):
+        """No element carries a matching corresp -- callers fall back to
+        the commentary's own (possibly mismatched) citation numbering."""
+        chunk = _card_chunk(f"{self.BASE}:I.1", [_el(children=[_el("1")])])
+        assert _chunk_corresp_range(chunk, self.ABOUT_WORK) is None
 
 
 # ---------------------------------------------------------------------------

@@ -20,7 +20,13 @@ from mvp.site.catalog_tree import (
     _work_title,
     _xml_src_url,
 )
-from mvp.site.chunks import _chunk_citation_range, _chunk_end_line, _chunk_start_line
+from mvp.site.chunks import (
+    _chunk_citation_range,
+    _chunk_corresp_range,
+    _chunk_end_line,
+    _chunk_start_line,
+    _work_urn_of,
+)
 from mvp.site.commentary import _build_commentary_groups
 from mvp.site.new_alexandria import build_new_alexandria_index
 from mvp.site.proto_pages import generate_proto_pages
@@ -383,14 +389,29 @@ def create_app(
         base_urn = chunk_obj.base_urn
         work_base_urn = base_urn.rsplit(".", 1)[0]  # drop version component
 
+        # A commentary's own citeStructure (e.g. Roman-numeral chapters)
+        # commonly diverges from the citation scheme of the work it's
+        # about, so its raw cts_urn can't be range-compared against that
+        # work's editions/translations for sibling alignment. Prefer each
+        # element's `corresp` (already expressed in the target work's own
+        # scheme) when present, falling back to the commentary's own
+        # numbering only when no corresp is available for this chunk.
+        sibling_line, sibling_end = current_line, current_end
+        if chunk_obj.about_urn:
+            about_work_urn = _work_urn_of(chunk_obj.about_urn)
+            corresp_range = _chunk_corresp_range(chunk_obj, about_work_urn)
+            if corresp_range is not None:
+                sibling_line = _chunk_start_line(corresp_range)
+                sibling_end = _chunk_end_line(corresp_range)
+
         sibling_data = _build_sibling_data(
             corpus,
             textgroup,
             work,
             version,
             chunk,
-            current_line,
-            current_end,
+            sibling_line,
+            sibling_end,
             catalog,
             base_urn,
             scheme=scheme,

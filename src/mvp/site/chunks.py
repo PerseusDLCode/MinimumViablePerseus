@@ -331,6 +331,93 @@ def _qualify_citation_value(value: str, cts_citation: str) -> str:
     return qualify(value)
 
 
+def _work_urn_of(urn: str) -> str:
+    """Return the work-level urn (``group.work``) implied by a CTS urn.
+
+    Handles a plain version urn (``group.work.version``), a bare work urn
+    (``group.work``, as named by a commentary's ``<ti:about>``), and either
+    form with a trailing ``:citation`` range stripped first.
+    """
+    parts = urn.split(":")
+    if len(parts) == 5:  # urn:cts:namespace:workpart:citation
+        parts = parts[:4]
+    components = parts[-1].split(".")
+    if len(components) >= 3:
+        components = components[:2]
+    parts[-1] = ".".join(components)
+    return ":".join(parts)
+
+
+def _iter_corresp_values(elements: list[Any]) -> Iterator[str]:
+    """Yield every element's own ``corresp`` attribute value, recursively.
+
+    Unlike ``_iter_citation_values``, every ``corresp`` is a self-contained
+    full URN (not a bare, possibly-partial local ``n``), so there's no need
+    to restrict to leaf elements the way ``_iter_citation_values`` does --
+    a ``corresp`` on a wrapper element and one on its descendant are both
+    independently meaningful and neither needs "qualifying" against
+    anything else.
+    """
+    for element in elements:
+        corresp = element.get("corresp")
+        if corresp:
+            yield corresp
+        yield from _iter_corresp_values(element.get("children", []))
+
+
+def _corresp_citation(value: str, about_work_urn: str) -> str | None:
+    """Return the citation part of a ``corresp`` urn targeting ``about_work_urn``.
+
+    A commentary element's ``corresp`` (e.g.
+    "urn:cts:latinLit:phi0474.phi016:1") names the specific work-and-passage
+    it comments on -- which may use a wholly different citation scheme than
+    the commentary's own citeStructure (e.g. Roman-numeral chapters vs. the
+    target work's flat arabic sections; see ``_chunk_start_line``'s
+    docstring). Matching is by URN prefix in either direction (mirrors
+    ``perseus_cts.commentary._urns_overlap``) so a whole-work
+    ``about_work_urn`` matches a corresp naming a specific subrange (e.g.
+    "phi0474.phi013:2") and vice versa. Returns None for a bare/non-CTS
+    corresp value or one that doesn't target this work, so callers can fall
+    back to the commentary's own citation numbering.
+    """
+    if not value.startswith("urn:cts:"):
+        return None
+    work_urn, sep, citation = value.rpartition(":")
+    if not sep or not citation:
+        return None
+    if not (
+        work_urn.startswith(about_work_urn) or about_work_urn.startswith(work_urn)
+    ):
+        return None
+    return citation
+
+
+def _chunk_corresp_range(chunk_obj: "_Chunk", about_work_urn: str) -> str | None:
+    """Return the citation range a commentary chunk's ``corresp`` values span.
+
+    Like ``_chunk_citation_range``, but expressed in the commented-on work's
+    own citation scheme (via each element's ``corresp``) rather than the
+    commentary's own. Used to align a commentary's sibling editions/
+    translations (see ``siblings._build_sibling_data``) when the
+    commentary's own citeStructure doesn't share the target work's scheme --
+    e.g. Roman-numeral chapters can't be range-compared against a flat
+    arabic section count. Returns None when no element in the chunk carries
+    a ``corresp`` targeting ``about_work_urn``, so callers can fall back to
+    the commentary's own (possibly mismatched) citation numbering rather
+    than wrongly excluding every sibling.
+    """
+    citations = [
+        citation
+        for value in _iter_corresp_values(chunk_obj.elements)
+        if (citation := _corresp_citation(value, about_work_urn)) is not None
+    ]
+    if not citations:
+        return None
+    start = min(citations, key=_chunk_start_line).split("-", 1)[0]
+    end = max(citations, key=_chunk_end_line).rsplit("-", 1)[-1]
+    return start if start == end else f"{start}-{end}"
+
+
 def _chunk_citation_range(chunk_obj: "_Chunk") -> str:
     """Return the citation range actually spanned by a chunk's rendered elements.
 

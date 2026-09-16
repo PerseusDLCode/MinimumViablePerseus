@@ -8,6 +8,7 @@ from mvp.site.chunks import (
     _chunk_start_line,
     _find_nearest_chunk,
     _load_index_chunks,
+    _work_urn_of,
 )
 
 
@@ -102,23 +103,6 @@ def _corpus_textgroup_work(work_urn: str) -> tuple[str, str, str]:
     _, _, corpus, workpart = work_urn.split(":", 3)
     textgroup, work = workpart.split(".", 1)
     return corpus, textgroup, work
-
-
-def _work_urn_of(urn: str) -> str:
-    """Return the work-level urn (``group.work``) implied by a CTS urn.
-
-    Handles a plain version urn (``group.work.version``), a bare work urn
-    (``group.work``, as named by a commentary's ``<ti:about>``), and either
-    form with a trailing ``:citation`` range stripped first.
-    """
-    parts = urn.split(":")
-    if len(parts) == 5:  # urn:cts:namespace:workpart:citation
-        parts = parts[:4]
-    components = parts[-1].split(".")
-    if len(components) >= 3:
-        components = components[:2]
-    parts[-1] = ".".join(components)
-    return ":".join(parts)
 
 
 def _build_sibling_data(
