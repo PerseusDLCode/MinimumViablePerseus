@@ -24,12 +24,12 @@
         </div>
         {% for corpus in collections|sort(attribute="label") %}
             <section class="mb-6">
-                <details>
+                <details open>
                     <summary class="text-xl font-semibold border-b border-base-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
                     <div class="pl-6 mt-2">
                         {% for tg in corpus.textgroups|sort(attribute="author,id") %}
                             <div class="mb-3">
-                                <details>
+                                <details open>
                                     <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
                                     <ul class="pl-6 mt-1 space-y-1">
                                         {% for work in tg.works|sort(attribute="title,id") %}
@@ -45,7 +45,7 @@
                                                         {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
                                                     </a>
                                                 {% else %}
-                                                    <details>
+                                                    <details open>
                                                         <summary class="text-sm font-semibold cursor-pointer">{{ work.title }}</summary>
                                                         <ul class="pl-6 mt-1 space-y-0.5">
                                                             {% for version in work.versions|sort(attribute="label,id") %}
