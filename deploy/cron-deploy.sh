@@ -8,10 +8,10 @@
 # one corpus each — see build-corpus.yml's header comment) plus the four
 # corpus-independent pages, and push each as its own OCI artifact to GHCR.
 # This script only pulls whichever artifacts have changed and extracts them
-# into the currently-inactive blue-green directory — no CPU-heavy work
-# happens here at all. Shards are disjoint (each page is written by exactly
-# one shard), so the extraction order below no longer matters the way an
-# overlapping per-corpus split once did.
+# into a staging directory, then swaps it into place as the single BUILD_DIR
+# — no CPU-heavy work happens here at all. Shards are disjoint (each page is
+# written by exactly one shard), so the extraction order below no longer
+# matters the way an overlapping per-corpus split once did.
 #
 # Environment variables (set these in ENV_FILE or crontab):
 #   REGISTRY        GHCR namespace holding the artifacts
@@ -20,8 +20,7 @@
 #                   match build-corpus.yml's SHARD_COUNT (0-indexed)
 #                   (default: 0 1 2 3 4)
 #   ORAS_BIN        path to the oras CLI (default: oras, i.e. on PATH)
-#   BUILD_DIR       Symlink path `serve` mounts; points at whichever of the two
-#                   blue-green directories (BUILD_DIR-a / BUILD_DIR-b) is live
+#   BUILD_DIR       Directory `serve` bind-mounts; holds the live pages
 #                   (default: ./build)
 #   STATE_DIR       Directory holding one last-deployed-digest file per
 #                   artifact (default: ./state)
@@ -33,15 +32,17 @@
 #                   (default: <script dir>/.env)
 #   GHCR_USER / GHCR_TOKEN  optional; if set, logs in for private pulls
 #
-# Rollback strategy: two real directories (BUILD_DIR-a, BUILD_DIR-b) and a
-# BUILD_DIR symlink pointing at whichever is currently served. Each run that
-# detects a changed artifact fully repopulates the *inactive* directory from
-# scratch (not an in-place patch — simpler and safer than reconciling
-# per-corpus deletions), validates it, and only then flips the symlink and
-# force-recreates `serve`. On any failure — an unresolvable digest, a SHARDS
-# mismatch against what CI published, or a validation failure on the freshly
-# repopulated inactive slot — nothing is touched: the live symlink still
-# points at the last-good build, so there is no restore step.
+# Single-directory deploy: only one directory (BUILD_DIR) exists at rest —
+# no permanent second blue-green copy sitting on disk. Each run that detects
+# a changed artifact fully repopulates a throwaway staging directory
+# (BUILD_DIR.new) from scratch (not an in-place patch — simpler and safer
+# than reconciling per-corpus deletions), validates it, then swaps it in with
+# two directory renames and deletes the old content immediately. This trades
+# away the old rollback story (there is no previous version kept around to
+# flip back to — if the swap-in fails, fix the artifacts and let the next
+# tick retry) for not doubling disk usage. There is a brief window between
+# the two renames where BUILD_DIR doesn't exist; `serve` is force-recreated
+# right after so it picks up the new directory's inode either way.
 #
 # Intended to run under `flock` every 10 minutes:
 #   */10 * * * * /usr/bin/flock -n /home/perseus/deploy.lock /home/perseus/MinimumViablePerseus/deploy/cron-deploy.sh >> /home/perseus/deploy.log 2>&1
@@ -67,8 +68,8 @@ STATE_DIR="${STATE_DIR:-./state}"
 CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-perseus}"
 
-BUILD_A="${BUILD_DIR}-a"
-BUILD_B="${BUILD_DIR}-b"
+STAGING_DIR="${BUILD_DIR}.new"
+OLD_DIR="${BUILD_DIR}.old"
 
 COMPOSE_FILE="$(dirname "$0")/compose.yaml"
 COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p ${COMPOSE_PROJECT}"
@@ -120,25 +121,8 @@ else
 fi
 rm -rf "$COUNT_TMP"
 
-# ----- Ensure blue-green layout exists ---------------------------------
-mkdir -p "$BUILD_A" "$BUILD_B"
-
-if [ -e "$BUILD_DIR" ] && [ ! -L "$BUILD_DIR" ]; then
-  log "Migrating existing ${BUILD_DIR} directory into blue-green layout..."
-  rmdir "$BUILD_A" 2>/dev/null || true
-  mv "$BUILD_DIR" "$BUILD_A"
-  ln -s "$(basename "$BUILD_A")" "$BUILD_DIR"
-elif [ ! -e "$BUILD_DIR" ]; then
-  ln -s "$(basename "$BUILD_A")" "$BUILD_DIR"
-fi
-
-# ----- Determine active/inactive blue-green directories -----------------
-ACTIVE_REAL="$(readlink -f "$BUILD_DIR")"
-if [ "$ACTIVE_REAL" = "$(readlink -f "$BUILD_A")" ]; then
-  INACTIVE_DIR="$BUILD_B"
-else
-  INACTIVE_DIR="$BUILD_A"
-fi
+# ----- Clear out any leftover staging/old dir from a prior failed run -----
+rm -rf "${STAGING_DIR:?}" "${OLD_DIR:?}"
 
 # ----- 1. Resolve every artifact's remote digest ---------------------------
 remote_digest() {
@@ -178,17 +162,16 @@ if [ "$CHANGED" -eq 0 ]; then
   exit 0
 fi
 
-# ----- 2. Fully repopulate the inactive slot --------------------------------
-# A clean rebuild of the whole slot, not an in-place patch: every artifact
-# is re-extracted every time anything changed, not just the changed one(s).
+# ----- 2. Fully populate a staging directory --------------------------------
+# A clean build from scratch, not an in-place patch: every artifact is
+# re-extracted every time anything changed, not just the changed one(s).
 # Simpler and safer than reconciling per-corpus deletions (e.g. a text
 # removed from a corpus leaving an orphaned page behind), and cheap even for
 # unchanged artifacts — GHCR's own digest-addressed storage means an
 # unchanged pull transfers no new bytes, just re-extracts what's already
 # local to the registry cache.
-log "Rebuilding inactive slot ${INACTIVE_DIR}..."
-rm -rf "${INACTIVE_DIR:?}"
-mkdir -p "${INACTIVE_DIR}"
+log "Populating staging directory ${STAGING_DIR}..."
+mkdir -p "${STAGING_DIR}"
 
 PULL_TMP="$(mktemp -d)"
 trap 'rm -rf "$PULL_TMP"' EXIT
@@ -203,47 +186,55 @@ for shard in $SHARDS; do
   ref="${REGISTRY}/mvp-shard-${shard}@${NEW_DIGEST[$name]}"
   log "Pulling ${ref}..."
   "$ORAS_BIN" pull "$ref" -o "${PULL_TMP}/shard-${shard}"
-  tar --zstd -xf "${PULL_TMP}/shard-${shard}/pages.tar.zst" -C "$INACTIVE_DIR"
+  tar --zstd -xf "${PULL_TMP}/shard-${shard}/pages.tar.zst" -C "$STAGING_DIR"
   # Free this shard's compressed artifact immediately rather than waiting
   # for the EXIT trap — otherwise every shard pulled so far sits fully
-  # resident in PULL_TMP for the rest of the run, on top of the untouched
-  # (still-active) other slot and the inactive slot's own growing content,
-  # which can exhaust disk well before either slot alone would.
+  # resident in PULL_TMP for the rest of the run, on top of the still-live
+  # BUILD_DIR and the staging directory's own growing content, which can
+  # exhaust disk well before either alone would.
   rm -rf "${PULL_TMP:?}/shard-${shard}"
 done
 
 GLOBAL_REF="${REGISTRY}/mvp-global@${NEW_DIGEST[global]}"
 log "Pulling ${GLOBAL_REF}..."
 "$ORAS_BIN" pull "$GLOBAL_REF" -o "${PULL_TMP}/global"
-tar --zstd -xf "${PULL_TMP}/global/global.tar.zst" -C "$INACTIVE_DIR"
+tar --zstd -xf "${PULL_TMP}/global/global.tar.zst" -C "$STAGING_DIR"
 rm -rf "${PULL_TMP:?}/global"
 
-# ----- 3. Validate before flipping traffic to it -----------------------------
-# A best-effort content sanity check, not a full smoke test (the inactive
-# slot isn't served yet, so it can't be curl'd) — catches an obviously
+# ----- 3. Validate before swapping it in ------------------------------------
+# A best-effort content sanity check, not a full smoke test (the staging
+# directory isn't served yet, so it can't be curl'd) — catches an obviously
 # corrupt/partial pull (missing global index, or a shard silently truncated)
 # before it goes live, rather than only after users notice.
-log "Validating ${INACTIVE_DIR} before flipping traffic..."
-if [ ! -f "${INACTIVE_DIR}/index.html" ]; then
-  log "ERROR: ${INACTIVE_DIR}/index.html missing after extraction — refusing to flip traffic to it."
+log "Validating ${STAGING_DIR} before swapping it in..."
+if [ ! -f "${STAGING_DIR}/index.html" ]; then
+  log "ERROR: ${STAGING_DIR}/index.html missing after extraction — refusing to swap it in."
   exit 1
 fi
 
-NEW_FILE_COUNT="$(find "$INACTIVE_DIR" -type f | wc -l)"
+NEW_FILE_COUNT="$(find "$STAGING_DIR" -type f | wc -l)"
 OLD_FILE_COUNT=0
-[ -d "$ACTIVE_REAL" ] && OLD_FILE_COUNT="$(find "$ACTIVE_REAL" -type f | wc -l)"
-# A from-scratch rebuild landing at less than half the currently-live file
+[ -d "$BUILD_DIR" ] && OLD_FILE_COUNT="$(find "$BUILD_DIR" -type f | wc -l)"
+# A from-scratch build landing at less than half the currently-live file
 # count almost certainly means a corrupt/partial pull, not a real shrink of
 # the corpus — refuse to serve it rather than regressing the live site.
 if [ "$OLD_FILE_COUNT" -gt 0 ] && [ "$NEW_FILE_COUNT" -lt $((OLD_FILE_COUNT / 2)) ]; then
-  log "ERROR: ${INACTIVE_DIR} has ${NEW_FILE_COUNT} files, well below the" \
-      "${OLD_FILE_COUNT} currently live — refusing to flip traffic to it."
+  log "ERROR: ${STAGING_DIR} has ${NEW_FILE_COUNT} files, well below the" \
+      "${OLD_FILE_COUNT} currently live — refusing to swap it in."
   exit 1
 fi
 
-# ----- 4. Flip symlink, restart serve, write state --------------------------
-log "Switching ${BUILD_DIR} -> $(basename "$INACTIVE_DIR")..."
-ln -sfn "$(basename "$INACTIVE_DIR")" "$BUILD_DIR"
+# ----- 4. Swap staging directory into place, restart serve, write state -----
+# Two renames rather than an in-place rsync: renames are atomic per-directory
+# and don't require an extra tool, at the cost of a brief window (between the
+# two renames) where BUILD_DIR doesn't exist. The old content is deleted
+# immediately after — this deploy keeps only one directory on disk at rest,
+# not a permanent second copy.
+log "Swapping ${STAGING_DIR} -> ${BUILD_DIR}..."
+rm -rf "${OLD_DIR:?}"
+[ -d "$BUILD_DIR" ] && mv "$BUILD_DIR" "$OLD_DIR"
+mv "$STAGING_DIR" "$BUILD_DIR"
+rm -rf "${OLD_DIR:?}"
 
 log "Restarting serve..."
 ${COMPOSE} up -d --force-recreate serve

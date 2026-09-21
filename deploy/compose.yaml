@@ -5,9 +5,10 @@ services:
     ports:
       - "${SERVE_PORT:-8000}:80"
     volumes:
-      # BUILD_DIR is a symlink to whichever blue-green directory is live;
-      # `serve` must be force-recreated after the symlink flips so the bind
-      # mount re-resolves it — see cron-deploy.sh.
+      # BUILD_DIR is repopulated by swapping in a freshly-built directory
+      # (two renames) rather than editing files in place; `serve` must be
+      # force-recreated after each deploy so the bind mount re-resolves the
+      # new directory's inode — see cron-deploy.sh.
       - "${BUILD_DIR:-./build}:/usr/share/nginx/html:ro,z"
     restart: unless-stopped
 
