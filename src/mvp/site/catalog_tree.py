@@ -5,6 +5,7 @@ _build_corpus_manifest (see manifest.py) for a `--mode corpus-only` build.
 """
 
 import json
+import re
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -141,6 +142,55 @@ def _version_entry(
     return version, document
 
 
+_VERSION_NUMBER_RE = re.compile(r"^(.*?)(\d+)$")
+
+
+def _version_family(version_id: str) -> tuple[str, int]:
+    """Split a version id into an (id-family, number) pair.
+
+    e.g. "perseus-grc2" -> ("perseus-grc", 2). An id with no trailing digits
+    is its own family with number 0, so it's trivially preferred among
+    itself rather than crashing or being silently excluded.
+    """
+    match = _VERSION_NUMBER_RE.match(version_id)
+    if match:
+        return match.group(1), int(match.group(2))
+    return version_id, 0
+
+
+def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
+    """Flag each version dict in-place with a ``preferred`` bool.
+
+    Within each id family (e.g. all "perseus-grc*" ids for this work), the
+    highest-numbered version is preferred by default -- perseus-grc2 over
+    perseus-grc1 -- so /collections can headline the current edition of
+    each language/tradition and tuck superseded ones behind a disclosure.
+    `config._VERSION_OVERRIDES` (keyed by version URN) can force a specific
+    version to be preferred instead, for cases where the highest number
+    isn't actually the best edition.
+    """
+    overrides = config._VERSION_OVERRIDES
+    forced = {
+        v["id"]
+        for v in versions
+        if overrides.get(f"{work_urn}.{v['id']}", {}).get("preferred") is True
+    }
+
+    if forced:
+        preferred_ids = forced
+    else:
+        best_by_family: dict[str, tuple[int, str]] = {}
+        for v in versions:
+            family, number = _version_family(v["id"])
+            current = best_by_family.get(family)
+            if current is None or number > current[0]:
+                best_by_family[family] = (number, v["id"])
+        preferred_ids = {vid for _, vid in best_by_family.values()}
+
+    for v in versions:
+        v["preferred"] = v["id"] in preferred_ids
+
+
 def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
     """Build the nested corpus → textgroup → work → version catalog tree.
 
@@ -172,6 +222,7 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
 
                 if versions:
                     work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
+                    _mark_preferred_versions(work_urn, versions)
                     works.append(
                         {
                             "id": work_dir.name,
@@ -238,14 +289,19 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
     for corpus in corpora.values():
         textgroups = []
         for tg in corpus["textgroups"].values():
-            works = [
-                {
-                    "id": w["id"],
-                    "title": w["title"],
-                    "versions": list(w["versions"].values()),
-                }
-                for w in tg["works"].values()
-            ]
+            works = []
+            for w in tg["works"].values():
+                versions = list(w["versions"].values())
+                work_urn = f"urn:cts:{corpus['id']}:{tg['id']}.{w['id']}"
+                # Recomputed here rather than trusted from each source's own
+                # _build_collections call: merging can combine version sets
+                # from more than one source for the same work (see the
+                # docstring above), so a version's "preferred" family-mate
+                # may not have been in the same source's list yet.
+                _mark_preferred_versions(work_urn, versions)
+                works.append(
+                    {"id": w["id"], "title": w["title"], "versions": versions}
+                )
             textgroups.append({"id": tg["id"], "author": tg["author"], "works": works})
         collections.append(
             {"id": corpus["id"], "label": corpus["label"], "textgroups": textgroups}

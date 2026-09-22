@@ -45,19 +45,34 @@
                                                         {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
                                                     </a>
                                                 {% else %}
-                                                    <details open>
-                                                        <summary class="text-sm font-semibold cursor-pointer">{{ work.title }}</summary>
-                                                        <ul class="pl-6 mt-1 space-y-0.5">
-                                                            {% for version in work.versions|sort(attribute="label,id") %}
-                                                                <li>
-                                                                    <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
-                                                                       class="link text-sm">
-                                                                        {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                                                    </a>
-                                                                </li>
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </details>
+                                                    {% set preferred_versions = work.versions|selectattr("preferred")|list %}
+                                                    {% set other_versions = work.versions|rejectattr("preferred")|list %}
+                                                    <div class="text-sm font-semibold">{{ work.title }}</div>
+                                                    <ul class="pl-6 mt-1 space-y-0.5">
+                                                        {% for version in preferred_versions|sort(attribute="label,id") %}
+                                                            <li>
+                                                                <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
+                                                                   class="link text-sm">
+                                                                    {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    {% if other_versions %}
+                                                        <details class="pl-6">
+                                                            <summary class="text-xs text-base-content/60 cursor-pointer">Other editions</summary>
+                                                            <ul class="pl-6 mt-1 space-y-0.5">
+                                                                {% for version in other_versions|sort(attribute="label,id") %}
+                                                                    <li>
+                                                                        <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
+                                                                           class="link text-sm">
+                                                                            {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
+                                                                        </a>
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </details>
+                                                    {% endif %}
                                                 {% endif %}
                                             </li>
                                         {% endfor %}

@@ -76,6 +76,15 @@ _LANGUAGE_LABELS = {
     "lat": "Latin",
 }
 
+# Per-version overrides for the /collections page's "preferred edition"
+# logic (see catalog_tree._mark_preferred_versions). Keyed by the full
+# version URN (urn:cts:<corpus>:<textgroup>.<work>.<version>) rather than
+# the bare version id -- ids like "perseus-grc2" repeat across every work,
+# so a bare-id key would apply the override everywhere at once. Empty by
+# default: absent an entry, the highest-numbered id in each version-id
+# family (e.g. perseus-grc2 over perseus-grc1) is preferred.
+_VERSION_OVERRIDES: dict[str, dict] = {}
+
 _EDITOR_ROLE_LABELS = {
     "translator": "Translator",
     "transl": "Translator",
