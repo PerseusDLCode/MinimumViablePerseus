@@ -10,6 +10,29 @@
 {% macro version_details(version) -%}
     {% if version.commentator %} — {{ version.commentator }}{% endif %}{% if version.editors %} — {{ version.editors }}{% endif %}
 {%- endmacro %}
+{# What collectionsSearch.js filters the tree on; see its init(). #}
+{% macro version_attrs(version) -%}
+    data-version data-kind="{{ version.kind }}" data-lang="{{ version.language }}" data-lang-label="{{ version.language_label }}"
+{%- endmacro %}
+{% macro facet(name, legend) %}
+    <fieldset class="fieldset">
+        <legend class="fieldset-legend">{{ legend }}</legend>
+        <div class="max-h-40 lg:max-h-none overflow-y-auto space-y-1">
+            <template x-for="option in options.{{ name }}" :key="option.value">
+                <label class="fieldset-label text-sm text-base-content"
+                       :class="{ 'opacity-50': !counts.{{ name }}[option.value] }">
+                    <input type="checkbox"
+                           class="checkbox checkbox-xs"
+                           :value="option.value"
+                           x-model="selected.{{ name }}" />
+                    <span x-text="option.label"></span>
+                    <span class="text-base-content/60"
+                          x-text="(counts.{{ name }}[option.value] || 0).toLocaleString()"></span>
+                </label>
+            </template>
+        </div>
+    </fieldset>
+{% endmacro %}
 {% macro version_link(version, work) %}
     {# A commentary cross-listed under the work it comments on has a title of its own. #}
     <a href="{{ version_href(version) }}" class="link text-sm">
@@ -17,76 +40,135 @@
     </a>
 {% endmacro %}
 {% block content %}
-    <div class="max-w-4xl mx-auto mt-6">
+    <div class="max-w-4xl lg:max-w-6xl mx-auto mt-6 px-4"
+         x-data="collectionsSearch">
         <h1 class="text-2xl font-bold mb-6">Collections</h1>
-        <div class="mb-6">
-            <div class="relative">
-                <input type="search"
-                       id="collections-search"
-                       autocomplete="off"
-                       placeholder="Search by title, author, or editor…"
-                       class="input input-bordered w-full" />
-                <span id="collections-search-spinner"
-                      class="loading loading-spinner loading-sm absolute -right-8 top-1/2 -translate-y-1/2 hidden"
-                      aria-hidden="true"></span>
-            </div>
-            <div id="collections-search-results"
-                 class="collapse bg-base-100 mt-4 shadow-md">
-                <div class="collapse-content">
-                    <ul class="max-h-96 overflow-y-auto divide-y divide-base-300">
-                    </ul>
+        {# Search and filters sit above the tree on small screens and in a
+           sticky sidebar beside it on large ones. #}
+        <div class="lg:flex lg:items-start lg:gap-10">
+            <aside class="mb-6 lg:mb-0 lg:w-72 lg:shrink-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:pr-2">
+                <div class="mb-4" @click.outside="open = false">
+                    <div class="relative">
+                        <input type="search"
+                               autocomplete="off"
+                               placeholder="Search by title, author, or editor…"
+                               class="input input-bordered w-full"
+                               x-model="query"
+                               @input="open = true; onQuery()"
+                               @focus="open = true" />
+                        <span x-cloak
+                              x-show="loading"
+                              class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2"
+                              aria-hidden="true"></span>
+                    </div>
+                    <div class="collapse bg-base-100 mt-4 shadow-md"
+                         :class="{ 'collapse-open': open && results.length }">
+                        <div class="collapse-content">
+                            <ul class="max-h-96 overflow-y-auto divide-y divide-base-300">
+                                <template x-for="entry in results" :key="entry.url">
+                                    <li>
+                                        <a :href="entry.url"
+                                           class="link block px-3 py-1.5 text-sm hover:bg-neutral-100"
+                                           x-text="resultLabel(entry)"></a>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+                <button type="button"
+                        x-cloak
+                        class="btn btn-sm btn-outline w-full lg:hidden"
+                        :aria-expanded="filtersOpen"
+                        @click="filtersOpen = !filtersOpen">
+                    <span x-text="filtersOpen ? 'Hide filters' : 'Show filters'"></span>
+                    <span class="badge badge-sm badge-primary"
+                          x-show="activeCount()"
+                          x-text="activeCount()"></span>
+                </button>
+                <div x-cloak
+                     class="mt-2 lg:mt-0 gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-4 lg:grid lg:grid-cols-1"
+                     :class="filtersOpen ? 'grid' : 'hidden'">
+                    {{ facet('kind', 'Kind') }}
+                    {{ facet('lang', 'Language') }}
+                    {{ facet('corpus', 'Corpus') }}
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Author</legend>
+                        <input type="search"
+                               autocomplete="off"
+                               placeholder="Filter authors…"
+                               class="input input-sm input-bordered w-full"
+                               x-model.debounce.150ms="author" />
+                    </fieldset>
+                </div>
+            </aside>
+            <div class="min-w-0 lg:flex-1">
+                <div x-cloak
+                     class="mb-6 flex items-center gap-3 text-sm text-base-content/60">
+                    <span>Showing <span x-text="shown.toLocaleString()"></span> of <span x-text="total.toLocaleString()"></span> texts</span>
+                    <button type="button"
+                            class="btn btn-ghost btn-xs"
+                            x-show="active()"
+                            @click="clear()">Clear filters</button>
+                </div>
+                <p x-cloak x-show="shown === 0" class="mb-6">No texts match these filters.</p>
+                {% for corpus in collections %}
+                    <section class="mb-6"
+                             data-facet-group
+                             data-corpus="{{ corpus.id }}"
+                             data-corpus-label="{{ corpus.label }}">
+                        <details open>
+                            <summary class="text-xl font-semibold border-b border-base-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
+                            <div class="pl-6 mt-2">
+                                {% for tg in corpus.textgroups %}
+                                    <div class="mb-3" data-facet-group data-author="{{ tg.author or tg.id }}">
+                                        <details open>
+                                            <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
+                                            <ul class="pl-6 mt-1 space-y-1">
+                                                {% for work in tg.works %}
+                                                    <li class="mb-1" data-facet-group>
+                                                        {% if work.kinds|length == 1 and work.kinds[0].versions|length == 1 and work.kinds[0].versions[0].title == work.title %}
+                                                            {% set version = work.kinds[0].versions[0] %}
+                                                            <a href="{{ version_href(version) }}"
+                                                               class="link text-sm font-semibold"
+                                                               {{ version_attrs(version) }}>
+                                                                {{ work.title }} ({{ version.label }}, {{ version.language_label }}){{ version_details(version) }}
+                                                            </a>
+                                                        {% else %}
+                                                            <div class="text-sm font-semibold">{{ work.title }}</div>
+                                                            {% for kind in work.kinds %}
+                                                                <div class="pl-6 mt-1" data-facet-group>
+                                                                    <div class="text-xs uppercase tracking-wide text-base-content/60">{{ kind.heading }}</div>
+                                                                    <ul class="pl-3 mt-0.5 space-y-0.5">
+                                                                        {% for version in kind.versions %}
+                                                                            <li {{ version_attrs(version) }}>{{ version_link(version, work) }}</li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </details>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </section>
+                {% else %}
+                    <p>No collections available.</p>
+                {% endfor %}
             </div>
         </div>
-        {% for corpus in collections %}
-            <section class="mb-6">
-                <details open>
-                    <summary class="text-xl font-semibold border-b border-base-300 pb-1 mb-2 cursor-pointer">{{ corpus.label }}</summary>
-                    <div class="pl-6 mt-2">
-                        {% for tg in corpus.textgroups %}
-                            <div class="mb-3">
-                                <details open>
-                                    <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
-                                    <ul class="pl-6 mt-1 space-y-1">
-                                        {% for work in tg.works %}
-                                            <li class="mb-1">
-                                                {% if work.kinds|length == 1 and work.kinds[0].versions|length == 1 and work.kinds[0].versions[0].title == work.title %}
-                                                    {% set version = work.kinds[0].versions[0] %}
-                                                    <a href="{{ version_href(version) }}"
-                                                       class="link text-sm font-semibold">
-                                                        {{ work.title }} ({{ version.label }}, {{ version.language_label }}){{ version_details(version) }}
-                                                    </a>
-                                                {% else %}
-                                                    <div class="text-sm font-semibold">{{ work.title }}</div>
-                                                    {% for kind in work.kinds %}
-                                                        <div class="pl-6 mt-1">
-                                                            <div class="text-xs uppercase tracking-wide text-base-content/60">{{ kind.heading }}</div>
-                                                            <ul class="pl-3 mt-0.5 space-y-0.5">
-                                                                {% for version in kind.versions %}
-                                                                    <li>{{ version_link(version, work) }}</li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </details>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </details>
-            </section>
-        {% else %}
-            <p>No collections available.</p>
-        {% endfor %}
     </div>
 {% endblock %}
 {% block scripts %}
-    <script type="module"
-            src="{{ url_for("static", filename="js/collectionsSearch.js") }}"></script>
     <script type="module">
-    window.collectionsSearch('collections-search', 'collections-search-results', 'collections-search-spinner');
+    import Alpine from '{{ url_for("static", filename="js/vendor/alpine.js") }}';
+    import collectionsSearch from '{{ url_for("static", filename="js/collectionsSearch.js") }}';
+
+    Alpine.data('collectionsSearch', collectionsSearch);
+    Alpine.start();
     </script>
 {% endblock %}

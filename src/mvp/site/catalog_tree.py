@@ -523,6 +523,11 @@ def _flatten_search_index(collections: list[dict]) -> list[dict]:
                             "author": textgroup["author"] or textgroup["id"],
                             "corpus": corpus["label"],
                             "language": version["language_label"],
+                            # Facet values, matching the data-* attributes
+                            # /collections filters its tree on.
+                            "corpus_id": corpus["id"],
+                            "lang": version["language"],
+                            "kind": version["kind"],
                             "editors": version.get("editors", ""),
                             "url": version["href"],
                         }

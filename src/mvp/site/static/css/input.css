@@ -94,3 +94,8 @@
 .tei-lg > .tei-l {
     text-indent: 4em;
 }
+
+/* Hides Alpine.js-driven UI until Alpine has initialized it. */
+[x-cloak] {
+    display: none !important;
+}

@@ -16,6 +16,7 @@ from perseus_cts.models import CTSCatalog
 from mvp.site.catalog_tree import (
     _build_collections,
     _collections_display_tree,
+    _flatten_search_index,
     _merge_collections,
 )
 
@@ -273,3 +274,24 @@ class TestCollectionsDisplayTree:
         # Sorted by label: "Greek" before "Latin".
         assert [c["id"] for c in display] == ["greekLit", "latinLit"]
         assert json.dumps(collections) == before
+
+
+class TestSearchIndex:
+    def test_entries_carry_the_facet_values_collections_filters_on(
+        self, tmp_path, empty_catalog
+    ):
+        proto = tmp_path / "proto"
+        _write_version(proto, "latinLit", "phi0474", "phi002", "perseus-lat2", "lat")
+        _write_version(proto, "latinLit", "phi0474", "phi002", "perseus-eng1", "eng")
+        collections = _build_collections(proto, empty_catalog)
+        for version in _works_by_id(collections)["phi0474.phi002"]["versions"]:
+            version["href"] = f"/{version['id']}/"
+
+        facets = {
+            entry["url"]: (entry["kind"], entry["lang"], entry["corpus_id"])
+            for entry in _flatten_search_index(collections)
+        }
+        assert facets == {
+            "/perseus-lat2/": ("edition", "lat", "latinLit"),
+            "/perseus-eng1/": ("translation", "eng", "latinLit"),
+        }
