@@ -51,10 +51,19 @@ def _compile_proto_page(
         doc = TEIDocument.from_path(xml_path)
         if not doc.metadata.urn:
             return "skipped", None
-        if site_map.manifest_path(doc.metadata.urn).exists():
+        refsDecl_ids = available_refsDecl_ids(doc)
+        # A document with no default "CTS" refsDecl (e.g. only "CTS-modern")
+        # compiles solely into a scheme subdirectory, so its version
+        # directory never gets an index.json of its own; checking only
+        # there would recompile it on every run.
+        version_dir = site_map.chunk_dir(doc.metadata.urn)
+        if any(
+            (version_dir / _scheme_slug(refsDecl_id) / "index.json").exists()
+            for refsDecl_id in refsDecl_ids or ["CTS"]
+        ):
             return "skipped", None
         compilers: list[tuple[str, Chunker]] = []
-        for refsDecl_id in available_refsDecl_ids(doc):
+        for refsDecl_id in refsDecl_ids:
             scheme = _scheme_slug(refsDecl_id)
             compilers.append(
                 (scheme, Chunker(doc, refsDecl_id=refsDecl_id, catalog=catalog))
