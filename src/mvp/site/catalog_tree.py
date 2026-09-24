@@ -124,6 +124,8 @@ def _version_entry(
     work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
     version_urn = f"{work_urn}.{version_dir.name}"
     cts_version = catalog.version_for(version_urn)
+    kind = _version_kind(corpus, work_urn, version_dir.name, document, catalog)
+    about = _about_work_urn(document, cts_version) if kind == "commentary" else None
     version = {
         "id": version_dir.name,
         "title": _work_title(catalog, work_urn, fallback=work_dir.name),
@@ -131,6 +133,11 @@ def _version_entry(
         "language": language,
         "language_label": config._LANGUAGE_LABELS.get(language, language),
         "editors": _format_editors(document.get("editors", [])),
+        "kind": kind,
+        "about": about,
+        "commentator": _commentator(
+            catalog, work_urn, about, document.get("author", "")
+        ),
         "first_chunk_kwargs": {
             "corpus": corpus,
             "textgroup": textgroup_dir.name,
@@ -140,6 +147,128 @@ def _version_entry(
         },
     }
     return version, document
+
+
+_VERSION_KINDS = ("edition", "translation", "commentary")
+
+# A version id's trailing language token, e.g. "grc" in "1st1K-grc1" or
+# "eng" in "perseus-eng2".
+_VERSION_ID_LANG_RE = re.compile(r"-([a-z]{3})\d*[a-z]?$")
+
+
+def _original_language(corpus: str, work_urn: str, catalog: CTSCatalog) -> str:
+    """Return the language a work was originally written in.
+
+    Taken from the work's catalog editions (in CTS, an <ti:edition> is by
+    definition in the original language), falling back to the corpus's
+    default language when the catalog has no editions for the work.
+    """
+    work = catalog.work_for(work_urn)
+    if work is not None:
+        for v in work.versions:
+            if v.version_type == "edition" and v.lang:
+                return v.lang
+    return config._CORPUS_LANGUAGES.get(corpus, "")
+
+
+def _version_kind(
+    corpus: str,
+    work_urn: str,
+    version_id: str,
+    document: dict,
+    catalog: CTSCatalog,
+) -> str:
+    """Classify a version as an "edition", "translation", or "commentary".
+
+    Trusts the catalog's own <ti:edition>/<ti:translation>/<ti:commentary>
+    element when there is one. Otherwise a version with a <ti:about> target
+    is a commentary, and the rest are editions when in the work's original
+    language and translations when not. For that comparison the version id's
+    language token ("1st1K-grc1") is preferred over metadata.json's
+    language: the latter comes from the TEI header, which is often wrong or
+    nonstandard (e.g. First1KGreek editions tagged "lat" for their Latin
+    front matter, or "greek" instead of "grc").
+    """
+    cts_version = catalog.version_for(f"{work_urn}.{version_id}")
+    if cts_version is not None and cts_version.version_type in _VERSION_KINDS:
+        return cts_version.version_type
+    if document.get("about"):
+        return "commentary"
+
+    match = _VERSION_ID_LANG_RE.search(version_id)
+    if match and match.group(1) in config._LANGUAGE_LABELS:
+        language = match.group(1)
+    else:
+        language = document.get("language", "")
+    original = _original_language(corpus, work_urn, catalog)
+    if not original or language == original:
+        return "edition"
+    return "translation"
+
+
+def _about_work_urn(document: dict, cts_version) -> str | None:
+    """Return the work-level urn a commentary comments on, if it names one.
+
+    Strips any passage (":2") or version (".perseus-grc2") component from
+    the <ti:about> urn, so a commentary on part of a work is still listed
+    with that work. Returns None when about names only a textgroup.
+    """
+    about = (cts_version.about if cts_version else None) or document.get("about")
+    if not about or not about.startswith("urn:cts:"):
+        return None
+    parts = about.split(":")
+    if len(parts) < 4:
+        return None
+    work_parts = parts[3].split(".")
+    if len(work_parts) < 2:
+        return None
+    return f"urn:cts:{parts[2]}:{work_parts[0]}.{work_parts[1]}"
+
+
+def _commentator(
+    catalog: CTSCatalog, work_urn: str, about: str | None, fallback: str
+) -> str:
+    """Return who wrote a standalone commentary, or "" if it isn't one.
+
+    A commentary filed under its own textgroup (e.g. Jebb's on Sophocles,
+    under viaf2603144 rather than Sophocles' tlg0011) is authored by that
+    textgroup, and its TEI usually lists no editors, so without this it
+    would be listed with no name at all. One filed alongside the work it
+    annotates (e.g. an index to Iatrica) shares that work's textgroup,
+    whose name is the ancient author's, not the commentator's -- so it
+    gets none here and relies on its editors instead.
+    """
+    if about is None:
+        return ""
+    textgroup_urn = work_urn.rsplit(".", 1)[0]
+    if about.rsplit(".", 1)[0] == textgroup_urn:
+        return ""
+    return _group_name(catalog, textgroup_urn, fallback)
+
+
+def _attach_commentaries(collections: list[dict]) -> None:
+    """Cross-list each commentary under the work it comments on, in place.
+
+    A commentary is a work of its own in CTS (e.g. a commentary on Cicero's
+    letters lives under its commentator's textgroup, not Cicero's), so it
+    stays in its own work's ``versions`` and is additionally referenced from
+    the commented-on work's ``commentaries`` list. The same dict is shared
+    by both, so an href resolved on one (see get_collections_search_index)
+    shows up on the other. ``commentaries`` is derived data: it's rebuilt
+    from scratch here, and _merge_collections ignores it.
+    """
+    works_by_urn: dict[str, dict] = {}
+    for corpus in collections:
+        for tg in corpus["textgroups"]:
+            for work in tg["works"]:
+                work["commentaries"] = []
+                works_by_urn[f"urn:cts:{corpus['id']}:{tg['id']}.{work['id']}"] = work
+
+    for work in works_by_urn.values():
+        for version in work["versions"]:
+            target = works_by_urn.get(version.get("about") or "")
+            if target is not None and target is not work:
+                target["commentaries"].append(version)
 
 
 _VERSION_NUMBER_RE = re.compile(r"^(.*?)(\d+)$")
@@ -165,6 +294,8 @@ def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
     highest-numbered version is preferred by default -- perseus-grc2 over
     perseus-grc1 -- so /collections can headline the current edition of
     each language/tradition and tuck superseded ones behind a disclosure.
+    Families are split by ``kind`` too, so e.g. a "1st1K-grc2" commentary
+    can't outrank the "1st1K-grc1" edition it's filed alongside.
     `config._VERSION_OVERRIDES` (keyed by version URN) can force a specific
     version to be preferred instead, for cases where the highest number
     isn't actually the best edition.
@@ -179,9 +310,10 @@ def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
     if forced:
         preferred_ids = forced
     else:
-        best_by_family: dict[str, tuple[int, str]] = {}
+        best_by_family: dict[tuple[str, str], tuple[int, str]] = {}
         for v in versions:
-            family, number = _version_family(v["id"])
+            id_family, number = _version_family(v["id"])
+            family = (v.get("kind", ""), id_family)
             current = best_by_family.get(family)
             if current is None or number > current[0]:
                 best_by_family[family] = (number, v["id"])
@@ -247,6 +379,7 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
                 }
             )
 
+    _attach_commentaries(collections)
     return collections
 
 
@@ -306,6 +439,7 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
         collections.append(
             {"id": corpus["id"], "label": corpus["label"], "textgroups": textgroups}
         )
+    _attach_commentaries(collections)
     return collections
 
 

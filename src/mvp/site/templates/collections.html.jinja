@@ -1,5 +1,15 @@
 {% extends 'base.html.jinja' %}
 {% block title %}Collections – Perseus Digital Library{% endblock %}
+{% macro version_link(version, show_title=false) %}
+    {# A live combined build resolves first_chunk_kwargs via url_for here;
+       a global build stitched from per-corpus manifests (see
+       _build_corpus_manifest) has no kwargs to resolve — it already
+       carries the resolved href, computed at corpus-build time. #}
+    <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
+       class="link text-sm">
+        {% if show_title and version.title != version.label %}{{ version.title }}: {% endif %}{{ version.label }} ({{ version.language_label }}){% if version.commentator %} — {{ version.commentator }}{% endif %}{% if version.editors %} — {{ version.editors }}{% endif %}
+    </a>
+{% endmacro %}
 {% block content %}
     <div class="max-w-4xl mx-auto mt-6">
         <h1 class="text-2xl font-bold mb-6">Collections</h1>
@@ -34,7 +44,7 @@
                                     <ul class="pl-6 mt-1 space-y-1">
                                         {% for work in tg.works|sort(attribute="title,id") %}
                                             <li class="mb-1">
-                                                {% if work.versions|length == 1 %}
+                                                {% if work.versions|length == 1 and not work.commentaries %}
                                                     {% set version = work.versions[0] %}
                                                     {# A live combined build resolves first_chunk_kwargs via url_for here;
                                    a global build stitched from per-corpus manifests (see
@@ -45,34 +55,45 @@
                                                         {{ work.title }} ({{ version.label }}, {{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
                                                     </a>
                                                 {% else %}
-                                                    {% set preferred_versions = work.versions|selectattr("preferred")|list %}
-                                                    {% set other_versions = work.versions|rejectattr("preferred")|list %}
                                                     <div class="text-sm font-semibold">{{ work.title }}</div>
-                                                    <ul class="pl-6 mt-1 space-y-0.5">
-                                                        {% for version in preferred_versions|sort(attribute="label,id") %}
-                                                            <li>
-                                                                <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
-                                                                   class="link text-sm">
-                                                                    {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                                                </a>
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                    {% if other_versions %}
-                                                        <details class="pl-6">
-                                                            <summary class="text-xs text-base-content/60 cursor-pointer">Other editions</summary>
-                                                            <ul class="pl-6 mt-1 space-y-0.5">
-                                                                {% for version in other_versions|sort(attribute="label,id") %}
-                                                                    <li>
-                                                                        <a href="{{ version.href if version.href is defined else url_for("reading_view", **version.first_chunk_kwargs) }}"
-                                                                           class="link text-sm">
-                                                                            {{ version.label }} ({{ version.language_label }}){% if version.editors %} — {{ version.editors }}{% endif %}
-                                                                        </a>
-                                                                    </li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        </details>
-                                                    {% endif %}
+                                                    {% for kind, heading in [("edition", "Editions"), ("translation", "Translations"), ("commentary", "Commentaries")] %}
+                                                        {% set kind_versions = work.versions|selectattr("kind", "equalto", kind)|list %}
+                                                        {% if kind == "commentary" %}
+                                                            {% set kind_versions = kind_versions + (work.commentaries or []) %}
+                                                        {% endif %}
+                                                        {% if kind_versions %}
+                                                            <div class="pl-6 mt-1">
+                                                                <div class="text-xs uppercase tracking-wide text-base-content/60">{{ heading }}</div>
+                                                                {% if kind == "commentary" %}
+                                                                    {% set preferred_versions = kind_versions %}
+                                                                    {% set other_versions = [] %}
+                                                                {% else %}
+                                                                    {% set preferred_versions = kind_versions|selectattr("preferred")|list %}
+                                                                    {% set other_versions = kind_versions|rejectattr("preferred")|list %}
+                                                                {% endif %}
+                                                                {# A _VERSION_OVERRIDES entry for one kind leaves the others with no preferred version. #}
+                                                                {% if not preferred_versions %}
+                                                                    {% set preferred_versions = other_versions %}
+                                                                    {% set other_versions = [] %}
+                                                                {% endif %}
+                                                                <ul class="pl-3 mt-0.5 space-y-0.5">
+                                                                    {% for version in preferred_versions|sort(attribute="label,id") %}
+                                                                        <li>{{ version_link(version, show_title=(version in (work.commentaries or []))) }}</li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                                {% if other_versions %}
+                                                                    <details class="pl-3">
+                                                                        <summary class="text-xs text-base-content/60 cursor-pointer">Other {{ heading|lower }}</summary>
+                                                                        <ul class="pl-6 mt-1 space-y-0.5">
+                                                                            {% for version in other_versions|sort(attribute="label,id") %}
+                                                                                <li>{{ version_link(version) }}</li>
+                                                                            {% endfor %}
+                                                                        </ul>
+                                                                    </details>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 {% endif %}
                                             </li>
                                         {% endfor %}

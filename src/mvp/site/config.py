@@ -59,6 +59,20 @@ _CORPUS_LABELS = {
     "grcnewxml": "Greek (New XML)",
 }
 
+# Fallback original language for a corpus's works, used to tell editions
+# from translations on /collections when the CTS catalog doesn't classify a
+# version itself (see catalog_tree._version_kind).
+_CORPUS_LANGUAGES = {
+    "engLit": "eng",
+    "greekLit": "grc",
+    "grcnewxml": "grc",
+    "hebrewlit": "heb",
+    "itaLit": "ita",
+    "japaneseLit": "jpn",
+    "latinLit": "lat",
+    "Notre-Dame-Digitized-Latin-Collection": "lat",
+}
+
 ### Deprecated. Do not use.
 _CORPUS_REPO = {
     "greekLit": "canonical-greekLit",
