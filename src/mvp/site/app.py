@@ -17,6 +17,7 @@ from mvp.site.catalog_tree import (
     _build_urn_index,
     _discover_corpora,
     _flatten_search_index,
+    _collections_display_tree,
     _work_title,
     _xml_src_url,
 )
@@ -143,7 +144,10 @@ def create_app(
             else _build_collections(config.PROTO_DIR, catalog)
         )
         return (
-            render_template("collections.html.jinja", collections=collections),
+            render_template(
+                "collections.html.jinja",
+                collections=_collections_display_tree(collections),
+            ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},
         )

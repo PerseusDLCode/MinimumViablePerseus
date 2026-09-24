@@ -13,7 +13,11 @@ from pathlib import Path
 import pytest
 from perseus_cts.models import CTSCatalog
 
-from mvp.site.catalog_tree import _build_collections, _merge_collections
+from mvp.site.catalog_tree import (
+    _build_collections,
+    _collections_display_tree,
+    _merge_collections,
+)
 
 
 def _write_version(
@@ -224,3 +228,48 @@ class TestCommentator:
 
         work = _works_by_id(_build_collections(proto, empty_catalog))["tlg0627.tlg001"]
         assert work["versions"][0]["commentator"] == ""
+
+
+class TestCollectionsDisplayTree:
+    def test_kinds_in_order_with_every_version_and_perseus_first(
+        self, tmp_path, empty_catalog
+    ):
+        proto = tmp_path / "proto"
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "1st1K-grc1", "grc")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "perseus-grc1", "grc")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "perseus-grc2", "grc")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "perseus-eng2", "eng")
+        _write_version(
+            proto,
+            "greekLit",
+            "viaf2603144",
+            "viaf001",
+            "perseus-eng1",
+            "eng",
+            about="urn:cts:greekLit:tlg0011.tlg004",
+        )
+
+        (corpus,) = _collections_display_tree(_build_collections(proto, empty_catalog))
+        work = _works_by_id([corpus])["tlg0011.tlg004"]
+        assert [
+            (k["kind"], [v["id"] for v in k["versions"]]) for k in work["kinds"]
+        ] == [
+            # Superseded perseus-grc1 is shown too, not hidden.
+            ("edition", ["perseus-grc1", "perseus-grc2", "1st1K-grc1"]),
+            ("translation", ["perseus-eng2"]),
+            ("commentary", ["perseus-eng1"]),
+        ]
+
+    def test_sorts_corpora_authors_and_works_without_mutating_input(
+        self, tmp_path, empty_catalog
+    ):
+        proto = tmp_path / "proto"
+        _write_version(proto, "latinLit", "phi0474", "phi002", "perseus-lat2", "lat")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "perseus-grc2", "grc")
+        collections = _build_collections(proto, empty_catalog)
+        before = json.dumps(collections)
+
+        display = _collections_display_tree(collections)
+        # Sorted by label: "Greek" before "Latin".
+        assert [c["id"] for c in display] == ["greekLit", "latinLit"]
+        assert json.dumps(collections) == before

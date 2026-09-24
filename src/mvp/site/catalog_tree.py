@@ -443,6 +443,65 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
     return collections
 
 
+_KIND_HEADINGS = {
+    "edition": "Editions",
+    "translation": "Translations",
+    "commentary": "Commentaries",
+}
+
+
+def _version_sort_key(version: dict) -> tuple[bool, str, str]:
+    """Sort perseus-* versions first, then by label and id."""
+    return (
+        not version["id"].startswith("perseus-"),
+        version["label"].casefold(),
+        version["id"],
+    )
+
+
+def _collections_display_tree(collections: list[dict]) -> list[dict]:
+    """Sort a collections tree and split each work's versions by kind.
+
+    /collections nests corpus -> author -> work -> kind -> version. Corpora,
+    authors, and works are sorted by display name; each work gets a
+    ``kinds`` list of ``{"kind", "heading", "versions"}`` in edition,
+    translation, commentary order, omitting empty kinds, with perseus-*
+    versions first. A work's commentaries include those cross-listed from
+    other works (see _attach_commentaries).
+
+    Returns new dicts rather than sorting in place: a global build's
+    collections_override is shared across requests.
+    """
+    display = []
+    for corpus in sorted(collections, key=lambda c: (c["label"].casefold(), c["id"])):
+        textgroups = []
+        for tg in sorted(
+            corpus["textgroups"],
+            key=lambda t: ((t["author"] or t["id"]).casefold(), t["id"]),
+        ):
+            works = []
+            for work in sorted(
+                tg["works"], key=lambda w: (w["title"].casefold(), w["id"])
+            ):
+                by_kind: dict[str, list[dict]] = {kind: [] for kind in _VERSION_KINDS}
+                for version in work["versions"]:
+                    by_kind[version["kind"]].append(version)
+                by_kind["commentary"] += work.get("commentaries") or []
+                kinds = [
+                    {
+                        "kind": kind,
+                        "heading": _KIND_HEADINGS[kind],
+                        "versions": sorted(versions, key=_version_sort_key),
+                    }
+                    for kind, versions in by_kind.items()
+                    if versions
+                ]
+                works.append({**work, "kinds": kinds})
+            textgroups.append({**tg, "works": works})
+        display.append({**corpus, "textgroups": textgroups})
+    return display
+
+
 def _flatten_search_index(collections: list[dict]) -> list[dict]:
     """Flatten a collections tree into a list of typeahead search entries.
 
