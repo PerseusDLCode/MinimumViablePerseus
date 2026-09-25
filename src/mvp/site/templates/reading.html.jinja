@@ -1,5 +1,5 @@
 {% extends "base.html.jinja" %}
-{% from "components/macros.html.jinja" import experimental_badge %}
+{% from "components/macros.html.jinja" import curated_badge, experimental_badge %}
 {% block title %}
     {% if pub_info.author %}
         {{ pub_info.author }},
@@ -149,6 +149,7 @@
                             <h4 class="font-bold">
                                 Current edition
                                 {% if current_experimental %}{{ experimental_badge() }}{% endif %}
+                                {% if curated_source(current_urn) %}{{ curated_badge(curated_source(current_urn)) }}{% endif %}
                             </h4>
                             {% if sibling_data and sibling_data.current_version %}
                                 <p>
@@ -176,6 +177,7 @@
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
                                         {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
+                                        {% if curated_source(sib.urn) %}{{ curated_badge(curated_source(sib.urn)) }}{% endif %}
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
@@ -205,6 +207,7 @@
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
                                         {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
+                                        {% if curated_source(sib.urn) %}{{ curated_badge(curated_source(sib.urn)) }}{% endif %}
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }} <a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">

@@ -138,6 +138,8 @@ class TestSplitBuildMatchesCombinedBuild:
         split_html = split_app.test_client().get("/collections/").get_data(as_text=True)
 
         assert split_html == baseline_html
+        # Both fixture versions are perseus-*, so each gets a Perseus badge.
+        assert baseline_html.count('#curated-texts"') == 2
 
     def test_urn_index_is_identical(
         self, app_with_no_real_corpora, combined_and_split_proto_dirs

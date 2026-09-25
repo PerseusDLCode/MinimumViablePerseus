@@ -36,3 +36,10 @@
        class="badge badge-xs badge-outline badge-warning align-middle no-underline"
        title="Uncorrected OCR: a provisional text that may contain errors">Experimental</a>
 {%- endmacro %}
+{# Marks a Perseus or First1KGreek version (see config._CURATED_SOURCES);
+   label is curated_source()'s result. A link, like experimental_badge. #}
+{% macro curated_badge(label) -%}
+    <a href="{{ url_for("get_help") }}#curated-texts"
+       class="badge badge-xs badge-outline badge-primary align-middle no-underline"
+       title="A curated {{ label }} text">{{ label }}</a>
+{%- endmacro %}

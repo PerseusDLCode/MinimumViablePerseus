@@ -634,6 +634,19 @@ def _version_id(urn: str) -> str:
     return parts[3] if len(parts) > 3 else urn
 
 
+def _curated_source(urn: str) -> str | None:
+    """Return the badge label for a Perseus or First1KGreek version, else None.
+
+    Takes a version URN, a ``textgroup.work.version`` id, or a bare version
+    id like "perseus-grc2" (see config._CURATED_SOURCES).
+    """
+    version = _version_id(urn).split(".")[-1]
+    for prefix, label in config._CURATED_SOURCES.items():
+        if version.startswith(prefix):
+            return label
+    return None
+
+
 def _experimental_version_ids(
     corpora_dir: Path, catalog: CTSCatalog
 ) -> frozenset[str]:

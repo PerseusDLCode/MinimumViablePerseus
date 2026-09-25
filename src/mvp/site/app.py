@@ -15,6 +15,7 @@ from mvp.site.abbreviations import (
 from mvp.site.catalog_tree import (
     _build_collections,
     _build_urn_index,
+    _curated_source,
     _discover_corpora,
     _experimental_version_ids,
     _flatten_search_index,
@@ -87,6 +88,11 @@ def create_app(
     def is_experimental(urn: str) -> bool:
         """Whether a version URN comes from an experimental (OCR) source."""
         return _version_id(urn) in experimental
+
+    @app.template_global()
+    def curated_source(urn: str) -> str | None:
+        """A version's Perseus/First1KGreek badge label, if it has one."""
+        return None if is_experimental(urn) else _curated_source(urn)
 
     generate_proto_pages(config.PROTO_DIR, corpora, catalog=catalog)
     app.new_alexandria = build_new_alexandria_index(  # ty: ignore[unresolved-attribute]

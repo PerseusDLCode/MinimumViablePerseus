@@ -17,6 +17,7 @@ from mvp.site import config
 from mvp.site.catalog_tree import (
     _build_collections,
     _collections_display_tree,
+    _curated_source,
     _experimental_version_ids,
     _flatten_search_index,
     _merge_collections,
@@ -351,3 +352,20 @@ class TestExperimentalVersions:
             "/perseus-grc2/": "curated",
             "/1st1K-grc1/": "curated",
         }
+
+
+class TestCuratedSource:
+    @pytest.mark.parametrize(
+        ("urn", "label"),
+        [
+            ("urn:cts:greekLit:tlg0012.tlg001.perseus-grc2", "Perseus"),
+            ("urn:cts:greekLit:tlg0012.tlg001.perseus-grc2:1.1", "Perseus"),
+            ("tlg2042.tlg001.1st1K-grc1", "First1KGreek"),
+            ("perseus-eng1", "Perseus"),
+            ("urn:cts:greekLit:tlg0012.tlg001.opp-grc3", None),
+            ("urn:cts:latinLit:phi0474.phi013.nd-dlc-lat1", None),
+        ],
+    )
+    def test_label(self, urn, label):
+        assert _curated_source(urn) == label
+

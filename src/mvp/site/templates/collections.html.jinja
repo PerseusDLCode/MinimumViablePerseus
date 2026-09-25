@@ -1,5 +1,5 @@
 {% extends 'base.html.jinja' %}
-{% from "components/macros.html.jinja" import experimental_badge %}
+{% from "components/macros.html.jinja" import curated_badge, experimental_badge %}
 {% block title %}Collections – Perseus Digital Library{% endblock %}
 {# A live combined build resolves first_chunk_kwargs via url_for here;
        a global build stitched from per-corpus manifests (see
@@ -34,12 +34,17 @@
         </div>
     </fieldset>
 {% endmacro %}
+{% macro version_badge(version) -%}
+    {%- if version.experimental %}{{ experimental_badge() }}
+    {%- elif curated_source(version.id) %}{{ curated_badge(curated_source(version.id)) }}
+    {%- endif %}
+{%- endmacro %}
 {% macro version_link(version, work) %}
     {# A commentary cross-listed under the work it comments on has a title of its own. #}
     <a href="{{ version_href(version) }}" class="link text-sm">
         {% if version.title != work.title and version.title != version.label %}{{ version.title }}: {% endif %}{{ version.label }} ({{ version.language_label }}){{ version_details(version) }}
     </a>
-    {% if version.experimental %}{{ experimental_badge() }}{% endif %}
+    {{ version_badge(version) }}
 {% endmacro %}
 {% block content %}
     <div class="max-w-4xl lg:max-w-6xl mx-auto mt-6 px-4"
@@ -137,7 +142,7 @@
                                                                {{ version_attrs(version) }}>
                                                                 {{ work.title }} ({% if version.label != work.title %}{{ version.label }}, {% endif %}{{ version.language_label }}){{ version_details(version) }}
                                                             </a>
-                                                            {% if version.experimental %}{{ experimental_badge() }}{% endif %}
+                                                            {{ version_badge(version) }}
                                                         {% else %}
                                                             <div class="text-sm font-semibold">{{ work.title }}</div>
                                                             {% for kind in work.kinds %}

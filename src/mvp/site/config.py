@@ -80,6 +80,16 @@ _CORPUS_LANGUAGES = {
 # CTS namespace: grcnewxml declares greekLit/latinLit/itaLit URNs.
 _EXPERIMENTAL_SOURCES = {"grcnewxml"}
 
+# Version-id prefixes of the Perseus and First1KGreek projects' own curated
+# editions and translations, and the badge label each gets on /collections
+# and the reading page (see catalog_tree._curated_source). Keyed by version
+# id rather than source repo: both projects' ids are distinctive, and a
+# global build only has ids to go on.
+_CURATED_SOURCES = {
+    "perseus-": "Perseus",
+    "1st1K-": "First1KGreek",
+}
+
 # Licence each source repo (subdirectory of CORPORA_DIR) declares for its
 # texts as a whole, in its license.md/LICENSE/README. The reading page uses
 # this only when a document's own TEI header has no
