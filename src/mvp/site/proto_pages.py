@@ -1,5 +1,6 @@
 """Compiling corpus TEI documents into the proto-page tree."""
 
+import json
 import multiprocessing
 from functools import partial
 from pathlib import Path
@@ -23,8 +24,27 @@ def _scheme_slug(refsDecl_id: str) -> str:
     return refsDecl_id.removeprefix("CTS-") or refsDecl_id.lower()
 
 
+def _source_repo(corpus: Corpus) -> str:
+    """Return the name of the repo (subdirectory of CORPORA_DIR) a corpus
+    came from; see catalog_tree._discover_corpora, which roots a corpus at
+    its repo's data/ subdirectory when there is one."""
+    root = corpus.root
+    return root.parent.name if root.name == "data" else root.name
+
+
+def _record_source_repo(metadata_path: Path, source_repo: str) -> None:
+    """Add document.source_repo to a compiled scheme's metadata.json, so
+    the reading page can fall back to the repo's licence (see
+    config._SOURCE_LICENCES) when the TEI header states none of its own."""
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata.setdefault("document", {})["source_repo"] = source_repo
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+
 def _compile_proto_page(
-    xml_path: Path, proto_dir: Path, catalog: CTSCatalog | None = None
+    work_item: tuple[Path, str], proto_dir: Path, catalog: CTSCatalog | None = None
 ) -> tuple[str, str | None]:
     """Parse, urn/skip-check, and compile one TEI document.
 
@@ -36,7 +56,8 @@ def _compile_proto_page(
     TEIDocument: a TEIDocument holds a parsed lxml ElementTree, which can't
     be pickled through Pool.imap_unordered's task queue, and re-parsing here
     (instead of once in the caller, then again in the worker) avoids paying
-    for the parse twice.
+    for the parse twice. ``work_item`` pairs that path with the name of the
+    repo it came from (see _source_repo).
 
     ``catalog`` (built from the same corpora's __cts__.xml files) is passed
     to each Chunker so metadata.json's document.title/about are populated
@@ -46,6 +67,7 @@ def _compile_proto_page(
     """
     from perseus_cts.models.document import TEIDocument
 
+    xml_path, source_repo = work_item
     site_map = SiteMap(proto_dir)
     try:
         doc = TEIDocument.from_path(xml_path)
@@ -124,10 +146,9 @@ def _compile_proto_page(
         }
 
         for scheme, compiler in usable_compilers:
-            compiler.compile(
-                site_map.chunk_dir(doc.metadata.urn, scheme or None),
-                unit_scheme_map=unit_scheme_map,
-            )
+            output_dir = site_map.chunk_dir(doc.metadata.urn, scheme or None)
+            compiler.compile(output_dir, unit_scheme_map=unit_scheme_map)
+            _record_source_repo(output_dir / "metadata.json", source_repo)
 
         return "ok", None
     except Exception as exc:
@@ -160,10 +181,11 @@ def generate_proto_pages(
     """
     work = []
     for corpus in corpora:
+        source_repo = _source_repo(corpus)
         for xml_path in sorted(corpus.root.rglob("*.xml")):
             if xml_path.name == "__cts__.xml":
                 continue
-            work.append(xml_path)
+            work.append((xml_path, source_repo))
 
     generated = skipped = no_schema = failed = 0
     total = len(work)

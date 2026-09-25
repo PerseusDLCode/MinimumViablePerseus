@@ -80,6 +80,31 @@ _CORPUS_LANGUAGES = {
 # CTS namespace: grcnewxml declares greekLit/latinLit/itaLit URNs.
 _EXPERIMENTAL_SOURCES = {"grcnewxml"}
 
+# Licence each source repo (subdirectory of CORPORA_DIR) declares for its
+# texts as a whole, in its license.md/LICENSE/README. The reading page uses
+# this only when a document's own TEI header has no
+# publicationStmt/availability/licence (see chunks._resolve_licence). Repos
+# absent here (canonical-engLit, grcnewxml, canonical_pdlrefwk) state no
+# licence, so the page makes no licence claim for them.
+_CC_BY_SA_4 = {
+    "text": "Available under a Creative Commons Attribution-ShareAlike 4.0 International License",
+    "target": "https://creativecommons.org/licenses/by-sa/4.0/",
+}
+_SOURCE_LICENCES = {
+    "canonical-greekLit": _CC_BY_SA_4,
+    "canonical-latinLit": _CC_BY_SA_4,
+    "canonical-pdlrefwk": _CC_BY_SA_4,
+    "First1KGreek": _CC_BY_SA_4,
+    "Notre-Dame-Digitized-Latin-Collection": {
+        "text": "Available under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License",
+        "target": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    },
+    "ajmc-tei": {
+        "text": "Available under the GNU General Public License, version 3 or later",
+        "target": "https://www.gnu.org/licenses/gpl-3.0.html",
+    },
+}
+
 ### Deprecated. Do not use.
 _CORPUS_REPO = {
     "greekLit": "canonical-greekLit",

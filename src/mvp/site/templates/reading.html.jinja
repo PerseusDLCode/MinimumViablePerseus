@@ -129,12 +129,12 @@
                         {{ pub_info.pub_place }}.
                         {{ pub_info.pub_date }}.
                     </p>
-                    <p class="mb-4">Tufts University provided support for entering this text.</p>
-                    <p>
-                        This text was converted to electronic form by professional
-                        data entry and has been proofread to a medium level of
-                        accuracy.
-                    </p>
+                    {% if pub_info.sponsors %}
+                        <p class="mb-4">Sponsored by {{ pub_info.sponsors | join("; ") }}.</p>
+                    {% endif %}
+                    {% if pub_info.funders %}
+                        <p class="mb-4">Funding provided by {{ pub_info.funders | join("; ") }}.</p>
+                    {% endif %}
                 </div>
             </article>
             <!-- Paratexts / Editions / Translations -->
@@ -338,27 +338,36 @@
     </main>
     <footer class="text-xs p-4 bottom-0 bg-base-300 text-base-content">
         <div class="rights_info">
-            <div class="cc_rights flex items-start gap-4 mb-2">
-                <a rel="license"
-                   href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                    <img alt="Creative Commons License"
-                         style="border-width: 0"
-                         src="https://i.creativecommons.org/l/by-sa/3.0/us/88x31.png" />
-                </a>
-                <p>
-                    This work is licensed under a
-                    <a rel="license"
-                       href="https://creativecommons.org/licenses/by-sa/3.0/us/">
-                        Creative Commons Attribution-ShareAlike 3.0 United States License
-                    </a>.
+            {% set publication = pub_info.publication %}
+            {% if publication and (publication.publisher or publication.authority) %}
+                <p class="mb-2">
+                    Digital edition
+                    {% if publication.publisher %}published by {{ publication.publisher }}{% endif %}
+                    {%- if publication.pub_place %}, {{ publication.pub_place }}{% endif %}
+                    {%- if publication.authority %} ({{ publication.authority }}){% endif %}
+                    {%- if publication.date %}, {{ publication.date }}{% endif %}.
                 </p>
-            </div>
+            {% endif %}
+            {% set licence = pub_info.licence %}
+            <p class="mb-2">
+                {% if licence and licence.target %}
+                    <a rel="license" class="link" href="{{ licence.target }}">{{ (licence.text or licence.target).rstrip(".") }}</a>.
+                {% elif licence %}
+                    {{ licence.text.rstrip(".") }}.
+                {% else %}
+                    No licence is stated for this text.
+                {% endif %}
+                {# availability/p already served as the licence text when there's no <licence>. #}
+                {% if publication and publication.licence and publication.availability
+                    and publication.availability.rstrip(".") != publication.licence.text.rstrip(".") %}
+                    {{ publication.availability }}
+                {% endif %}
+            </p>
             <p class="xml_download">
-                An <a href="{{ xml_src_url }}">XML version</a>
-                of this text is available for download, with the additional restriction
-                that you offer Perseus any modifications you make. Perseus provides
-                credit for all accepted changes, storing new additions in a versioning
-                system.
+                An <a href="{{ xml_src_url }}" class="link">XML version</a>
+                of this text is available for download. Perseus welcomes
+                corrections and improvements, credits all accepted changes,
+                and stores new additions in a versioning system.
             </p>
         </div>
     </footer>

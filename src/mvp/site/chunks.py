@@ -126,6 +126,21 @@ def _load_token_sidecar(chunk_path: Path) -> dict[str, Any] | None:
     return None
 
 
+def _resolve_licence(document: dict[str, Any]) -> dict[str, str] | None:
+    """Return the licence ({"text", "target"}) this document is available
+    under, most specific first: its own TEI header's
+    publicationStmt/availability/licence; else that availability's free-text
+    <p> (e.g. "Public Domain"); else the licence its source repo declares for
+    all its texts (config._SOURCE_LICENCES); else None -- in which case the
+    reading page makes no licence claim rather than guessing."""
+    publication = document.get("publication") or {}
+    if publication.get("licence"):
+        return publication["licence"]
+    if publication.get("availability"):
+        return {"text": publication["availability"], "target": ""}
+    return config._SOURCE_LICENCES.get(document.get("source_repo", ""))
+
+
 @cache
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
@@ -163,6 +178,10 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
         "editors": _format_editors(document.get("editors", [])),
         "pub_place": document.get("pub_place", ""),
         "pub_date": document.get("pub_date", ""),
+        "funders": document.get("funders", []),
+        "sponsors": document.get("sponsors", []),
+        "publication": document.get("publication"),
+        "licence": _resolve_licence(document),
     }
 
     content_el = root.find("elements")
