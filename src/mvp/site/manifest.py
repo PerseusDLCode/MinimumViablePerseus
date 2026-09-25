@@ -16,7 +16,7 @@ from mvp.site.catalog_tree import (
 # Bump when the manifest.json shape below changes incompatibly, so a global
 # build can refuse to merge manifests it doesn't know how to read instead of
 # silently mis-rendering.
-_MANIFEST_SCHEMA_VERSION = 4
+_MANIFEST_SCHEMA_VERSION = 5
 
 
 def _build_corpus_manifest(
@@ -34,7 +34,7 @@ def _build_corpus_manifest(
     its own and can't resolve them. url_for needs a request context, which
     a build process never otherwise has, hence test_request_context().
     """
-    collections = _build_collections(proto_dir, catalog)
+    collections = _build_collections(proto_dir, catalog, app.experimental)
 
     with app.test_request_context():
         for corpus in collections:

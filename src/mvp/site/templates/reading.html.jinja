@@ -1,4 +1,5 @@
 {% extends "base.html.jinja" %}
+{% from "components/macros.html.jinja" import experimental_badge %}
 {% block title %}
     {% if pub_info.author %}
         {{ pub_info.author }},
@@ -138,21 +139,34 @@
             </article>
             <!-- Paratexts / Editions / Translations -->
             <div class="text-base-content lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform">
-                {% if sibling_data and sibling_data.current_version %}
+                {% set current_experimental = is_experimental(current_urn) %}
+                {# An experimental document may have no __cts__.xml entry, and so
+                   no current_version, but still needs its notice. #}
+                {% if current_experimental or (sibling_data and sibling_data.current_version) %}
                     <!-- Current version -->
                     <div class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-primary">
                         <div class="p-4">
-                            <h4 class="font-bold">Current edition</h4>
-                            <p>
-                                {{ sibling_data.current_version.label }}
-                                {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) %}
-                                {% if lang_label %}
-                                    ({{ lang_label }})
-                                {% endif %}
-                                ({{ sibling_data.current_version.description }})
-                            </p>
+                            <h4 class="font-bold">
+                                Current edition
+                                {% if current_experimental %}{{ experimental_badge() }}{% endif %}
+                            </h4>
+                            {% if sibling_data and sibling_data.current_version %}
+                                <p>
+                                    {{ sibling_data.current_version.label }}
+                                    {% set lang_label = language_labels.get(sibling_data.current_version.lang, sibling_data.current_version.lang) %}
+                                    {% if lang_label %}
+                                        ({{ lang_label }})
+                                    {% endif %}
+                                    ({{ sibling_data.current_version.description }})
+                                </p>
+                            {% endif %}
+                            {% if current_experimental %}
+                                <p class="mt-2 text-sm text-base-content/70">Provisional text from uncorrected OCR; expect errors.</p>
+                            {% endif %}
                         </div>
                     </div>
+                {% endif %}
+                {% if sibling_data and sibling_data.current_version %}
                     <!-- Editions -->
                     {% if sibling_data.edition_chunks %}
                         <details class="mb-4 bg-base-100 rounded-box shadow-md border-l-4 border-info">
@@ -161,6 +175,7 @@
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
+                                        {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
@@ -189,6 +204,7 @@
                                 <details>
                                     <summary class="p-4 cursor-pointer font-bold">
                                         {{ sib.label }}
+                                        {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }} <a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">

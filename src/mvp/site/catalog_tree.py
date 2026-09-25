@@ -100,6 +100,7 @@ def _version_entry(
     work_dir: Path,
     version_dir: Path,
     catalog: CTSCatalog,
+    experimental: frozenset[str] = frozenset(),
 ) -> tuple[dict, dict] | None:
     """Parse one version directory into a ``(version, document_metadata)`` pair.
 
@@ -134,6 +135,8 @@ def _version_entry(
         "language_label": config._LANGUAGE_LABELS.get(language, language),
         "editors": _format_editors(document.get("editors", [])),
         "kind": kind,
+        "experimental": f"{textgroup_dir.name}.{work_dir.name}.{version_dir.name}"
+        in experimental,
         "about": about,
         "commentator": _commentator(
             catalog, work_urn, about, document.get("author", "")
@@ -296,9 +299,11 @@ def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
     each language/tradition and tuck superseded ones behind a disclosure.
     Families are split by ``kind`` too, so e.g. a "1st1K-grc2" commentary
     can't outrank the "1st1K-grc1" edition it's filed alongside.
-    `config._VERSION_OVERRIDES` (keyed by version URN) can force a specific
-    version to be preferred instead, for cases where the highest number
-    isn't actually the best edition.
+    An experimental version (see _experimental_version_ids) is never
+    preferred over a curated one: it's only preferred when its kind has no
+    curated version at all. `config._VERSION_OVERRIDES` (keyed by version
+    URN) can force a specific version to be preferred instead, for cases
+    where the highest number isn't actually the best edition.
     """
     overrides = config._VERSION_OVERRIDES
     forced = {
@@ -310,8 +315,13 @@ def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
     if forced:
         preferred_ids = forced
     else:
+        curated_kinds = {
+            v.get("kind", "") for v in versions if not v.get("experimental")
+        }
         best_by_family: dict[tuple[str, str], tuple[int, str]] = {}
         for v in versions:
+            if v.get("experimental") and v.get("kind", "") in curated_kinds:
+                continue
             id_family, number = _version_family(v["id"])
             family = (v.get("kind", ""), id_family)
             current = best_by_family.get(family)
@@ -323,11 +333,16 @@ def _mark_preferred_versions(work_urn: str, versions: list[dict]) -> None:
         v["preferred"] = v["id"] in preferred_ids
 
 
-def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
+def _build_collections(
+    proto_dir: Path,
+    catalog: CTSCatalog,
+    experimental: frozenset[str] = frozenset(),
+) -> list[dict]:
     """Build the nested corpus → textgroup → work → version catalog tree.
 
     Each level is included only when it has at least one populated child, so
-    empty directories never surface in the catalog.
+    empty directories never surface in the catalog. ``experimental`` (see
+    _experimental_version_ids) flags each version dict's ``experimental``.
     """
     collections = []
 
@@ -345,7 +360,12 @@ def _build_collections(proto_dir: Path, catalog: CTSCatalog) -> list[dict]:
 
                 for version_dir in _subdirs(work_dir):
                     entry = _version_entry(
-                        corpus, textgroup_dir, work_dir, version_dir, catalog
+                        corpus,
+                        textgroup_dir,
+                        work_dir,
+                        version_dir,
+                        catalog,
+                        experimental,
                     )
                     if entry is None:
                         continue
@@ -450,9 +470,11 @@ _KIND_HEADINGS = {
 }
 
 
-def _version_sort_key(version: dict) -> tuple[bool, str, str]:
-    """Sort perseus-* versions first, then by label and id."""
+def _version_sort_key(version: dict) -> tuple[bool, bool, str, str]:
+    """Sort experimental versions last and perseus-* versions first, then
+    by label and id."""
     return (
+        bool(version.get("experimental")),
         not version["id"].startswith("perseus-"),
         version["label"].casefold(),
         version["id"],
@@ -466,7 +488,7 @@ def _collections_display_tree(collections: list[dict]) -> list[dict]:
     authors, and works are sorted by display name; each work gets a
     ``kinds`` list of ``{"kind", "heading", "versions"}`` in edition,
     translation, commentary order, omitting empty kinds, with perseus-*
-    versions first. A work's commentaries include those cross-listed from
+    versions first and experimental ones last. A work's commentaries include those cross-listed from
     other works (see _attach_commentaries).
 
     Returns new dicts rather than sorting in place: a global build's
@@ -502,6 +524,11 @@ def _collections_display_tree(collections: list[dict]) -> list[dict]:
     return display
 
 
+def _version_status(version: dict) -> str:
+    """Return a version's /collections "status" facet value."""
+    return "experimental" if version.get("experimental") else "curated"
+
+
 def _flatten_search_index(collections: list[dict]) -> list[dict]:
     """Flatten a collections tree into a list of typeahead search entries.
 
@@ -528,6 +555,7 @@ def _flatten_search_index(collections: list[dict]) -> list[dict]:
                             "corpus_id": corpus["id"],
                             "lang": version["language"],
                             "kind": version["kind"],
+                            "status": _version_status(version),
                             "editors": version.get("editors", ""),
                             "url": version["href"],
                         }
@@ -594,6 +622,50 @@ def _discover_corpora(corpora_dir: Path) -> list[Corpus]:
         except FileNotFoundError:
             pass
     return corpora
+
+
+def _version_id(urn: str) -> str:
+    """Return a version URN's namespace-free ``textgroup.work.version`` part.
+
+    e.g. "urn:cts:greekLit:tlg0012.tlg001.perseus-grc2" ->
+    "tlg0012.tlg001.perseus-grc2". Tolerates a trailing passage.
+    """
+    parts = urn.split(":")
+    return parts[3] if len(parts) > 3 else urn
+
+
+def _experimental_version_ids(
+    corpora_dir: Path, catalog: CTSCatalog
+) -> frozenset[str]:
+    """Return the ``textgroup.work.version`` ids contributed by any repo in
+    config._EXPERIMENTAL_SOURCES.
+
+    Keyed without the CTS namespace, since these repos declare URNs across
+    several (see config._EXPERIMENTAL_SOURCES). Two sources, since neither
+    is complete on its own: the catalog's versions whose __cts__.xml lives
+    in one of these repos, plus the repos' own document filenames
+    (``textgroup.work.version.xml``), which covers documents with no
+    __cts__.xml entry at all.
+    """
+    roots = [
+        corpora_dir / source
+        for source in config._EXPERIMENTAL_SOURCES
+        if (corpora_dir / source).is_dir()
+    ]
+    if not roots:
+        return frozenset()
+
+    ids = {
+        _version_id(urn)
+        for urn, version in catalog.versions.items()
+        if version.source_path is not None
+        and any(version.source_path.is_relative_to(root) for root in roots)
+    }
+    for root in roots:
+        ids.update(
+            path.stem for path in root.rglob("*.xml") if path.name != "__cts__.xml"
+        )
+    return frozenset(ids)
 
 
 def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:

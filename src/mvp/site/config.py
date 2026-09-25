@@ -73,6 +73,13 @@ _CORPUS_LANGUAGES = {
     "Notre-Dame-Digitized-Latin-Collection": "lat",
 }
 
+# Source repos (subdirectories of CORPORA_DIR) whose texts are provisional,
+# uncorrected OCR. Every version they contribute is flagged "Experimental"
+# on /collections and the reading page and sorted below curated versions
+# (see catalog_tree._experimental_version_ids). Keyed by repo rather than
+# CTS namespace: grcnewxml declares greekLit/latinLit/itaLit URNs.
+_EXPERIMENTAL_SOURCES = {"grcnewxml"}
+
 ### Deprecated. Do not use.
 _CORPUS_REPO = {
     "greekLit": "canonical-greekLit",

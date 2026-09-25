@@ -29,3 +29,10 @@
     <li><a href="{{ url_for("get_abbreviations") }}" class="{{ link_class }}">Abbreviations</a></li>
     <li><a href="{{ url_for("get_help") }}" class="{{ link_class }}">Help</a></li>
 {% endmacro %}
+{# Marks a version from an experimental source (see config._EXPERIMENTAL_SOURCES).
+   A link, so it must never sit inside another <a>. #}
+{% macro experimental_badge() -%}
+    <a href="{{ url_for("get_help") }}#experimental-texts"
+       class="badge badge-xs badge-outline badge-warning align-middle no-underline"
+       title="Uncorrected OCR: a provisional text that may contain errors">Experimental</a>
+{%- endmacro %}

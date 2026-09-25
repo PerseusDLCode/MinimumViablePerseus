@@ -13,9 +13,11 @@ from pathlib import Path
 import pytest
 from perseus_cts.models import CTSCatalog
 
+from mvp.site import config
 from mvp.site.catalog_tree import (
     _build_collections,
     _collections_display_tree,
+    _experimental_version_ids,
     _flatten_search_index,
     _merge_collections,
 )
@@ -294,4 +296,58 @@ class TestSearchIndex:
         assert facets == {
             "/perseus-lat2/": ("edition", "lat", "latinLit"),
             "/perseus-eng1/": ("translation", "eng", "latinLit"),
+        }
+
+
+class TestExperimentalVersions:
+    def test_ids_come_from_filenames_and_catalog(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "_EXPERIMENTAL_SOURCES", {"grcnewxml"})
+        corpora = tmp_path / "corpora"
+        work_dir = corpora / "grcnewxml" / "data" / "tlg0001" / "tlg001"
+        work_dir.mkdir(parents=True)
+        # No __cts__.xml entry: found by filename alone.
+        (work_dir / "tlg0001.tlg001.ocr-grc1.xml").write_text("<TEI/>")
+        # Declared in __cts__.xml under a file named differently.
+        (work_dir / "__cts__.xml").write_text(
+            '<ti:work xmlns:ti="http://chs.harvard.edu/xmlns/cts" '
+            'groupUrn="urn:cts:greekLit:tlg0001" urn="urn:cts:greekLit:tlg0001.tlg001">'
+            '<ti:title xml:lang="eng">W</ti:title>'
+            '<ti:edition workUrn="urn:cts:greekLit:tlg0001.tlg001" '
+            'urn="urn:cts:greekLit:tlg0001.tlg001.ocr-grc2">'
+            "<ti:label>L</ti:label></ti:edition></ti:work>"
+        )
+        curated = corpora / "canonical-greekLit" / "data" / "tlg0001" / "tlg001"
+        curated.mkdir(parents=True)
+        (curated / "tlg0001.tlg001.perseus-grc1.xml").write_text("<TEI/>")
+        catalog = CTSCatalog([corpora / "grcnewxml" / "data", corpora / "canonical-greekLit" / "data"])
+
+        assert _experimental_version_ids(corpora, catalog) == {
+            "tlg0001.tlg001.ocr-grc1",
+            "tlg0001.tlg001.ocr-grc2",
+        }
+
+    def test_flagged_sorted_last_and_faceted(self, tmp_path, empty_catalog):
+        proto = tmp_path / "proto"
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "a-ocr-grc1", "grc")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "perseus-grc2", "grc")
+        _write_version(proto, "greekLit", "tlg0011", "tlg004", "1st1K-grc1", "grc")
+        collections = _build_collections(
+            proto, empty_catalog, frozenset({"tlg0011.tlg004.a-ocr-grc1"})
+        )
+
+        (corpus,) = _collections_display_tree(collections)
+        (edition,) = _works_by_id([corpus])["tlg0011.tlg004"]["kinds"]
+        assert [(v["id"], v["experimental"]) for v in edition["versions"]] == [
+            ("perseus-grc2", False),
+            ("1st1K-grc1", False),
+            ("a-ocr-grc1", True),
+        ]
+
+        for version in _works_by_id(collections)["tlg0011.tlg004"]["versions"]:
+            version["href"] = f"/{version['id']}/"
+        statuses = {e["url"]: e["status"] for e in _flatten_search_index(collections)}
+        assert statuses == {
+            "/a-ocr-grc1/": "experimental",
+            "/perseus-grc2/": "curated",
+            "/1st1K-grc1/": "curated",
         }

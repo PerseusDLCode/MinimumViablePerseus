@@ -125,3 +125,27 @@ class TestBuildCollectionsMarksPreferred(object):
         versions = merged[0]["textgroups"][0]["works"][0]["versions"]
         preferred = {v["id"]: v["preferred"] for v in versions}
         assert preferred == {"perseus-grc1": False, "perseus-grc2": True}
+
+
+class TestExperimentalNeverPreferredOverCurated:
+    def test_curated_version_of_same_kind_wins(self, monkeypatch):
+        monkeypatch.setattr(config, "_VERSION_OVERRIDES", {})
+        versions = [
+            {"id": "perseus-grc1", "kind": "edition"},
+            {"id": "ocr-grc9", "kind": "edition", "experimental": True},
+        ]
+        _mark_preferred_versions("urn:cts:greekLit:tlg0001.tlg001", versions)
+        assert [v["preferred"] for v in versions] == [True, False]
+
+    def test_experimental_preferred_when_its_kind_has_no_curated_version(
+        self, monkeypatch
+    ):
+        monkeypatch.setattr(config, "_VERSION_OVERRIDES", {})
+        versions = [
+            {"id": "perseus-grc1", "kind": "edition"},
+            {"id": "ocr-eng1", "kind": "translation", "experimental": True},
+            {"id": "ocr-eng2", "kind": "translation", "experimental": True},
+        ]
+        _mark_preferred_versions("urn:cts:greekLit:tlg0001.tlg001", versions)
+        preferred = {v["id"] for v in versions if v["preferred"]}
+        assert preferred == {"perseus-grc1", "ocr-eng2"}

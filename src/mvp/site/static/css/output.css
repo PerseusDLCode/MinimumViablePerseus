@@ -3421,6 +3421,14 @@
       background-image: none;
     }
   }
+  .badge-outline {
+    @layer daisyui.l1.l2 {
+      color: var(--badge-color);
+      --badge-bg: #0000;
+      background-image: none;
+      border-color: currentColor;
+    }
+  }
   .border-accent {
     border-color: var(--color-accent);
   }
@@ -3544,6 +3552,9 @@
   .indent-8 {
     text-indent: calc(var(--spacing) * 8);
   }
+  .align-middle {
+    vertical-align: middle;
+  }
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -3572,6 +3583,12 @@
     @layer daisyui.l1.l2 {
       --size: calc(var(--size-selector, 0.25rem) * 5);
       font-size: 0.75rem;
+    }
+  }
+  .badge-xs {
+    @layer daisyui.l1.l2 {
+      --size: calc(var(--size-selector, 0.25rem) * 4);
+      font-size: 0.625rem;
     }
   }
   .font-bold {
@@ -3768,6 +3785,12 @@
     @layer daisyui.l1.l2 {
       --badge-color: var(--color-primary);
       --badge-fg: var(--color-primary-content);
+    }
+  }
+  .badge-warning {
+    @layer daisyui.l1.l2 {
+      --badge-color: var(--color-warning);
+      --badge-fg: var(--color-warning-content);
     }
   }
   .select-none {

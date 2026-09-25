@@ -3,12 +3,17 @@ import Fuse from './vendor/fuse.js';
 // Checkbox facets, each named for the URL query parameter that stores it
 // and the record field it filters on. Values within one facet are OR'd;
 // facets (and the author filter) are AND'd with each other.
-const FACETS = ['kind', 'lang', 'corpus'];
+const FACETS = ['kind', 'lang', 'corpus', 'status'];
 
 const KIND_LABELS = {
     edition: 'Editions',
     translation: 'Translations',
     commentary: 'Commentaries',
+};
+
+const STATUS_LABELS = {
+    curated: 'Curated',
+    experimental: 'Experimental',
 };
 
 // Case- and diacritic-insensitive, so "platon" finds "Platón".
@@ -24,7 +29,7 @@ function sortedOptions(labels) {
 
 // Alpine component for /collections: the typeahead search plus the facets
 // that filter both it and the browsable tree. The tree is rendered by
-// Jinja; each version carries data-kind/data-lang, each textgroup
+// Jinja; each version carries data-kind/data-lang/data-status, each textgroup
 // data-author, each corpus data-corpus, and every level that should
 // disappear once it has no matching versions is marked data-facet-group.
 export default function collectionsSearch() {
@@ -35,10 +40,10 @@ export default function collectionsSearch() {
     let fuse = null;
 
     return {
-        selected: { kind: [], lang: [], corpus: [] },
+        selected: { kind: [], lang: [], corpus: [], status: [] },
         author: '',
-        options: { kind: [], lang: [], corpus: [] },
-        counts: { kind: {}, lang: {}, corpus: {} },
+        options: { kind: [], lang: [], corpus: [], status: [] },
+        counts: { kind: {}, lang: {}, corpus: {}, status: {} },
         shown: 0,
         total: 0,
         query: '',
@@ -70,6 +75,7 @@ export default function collectionsSearch() {
                     // work it comments on; its href identifies it in both.
                     key: (el.getAttribute('href') || el.querySelector('a').getAttribute('href')),
                     kind: el.dataset.kind,
+                    status: el.dataset.status,
                     lang: lang,
                     corpus: corpus.dataset.corpus,
                     author: fold(el.closest('[data-author]').dataset.author),
@@ -81,6 +87,12 @@ export default function collectionsSearch() {
                 kind: Object.keys(KIND_LABELS)
                     .filter(function (kind) { return records.some(function (r) { return r.kind === kind; }); })
                     .map(function (kind) { return { value: kind, label: KIND_LABELS[kind] }; }),
+                // Only worth offering when there's something to tell apart.
+                status: records.some(function (r) { return r.status === 'experimental'; })
+                    ? Object.entries(STATUS_LABELS).map(function ([value, label]) {
+                        return { value: value, label: label };
+                    })
+                    : [],
                 lang: sortedOptions(langLabels),
                 // Already in display order, as the tree lists them.
                 corpus: Object.entries(corpusLabels).map(function ([value, label]) {
@@ -120,7 +132,7 @@ export default function collectionsSearch() {
             const match = this.matcher();
             const visibleGroups = new Set();
             const shownKeys = new Set();
-            const keysByFacet = { kind: {}, lang: {}, corpus: {} };
+            const keysByFacet = { kind: {}, lang: {}, corpus: {}, status: {} };
 
             records.forEach(function (record) {
                 const matched = match(record);
@@ -174,7 +186,7 @@ export default function collectionsSearch() {
         },
 
         clear() {
-            this.selected = { kind: [], lang: [], corpus: [] };
+            this.selected = { kind: [], lang: [], corpus: [], status: [] };
             this.author = '';
         },
 
@@ -192,6 +204,7 @@ export default function collectionsSearch() {
                     data.forEach(function (entry) {
                         entry.facets = {
                             kind: entry.kind,
+                            status: entry.status,
                             lang: entry.lang,
                             corpus: entry.corpus_id,
                             author: fold(entry.author),

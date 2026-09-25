@@ -16,8 +16,10 @@ from mvp.site.catalog_tree import (
     _build_collections,
     _build_urn_index,
     _discover_corpora,
+    _experimental_version_ids,
     _flatten_search_index,
     _collections_display_tree,
+    _version_id,
     _work_title,
     _xml_src_url,
 )
@@ -78,6 +80,13 @@ def create_app(
 
     catalog = CTSCatalog([c.root for c in corpora])
     app.catalog = catalog  # ty: ignore[unresolved-attribute]
+    experimental = _experimental_version_ids(config.CORPORA_DIR, catalog)
+    app.experimental = experimental  # ty: ignore[unresolved-attribute]
+
+    @app.template_global()
+    def is_experimental(urn: str) -> bool:
+        """Whether a version URN comes from an experimental (OCR) source."""
+        return _version_id(urn) in experimental
 
     generate_proto_pages(config.PROTO_DIR, corpora, catalog=catalog)
     app.new_alexandria = build_new_alexandria_index(  # ty: ignore[unresolved-attribute]
@@ -141,7 +150,7 @@ def create_app(
         collections = (
             collections_override
             if collections_override is not None
-            else _build_collections(config.PROTO_DIR, catalog)
+            else _build_collections(config.PROTO_DIR, catalog, experimental)
         )
         return (
             render_template(
@@ -157,7 +166,7 @@ def create_app(
         if collections_override is not None:
             collections = collections_override
         else:
-            collections = _build_collections(config.PROTO_DIR, catalog)
+            collections = _build_collections(config.PROTO_DIR, catalog, experimental)
             for corpus in collections:
                 for textgroup in corpus["textgroups"]:
                     for work in textgroup["works"]:
@@ -421,6 +430,10 @@ def create_app(
             scheme=scheme,
             about_urn=chunk_obj.about_urn,
         )
+        # Experimental siblings sort below curated ones (stable, so each
+        # group keeps the catalog's own order).
+        for key in ("edition_chunks", "translation_chunks"):
+            sibling_data[key].sort(key=lambda result: is_experimental(result[0].urn))
 
         citation_range = _chunk_citation_range(chunk_obj)
         commentary = links_for_passage(catalog, work_base_urn, citation_range)
