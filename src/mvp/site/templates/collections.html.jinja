@@ -83,6 +83,15 @@
                         </div>
                     </div>
                 </div>
+                {# Kept outside the collapsible facets so it's always visible. #}
+                <fieldset class="fieldset mb-4">
+                    <legend class="fieldset-legend">Author</legend>
+                    <input type="search"
+                           autocomplete="off"
+                           placeholder="Filter authors…"
+                           class="input input-sm input-bordered w-full"
+                           x-model.debounce.150ms="author" />
+                </fieldset>
                 <button type="button"
                         x-cloak
                         class="btn btn-sm btn-outline w-full lg:hidden"
@@ -97,17 +106,9 @@
                      class="mt-2 lg:mt-0 gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-4 lg:grid lg:grid-cols-1"
                      :class="filtersOpen ? 'grid' : 'hidden'">
                     {{ facet('kind', 'Kind') }}
-                    {{ facet('lang', 'Language') }}
                     {{ facet('corpus', 'Corpus') }}
+                    {{ facet('lang', 'Language') }}
                     {{ facet('status', 'Status') }}
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Author</legend>
-                        <input type="search"
-                               autocomplete="off"
-                               placeholder="Filter authors…"
-                               class="input input-sm input-bordered w-full"
-                               x-model.debounce.150ms="author" />
-                    </fieldset>
                 </div>
             </aside>
             <div class="min-w-0 lg:flex-1">
