@@ -306,6 +306,58 @@ class TestBuildSiblingDataFocusUrl:
         )
 
 
+    def test_focus_url_falls_back_to_first_page_when_no_passage_loads(
+        self, app, tmp_path, monkeypatch
+    ):
+        """When the sibling's corresponding chunk can't be loaded (its file
+        is missing), there's no passage to show, but the focus link should
+        still point at the sibling's first page."""
+        proto_dir = tmp_path / "proto"
+        urn_by_path: dict[Path, str] = {}
+        base_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}:94"
+        urn_by_path.update(
+            _write_index(
+                proto_dir / CORPUS / TEXTGROUP / WORK / BASE_VERSION,
+                {"94.xml": base_urn},
+            )
+        )
+        sib_dir = proto_dir / CORPUS / TEXTGROUP / WORK / SIB_VERSION
+        sib_urn_before = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:1-93"
+        sib_urn = f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:94-140"
+        urn_by_path.update(
+            _write_index(sib_dir, {"1-93.xml": sib_urn_before, "94-140.xml": sib_urn})
+        )
+        (sib_dir / "94-140.xml").unlink()
+        _install_fake_parse_chunk(monkeypatch, urn_by_path)
+
+        sib_version_obj = CTSVersion(
+            urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}",
+            work_urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}",
+            lang="eng",
+            label="A Translation",
+            description="trans.",
+            version_type="translation",
+        )
+        catalog = _FakeCatalog(translations=[sib_version_obj])
+
+        with app.test_request_context():
+            sibling_data = siblingsmod._build_sibling_data(
+                CORPUS,
+                TEXTGROUP,
+                WORK,
+                BASE_VERSION,
+                "94",
+                _chunk_start_line(base_urn),
+                _chunk_end_line(base_urn),
+                catalog,
+                base_urn=f"urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}",
+            )
+
+        [(sib, sib_chunk, focus_url)] = sibling_data["translation_chunks"]
+        assert sib_chunk is None
+        assert focus_url == f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}:1-93/"
+
+
 class TestBuildSiblingDataAboutUrn:
     """A commentary's own <ti:about> urn (surfaced as _Chunk.about_urn from
     metadata.json's document.about) should be used to find the work whose

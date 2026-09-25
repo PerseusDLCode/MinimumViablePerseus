@@ -179,7 +179,7 @@
                                         {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
                                         {% if curated_source(sib.urn) %}{{ curated_badge(curated_source(sib.urn)) }}{% endif %}
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
-                                        {% if sib_chunk %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
+                                        {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">
                                         {% if sib_chunk %}
@@ -208,7 +208,8 @@
                                         {{ sib.label }}
                                         {% if is_experimental(sib.urn) %}{{ experimental_badge() }}{% endif %}
                                         {% if curated_source(sib.urn) %}{{ curated_badge(curated_source(sib.urn)) }}{% endif %}
-                                        ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }} <a href="{{ focus_url }}" class="link">focus</a>{% endif %}
+                                        ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
+                                        {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
                                     <div class="p-4">
                                         {% if sib_chunk %}

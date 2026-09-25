@@ -155,8 +155,9 @@ def _build_sibling_data(
       current_version: CTSVersion | None
       edition_chunks: list[(CTSVersion, _Chunk | None, str | None)]
       translation_chunks: list[(CTSVersion, _Chunk | None, str | None)]
-    The third tuple element is the sibling's "focus" URL (None when there's
-    no chunk to focus), already routed through the sibling's own scheme
+    The third tuple element is the sibling's "focus" URL — its first page
+    when no corresponding chunk could be loaded, and None only when the
+    sibling has no pages at all — already routed through the sibling's own scheme
     when the chunk was read from a scheme subdirectory — see _focus_url.
     """
     work_urn = _work_urn_of(about_urn) if about_urn else base_urn.rsplit(".", 1)[0]
@@ -210,6 +211,18 @@ def _build_sibling_data(
         if not sib_chunks:
             return sib, None, None
 
+        # Fallback "focus" target when no corresponding passage can be
+        # shown: the sibling's own first page, so the reader can still
+        # jump into that version.
+        first_page_url = _reading_view_url(
+            sib_corpus,
+            sib_textgroup,
+            sib_work,
+            sib_id,
+            sib_chunks[0]["cts_urn"].rsplit(":", 1)[-1],
+            sib_scheme,
+        )
+
         # A partial version (e.g. a translation covering only a few chapters
         # of a work) shouldn't be shown as a sibling of every chunk in the
         # full text — only of chunks actually within its own citation range.
@@ -235,7 +248,7 @@ def _build_sibling_data(
             nearest = _find_nearest_chunk(sib_chunks, current_line) or sib_chunks[0]
             entries = [nearest] if nearest else []
         if not entries:
-            return sib, None, None
+            return sib, None, first_page_url
 
         parsed_chunks = []
         for entry in entries:
@@ -245,7 +258,7 @@ def _build_sibling_data(
             parsed_chunk, _ = chunks._parse_chunk(chunk_file)
             parsed_chunks.append(parsed_chunk)
         if not parsed_chunks:
-            return sib, None, None
+            return sib, None, first_page_url
 
         sib_chunk = (
             parsed_chunks[0]
