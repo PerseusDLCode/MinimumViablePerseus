@@ -21,14 +21,19 @@ def _work_title(catalog: CTSCatalog, work_urn: str, fallback: str = "") -> str:
     Prefers English, then falls back to Latin — some __cts__.xml files only
     supply a <ti:title xml:lang="lat"> (e.g. Trachiniae, or First1KGreek's
     ggm0001.ggm001), and a Latin title is still far more useful to a reader
-    than the raw URN fragment. Falls back to `fallback` only when neither is
-    available. Callers should pass a script-neutral fallback (e.g. a work
-    ID), not a document's own-language title, or the same title-availability
-    problem just resurfaces one level down.
+    than the raw URN fragment. As a last resort, takes a title in any other
+    language (usually Greek, e.g. tlg2003.tlg017's Κατὰ Γαλιλαίων), which
+    still beats showing the reader a work ID. Falls back to `fallback` only
+    when the work has no title at all.
     """
     work = catalog.work_for(work_urn)
     if work is not None:
-        title = work.title_for("eng") or work.title_for("lat")
+        title = (
+            work.title_for("eng")
+            or work.title_for("lat")
+            or work.title_for("grc")
+            or next(iter(work.titles.values()), "")
+        )
         if title:
             return title
     return fallback

@@ -21,6 +21,7 @@ from mvp.site.catalog_tree import (
     _experimental_version_ids,
     _flatten_search_index,
     _merge_collections,
+    _work_title,
 )
 
 
@@ -369,3 +370,28 @@ class TestCuratedSource:
     def test_label(self, urn, label):
         assert _curated_source(urn) == label
 
+
+class TestWorkTitle:
+    @pytest.mark.parametrize(
+        ("titles", "expected"),
+        [
+            ('<ti:title xml:lang="grc">Γ</ti:title><ti:title xml:lang="lat">L</ti:title>'
+             '<ti:title xml:lang="eng">E</ti:title>', "E"),
+            ('<ti:title xml:lang="grc">Γ</ti:title><ti:title xml:lang="lat">L</ti:title>', "L"),
+            ('<ti:title xml:lang="ita">I</ti:title><ti:title xml:lang="grc">Γ</ti:title>', "Γ"),
+            ('<ti:title xml:lang="ita">I</ti:title>', "I"),
+        ],
+    )
+    def test_prefers_eng_then_lat_then_grc(self, tmp_path, titles, expected):
+        work_dir = tmp_path / "tlg0001" / "tlg001"
+        work_dir.mkdir(parents=True)
+        (work_dir / "__cts__.xml").write_text(
+            '<ti:work xmlns:ti="http://chs.harvard.edu/xmlns/cts" '
+            'groupUrn="urn:cts:greekLit:tlg0001" urn="urn:cts:greekLit:tlg0001.tlg001">'
+            f"{titles}</ti:work>"
+        )
+        catalog = CTSCatalog([tmp_path])
+        assert _work_title(catalog, "urn:cts:greekLit:tlg0001.tlg001", "tlg001") == expected
+
+    def test_falls_back_without_catalog_entry(self, empty_catalog):
+        assert _work_title(empty_catalog, "urn:cts:greekLit:tlg0001.tlg001", "tlg001") == "tlg001"
