@@ -10,8 +10,9 @@
 
 ## Additional and Historical Support
 
-The Perseus Project has received support from the [[Alpheios Project](https://alpheios.net/)](https://alpheios.net/), the [[Andrew W. Mellon Foundation](https://www.mellon.org/)](https://www.mellon.org/), the [[Institute of Museum and Library Services](https://www.imls.gov/)](https://www.imls.gov/), the [[National Endowment for the Humanities](https://www.neh.gov/)](https://www.neh.gov/), the [[National Science Foundation](https://www.nsf.gov/)](https://www.nsf.gov/), private donors, and [[Tufts University](https://www.tufts.edu/)](https://www.tufts.edu/).
+The Perseus Project has received support from the [Alpheios Project](https://alpheios.net/), the [Andrew W. Mellon Foundation](https://www.mellon.org/), the [Institute of Museum and Library Services](https://www.imls.gov/), the [National Endowment for the Humanities](https://www.neh.gov/), the [National Science Foundation](https://www.nsf.gov/), private donors, and [Tufts University](https://www.tufts.edu/).
 
 Earlier funders and partners include the **Annenberg/CPB Project**, **Apple Computer**, the **Berger Family Technology Transfer Endowment**, the **Digital Libraries Initiative Phase 2**, the **Fund for the Improvement of Postsecondary Education (U.S. Department of Education)**, the **Getty Grant Program**, the **Modern Language Association**, the **National Endowment for the Arts**, the **Packard Humanities Institute**, **Xerox Corporation**, **Boston University**, and **Harvard University**.
 
 We are grateful to all of these organizations, institutions, collaborators, and individual donors. Their support has allowed Perseus to evolve from an experimental multimedia collection into an open, multilingual digital research environment serving students, teachers, scholars, and readers around the world.
+
