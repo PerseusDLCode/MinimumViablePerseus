@@ -132,13 +132,19 @@ _SOURCE_OWNERS = {
 }
 
 _LANGUAGE_LABELS = {
+    "ara": "Arabic",
+    "cop": "Coptic",
     "deu": "German",
     "eng": "English",
+    "fas": "Persian",
     "fre": "French",
     "ger": "German",
     "grc": "Greek",
     "ita": "Italian",
+    "jpn": "Japanese",
     "lat": "Latin",
+    "mul": "Multiple",
+    "spa": "Spanish",
 }
 
 # Per-version overrides for the /collections page's "preferred edition"

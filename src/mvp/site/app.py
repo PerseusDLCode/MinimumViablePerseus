@@ -15,11 +15,11 @@ from mvp.site.abbreviations import (
 from mvp.site.catalog_tree import (
     _build_collections,
     _build_urn_index,
+    _collections_display_tree,
     _curated_source,
     _discover_corpora,
     _experimental_version_ids,
     _flatten_search_index,
-    _collections_display_tree,
     _version_id,
     _work_title,
     _xml_src_url,
