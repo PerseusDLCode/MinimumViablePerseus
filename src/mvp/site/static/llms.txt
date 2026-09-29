@@ -1,0 +1,38 @@
+# Perseus Digital Library
+
+> Perseus is a free digital library of TEI-encoded classical texts and related
+> data. This website is a statically generated rendering of that data. The
+> source texts, code, and annotations are all openly licensed and published on
+> GitHub, so please fetch them from there rather than crawling this site.
+
+## Please do not scrape this website
+
+Crawling the site page by page is slow for you and costly for us. Every text
+on the site is compiled from a TEI-XML file in a public GitHub repository;
+cloning the repository (or fetching a raw file) gives you the complete,
+canonical source in one request, with full markup and metadata.
+
+## Where to get the data
+
+- [PerseusDL on GitHub](https://github.com/PerseusDL): canonical Greek and Latin texts
+  - [canonical-greekLit](https://github.com/PerseusDL/canonical-greekLit)
+  - [canonical-latinLit](https://github.com/PerseusDL/canonical-latinLit)
+  - [treebank_data](https://github.com/PerseusDL/treebank_data): treebanks and linguistic annotations
+- [PerseusDLCode on GitHub](https://github.com/PerseusDLCode): additional corpora and the code behind this site
+  - [First1KGreek](https://github.com/PerseusDLCode/First1KGreek)
+  - [Notre-Dame-Digitized-Latin-Collection](https://github.com/PerseusDLCode/Notre-Dame-Digitized-Latin-Collection)
+  - [canonical-engLit](https://github.com/PerseusDLCode/canonical-engLit)
+  - [canonical-pdlrefwk](https://github.com/PerseusDLCode/canonical-pdlrefwk): reference works and commentary-linking data
+  - [MinimumViablePerseus](https://github.com/PerseusDLCode/MinimumViablePerseus): the source for this website
+
+## Working from the site's URLs
+
+Each page in the reading view is named by a CTS URN (for example
+`/urn:cts:greekLit:tlg0012.tlg001.perseus-grc2:1.1/`). Each text's page
+metadata records the GitHub repository and path of the XML it was built from,
+so you can map any passage on the site back to its source file.
+
+## Overview
+
+- [Open Source](/open-source/): where to find our corpora, code, and data
+- [About](/about/): about the Perseus Digital Library

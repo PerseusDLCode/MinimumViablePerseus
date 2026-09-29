@@ -99,6 +99,11 @@ def create_app(
         config.NEW_ALEXANDRIA_DIR
     )
 
+    @app.get("/llms.txt")
+    def llms_txt():
+        with open(config.LLMS_TXT, encoding="utf-8") as f:
+            return f.read(), 200, {"Content-Type": "text/plain; charset=utf-8"}
+
     @app.get("/urn-index.json")
     def urn_index():
         data = (
