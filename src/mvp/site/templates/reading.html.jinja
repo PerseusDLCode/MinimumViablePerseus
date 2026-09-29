@@ -367,12 +367,14 @@
                     {{ publication.availability }}
                 {% endif %}
             </p>
+            {% if xml_src_url %}
             <p class="xml_download">
                 An <a href="{{ xml_src_url }}" class="link">XML version</a>
                 of this text is available for download. Perseus welcomes
                 corrections and improvements, credits all accepted changes,
                 and stores new additions in a versioning system.
             </p>
+            {% endif %}
         </div>
     </footer>
 {% endblock %}

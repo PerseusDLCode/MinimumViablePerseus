@@ -686,14 +686,18 @@ def _experimental_version_ids(
     return frozenset(ids)
 
 
-def _xml_src_url(corpus: str, textgroup: str, work: str, version: str) -> str:
-    """Deprecated. This lookup will often fail (e.g., for First1KGreek). Should we
-    instead have a static page of source repositories with instructions for finding
-    specific works therein?
+def _xml_src_url(document: dict) -> str | None:
+    """Return the GitHub URL of a document's source XML, or None if unknown.
+
+    Built from document.source_repo / document.source_path, which the proto
+    page build records from the file it actually compiled (see
+    proto_pages._record_source_repo), so it is right for every source repo
+    and layout. None when the metadata predates those fields or the repo has
+    no entry in config._SOURCE_OWNERS.
     """
-    repo = config._CORPUS_REPO.get(corpus, f"canonical-{corpus}")
-    filename = f"{textgroup}.{work}.{version}.xml"
-    return (
-        f"https://raw.githubusercontent.com/PerseusDLCode/{repo}/master"
-        f"/data/{textgroup}/{work}/{filename}"
-    )
+    repo = document.get("source_repo", "")
+    path = document.get("source_path", "")
+    owner = config._SOURCE_OWNERS.get(repo)
+    if not (owner and path):
+        return None
+    return f"https://raw.githubusercontent.com/{owner}/{repo}/HEAD/{path}"

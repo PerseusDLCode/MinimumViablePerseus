@@ -12,8 +12,9 @@ from pathlib import Path
 from perseus_cts.models import Corpus
 
 from mvp.site import config
+from mvp.site.catalog_tree import _xml_src_url
 from mvp.site.chunks import _resolve_licence
-from mvp.site.proto_pages import _record_source_repo, _source_repo
+from mvp.site.proto_pages import _record_source_repo, _source_path, _source_repo
 
 TEI_LICENCE = {
     "text": "Public domain (U.S.)",
@@ -79,3 +80,38 @@ class TestSourceRepo:
             "title": "Ἰλιάς",
             "source_repo": "canonical-greekLit",
         }
+
+
+class TestXmlSrcUrl:
+    def test_source_path_with_data_dir(self, tmp_path: Path):
+        root = tmp_path / "First1KGreek" / "data"
+        root.mkdir(parents=True)
+        xml = root / "tlg0012" / "tlg001" / "tlg0012.tlg001.1st1K-grc1.xml"
+        assert _source_path(Corpus(root), xml) == (
+            "data/tlg0012/tlg001/tlg0012.tlg001.1st1K-grc1.xml"
+        )
+
+    def test_source_path_without_data_dir(self, tmp_path: Path):
+        root = tmp_path / "grcnewxml"
+        root.mkdir()
+        assert _source_path(Corpus(root), root / "a" / "b.xml") == "a/b.xml"
+
+    def test_record_source_path(self, tmp_path: Path):
+        path = tmp_path / "metadata.json"
+        path.write_text(json.dumps({"document": {"title": "T"}}))
+        _record_source_repo(path, "First1KGreek", "data/a/b.xml")
+        document = json.loads(path.read_text())["document"]
+        assert document["source_path"] == "data/a/b.xml"
+        assert document["title"] == "T"
+
+    def test_url_from_recorded_repo_and_path(self):
+        document = {"source_repo": "First1KGreek", "source_path": "data/a/b.xml"}
+        assert _xml_src_url(document) == (
+            "https://raw.githubusercontent.com/PerseusDLCode/First1KGreek/HEAD"
+            "/data/a/b.xml"
+        )
+
+    def test_legacy_or_unknown_repo_has_no_url(self):
+        assert _xml_src_url({}) is None
+        assert _xml_src_url({"source_repo": "First1KGreek"}) is None
+        assert _xml_src_url({"source_repo": "nope", "source_path": "x.xml"}) is None

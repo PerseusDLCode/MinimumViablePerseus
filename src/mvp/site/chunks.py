@@ -182,6 +182,8 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
         "sponsors": document.get("sponsors", []),
         "publication": document.get("publication"),
         "licence": _resolve_licence(document),
+        "source_repo": document.get("source_repo", ""),
+        "source_path": document.get("source_path", ""),
     }
 
     content_el = root.find("elements")

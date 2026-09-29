@@ -473,7 +473,7 @@ def create_app(
                 work_title=work_title,
                 work_uri=f"http://catalog.perseus.org/texts/{work_base_urn}",
                 work_urn=f"urn:cts:{corpus}:{textgroup}.{work}",
-                xml_src_url=_xml_src_url(corpus, textgroup, work, version),
+                xml_src_url=_xml_src_url(pub_info),
             ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},

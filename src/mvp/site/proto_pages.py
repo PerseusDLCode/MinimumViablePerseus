@@ -32,19 +32,36 @@ def _source_repo(corpus: Corpus) -> str:
     return root.parent.name if root.name == "data" else root.name
 
 
-def _record_source_repo(metadata_path: Path, source_repo: str) -> None:
-    """Add document.source_repo to a compiled scheme's metadata.json, so
-    the reading page can fall back to the repo's licence (see
-    config._SOURCE_LICENCES) when the TEI header states none of its own."""
+def _source_path(corpus: Corpus, xml_path: Path) -> str:
+    """Return xml_path relative to its repo's root (e.g.
+    "data/tlg0012/tlg001/tlg0012.tlg001.perseus-grc2.xml"), as a posix path
+    suitable for a URL. The repo root is the corpus root's parent when the
+    corpus is rooted at a repo's data/ subdirectory (see _source_repo)."""
+    root = corpus.root
+    repo_root = root.parent if root.name == "data" else root
+    return xml_path.relative_to(repo_root).as_posix()
+
+
+def _record_source_repo(
+    metadata_path: Path, source_repo: str, source_path: str = ""
+) -> None:
+    """Add document.source_repo (and, when known, document.source_path) to a
+    compiled scheme's metadata.json. The reading page falls back to the
+    repo's licence (see config._SOURCE_LICENCES) when the TEI header states
+    none of its own, and links to the source XML from repo + path (see
+    catalog_tree._xml_src_url)."""
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-    metadata.setdefault("document", {})["source_repo"] = source_repo
+    document = metadata.setdefault("document", {})
+    document["source_repo"] = source_repo
+    if source_path:
+        document["source_path"] = source_path
     metadata_path.write_text(
         json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
 
 def _compile_proto_page(
-    work_item: tuple[Path, str], proto_dir: Path, catalog: CTSCatalog | None = None
+    work_item: tuple[Path, str, str], proto_dir: Path, catalog: CTSCatalog | None = None
 ) -> tuple[str, str | None]:
     """Parse, urn/skip-check, and compile one TEI document.
 
@@ -57,7 +74,7 @@ def _compile_proto_page(
     be pickled through Pool.imap_unordered's task queue, and re-parsing here
     (instead of once in the caller, then again in the worker) avoids paying
     for the parse twice. ``work_item`` pairs that path with the name of the
-    repo it came from (see _source_repo).
+    repo it came from (see _source_repo) and its path within that repo.
 
     ``catalog`` (built from the same corpora's __cts__.xml files) is passed
     to each Chunker so metadata.json's document.title/about are populated
@@ -67,7 +84,7 @@ def _compile_proto_page(
     """
     from perseus_cts.models.document import TEIDocument
 
-    xml_path, source_repo = work_item
+    xml_path, source_repo, source_path = work_item
     site_map = SiteMap(proto_dir)
     try:
         doc = TEIDocument.from_path(xml_path)
@@ -148,7 +165,9 @@ def _compile_proto_page(
         for scheme, compiler in usable_compilers:
             output_dir = site_map.chunk_dir(doc.metadata.urn, scheme or None)
             compiler.compile(output_dir, unit_scheme_map=unit_scheme_map)
-            _record_source_repo(output_dir / "metadata.json", source_repo)
+            _record_source_repo(
+                output_dir / "metadata.json", source_repo, source_path
+            )
 
         return "ok", None
     except Exception as exc:
@@ -185,7 +204,7 @@ def generate_proto_pages(
         for xml_path in sorted(corpus.root.rglob("*.xml")):
             if xml_path.name == "__cts__.xml":
                 continue
-            work.append((xml_path, source_repo))
+            work.append((xml_path, source_repo, _source_path(corpus, xml_path)))
 
     generated = skipped = no_schema = failed = 0
     total = len(work)

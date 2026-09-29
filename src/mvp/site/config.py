@@ -115,11 +115,20 @@ _SOURCE_LICENCES = {
     },
 }
 
-### Deprecated. Do not use.
-_CORPUS_REPO = {
-    "greekLit": "canonical-greekLit",
-    "hebrewLit": "First1KGreek",
-    "latinLit": "canonical-latinLit",
+# GitHub owner of each source repo (subdirectory of CORPORA_DIR), for linking
+# a reading page to its source XML (see catalog_tree._xml_src_url). Repos not
+# listed here get no link. Links use the ref "HEAD", i.e. each repo's default
+# branch, so no per-repo branch needs recording.
+_SOURCE_OWNERS = {
+    "ajmc-tei": "PerseusDLCode",
+    "canonical-engLit": "PerseusDLCode",
+    "canonical-greekLit": "PerseusDL",
+    "canonical-latinLit": "PerseusDL",
+    "canonical-pdlrefwk": "PerseusDLCode",
+    "canonical_pdlrefwk": "PerseusDLCode",
+    "First1KGreek": "PerseusDLCode",
+    "grcnewxml": "gregorycrane",
+    "Notre-Dame-Digitized-Latin-Collection": "PerseusDLCode",
 }
 
 _LANGUAGE_LABELS = {
