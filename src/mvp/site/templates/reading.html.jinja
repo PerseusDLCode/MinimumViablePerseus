@@ -31,7 +31,7 @@
 {% endblock %}
 {% block content %}
     {% set notes = namespace(items=[]) %}
-    <main class="py-4 w-full flex flex-col lg:flex-row lg:items-start">
+    <main class="py-4 px-2 lg:px-4 w-full lg:gap-4 flex flex-col lg:flex-row">
         <!-- Mobile/tablet nav: collapsed into a slideout dropdown above the
         main content. Hidden at lg+, where the static sidebar below takes over. -->
         <div class="dropdown w-full lg:hidden mb-4">
@@ -67,7 +67,7 @@
         </div>
         <!-- Left nav: sticky + self-contained height so TOC open/close doesn't shift the page.
         Static sidebar at lg+; hidden below lg in favor of the dropdown above. -->
-        <div class="hidden lg:flex text-base-content text-xs w-1/6 sticky top-0 h-[90vh] flex-col will-change-transform bg-base-300 text-base-content rounded-box shadow-md overflow-hidden border-l-4 border-primary">
+        <div class="hidden lg:flex text-base-content text-xs w-1/6 shrink-0 sticky top-0 h-[90vh] flex-col will-change-transform bg-base-300 text-base-content rounded-box shadow-md overflow-hidden border-l-4 border-primary">
             <div class="p-4 mb-4">
                 <h3 class="font-bold">Search the Perseus Catalog for:</h3>
                 <ul>
@@ -92,7 +92,7 @@
                     title="Table of Contents"
                     class="w-full flex-1 border-0 bg-base-300"></iframe>
         </div>
-        <div class="w-full px-2 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-4 lg:w-5/6 lg:mx-4 text-sm lg:items-start">
+        <div class="w-full px-2 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-4 lg:flex-1 lg:min-w-0 text-sm lg:items-start">
             <!-- Base text -->
             <article data-lang="{{ chunk.language }}"
                      class="col-span-2 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto will-change-transform bg-base-100 rounded-box drop-shadow-xl p-4">
