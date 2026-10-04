@@ -24,6 +24,9 @@
 #                   (default: ./build)
 #   STATE_DIR       Directory holding one last-deployed-digest file per
 #                   artifact (default: ./state)
+#   SEARCH_DIR      Directory `serve` mounts at /search-index/; holds the
+#                   corpus search index (default: ./search-index)
+#   SEARCH_TAG      Which alias of mvp-search-index to pull (default: latest)
 #   CONTAINER_CMD   Container runtime (default: podman; set to docker locally)
 #   COMPOSE_PROJECT podman/docker compose project name (default: perseus) —
 #                   set this explicitly when running alongside other compose
@@ -65,6 +68,8 @@ TAG="${TAG:-latest}"
 ORAS_BIN="${ORAS_BIN:-oras}"
 export BUILD_DIR="${BUILD_DIR:-./build}"
 STATE_DIR="${STATE_DIR:-./state}"
+export SEARCH_DIR="${SEARCH_DIR:-./search-index}"
+SEARCH_TAG="${SEARCH_TAG:-latest}"
 CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-perseus}"
 
@@ -89,7 +94,7 @@ command -v zstd >/dev/null 2>&1 || {
   exit 1
 }
 
-mkdir -p "$STATE_DIR"
+mkdir -p "$STATE_DIR" "$SEARCH_DIR"
 
 # ----- Optional registry login (needed only if packages are private) ------
 if [ -n "${GHCR_TOKEN:-}" ] && [ -n "${GHCR_USER:-}" ]; then
@@ -130,6 +135,72 @@ remote_digest() {
     | python3 -c "import sys,json; print(json.load(sys.stdin)['digest'])" 2>/dev/null || echo ""
 }
 
+# ----- Corpus search index -------------------------------------------------
+# Independent of the page artifacts: mvp-tokenization's build-search-index.yml
+# publishes mvp-search-index (search-<sha12>.db + manifest.json) on its own
+# schedule, and nginx serves SEARCH_DIR at /search-index/ (deploy/nginx.conf),
+# where /search reads it over HTTP range requests. Updated in place rather
+# than swapped like BUILD_DIR, because the database file is content-
+# addressed: the new one is moved in under its own name, then manifest.json
+# -- the only file clients resolve it through -- is replaced atomically. The
+# database it replaced stays one more round, so a page that loaded the old
+# manifest a moment ago can finish its queries; anything older is pruned.
+#
+# set -e doesn't apply inside a function called from `||`, hence the
+# explicit `|| return 1`s.
+sync_search_index() {
+  local ref="${REGISTRY}/mvp-search-index:${SEARCH_TAG}"
+  local digest last incoming db expected actual previous name
+  digest="$(remote_digest "$ref")"
+  if [ -z "$digest" ]; then
+    log "WARN: could not resolve ${ref}; leaving the search index as is."
+    return 0
+  fi
+  last="$(cat "${STATE_DIR}/search-index.digest" 2>/dev/null || echo "")"
+  [ "$digest" = "$last" ] && return 0
+
+  log "New search index: ${ref} (${digest:0:19}...)"
+  # Inside SEARCH_DIR so the final mv is a rename on the same filesystem.
+  incoming="$(mktemp -d "${SEARCH_DIR}/.incoming.XXXXXX")" || return 1
+  "$ORAS_BIN" pull "${REGISTRY}/mvp-search-index@${digest}" -o "$incoming" || { rm -rf "$incoming"; return 1; }
+  read -r db expected < <(python3 -c 'import json,sys; m=json.load(open(sys.argv[1])); print(m["db"], m["size"])' "${incoming}/manifest.json") \
+    || { rm -rf "$incoming"; return 1; }
+  if ! [[ "$db" =~ ^search-[0-9a-f]{12}\.db$ ]] || [ ! -f "${incoming}/${db}" ]; then
+    log "ERROR: search index artifact has no database matching its manifest (${db}); not installing it."
+    rm -rf "$incoming"
+    return 1
+  fi
+  actual="$(wc -c < "${incoming}/${db}" | tr -d ' ')"
+  if [ "$actual" != "$expected" ]; then
+    log "ERROR: ${db} is ${actual} bytes, manifest says ${expected}; not installing it."
+    rm -rf "$incoming"
+    return 1
+  fi
+
+  previous="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["db"])' "${SEARCH_DIR}/manifest.json" 2>/dev/null || echo "")"
+  mv "${incoming}/${db}" "${SEARCH_DIR}/${db}" || return 1
+  mv "${incoming}/manifest.json" "${SEARCH_DIR}/manifest.json" || return 1
+  rm -rf "$incoming"
+  for f in "${SEARCH_DIR}"/search-*.db; do
+    name="$(basename "$f")"
+    if [ "$name" != "$db" ] && [ "$name" != "$previous" ]; then
+      rm -f "$f"
+    fi
+  done
+  echo "$digest" > "${STATE_DIR}/search-index.digest"
+  log "Search index now ${db}."
+
+  # The first index on a host predates serve's /search-index/ mount (added
+  # with this feature), so recreate serve once to pick it up.
+  if [ -z "$last" ]; then
+    ${COMPOSE} up -d --force-recreate serve || return 1
+  fi
+}
+
+rm -rf "${SEARCH_DIR:?}"/.incoming.*
+sync_search_index || log "WARN: search index update failed; will retry next tick."
+
+# ----- Static pages ---------------------------------------------------------
 ARTIFACT_NAMES=()
 ARTIFACT_REFS=()
 for shard in $SHARDS; do

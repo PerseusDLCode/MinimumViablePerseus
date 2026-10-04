@@ -2,7 +2,14 @@ import json
 import os
 
 import markdown
-from flask import Flask, abort, redirect, render_template, url_for
+from flask import (
+    Flask,
+    abort,
+    redirect,
+    render_template,
+    send_from_directory,
+    url_for,
+)
 from perseus_cts.commentary import links_for_passage
 from perseus_cts.models import CTSCatalog
 
@@ -228,6 +235,31 @@ def create_app(
     @app.get("/research/")
     def get_research():
         return _render_markdown_page(config.RESEARCH_MARKDOWN, "Research")
+
+    @app.get("/search/")
+    def get_search():
+        return (
+            render_template(
+                "search.html.jinja",
+                search_config={
+                    "indexUrl": config.SEARCH_INDEX_URL,
+                    "morphUrl": config.MORPH_URL,
+                },
+            ),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    if config.SEARCH_INDEX_DIR is not None:
+        # Dev-only stand-in for nginx's /search-index/ location. Werkzeug
+        # answers Range requests for conditional responses, which is all
+        # sql.js-httpvfs needs. No freezer generator yields this rule, so
+        # it never ends up in a build.
+        @app.get(f"{config.SEARCH_INDEX_URL}<path:filename>")
+        def get_search_index_file(filename):
+            return send_from_directory(
+                config.SEARCH_INDEX_DIR, filename, conditional=True, max_age=0
+            )
 
     @app.get(
         "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"

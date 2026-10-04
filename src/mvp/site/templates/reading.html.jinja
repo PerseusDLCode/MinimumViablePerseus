@@ -383,6 +383,17 @@
             src="{{ url_for("static", filename="js/linkifyBiblRefs.js") }}"></script>
     <script>
 (function () {
+    // /search results link to the exact word they found, as ?token=<the
+    // token's URN> (see static/js/corpusSearch.js); tokens carry their URN
+    // in data-token-urn (text_elements/token.html.jinja).
+    const tokenUrn = new URLSearchParams(window.location.search).get('token');
+    if (!tokenUrn) return;
+    const token = document.querySelector(`[data-token-urn="${CSS.escape(tokenUrn)}"]`);
+    if (!token) return;
+    token.classList.add('bg-accent/25', 'rounded-sm', 'outline-2', 'outline-accent/60');
+    token.scrollIntoView({ block: 'center' });
+}());
+(function () {
     const lang = {{ chunk.language | tojson }};
     const morphUrl = {{ morph_url | tojson }};
 

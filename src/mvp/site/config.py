@@ -44,6 +44,20 @@ TOKENS_DIR = Path(_tokens_dir_env) if _tokens_dir_env else None
 # fine without them.
 _new_alexandria_dir_env = os.getenv("NEW_ALEXANDRIA_DIR")
 NEW_ALEXANDRIA_DIR = Path(_new_alexandria_dir_env) if _new_alexandria_dir_env else None
+# The corpus search index (search-<hash>.db + manifest.json, built by
+# mvp-tokenization's mvp-index) that /search queries over HTTP range
+# requests. It's never part of the frozen site: in production nginx serves
+# it at SEARCH_INDEX_URL from its own directory (see deploy/nginx.conf).
+# `mvp-dev` serves a local copy there from SEARCH_INDEX_DIR: the env var if
+# set, else ROOT_DIR/search-index if that exists (gitignored), else nothing.
+SEARCH_INDEX_URL = "/search-index/"
+_search_index_dir_env = os.getenv("SEARCH_INDEX_DIR")
+_default_search_index_dir = ROOT_DIR / "search-index"
+SEARCH_INDEX_DIR = (
+    Path(_search_index_dir_env)
+    if _search_index_dir_env
+    else (_default_search_index_dir if _default_search_index_dir.is_dir() else None)
+)
 # Proto-page compilation and page freezing are both CPU-bound and
 # parallel (independent per document / per URL), so both
 # phases of `mvp-build` fan out across this many worker processes. Defaults
