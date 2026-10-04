@@ -65,13 +65,35 @@ in `src/mvp/site/chunks.py`) instead of ever materializing the whole tree on
 disk. If neither `--tokens-dir` nor `MVP_TOKENS_DIR` is set, sidecars are
 written alongside each chunk's XML instead.
 
-Sidecars are checked into this repo under `tokenized-pages/` (mirroring
-`PROTOPAGE_OUTPUT_DIR`'s layout, as above) and baked into the corpus builder
-image by `Dockerfile.corpus`, rather than being generated or fetched by a
-GitHub workflow — regenerate them locally with the command above and commit
-the result. `mvp-build`/`mvp-dev` read whatever tree `MVP_TOKENS_DIR` points
-at; if unset, or a given chunk has no sidecar there, the reading view still
-renders — just without token-level markup.
+In CI, sidecars come from
+[mvp-tokenization](https://github.com/PerseusDLCode/tokenization_pipeline),
+which tokenizes (and lemmatizes Greek and Latin) each corpus and publishes the
+result as `ghcr.io/perseusdlcode/mvp-tokens-<corpus>:latest`;
+`build-corpus.yml` pulls those into the corpus builder image. `mvp-build`/
+`mvp-dev` read whatever tree `MVP_TOKENS_DIR` points at; if unset, or a given
+chunk has no sidecar there, the reading view still renders — just without
+token-level markup.
+
+## Corpus search
+
+`/search/` finds every occurrence of a Greek or Latin word, by dictionary
+headword (all of its forms, as listed in pdl-morph-server's `morph.db`), by
+lemma as tagged, or by exact form. It's a static page: queries run in the
+browser against a SQLite index read over HTTP range requests (vendored
+`sql.js-httpvfs`), served at `/search-index/`. The index is built by
+mvp-tokenization's `mvp-index` from the same token sidecars as the reading
+view, and deployed separately from the pages (see `deploy/README.md`). Results
+link to `/<passage urn>/?token=<token urn>`, which highlights the word.
+
+To try it locally, build an index into `./search-index/` (gitignored), or
+point `SEARCH_INDEX_DIR` elsewhere; `mvp-dev` then serves it at
+`/search-index/` (it is never frozen into `build/`). `MORPH_URL` must reach a pdl-morph-server serving `morph.db` for
+headword search; without it the page falls back to tagged lemmas.
+
+```shell
+(cd ../mvp-tokenization && uv run mvp-index --tokens-dir ../tokenized-pages --out ../MinimumViablePerseus/search-index)
+uv run mvp-dev
+```
 
 ## New Alexandria Commentaries
 

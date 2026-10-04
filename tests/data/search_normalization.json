@@ -1,0 +1,137 @@
+{
+  "_comment": "Shared contract for search-index match keys. Mirrored by MinimumViablePerseus/src/mvp/site/static/js/search/normalize.js; both test suites read this file. Text is stored as written (not escaped) so precomposed vs. decomposed input both appear.",
+  "cases": [
+    {
+      "text": "μῆνιν",
+      "lang": "grc",
+      "match_key": "μῆνιν",
+      "loose_key": "μηνιν"
+    },
+    {
+      "text": "Μῆνιν",
+      "lang": "grc",
+      "match_key": "μῆνιν",
+      "loose_key": "μηνιν"
+    },
+    {
+      "text": "δὲ",
+      "lang": "grc",
+      "match_key": "δέ",
+      "loose_key": "δε"
+    },
+    {
+      "text": "δέ",
+      "lang": "grc",
+      "match_key": "δέ",
+      "loose_key": "δε"
+    },
+    {
+      "text": "δ’",
+      "lang": "grc",
+      "match_key": "δ'",
+      "loose_key": "δ'"
+    },
+    {
+      "text": "δ'",
+      "lang": "grc",
+      "match_key": "δ'",
+      "loose_key": "δ'"
+    },
+    {
+      "text": "δ᾽",
+      "lang": "grc",
+      "match_key": "δ'",
+      "loose_key": "δ'"
+    },
+    {
+      "text": "ΟΔΟΣ",
+      "lang": "grc",
+      "match_key": "οδοσ",
+      "loose_key": "οδοσ"
+    },
+    {
+      "text": "ὁδός",
+      "lang": "grc",
+      "match_key": "ὁδόσ",
+      "loose_key": "οδοσ"
+    },
+    {
+      "text": "Ἀχιλῆος",
+      "lang": "grc",
+      "match_key": "ἀχιλῆοσ",
+      "loose_key": "αχιληοσ"
+    },
+    {
+      "text": "Ἀχιλη̃ος",
+      "lang": "grc",
+      "match_key": "ἀχιλῆοσ",
+      "loose_key": "αχιληοσ"
+    },
+    {
+      "text": "ἄνδρα",
+      "lang": "grc",
+      "match_key": "ἄνδρα",
+      "loose_key": "ανδρα"
+    },
+    {
+      "text": "Ἄνδρα",
+      "lang": "grc",
+      "match_key": "ἄνδρα",
+      "loose_key": "ανδρα"
+    },
+    {
+      "text": "ὃν",
+      "lang": "grc",
+      "match_key": "ὅν",
+      "loose_key": "ον"
+    },
+    {
+      "text": "πρὸς",
+      "lang": "grc",
+      "match_key": "πρόσ",
+      "loose_key": "προσ"
+    },
+    {
+      "text": "virumque",
+      "lang": "la",
+      "match_key": "uirumque",
+      "loose_key": "uirumque"
+    },
+    {
+      "text": "Uirum",
+      "lang": "la",
+      "match_key": "uirum",
+      "loose_key": "uirum"
+    },
+    {
+      "text": "Iuno",
+      "lang": "la",
+      "match_key": "iuno",
+      "loose_key": "iuno"
+    },
+    {
+      "text": "Juno",
+      "lang": "la",
+      "match_key": "iuno",
+      "loose_key": "iuno"
+    },
+    {
+      "text": "VENIT",
+      "lang": "lat",
+      "match_key": "uenit",
+      "loose_key": "uenit"
+    },
+    {
+      "text": "cōnsul",
+      "lang": "la",
+      "match_key": "consul",
+      "loose_key": "consul"
+    },
+    {
+      "text": "vir",
+      "lang": "grc",
+      "match_key": "vir",
+      "loose_key": "vir"
+    }
+  ]
+}

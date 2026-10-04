@@ -32,6 +32,17 @@ Each page in the reading view is named by a CTS URN (for example
 metadata records the GitHub repository and path of the XML it was built from,
 so you can map any passage on the site back to its source file.
 
+## Searching the corpus
+
+[Search](/search/) finds every occurrence of a Greek or Latin word, by
+dictionary headword or exact form. It runs entirely in your browser against a
+SQLite index fetched in small byte ranges from `/search-index/`; the index is
+built from the open-source tokenization pipeline
+([tokenization_pipeline](https://github.com/PerseusDLCode/tokenization_pipeline)),
+so please build it yourself rather than downloading it here. Each result links
+to the exact word in its passage, identified by a token-level CTS URN such as
+`urn:cts:greekLit:tlg0012.tlg001.perseus-grc2:1.1@μῆνιν[1]`.
+
 ## Overview
 
 - [Open Source](/open-source/): where to find our corpora, code, and data

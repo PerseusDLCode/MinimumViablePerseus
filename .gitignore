@@ -243,6 +243,9 @@ site-build/
 # fetched New Alexandria Commentaries data (see src/tools/fetch_new_alexandria.py)
 new-alexandria/
 
+# local corpus search index served by mvp-dev (see config.SEARCH_INDEX_DIR)
+search-index/
+
 
 # AI support
 opencode.json

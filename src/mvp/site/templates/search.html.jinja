@@ -1,0 +1,169 @@
+{% extends 'base.html.jinja' %}
+{% block title %}Search – Perseus Digital Library{% endblock %}
+{% block content %}
+    <div class="max-w-4xl lg:max-w-6xl mx-auto mt-6 px-4 pb-12"
+         x-data='corpusSearch({{ search_config | tojson }})'>
+        <h1 class="text-2xl font-bold mb-2">Search</h1>
+        <p class="text-sm text-base-content/70 mb-6 max-w-3xl">
+            Find every occurrence of a Greek or Latin word across the corpus.
+            Search by dictionary headword to find all of its forms, or by an exact form.
+        </p>
+        <form class="space-y-3 mb-6" @submit.prevent="submit()">
+            <div class="join w-full max-w-2xl">
+                <input type="search"
+                       autocomplete="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       placeholder="e.g. μῆνις, λύω, arma, venio"
+                       class="input input-bordered join-item w-full"
+                       x-model="q" />
+                <button type="submit" class="btn btn-primary join-item" :disabled="searching">
+                    <span x-cloak x-show="searching" class="loading loading-spinner loading-xs"></span>
+                    Search
+                </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                <fieldset class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <legend class="sr-only">Search by</legend>
+                    <label class="flex items-center gap-1.5"
+                           title="Every form Morpheus generates for this dictionary headword">
+                        <input type="radio" class="radio radio-xs" value="lemma" x-model="mode" />
+                        Headword (all forms)
+                    </label>
+                    <label class="flex items-center gap-1.5"
+                           title="Words the automatic lemmatizer assigned to this lemma">
+                        <input type="radio" class="radio radio-xs" value="tagged" x-model="mode" />
+                        Lemma as tagged
+                    </label>
+                    <label class="flex items-center gap-1.5">
+                        <input type="radio" class="radio radio-xs" value="form" x-model="mode" />
+                        Exact form
+                    </label>
+                </fieldset>
+                <label class="flex items-center gap-1.5">
+                    Language
+                    <select class="select select-xs" x-model="lang">
+                        <option value="auto">Detect</option>
+                        <option value="grc">Greek</option>
+                        <option value="la">Latin</option>
+                    </select>
+                </label>
+                <label class="flex items-center gap-1.5" x-show="mode !== 'lemma'">
+                    <input type="checkbox" class="checkbox checkbox-xs" x-model="loose" />
+                    Ignore accents
+                </label>
+            </div>
+        </form>
+        <div x-cloak x-show="error" class="alert alert-error mb-4" x-text="error"></div>
+        <div x-cloak x-show="notice" class="alert alert-warning mb-4 text-sm" x-text="notice"></div>
+        <div x-cloak x-show="candidates.length > 1" class="mb-4 text-sm">
+            <span class="font-semibold mr-2">Headwords:</span>
+            <template x-for="c in candidates" :key="c.id">
+                <label class="inline-flex items-center gap-1 mr-4">
+                    <input type="checkbox"
+                           class="checkbox checkbox-xs"
+                           x-model="c.selected"
+                           @change="toggleCandidate()" />
+                    <span lang="grc" x-text="candidateLabel(c)"></span>
+                </label>
+            </template>
+        </div>
+        <template x-if="searched && !searching && !error && !total">
+            <p class="text-base-content/70">
+                No occurrences found<span x-show="mode === 'form' && !loose">; try “Ignore accents”</span>.
+            </p>
+        </template>
+        <div x-cloak x-show="total" class="lg:flex lg:items-start lg:gap-10">
+            <aside class="mb-6 lg:mb-0 lg:w-80 lg:shrink-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:pr-2">
+                <p class="text-sm mb-2">
+                    <span class="font-semibold" x-text="total.toLocaleString()"></span>
+                    <span x-text="total === 1 ? 'occurrence' : 'occurrences'"></span> in
+                    <span class="font-semibold" x-text="works.length.toLocaleString()"></span>
+                    <span x-text="works.length === 1 ? 'work' : 'works'"></span>
+                </p>
+                <details x-show="forms.length" class="text-sm mb-3">
+                    <summary class="cursor-pointer text-base-content/70">
+                        <span x-text="forms.length.toLocaleString()"></span> matching
+                        <span x-text="forms.length === 1 ? 'form' : 'forms'"></span>
+                    </summary>
+                    <ul class="mt-1 max-h-48 overflow-y-auto columns-2">
+                        <template x-for="f in forms" :key="f.form_id">
+                            <li>
+                                <span x-text="f.form"></span> <span class="text-base-content/60" x-text="f.n.toLocaleString()"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </details>
+                <ul class="menu menu-sm bg-base-100 rounded-box w-full p-1">
+                    <li>
+                        <a href="#"
+                           :class="{ 'menu-active': !selectedWork }"
+                           @click.prevent="selectWork(null)">All works</a>
+                    </li>
+                    <template x-for="work in works" :key="work.doc_id">
+                        <li>
+                            <a href="#"
+                               class="flex justify-between gap-2"
+                               :class="{ 'menu-active': selectedWork === work.doc_id }"
+                               @click.prevent="selectWork(work.doc_id)">
+                                <span x-text="workLabel(work)"></span>
+                                <span class="text-base-content/60" x-text="work.n.toLocaleString()"></span>
+                            </a>
+                        </li>
+                    </template>
+                </ul>
+            </aside>
+            <section class="min-w-0 flex-1">
+                <ol class="divide-y divide-base-300 bg-base-100 rounded-box shadow-sm">
+                    <template x-for="hit in hits" :key="hit.key">
+                        <li class="px-4 py-2">
+                            <div class="flex flex-wrap items-baseline justify-between gap-x-4 text-xs text-base-content/70">
+                                <a :href="hit.href" class="link" :title="hit.urn">
+                                    <span x-text="workLabel(hit.work)"></span> <span x-text="hit.ref"></span>
+                                </a>
+                                <span x-show="hit.lemma || hit.upos">
+                                    <span x-text="hit.lemma"></span>
+                                    <span x-show="hit.upos" x-text="hit.upos"></span>
+                                    <span x-show="hit.feats" class="text-base-content/50" x-text="hit.feats"></span>
+                                </span>
+                            </div>
+                            {# Keyword in context: the hit centered, its context
+                               clipped at the outer edges. #}
+                            <a :href="hit.href"
+                               class="mt-1 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] text-base no-underline hover:bg-base-200">
+                                <span class="flex justify-end overflow-hidden whitespace-pre"><span x-text="hit.before"></span></span>
+                                <mark class="bg-accent/20 text-base-content font-semibold rounded-sm px-0.5 whitespace-pre"
+                                      x-text="hit.hit"></mark>
+                                <span class="overflow-hidden whitespace-pre" x-text="hit.after"></span>
+                            </a>
+                        </li>
+                    </template>
+                </ol>
+                <div class="mt-4 flex items-center gap-4">
+                    <button type="button"
+                            class="btn btn-sm"
+                            x-show="!done"
+                            :disabled="loadingMore"
+                            @click="loadMore()">
+                        <span x-show="loadingMore" class="loading loading-spinner loading-xs"></span>
+                        More results
+                    </button>
+                    <span class="text-xs text-base-content/50">
+                        Showing <span x-text="hits.length.toLocaleString()"></span>
+                        · <span x-text="kbRead.toLocaleString()"></span> KB fetched
+                    </span>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/vendor/sql-httpvfs/index.js') }}"></script>
+    <script type="module">
+    import Alpine from '{{ url_for("static", filename="js/vendor/alpine.js") }}';
+    import corpusSearch from '{{ url_for("static", filename="js/corpusSearch.js") }}';
+
+    Alpine.data('corpusSearch', corpusSearch);
+    Alpine.start();
+    </script>
+{% endblock %}

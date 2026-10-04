@@ -21,6 +21,7 @@
 {% macro nav_links(link_class="hover:text-primary-content") %}
     <li><a href="{{ url_for("index") }}" class="{{ link_class }}">Home</a></li>
     <li><a href="{{ url_for("get_collections") }}" class="{{ link_class }}">Collections/Texts</a></li>
+    <li><a href="{{ url_for("get_search") }}" class="{{ link_class }}">Search</a></li>
     <li><a href="https://catalog.perseus.org" class="{{ link_class }}">Perseus Catalog</a></li>
     <li><a href="{{ url_for("get_research") }}" class="{{ link_class }}">Research</a></li>
     <li><a href="{{ url_for("get_grants") }}" class="{{ link_class }}">Grants</a></li>
