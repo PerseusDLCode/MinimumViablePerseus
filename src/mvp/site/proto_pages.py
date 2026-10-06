@@ -64,7 +64,7 @@ def _is_cts_urn(urn: str | None) -> bool:
     """Whether urn looks like urn:cts:<namespace>:<textgroup>.<work>.<version>."""
     parts = (urn or "").split(":")
     return (
-        len(parts) == 4
+        len(parts) >= 4
         and parts[:2] == ["urn", "cts"]
         and len(parts[3].split(".")) == 3
     )
@@ -187,9 +187,7 @@ def _compile_proto_page(
         for scheme, compiler in usable_compilers:
             output_dir = site_map.chunk_dir(doc.metadata.urn, scheme or None)
             compiler.compile(output_dir, unit_scheme_map=unit_scheme_map)
-            _record_source_repo(
-                output_dir / "metadata.json", source_repo, source_path
-            )
+            _record_source_repo(output_dir / "metadata.json", source_repo, source_path)
 
         return "ok", None
     except Exception as exc:

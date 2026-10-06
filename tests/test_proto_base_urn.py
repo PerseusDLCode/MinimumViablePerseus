@@ -17,8 +17,8 @@ GOOD = DATA / "tlg0003.tlg001.perseus-grc2.xml"
 
 def test_is_cts_urn():
     assert _is_cts_urn("urn:cts:latinLit:phi0474.phi043.perseus-lat2")
+    assert _is_cts_urn("urn:cts:latinLit:phi0474.phi043.perseus-lat2:1.1")
     assert not _is_cts_urn("phi0474.phi043.perseus-lat2.xml")
-    assert not _is_cts_urn("urn:cts:latinLit:phi0474.phi043.perseus-lat2:1.1")
     assert not _is_cts_urn(None)
 
 
@@ -32,8 +32,9 @@ def test_filename_xml_base_fails_that_document(tmp_path):
     assert source.count(body) == 1
     bad = tmp_path / GOOD.name
     bad.write_text(
-        source.replace(body, f'<body xml:base="{GOOD.name}"><div type="edition" n="{urn}">')
-        .replace("</body>", "</div></body>"),
+        source.replace(
+            body, f'<body xml:base="{GOOD.name}"><div type="edition" n="{urn}">'
+        ).replace("</body>", "</div></body>"),
         encoding="utf-8",
     )
     proto = tmp_path / "proto"
