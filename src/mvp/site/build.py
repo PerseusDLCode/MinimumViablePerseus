@@ -12,6 +12,7 @@ from typing import Any
 from mvp.site import config
 from mvp.site.app import create_app
 from mvp.site.manifest import _build_corpus_manifest, _merge_manifests
+from mvp.site.proto_pages import _is_cts_urn
 
 # Set just before the freeze worker pool is created (see build()) and read
 # by _freeze_one in each forked worker. A Freezer/Flask app can't be pickled
@@ -150,6 +151,10 @@ def build():
 
             base_urn = document.get("base_urn")
             if not base_urn:
+                continue
+            if not _is_cts_urn(base_urn):
+                # Compiled before proto_pages rejected these; never fatal.
+                print(f"  SKIPPING {metadata_path}: base_urn {base_urn!r} is not a CTS URN")
                 continue
 
             _urn, _cts, corpus, work_urn = base_urn.split(":")
