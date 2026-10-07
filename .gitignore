@@ -252,3 +252,6 @@ opencode.json
 
 # these will need to be stored separately
 tokenized-pages
+
+# notes for setting up search
+search-setup.md
