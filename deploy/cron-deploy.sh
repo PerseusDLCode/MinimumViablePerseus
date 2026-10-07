@@ -66,17 +66,31 @@ SHARDS="${SHARDS:-0 1 2 3 4}"
 # build-global.yml). Staging hosts set TAG=staging.
 TAG="${TAG:-latest}"
 ORAS_BIN="${ORAS_BIN:-oras}"
-export BUILD_DIR="${BUILD_DIR:-./build}"
 STATE_DIR="${STATE_DIR:-./state}"
-export SEARCH_DIR="${SEARCH_DIR:-./search-index}"
 SEARCH_TAG="${SEARCH_TAG:-latest}"
+
+# Everything compose bind-mounts is passed to it as an absolute path:
+# compose resolves a relative one against the compose file's directory (or,
+# depending on the podman-compose version, its own working directory), not
+# against this script's working directory, where these are created and
+# filled -- and a missing mount source stops podman from creating `serve`
+# at all.
+abspath() {
+  local parent
+  parent="$(dirname "$1")"
+  mkdir -p "$parent"
+  echo "$(cd "$parent" && pwd)/$(basename "$1")"
+}
+export BUILD_DIR="$(abspath "${BUILD_DIR:-./build}")"
+export SEARCH_DIR="$(abspath "${SEARCH_DIR:-./search-index}")"
+export DEPLOY_DIR="$(cd "$(dirname "$0")" && pwd)"
 CONTAINER_CMD="${CONTAINER_CMD:-podman}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-perseus}"
 
 STAGING_DIR="${BUILD_DIR}.new"
 OLD_DIR="${BUILD_DIR}.old"
 
-COMPOSE_FILE="$(dirname "$0")/compose.yaml"
+COMPOSE_FILE="${DEPLOY_DIR}/compose.yaml"
 COMPOSE="${CONTAINER_CMD} compose -f ${COMPOSE_FILE} -p ${COMPOSE_PROJECT}"
 
 command -v "$ORAS_BIN" >/dev/null 2>&1 || {
@@ -189,16 +203,23 @@ sync_search_index() {
   done
   echo "$digest" > "${STATE_DIR}/search-index.digest"
   log "Search index now ${db}."
+}
 
-  # The first index on a host predates serve's /search-index/ mount (added
-  # with this feature), so recreate serve once to pick it up.
-  if [ -z "$last" ]; then
-    ${COMPOSE} up -d --force-recreate serve || return 1
-  fi
+# serve's /search-index/ mount (and nginx.conf) arrived with this feature, so
+# a container created before it has neither: recreate it once. Tracked apart
+# from the index digest, so a failed recreate is retried on the next tick
+# (without pulling the index again) instead of leaving serve down until the
+# next page deploy.
+ensure_search_mount() {
+  [ -f "${STATE_DIR}/serve-search-mount" ] && return 0
+  log "Recreating serve to add the /search-index/ mount..."
+  ${COMPOSE} up -d --force-recreate serve || return 1
+  touch "${STATE_DIR}/serve-search-mount"
 }
 
 rm -rf "${SEARCH_DIR:?}"/.incoming.*
 sync_search_index || log "WARN: search index update failed; will retry next tick."
+ensure_search_mount || log "ERROR: could not recreate serve with the /search-index/ mount; will retry next tick."
 
 # ----- Static pages ---------------------------------------------------------
 ARTIFACT_NAMES=()

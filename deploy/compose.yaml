@@ -13,7 +13,10 @@ services:
       # The corpus search index, served at /search-index/ (see nginx.conf).
       # Updated in place by cron-deploy.sh, independently of BUILD_DIR.
       - "${SEARCH_DIR:-./search-index}:/srv/search-index:ro,z"
-      - "./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z"
+      # cron-deploy.sh exports BUILD_DIR, SEARCH_DIR and DEPLOY_DIR as
+      # absolute paths; the relative defaults are only for running compose
+      # by hand from this directory.
+      - "${DEPLOY_DIR:-.}/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z"
     restart: unless-stopped
 
   # No `build` service anymore: the freeze now runs in CI (see
