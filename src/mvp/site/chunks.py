@@ -8,6 +8,7 @@ across schemes of differing depth and granularity.
 
 import json
 import re
+from bisect import bisect_left
 from collections.abc import Iterator
 from contextlib import suppress
 from dataclasses import dataclass
@@ -17,7 +18,7 @@ from typing import Any
 
 import zstandard
 from citation_resolution.tei_cts_linker import Gazetteer, TEILinker
-from kodon_py.tei_parser import TEIParser, TEIParserError, inject_tokens
+from kodon_py.tei_parser import TEIParser, TEIParserError
 from lxml import etree
 
 from mvp.site import config
@@ -141,16 +142,63 @@ def _resolve_licence(document: dict[str, Any]) -> dict[str, str] | None:
     return config._SOURCE_LICENCES.get(document.get("source_repo", ""))
 
 
-@cache
+# The only token fields the templates read (text_elements/token.html.jinja),
+# plus the offsets injection needs. Sidecars from the lemmatizing tokenizer
+# also carry per-word lemma/tag/feature data, which only the search index uses.
+_TOKEN_FIELDS = ("text", "urn", "whitespace", "start_char", "end_char")
+
+# Bounded: each parsed chunk holds its whole element tree, tokens included
+# (100,000+ of them for a book-length First1KGreek chunk), and a build
+# worker renders thousands of pages -- an unbounded cache grew until the CI
+# runner ran out of memory. Sibling lookups only need recently parsed
+# chunks, and the build renders pages in URL-hash order, so a large cache
+# would rarely hit anyway.
+_PARSED_CHUNK_CACHE_SIZE = 16
+
+
+def _inject_tokens(elements: list[dict], tokens: list[dict]) -> None:
+    """Replace text_run nodes with token nodes, in place.
+
+    Same result as kodon_py's inject_tokens -- a run gets the tokens with
+    run.start <= start_char < run.end, or stays as is if there are none --
+    but finds each run's tokens by bisection rather than scanning every
+    token for every run, which took minutes on book-length chunks.
+    """
+    tokens = sorted(
+        ({k: t[k] for k in _TOKEN_FIELDS if k in t} for t in tokens),
+        key=lambda t: t["start_char"],
+    )
+    starts = [t["start_char"] for t in tokens]
+
+    def inject(el: dict) -> None:
+        children = []
+        for child in el.get("children", []):
+            if child.get("tagname") == "text_run" and "start" in child:
+                lo = bisect_left(starts, child["start"])
+                hi = bisect_left(starts, child["end"], lo)
+                if hi > lo:
+                    children.extend({**t, "tagname": "token"} for t in tokens[lo:hi])
+                else:
+                    children.append(child)
+            else:
+                inject(child)
+                children.append(child)
+        el["children"] = children
+
+    for el in elements:
+        inject(el)
+
+
+@lru_cache(maxsize=_PARSED_CHUNK_CACHE_SIZE)
 def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     """Parse a protopage XML file into a (_Chunk, pub_info) tuple.
 
     Document-level metadata (title, author, language, etc.) is read from the
     sibling metadata.json written by Chunker.compile().
 
-    Cached because sibling-version lookups (see _build_sibling_data) often
-    resolve the same chunk file repeatedly across many source pages, e.g. via
-    the positional-fallback strategy.
+    Cached (see _PARSED_CHUNK_CACHE_SIZE) because sibling-version lookups
+    (see _build_sibling_data) often resolve the same chunk file repeatedly
+    across many source pages, e.g. via the positional-fallback strategy.
     """
     tree = etree.parse(path)
 
@@ -194,7 +242,7 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
 
     tokens_data = _load_token_sidecar(path)
     if tokens_data is not None:
-        inject_tokens(parser.elements, tokens_data.get("tokens", []))
+        _inject_tokens(parser.elements, tokens_data.get("tokens", []))
 
     chunk = _Chunk(
         cts_urn=cts_urn,
