@@ -71,9 +71,14 @@ jobs:
           # build-corpus.yml now freezes N URL-hashed shards rather than one
           # leg per corpus (see that workflow's header comment) -- every
           # shard's manifest already covers every corpus's collections
-          # (each shard's CORPORA_DIR holds all of them), so these five are
+          # (each shard's CORPORA_DIR holds all of them), so these are
           # redundant with each other and get deduped by _merge_manifests.
-          for shard in 0 1 2 3 4; do
+          # The shard count comes from the mvp-shard-count artifact that
+          # build-corpus.yml publishes once every shard has succeeded, so
+          # this loop follows SHARD_COUNT changes without editing.
+          oras pull "ghcr.io/perseusdlcode/mvp-shard-count:${{ steps.ctx.outputs.alias }}" -o shard-count
+          SHARD_COUNT="$(cat shard-count/shard-count.txt)"
+          for shard in $(seq 0 $((SHARD_COUNT - 1))); do
             oras pull "ghcr.io/perseusdlcode/mvp-shard-${shard}-manifest:${{ steps.ctx.outputs.alias }}" \
               -o "manifests/shard-${shard}"
             args="${args} --manifest manifests/shard-${shard}/manifest.json"
