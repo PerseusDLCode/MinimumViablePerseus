@@ -60,7 +60,7 @@ ENV_FILE="${ENV_FILE:-$(dirname "$0")/.env}"
 [ -f "$ENV_FILE" ] && . "$ENV_FILE"
 
 REGISTRY="${REGISTRY:-ghcr.io/perseusdlcode}"
-SHARDS="${SHARDS:-0 1 2 3 4}"
+SHARDS="${SHARDS:-0 1 2 3 4 5 6 7 8 9}"
 # Which alias of the corpus/global artifacts to pull — main's builds tag
 # `latest` (production), dev's tag `staging` (see build-corpus.yml /
 # build-global.yml). Staging hosts set TAG=staging.

@@ -25,7 +25,7 @@ current in `SEARCH_DIR`, which nginx serves at `/search-index/` for the
 | Variable          | Default                    | Description                                                              |
 |--------------------|-----------------------------|----------------------------------------------------------------------------|
 | `REGISTRY`         | `ghcr.io/perseusdlcode`     | GHCR namespace holding the artifacts                                       |
-| `SHARDS`           | `0 1 2 3 4`                 | Space-separated shard indices to pull — must match build-corpus.yml's `SHARD_COUNT` (0-indexed) |
+| `SHARDS`           | `0 1 2 3 4 5 6 7 8 9`       | Space-separated shard indices to pull — must match build-corpus.yml's `SHARD_COUNT` (0-indexed) |
 | `TAG`              | `latest`                    | Which branch's alias to pull (`latest` = main/production, `staging` = dev) |
 | `ORAS_BIN`         | `oras`                      | Path to the `oras` CLI                                                     |
 | `BUILD_DIR`        | `./build`                   | Directory `serve` mounts as the site root; holds the live pages            |

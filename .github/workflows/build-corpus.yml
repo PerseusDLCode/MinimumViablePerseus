@@ -50,7 +50,7 @@ env:
   # --shard-count). Raising this trades more GHA runner-minutes for shorter
   # wall-clock time per push; each shard still clones and catalogs every
   # corpus, so total compute scales with the corpus count, not with this.
-  SHARD_COUNT: 5
+  SHARD_COUNT: 10
 
 jobs:
   # Fetches canonical-pdlrefwk (public repo — commentary-linking data every
@@ -119,7 +119,7 @@ jobs:
 
   # Resolves every corpus's HEAD SHA once and combines them into one
   # digest, shared by every shard leg below. Splitting this out (rather
-  # than each shard resolving its own five SHAs) means all five shards
+  # than each shard resolving its own five SHAs) means all shards
   # agree on the same digest without racing independent `git ls-remote`
   # calls against a moving target.
   resolve-corpora-shas:
@@ -153,10 +153,15 @@ jobs:
             echo "${name}=${sha}" >> "$GITHUB_OUTPUT"
           done
 
+      # SHARD_COUNT is part of the digest because a shard's contents depend
+      # on it too: without it, changing the count would leave the old
+      # count's artifacts for shards 0..N-1 looking "already built" to the
+      # skip check below, even though they hold a different slice of URLs.
       - name: Compute combined digest
         id: combined
         run: |
           digest=$(printf '%s' \
+            "shards=${{ env.SHARD_COUNT }}" \
             "${{ steps.sha.outputs.greeklit }}" \
             "${{ steps.sha.outputs.latinlit }}" \
             "${{ steps.sha.outputs.first1kgreek }}" \
@@ -175,9 +180,10 @@ jobs:
     environment: ${{ github.ref_name }}
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 10
       matrix:
-        shard: [0, 1, 2, 3, 4]
+        # Must list exactly 0..SHARD_COUNT-1 (see env above).
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -265,7 +271,7 @@ jobs:
             FIRST1KGREEK_SHA=${{ needs.resolve-corpora-shas.outputs.first1kgreek }}
             NDDLC_SHA=${{ needs.resolve-corpora-shas.outputs.nddlc }}
             GRCNEWXML_SHA=${{ needs.resolve-corpora-shas.outputs.grcnewxml }}
-          # Shared across every shard (not scoped per-shard): all five
+          # Shared across every shard (not scoped per-shard): all
           # shards clone the identical set of corpora, so they should all
           # hit the same Docker layer cache instead of each populating and
           # reusing only its own copy.
