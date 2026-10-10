@@ -30,8 +30,8 @@ ENV PATH="/root/.local/bin:${PATH}"
 # ----------------------------------------------------------------
 # TEI Corpus data
 #
-# GREEK_CORPUS_SHA and LATIN_CORPUS_SHA are set by the CI workflow
-# to the current HEAD commit of each corpus's `editing` branch.
+# The corpus SHA build arguments are set by the CI workflow to the current
+# HEAD commit of each corpus's configured branch.
 # When those SHAs change, Docker invalidates this layer and
 # re-clones. When they haven't changed, the cached layer is reused,
 # so a code-only push to `dev` never triggers a full re-clone.
@@ -42,6 +42,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 # ----------------------------------------------------------------
 ARG GREEK_CORPUS_SHA=latest
 ARG LATIN_CORPUS_SHA=latest
+ARG ANGLIT_CORPUS_SHA=latest
 ARG FIRST_1K_GREEK_SHA=latest
 ARG PDLREFWK_SHA=latest
 
@@ -55,6 +56,11 @@ RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
     https://github.com/PerseusDLCode/canonical-latinLit \
     ${CORPORA_DIR}/latinLit
+
+RUN echo "angLit @ ${ANGLIT_CORPUS_SHA}" && \
+    git clone --depth 1 --branch master \
+    https://github.com/PerseusDL/canonical-angLit \
+    ${CORPORA_DIR}/angLit
 
 RUN echo "First1KGreek @ ${FIRST_1K_GREEK_SHA}" && \
     git clone --depth 1 --branch editing \

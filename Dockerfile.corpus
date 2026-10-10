@@ -36,11 +36,12 @@ ENV PATH="/root/.local/bin:${PATH}"
 # gets its own SHA build-arg (not read directly -- see the `echo` in each
 # RUN below) purely so that corpus's HEAD SHA becomes part of that layer's
 # cache key: only the corpus that actually changed gets re-cloned, the
-# other four stay cached, same technique the old single-corpus clone used.
+# other five stay cached, same technique the old single-corpus clone used.
 # ----------------------------------------------------------------
 ARG CORPORA_DIR=/corpora
 ARG GREEKLIT_SHA=latest
 ARG LATINLIT_SHA=latest
+ARG ANGLIT_SHA=latest
 ARG FIRST1KGREEK_SHA=latest
 ARG NDDLC_SHA=latest
 ARG GRCNEWXML_SHA=latest
@@ -52,6 +53,10 @@ RUN echo "greekLit @ ${GREEKLIT_SHA}" && \
 RUN echo "latinLit @ ${LATINLIT_SHA}" && \
     git clone --depth 1 --branch master \
     https://github.com/PerseusDL/canonical-latinLit "${CORPORA_DIR}/latinLit"
+
+RUN echo "angLit @ ${ANGLIT_SHA}" && \
+    git clone --depth 1 --branch master \
+    https://github.com/PerseusDL/canonical-angLit "${CORPORA_DIR}/angLit"
 
 RUN echo "First1KGreek @ ${FIRST1KGREEK_SHA}" && \
     git clone --depth 1 --branch editing \

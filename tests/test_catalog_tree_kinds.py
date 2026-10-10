@@ -236,6 +236,36 @@ class TestCommentator:
 
 
 class TestCollectionsDisplayTree:
+    def test_american_series_metadata_controls_browse_order(
+        self, tmp_path, empty_catalog
+    ):
+        proto = tmp_path / "proto"
+        _write_version(
+            proto,
+            "americanLit",
+            "series_Zeta",
+            "volume_02",
+            "perseus-eng1",
+            "eng",
+        )
+        _write_version(
+            proto,
+            "americanLit",
+            "series_Alpha",
+            "volume_10",
+            "perseus-eng1",
+            "eng",
+        )
+
+        (corpus,) = _collections_display_tree(_build_collections(proto, empty_catalog))
+
+        assert [tg["id"] for tg in corpus["textgroups"]] == [
+            "series_Alpha",
+            "series_Zeta",
+        ]
+        assert all(tg["kind"] == "series" for tg in corpus["textgroups"])
+        assert corpus["textgroups"][0]["works"][0]["sort_key"] == "volume_10"
+
     def test_kinds_in_order_with_every_version_and_perseus_first(
         self, tmp_path, empty_catalog
     ):

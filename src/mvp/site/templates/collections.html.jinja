@@ -132,7 +132,10 @@
                                 {% for tg in corpus.textgroups %}
                                     <div class="mb-3" data-facet-group data-author="{{ tg.author or tg.id }}">
                                         <details open>
-                                            <summary class="text-base font-semibold cursor-pointer">{{ tg.author or tg.id }}</summary>
+                                            <summary class="text-base font-semibold cursor-pointer">
+                                                {{ tg.author or tg.id }}
+                                                {% if tg.kind == "series" %}<span class="badge badge-outline badge-sm ml-2">Series</span>{% endif %}
+                                            </summary>
                                             <ul class="pl-6 mt-1 space-y-1">
                                                 {% for work in tg.works %}
                                                     <li class="mb-1" data-facet-group>
@@ -141,9 +144,10 @@
                                                             <a href="{{ version_href(version) }}"
                                                                class="link text-sm font-semibold"
                                                                {{ version_attrs(version) }}>
-                                                                {{ work.title }} ({% if version.label != work.title %}{{ version.label }}, {% endif %}{{ version.language_label }}){{ version_details(version) }}
+                                                                {{ work.title }}{% if tg.kind != "series" %} ({% if version.label != work.title %}{{ version.label }}, {% endif %}{{ version.language_label }}){% endif %}{{ version_details(version) }}
                                                             </a>
                                                             {{ version_badge(version) }}
+                                                            {% if tg.kind == "series" and version.description %}<span class="text-sm text-base-content/70"> — {{ version.description }}</span>{% endif %}
                                                         {% else %}
                                                             <div class="text-sm font-semibold">{{ work.title }}</div>
                                                             {% for kind in work.kinds %}
