@@ -119,7 +119,7 @@ jobs:
 
   # Resolves every corpus's HEAD SHA once and combines them into one
   # digest, shared by every shard leg below. Splitting this out (rather
-  # than each shard resolving its own five SHAs) means all shards
+  # than each shard resolving its own six SHAs) means all shards
   # agree on the same digest without racing independent `git ls-remote`
   # calls against a moving target.
   resolve-corpora-shas:
@@ -128,6 +128,7 @@ jobs:
     outputs:
       greeklit: ${{ steps.sha.outputs.greeklit }}
       latinlit: ${{ steps.sha.outputs.latinlit }}
+      anglit: ${{ steps.sha.outputs.anglit }}
       first1kgreek: ${{ steps.sha.outputs.first1kgreek }}
       nddlc: ${{ steps.sha.outputs.nddlc }}
       grcnewxml: ${{ steps.sha.outputs.grcnewxml }}
@@ -139,6 +140,7 @@ jobs:
           declare -A repos=(
             [greeklit]="https://github.com/PerseusDL/canonical-greekLit master"
             [latinlit]="https://github.com/PerseusDL/canonical-latinLit master"
+            [anglit]="https://github.com/PerseusDL/canonical-angLit master"
             [first1kgreek]="https://github.com/PerseusDLCode/First1KGreek editing"
             [nddlc]="https://github.com/PerseusDLCode/Notre-Dame-Digitized-Latin-Collection main"
             [grcnewxml]="https://github.com/gregorycrane/grcnewxml.git main"
@@ -164,6 +166,7 @@ jobs:
             "shards=${{ env.SHARD_COUNT }}" \
             "${{ steps.sha.outputs.greeklit }}" \
             "${{ steps.sha.outputs.latinlit }}" \
+            "${{ steps.sha.outputs.anglit }}" \
             "${{ steps.sha.outputs.first1kgreek }}" \
             "${{ steps.sha.outputs.nddlc }}" \
             "${{ steps.sha.outputs.grcnewxml }}" \
@@ -233,7 +236,7 @@ jobs:
       # through that workflow yet, so a missing artifact just leaves that
       # corpus's slice of tokenized-pages/ empty rather than failing the
       # build. Every shard needs every corpus's tokens now (any shard can
-      # contain any corpus's pages), so this loops over all five and
+      # contain any corpus's pages), so this loops over all six and
       # extracts them into the same directory -- each corpus's archive
       # nests under its own corpus segment (mirroring PROTO_DIR's layout),
       # so they merge rather than collide. Dockerfile.corpus's COPY
@@ -243,7 +246,7 @@ jobs:
         if: steps.skip.outputs.skip != 'true'
         run: |
           mkdir -p tokenized-pages
-          for tag_name in greeklit latinlit first1kgreek nd-dlc grcnewxml; do
+          for tag_name in greeklit latinlit anglit first1kgreek nd-dlc grcnewxml; do
             if oras pull "ghcr.io/perseusdlcode/mvp-tokens-${tag_name}:latest"; then
               tar --zstd -xf tokens.tar.zst -C tokenized-pages
               rm tokens.tar.zst
@@ -268,6 +271,7 @@ jobs:
           build-args: |
             GREEKLIT_SHA=${{ needs.resolve-corpora-shas.outputs.greeklit }}
             LATINLIT_SHA=${{ needs.resolve-corpora-shas.outputs.latinlit }}
+            ANGLIT_SHA=${{ needs.resolve-corpora-shas.outputs.anglit }}
             FIRST1KGREEK_SHA=${{ needs.resolve-corpora-shas.outputs.first1kgreek }}
             NDDLC_SHA=${{ needs.resolve-corpora-shas.outputs.nddlc }}
             GRCNEWXML_SHA=${{ needs.resolve-corpora-shas.outputs.grcnewxml }}
