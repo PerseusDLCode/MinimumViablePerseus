@@ -28,13 +28,12 @@ def make_app(monkeypatch, tmp_path):
     return make
 
 
-def test_search_page_is_configured_for_index_and_morph(make_app, monkeypatch):
-    monkeypatch.setattr(config, "MORPH_URL", "https://example.org/morph")
+def test_search_page_is_configured_for_index(make_app):
     response = make_app().test_client().get("/search/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert '"indexUrl": "/search-index/"' in html
-    assert '"morphUrl": "https://example.org/morph"' in html
+    assert "morph.db" not in html
     assert "sql-httpvfs/index.js" in html
 
 

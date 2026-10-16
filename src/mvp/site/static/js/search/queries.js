@@ -1,18 +1,14 @@
 // Queries against the corpus search index (built by mvp-tokenization's
-// mvp-index; see build_index.py there for the schema) and against
-// pdl-morph-server's morph.db. Every query is shaped to hit a clustered
+// mvp-index; see build_index.py there for the schema). Every query is shaped to hit a clustered
 // primary key or an index, so each one reads a handful of contiguous pages
 // over HTTP rather than scanning.
 
-import { looseKey, matchKey, morphNormalize } from './normalize.js';
+import { looseKey, matchKey } from './normalize.js';
 
 // chunk_context holds each chunk's tokens in windows of CONTEXT_PART,
 // separated by TOKEN_SEP (build_index.CONTEXT_PART/TOKEN_SEP).
 const TOKEN_SEP = '\x1f';
 const CONTEXT_PART = 32;
-
-// The index uses MVP's language codes; morph.db uses ISO 639-2 for Latin.
-const MORPH_LANG = { grc: 'grc', la: 'lat' };
 
 // Keeps IN (...) lists well under SQLite's bound-parameter limit.
 const BATCH = 250;
@@ -52,42 +48,43 @@ export async function formsByText(db, text, lang, loose) {
     return db.all(`SELECT form_id, form, n FROM forms WHERE ${column} = ? AND lang = ?`, [key, lang]);
 }
 
-export async function formsByKeys(db, keys, lang) {
-    return allIn(db, 'SELECT form_id, form, n FROM forms WHERE key IN', keys, 'AND lang = ?', [lang]);
-}
-
 export async function lemmasByText(db, text, lang, loose) {
     const column = loose ? 'loose' : 'key';
     const key = loose ? looseKey(text, lang) : matchKey(text, lang);
     return db.all(`SELECT lemma_id, lemma, n FROM lemmas WHERE ${column} = ? AND lang = ?`, [key, lang]);
 }
 
-// Morpheus lemmas, identified by their natural key (headword plus
-// sequence number) -- never morph.db's row ids, which change on every
-// rebuild of that database.
-export async function morphLemmas(morph, { text, headword, seq, lang }) {
-    const code = MORPH_LANG[lang];
+// Morpheus headwords that have forms in the corpus (mvp-index precomputes
+// them from pdl-morph-server's morph.db). An exact headword, and maybe a
+// sequence number, arrives in links from pdl-morph-server; typed text
+// matches headwords ignoring accents.
+export async function morphLemmas(db, { text, headword, seq, lang }) {
+    const columns = 'morph_id AS id, headword, sequence_number, n';
     if (headword) {
-        const params = [headword, code];
-        let sql = 'SELECT id, headword, sequence_number FROM lemmas WHERE headword = ? AND language_code = ?';
+        const params = [headword, lang];
+        let sql = `SELECT ${columns} FROM morph_lemmas WHERE headword = ? AND lang = ?`;
         if (seq !== null && seq !== undefined && seq !== '') {
             sql += ' AND sequence_number = ?';
             params.push(Number(seq));
         }
-        return morph.all(sql, params);
+        return db.all(sql, params);
     }
-    return morph.all(
-        `SELECT id, headword, sequence_number FROM lemmas
-         WHERE headword_normalized = ? AND language_code = ?
-         ORDER BY headword, sequence_number LIMIT 25`,
-        [morphNormalize(text), code],
+    return db.all(
+        `SELECT ${columns} FROM morph_lemmas WHERE loose = ? AND lang = ?
+         ORDER BY n DESC, headword, sequence_number LIMIT 25`,
+        [looseKey(text, lang), lang],
     );
 }
 
-// Every match key Morpheus can generate for these lemmas.
-export async function morphFormKeys(morph, lemmaRowIds, lang) {
-    const rows = await allIn(morph, 'SELECT DISTINCT form FROM parses WHERE lemma_id IN', lemmaRowIds);
-    return Array.from(new Set(rows.map(function (r) { return matchKey(r.form, lang); })));
+// Every corpus form Morpheus generates for these headwords.
+export async function formsByMorphLemmas(db, morphIds) {
+    const rows = await allIn(
+        db,
+        'SELECT form_id, form, n FROM forms WHERE form_id IN (SELECT form_id FROM morph_lemma_forms WHERE morph_id IN',
+        morphIds,
+        ')',
+    );
+    return Array.from(byId(rows, 'form_id').values());
 }
 
 // --- Per-work counts -------------------------------------------------------

@@ -1,11 +1,11 @@
-// Opens SQLite databases over HTTP range requests with sql.js-httpvfs
+// Opens the search index over HTTP range requests with sql.js-httpvfs
 // (vendored; its UMD bundle must already be loaded, defining
 // window.createDbWorker). Only the pages a query touches are fetched, never
 // the whole file -- the same technique pdl-morph-server uses for morph.db.
 
 const VENDOR = new URL('../vendor/sql-httpvfs/', import.meta.url);
 
-// Both databases use 4096-byte pages; requestChunkSize must match.
+// The index uses 4096-byte pages; requestChunkSize must match.
 const PAGE_SIZE = 4096;
 
 // A runaway query (say, an unanticipated full scan) fails instead of
@@ -65,14 +65,4 @@ export function openSearchDb(baseUrl) {
         searchDb.catch(function () { searchDb = null; });
     }
     return searchDb;
-}
-
-let morphDb = null;
-
-export function openMorphDb(morphUrl) {
-    if (!morphDb) {
-        morphDb = open(morphUrl.replace(/\/$/, '') + '/morph.db');
-        morphDb.catch(function () { morphDb = null; });
-    }
-    return morphDb;
 }
