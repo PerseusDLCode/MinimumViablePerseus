@@ -42,13 +42,6 @@ export function looseKey(text, lang) {
     return fold(text, lang, true);
 }
 
-// morph.db's own lookup normalization (lemmas.headword_normalized): NFD,
-// strip combining marks, lowercase -- see pdl-morph-server's
-// web/src/morph/language.ts normalizeUnicode.
-export function morphNormalize(text) {
-    return text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-}
-
 const GREEK = /[Ͱ-Ͽἀ-῿]/u;
 
 export function guessLang(text) {

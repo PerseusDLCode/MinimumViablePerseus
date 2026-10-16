@@ -1,13 +1,12 @@
-import { openMorphDb, openSearchDb } from './search/db.js';
+import { openSearchDb } from './search/db.js';
 import { guessLang, matchKey } from './search/normalize.js';
 import {
     countsByWork,
     describeHits,
-    formsByKeys,
+    formsByMorphLemmas,
     formsByText,
     hitsInWork,
     lemmasByText,
-    morphFormKeys,
     morphLemmas,
 } from './search/queries.js';
 
@@ -25,9 +24,10 @@ const LANG_ALIASES = { lat: 'la' };
 // Alpine component for /search: corpus-wide search of the Greek and Latin
 // texts by dictionary lemma (every form Morpheus generates for it, matched
 // against the corpus), by lemma as tagged by the lemmatizer, or by exact
-// form. Everything runs in the browser against two SQLite files read over
-// HTTP range requests: the search index (/search-index/) and
-// pdl-morph-server's morph.db. See search/db.js.
+// form. Everything runs in the browser against the search index
+// (/search-index/), a SQLite file read over HTTP range requests; see
+// search/db.js. mvp-index precomputes the Morpheus forms from
+// pdl-morph-server's morph.db.
 export default function corpusSearch(config) {
     // Query state that doesn't need to be reactive.
     let db = null;
@@ -143,36 +143,30 @@ export default function corpusSearch(config) {
         },
 
         async resolveMorpheus(q, lang) {
-            let candidates;
-            try {
-                const morph = await openMorphDb(config.morphUrl);
-                candidates = await morphLemmas(morph, {
-                    text: q, headword: this.headword, seq: this.seq, lang: lang,
-                });
-            } catch (err) {
-                console.warn('morph.db unavailable', err);
-                this.notice = 'The morphology database is unavailable, so this shows lemmas as tagged by the lemmatizer instead.';
+            if (!db.manifest.morph_lemmas) {
+                this.notice = 'This search index has no Morpheus headwords, so this shows lemmas as tagged by the lemmatizer instead.';
                 return this.resolveTagged(q, lang);
             }
+            const candidates = await morphLemmas(db, {
+                text: q, headword: this.headword, seq: this.seq, lang: lang,
+            });
             if (!candidates.length) {
-                this.notice = `“${q}” isn't a dictionary headword in Morpheus, so this shows lemmas as tagged by the lemmatizer instead.`;
+                this.notice = `No Morpheus headword “${q}” has forms in the corpus, so this shows lemmas as tagged by the lemmatizer instead.`;
                 return this.resolveTagged(q, lang);
             }
-            // morph.db matches headwords ignoring accents, so "ὁ" also finds
-            // ὅ, ὀ, ...: start with just the ones accented as typed, if any.
+            // Headwords match ignoring accents, so "ὁ" also finds ὅ, ὀ, ...:
+            // start with just the ones accented as typed, if any.
             const key = matchKey(q, lang);
             const exact = candidates.some(function (c) { return matchKey(c.headword, lang) === key; });
             this.candidates = candidates.map(function (c) {
                 return { ...c, selected: !exact || matchKey(c.headword, lang) === key };
             });
-            return this.resolveMorpheusForms(lang);
+            return this.resolveMorpheusForms();
         },
 
-        async resolveMorpheusForms(lang) {
-            const morph = await openMorphDb(config.morphUrl);
+        async resolveMorpheusForms() {
             const ids = this.candidates.filter(function (c) { return c.selected; }).map(function (c) { return c.id; });
-            const keys = ids.length ? await morphFormKeys(morph, ids, lang) : [];
-            const forms = keys.length ? await formsByKeys(db, keys, lang) : [];
+            const forms = ids.length ? await formsByMorphLemmas(db, ids) : [];
             this.forms = forms.sort(function (a, b) { return b.n - a.n; });
             return { kind: 'form', ids: forms.map(function (f) { return f.form_id; }) };
         },
@@ -181,7 +175,7 @@ export default function corpusSearch(config) {
             this.searching = true;
             this.error = '';
             try {
-                match = await this.resolveMorpheusForms(this.effectiveLang());
+                match = await this.resolveMorpheusForms();
                 await this.loadWorks();
             } catch (err) {
                 console.error(err);

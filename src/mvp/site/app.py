@@ -241,10 +241,7 @@ def create_app(
         return (
             render_template(
                 "search.html.jinja",
-                search_config={
-                    "indexUrl": config.SEARCH_INDEX_URL,
-                    "morphUrl": config.MORPH_URL,
-                },
+                search_config={"indexUrl": config.SEARCH_INDEX_URL},
             ),
             200,
             {"Content-Type": "text/html; charset=utf-8"},

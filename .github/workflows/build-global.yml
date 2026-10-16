@@ -24,10 +24,6 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Same branch -> GitHub Environment mapping as build-corpus.yml, so
-    # vars.MORPH_URL resolves per environment. /search/ is a global page and
-    # is frozen here, not in the corpus build, so it needs MORPH_URL too.
-    environment: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
     steps:
       # ---------------------------------------------------------- #
       # Mirrors build-corpus.yml's main->latest (production) /
@@ -90,8 +86,6 @@ jobs:
           echo "manifest_args=${args}" >> "$GITHUB_OUTPUT"
 
       - name: Run global-only build
-        env:
-          MORPH_URL: ${{ vars.MORPH_URL }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           uv run mvp-build --mode global-only ${{ steps.manifests.outputs.manifest_args }}

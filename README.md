@@ -77,7 +77,8 @@ token-level markup.
 ## Corpus search
 
 `/search/` finds every occurrence of a Greek or Latin word, by dictionary
-headword (all of its forms, as listed in pdl-morph-server's `morph.db`), by
+headword (all of its forms, as listed in pdl-morph-server's `morph.db` and
+precomputed into the index), by
 lemma as tagged, or by exact form. It's a static page: queries run in the
 browser against a SQLite index read over HTTP range requests (vendored
 `sql.js-httpvfs`), served at `/search-index/`. The index is built by
@@ -87,11 +88,12 @@ link to `/<passage urn>/?token=<token urn>`, which highlights the word.
 
 To try it locally, build an index into `./search-index/` (gitignored), or
 point `SEARCH_INDEX_DIR` elsewhere; `mvp-dev` then serves it at
-`/search-index/` (it is never frozen into `build/`). `MORPH_URL` must reach a pdl-morph-server serving `morph.db` for
-headword search; without it the page falls back to tagged lemmas.
+`/search-index/` (it is never frozen into `build/`). Headword search needs an
+index built with `--morph-db`; without one the page falls back to tagged
+lemmas.
 
 ```shell
-(cd ../mvp-tokenization && uv run mvp-index --tokens-dir ../tokenized-pages --out ../MinimumViablePerseus/search-index)
+(cd ../mvp-tokenization && uv run mvp-index --tokens-dir ../tokenized-pages --morph-db path/to/morph.db --out ../MinimumViablePerseus/search-index)
 uv run mvp-dev
 ```
 
