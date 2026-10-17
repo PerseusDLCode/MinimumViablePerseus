@@ -136,6 +136,7 @@ def _version_entry(
         "id": version_dir.name,
         "title": _work_title(catalog, work_urn, fallback=work_dir.name),
         "label": (cts_version.label if cts_version else "") or version_dir.name,
+        "description": (cts_version.description if cts_version else ""),
         "language": language,
         "language_label": config._LANGUAGE_LABELS.get(language, language),
         "editors": _format_editors(document.get("editors", [])),
@@ -358,6 +359,7 @@ def _build_collections(
         for textgroup_dir in _subdirs(corpus_dir):
             textgroup_urn = f"urn:cts:{corpus}:{textgroup_dir.name}"
             author = _group_name(catalog, textgroup_urn, textgroup_dir.name)
+            is_series = textgroup_dir.name.startswith("series_")
             works = []
 
             for work_dir in _subdirs(textgroup_dir):
@@ -380,19 +382,29 @@ def _build_collections(
                 if versions:
                     work_urn = f"urn:cts:{corpus}:{textgroup_dir.name}.{work_dir.name}"
                     _mark_preferred_versions(work_urn, versions)
+                    title = _work_title(catalog, work_urn, fallback=work_dir.name)
                     works.append(
                         {
                             "id": work_dir.name,
-                            "title": _work_title(
-                                catalog, work_urn, fallback=work_dir.name
-                            ),
+                            "title": title,
+                            "sort_key": work_dir.name if is_series else title.casefold(),
                             "versions": versions,
                         }
                     )
 
             if works:
                 textgroups.append(
-                    {"id": textgroup_dir.name, "author": author, "works": works}
+                    {
+                        "id": textgroup_dir.name,
+                        "author": author,
+                        "kind": "series" if is_series else "author",
+                        "sort_key": (
+                            textgroup_dir.name.removeprefix("series_")
+                            if corpus == "americanLit"
+                            else author.casefold()
+                        ),
+                        "works": works,
+                    }
                 )
 
         if textgroups:
@@ -433,12 +445,28 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
             )
             for tg in corpus["textgroups"]:
                 t = c["textgroups"].setdefault(
-                    tg["id"], {"id": tg["id"], "author": tg["author"], "works": {}}
+                    tg["id"],
+                    {
+                        "id": tg["id"],
+                        "author": tg["author"],
+                        "kind": tg.get("kind", "author"),
+                        "sort_key": tg.get(
+                            "sort_key", (tg["author"] or tg["id"]).casefold()
+                        ),
+                        "works": {},
+                    },
                 )
                 for work in tg["works"]:
                     w = t["works"].setdefault(
                         work["id"],
-                        {"id": work["id"], "title": work["title"], "versions": {}},
+                        {
+                            "id": work["id"],
+                            "title": work["title"],
+                            "sort_key": work.get(
+                                "sort_key", work["title"].casefold()
+                            ),
+                            "versions": {},
+                        },
                     )
                     for version in work["versions"]:
                         w["versions"][version["id"]] = version
@@ -458,9 +486,24 @@ def _merge_collections(all_collections: list[list[dict]]) -> list[dict]:
                 # may not have been in the same source's list yet.
                 _mark_preferred_versions(work_urn, versions)
                 works.append(
-                    {"id": w["id"], "title": w["title"], "versions": versions}
+                    {
+                        "id": w["id"],
+                        "title": w["title"],
+                        "sort_key": w.get("sort_key", w["title"].casefold()),
+                        "versions": versions,
+                    }
                 )
-            textgroups.append({"id": tg["id"], "author": tg["author"], "works": works})
+            textgroups.append(
+                {
+                    "id": tg["id"],
+                    "author": tg["author"],
+                    "kind": tg.get("kind", "author"),
+                    "sort_key": tg.get(
+                        "sort_key", (tg["author"] or tg["id"]).casefold()
+                    ),
+                    "works": works,
+                }
+            )
         collections.append(
             {"id": corpus["id"], "label": corpus["label"], "textgroups": textgroups}
         )
@@ -504,11 +547,15 @@ def _collections_display_tree(collections: list[dict]) -> list[dict]:
         textgroups = []
         for tg in sorted(
             corpus["textgroups"],
-            key=lambda t: ((t["author"] or t["id"]).casefold(), t["id"]),
+            key=lambda t: (
+                t.get("sort_key", (t["author"] or t["id"]).casefold()),
+                t["id"],
+            ),
         ):
             works = []
             for work in sorted(
-                tg["works"], key=lambda w: (w["title"].casefold(), w["id"])
+                tg["works"],
+                key=lambda w: (w.get("sort_key", w["title"].casefold()), w["id"]),
             ):
                 by_kind: dict[str, list[dict]] = {kind: [] for kind in _VERSION_KINDS}
                 for version in work["versions"]:

@@ -65,6 +65,8 @@ SEARCH_INDEX_DIR = (
 BUILD_WORKERS = max(1, int(os.getenv("MVP_BUILD_WORKERS", os.cpu_count() or 1)))
 
 _CORPUS_LABELS = {
+    "americanLit": "American",
+    "angLit": "Old English",
     "engLit": "English",
     "greekLit": "Greek",
     "hebrewlit": "Hebrew",
@@ -78,6 +80,8 @@ _CORPUS_LABELS = {
 # from translations on /collections when the CTS catalog doesn't classify a
 # version itself (see catalog_tree._version_kind).
 _CORPUS_LANGUAGES = {
+    "americanLit": "eng",
+    "angLit": "ang",
     "engLit": "eng",
     "greekLit": "grc",
     "grcnewxml": "grc",
@@ -136,6 +140,8 @@ _SOURCE_LICENCES = {
 # branch, so no per-repo branch needs recording.
 _SOURCE_OWNERS = {
     "ajmc-tei": "PerseusDLCode",
+    "canonical-american": "gregorycrane",
+    "canonical-angLit": "PerseusDL",
     "canonical-engLit": "PerseusDLCode",
     "canonical-greekLit": "PerseusDL",
     "canonical-latinLit": "PerseusDL",
@@ -147,6 +153,7 @@ _SOURCE_OWNERS = {
 }
 
 _LANGUAGE_LABELS = {
+    "ang": "Old English",
     "ara": "Arabic",
     "cop": "Coptic",
     "deu": "German",
