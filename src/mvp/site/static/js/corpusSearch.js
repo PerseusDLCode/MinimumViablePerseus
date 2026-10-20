@@ -137,22 +137,24 @@ export default function corpusSearch(config) {
             }
         },
 
-        async resolveTagged(q, lang) {
-            const lemmas = await lemmasByText(db, q, lang, this.loose);
+        async resolveTagged(q, lang, loose = this.loose) {
+            const lemmas = await lemmasByText(db, q, lang, loose);
             return { kind: 'lemma', ids: lemmas.map(function (l) { return l.lemma_id; }) };
         },
 
         async resolveMorpheus(q, lang) {
+            // Headwords match ignoring accents (the "Ignore accents" box is
+            // hidden in this mode), so the tagged-lemma fallbacks do too.
             if (!db.manifest.morph_lemmas) {
                 this.notice = 'This search index has no Morpheus headwords, so this shows lemmas as tagged by the lemmatizer instead.';
-                return this.resolveTagged(q, lang);
+                return this.resolveTagged(q, lang, true);
             }
             const candidates = await morphLemmas(db, {
                 text: q, headword: this.headword, seq: this.seq, lang: lang,
             });
             if (!candidates.length) {
                 this.notice = `No Morpheus headword “${q}” has forms in the corpus, so this shows lemmas as tagged by the lemmatizer instead.`;
-                return this.resolveTagged(q, lang);
+                return this.resolveTagged(q, lang, true);
             }
             // Headwords match ignoring accents, so "ὁ" also finds ὅ, ὀ, ...:
             // start with just the ones accented as typed, if any.
