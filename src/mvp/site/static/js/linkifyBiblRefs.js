@@ -1,5 +1,8 @@
-function linkifyBiblRefs(preferredLang) {
-    const refs = document.querySelectorAll('a.perseus-reference[data-ref]');
+// root defaults to the whole document; siblingFragments.js passes just the
+// sibling text it inserted, since refs already linked would otherwise get
+// their version menus filled a second time.
+function linkifyBiblRefs(preferredLang, root) {
+    const refs = (root || document).querySelectorAll('a.perseus-reference[data-ref]');
     if (!refs.length) return;
 
     // refs need to be shortened to work-level URN, then matched against

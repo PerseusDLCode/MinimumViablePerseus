@@ -365,7 +365,8 @@ def create_app(
     def get_nav_fragment_scheme(corpus, textgroup, work, version, scheme):
         return _render_nav_fragment(corpus, textgroup, work, version, scheme=scheme)
 
-    def _render_reading_view(corpus, textgroup, work, version, chunk, scheme=None):
+    def _load_chunk(corpus, textgroup, work, version, chunk, scheme=None):
+        """Parse the chunk a reading-view URL names, or abort(404)."""
         version_dir = config.PROTO_DIR / corpus / textgroup / work / version
         data_dir = version_dir / scheme if scheme else version_dir
 
@@ -388,7 +389,43 @@ def create_app(
         if not chunk_file.exists():
             abort(404)
 
-        chunk_obj, pub_info = chunks._parse_chunk(chunk_file)
+        return chunks._parse_chunk(chunk_file)
+
+    def _render_text_fragment(corpus, textgroup, work, version, chunk, scheme=None):
+        chunk_obj, _pub_info = _load_chunk(
+            corpus, textgroup, work, version, chunk, scheme
+        )
+        return (
+            render_template("text_fragment.html.jinja", chunk=chunk_obj),
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
+
+    # A chunk's rendered text alone, which reading.html.jinja fetches to
+    # show this chunk as a sibling edition/translation of another version's
+    # passage (see siblings._SiblingPassage) instead of inlining it there.
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        ":<path:chunk>/_text/"
+    )
+    def get_text_fragment(corpus, textgroup, work, version, chunk):
+        return _render_text_fragment(corpus, textgroup, work, version, chunk)
+
+    @app.get(
+        "/urn:cts:<path:corpus>:<path:textgroup>.<path:work>.<string:version>"
+        "/<string:scheme>:<path:chunk>/_text/"
+    )
+    def get_text_fragment_scheme(corpus, textgroup, work, version, scheme, chunk):
+        return _render_text_fragment(
+            corpus, textgroup, work, version, chunk, scheme=scheme
+        )
+
+    def _render_reading_view(corpus, textgroup, work, version, chunk, scheme=None):
+        version_dir = config.PROTO_DIR / corpus / textgroup / work / version
+        urn = f"urn:cts:{corpus}:{textgroup}.{work}.{version}:{chunk}"
+        chunk_obj, pub_info = _load_chunk(
+            corpus, textgroup, work, version, chunk, scheme
+        )
         nav_route_kwargs = {
             "corpus": corpus,
             "textgroup": textgroup,

@@ -270,6 +270,20 @@ def build():
                     f"/{scheme}:{passage}/"
                 )
 
+    # Every chunk's bare-text fragment, which reading pages fetch to show
+    # it as a sibling edition/translation of another version's passage
+    # (see siblings._SiblingPassage). One per chunk, so sibling text costs
+    # one copy on disk instead of one per base chunk it aligns to.
+    @freezer.register_generator
+    def get_text_fragment():
+        for url in reading_view():
+            yield f"{url}_text/"
+
+    @freezer.register_generator
+    def get_text_fragment_scheme():
+        for url in reading_view_scheme():
+            yield f"{url}_text/"
+
     from timeit import default_timer
 
     start = default_timer()

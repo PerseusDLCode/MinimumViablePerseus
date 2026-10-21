@@ -1,15 +1,39 @@
 """Aligning sibling edition/translation chunks to the currently-read passage."""
 
+from dataclasses import dataclass
+
 from perseus_cts.models import CTSCatalog, CTSVersion
 
-from mvp.site import chunks, config
+from mvp.site import config
 from mvp.site.chunks import (
-    _Chunk,
     _chunk_start_line,
     _find_nearest_chunk,
     _load_index_chunks,
     _work_urn_of,
 )
+
+
+@dataclass
+class _SiblingPassage:
+    """The sibling chunk(s) aligned to the currently-read passage, by
+    reference rather than by content.
+
+    The reading page used to inline each sibling's parsed text, which
+    copies every sibling chunk into every base chunk it aligns to — a
+    sibling chunked by whole book (see Strategy 2 in _build_sibling_data)
+    was repeated in full on every line-group page of that book, roughly
+    quadratic in a work's chunk count and the bulk of the frozen site's
+    size. Instead, each sibling chunk's text is frozen once, on its own
+    _text/ fragment page (see get_text_fragment in create_app), and
+    reading.html.jinja fetches ``fragment_urls`` in order when the reader
+    opens that sibling.
+
+    cts_urn is the *first* aligned piece's — a valid, resolvable passage
+    for the sibling's "focus" link and its displayed citation.
+    """
+
+    cts_urn: str
+    fragment_urls: list[str]
 
 
 def _reading_view_url(
@@ -32,6 +56,22 @@ def _reading_view_url(
     if scheme:
         base_path += f"/{scheme}"
     return f"{base_path}:{chunk}/"
+
+
+def _text_fragment_url(
+    corpus: str,
+    textgroup: str,
+    work: str,
+    version: str,
+    chunk: str,
+    scheme: str | None = None,
+) -> str:
+    """Return the path of a chunk's bare-text fragment page (its rendered
+    elements only, no page chrome or siblings). Keep in sync with the
+    get_text_fragment/get_text_fragment_scheme route rules in create_app."""
+    return (
+        _reading_view_url(corpus, textgroup, work, version, chunk, scheme) + "_text/"
+    )
 
 
 def _starts_within_range(
@@ -64,29 +104,6 @@ def _starts_within_range(
         current_line == current_end
         and len(current_line) < len(start)
         and start[: len(current_line)] == current_line
-    )
-
-
-def _merge_sibling_chunks(chunks: list[_Chunk]) -> _Chunk:
-    """Concatenate a contiguous run of a sibling's own chunks into one _Chunk.
-
-    Used when the sibling was compiled at a finer granularity than the
-    currently-displayed base chunk (e.g. the base is a "scene" but the
-    sibling is chunked by "card") — see _build_sibling_data. ``chunks`` must
-    already be sorted in citation order. The merged chunk's cts_urn/prev_urn
-    point at the *first* piece (a valid, resolvable passage for the sibling's
-    own "focus" link) and next_urn at the last piece's next_urn, so paging
-    within the sibling from this merged view still lands correctly.
-    """
-    first, last = chunks[0], chunks[-1]
-    return _Chunk(
-        cts_urn=first.cts_urn,
-        prev_urn=first.prev_urn,
-        next_urn=last.next_urn,
-        title=first.title,
-        base_urn=first.base_urn,
-        language=first.language,
-        elements=[element for c in chunks for element in c.elements],
     )
 
 
@@ -124,7 +141,7 @@ def _build_sibling_data(
     covering the same citation range as the currently-displayed base chunk
     (``current_line``-``current_end``):
       Strategy 1 — every one of the sibling's own chunks whose start falls
-        within that range, concatenated via _merge_sibling_chunks (see
+        within that range, in citation order (see
         _starts_within_range for how this extends to a coarser, single-point
         base range, e.g. one of Livy's periochae, against a finer-grained
         sibling -- the sibling's whole corresponding book, not just its
@@ -153,8 +170,8 @@ def _build_sibling_data(
 
     Returns dict with keys:
       current_version: CTSVersion | None
-      edition_chunks: list[(CTSVersion, _Chunk | None, str | None)]
-      translation_chunks: list[(CTSVersion, _Chunk | None, str | None)]
+      edition_chunks: list[(CTSVersion, _SiblingPassage | None, str | None)]
+      translation_chunks: list[(CTSVersion, _SiblingPassage | None, str | None)]
     The third tuple element is the sibling's "focus" URL — its first page
     when no corresponding chunk could be loaded, and None only when the
     sibling has no pages at all — already routed through the sibling's own scheme
@@ -168,7 +185,7 @@ def _build_sibling_data(
         sib_work: str,
         sib_id: str,
         sib_scheme: str | None,
-        sib_chunk: _Chunk,
+        sib_chunk: _SiblingPassage,
     ) -> str:
         # The sibling chunk may have been read from a scheme subdirectory
         # (see sib_scheme below), whose index.json chunks passages
@@ -183,7 +200,9 @@ def _build_sibling_data(
             sib_corpus, sib_textgroup, sib_work, sib_id, passage, sib_scheme
         )
 
-    def _lookup(sib: CTSVersion) -> tuple[CTSVersion, _Chunk | None, str | None] | None:
+    def _lookup(
+        sib: CTSVersion,
+    ) -> tuple[CTSVersion, _SiblingPassage | None, str | None] | None:
         sib_id = sib.urn.split(":")[3].split(".")[-1]
         if sib_id == version:
             return sib, None, None
@@ -250,20 +269,25 @@ def _build_sibling_data(
         if not entries:
             return sib, None, first_page_url
 
-        parsed_chunks = []
-        for entry in entries:
-            chunk_file = data_dir / entry["file"]
-            if not chunk_file.exists():
-                continue
-            parsed_chunk, _ = chunks._parse_chunk(chunk_file)
-            parsed_chunks.append(parsed_chunk)
-        if not parsed_chunks:
+        # Only pieces whose chunk file exists: their _text/ fragment pages
+        # are frozen from these same files, so a missing one would 404.
+        present = [e for e in entries if (data_dir / e["file"]).exists()]
+        if not present:
             return sib, None, first_page_url
 
-        sib_chunk = (
-            parsed_chunks[0]
-            if len(parsed_chunks) == 1
-            else _merge_sibling_chunks(parsed_chunks)
+        sib_chunk = _SiblingPassage(
+            cts_urn=present[0]["cts_urn"],
+            fragment_urls=[
+                _text_fragment_url(
+                    sib_corpus,
+                    sib_textgroup,
+                    sib_work,
+                    sib_id,
+                    entry["cts_urn"].rsplit(":", 1)[-1],
+                    sib_scheme,
+                )
+                for entry in present
+            ],
         )
         return sib, sib_chunk, _focus_url(
             sib_corpus, sib_textgroup, sib_work, sib_id, sib_scheme, sib_chunk

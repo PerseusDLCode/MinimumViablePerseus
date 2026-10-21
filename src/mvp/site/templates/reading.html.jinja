@@ -181,19 +181,16 @@
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
-                                    <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}">
-                                        {% if sib_chunk %}
-                                            {% with notes = namespace(items=[]) %}
-                                                {% for element in sib_chunk.elements %}
-                                                    {% with text_container = element %}
-                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                    {% endwith %}
-                                                {% endfor %}
-                                            {% endwith %}
-                                        {% else %}
+                                    {% if sib_chunk %}
+                                        {# Fetched on first open by siblingFragments.js. #}
+                                        <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}" data-sibling-fragments="{{ sib_chunk.fragment_urls | tojson | forceescape }}">
+                                            <p class="italic">Loading…</p>
+                                        </div>
+                                    {% else %}
+                                        <div class="p-4">
                                             <p class="italic">No corresponding passage available</p>
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                 </details>
                             {% endfor %}
                         </details>
@@ -211,19 +208,16 @@
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
-                                    <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}">
-                                        {% if sib_chunk %}
-                                            {% with notes = namespace(items=[]) %}
-                                                {% for element in sib_chunk.elements %}
-                                                    {% with text_container = element %}
-                                                        {% include 'components/ReadableTextContainer.html.jinja' %}
-                                                    {% endwith %}
-                                                {% endfor %}
-                                            {% endwith %}
-                                        {% else %}
+                                    {% if sib_chunk %}
+                                        {# Fetched on first open by siblingFragments.js. #}
+                                        <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}" data-sibling-fragments="{{ sib_chunk.fragment_urls | tojson | forceescape }}">
+                                            <p class="italic">Loading…</p>
+                                        </div>
+                                    {% else %}
+                                        <div class="p-4">
                                             <p class="italic">No corresponding passage available</p>
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                 </details>
                             {% endfor %}
                         </details>
@@ -381,6 +375,8 @@
 {% block scripts %}
     <script type="text/ecmascript"
             src="{{ url_for("static", filename="js/linkifyBiblRefs.js") }}"></script>
+    <script type="text/ecmascript"
+            src="{{ url_for("static", filename="js/siblingFragments.js") }}"></script>
     <script>
 (function () {
     // /search results link to the exact word they found, as ?token=<the

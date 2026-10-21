@@ -150,9 +150,8 @@ _TOKEN_FIELDS = ("text", "urn", "whitespace", "start_char", "end_char")
 # Bounded: each parsed chunk holds its whole element tree, tokens included
 # (100,000+ of them for a book-length First1KGreek chunk), and a build
 # worker renders thousands of pages -- an unbounded cache grew until the CI
-# runner ran out of memory. Sibling lookups only need recently parsed
-# chunks, and the build renders pages in URL-hash order, so a large cache
-# would rarely hit anyway.
+# runner ran out of memory. The build renders pages in URL-hash order, so a
+# large cache would rarely hit anyway.
 _PARSED_CHUNK_CACHE_SIZE = 16
 
 
@@ -196,9 +195,8 @@ def _parse_chunk(path: Path) -> tuple[_Chunk, dict[str, Any]]:
     Document-level metadata (title, author, language, etc.) is read from the
     sibling metadata.json written by Chunker.compile().
 
-    Cached (see _PARSED_CHUNK_CACHE_SIZE) because sibling-version lookups
-    (see _build_sibling_data) often resolve the same chunk file repeatedly
-    across many source pages, e.g. via the positional-fallback strategy.
+    Cached (see _PARSED_CHUNK_CACHE_SIZE): a chunk's reading page and its
+    _text/ fragment page both parse the same file.
     """
     tree = etree.parse(path)
 

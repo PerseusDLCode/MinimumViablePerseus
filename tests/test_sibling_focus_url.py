@@ -549,9 +549,14 @@ class TestBuildSiblingDataLeafBaseAlignment:
             )
 
         [(sib, sib_chunk, focus_url)] = sibling_data["translation_chunks"]
-        # Merged chunk should span exactly the three book-5 chapters, in
-        # order -- not just the nearest single chapter (5.1).
-        assert sib_chunk.elements == ["5.1", "5.2", "5.3"]
+        # Should span exactly the three book-5 chapters, in order -- not
+        # just the nearest single chapter (5.1).
+        sib_base = f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}"
+        assert sib_chunk.fragment_urls == [
+            f"{sib_base}:5.1/_text/",
+            f"{sib_base}:5.2/_text/",
+            f"{sib_base}:5.3/_text/",
+        ]
         assert sib_chunk.cts_urn == sib_urns["5.1.xml"]
         assert (
             focus_url
@@ -590,3 +595,49 @@ class TestReadingViewFocusLinkResolves:
 
         follow = client.get(expected_focus_href)
         assert follow.status_code == 200
+
+
+class TestSiblingTextIsFetchedNotInlined:
+    """Sibling text is frozen once per sibling chunk, on its own _text/
+    fragment page, and only referenced from the reading page -- inlining
+    it repeated every sibling chunk on every base chunk it aligned to (see
+    siblings._SiblingPassage)."""
+
+    def test_reading_page_references_sibling_fragment_that_resolves(
+        self, app_with_real_catalog, mismatched_sibling_tree, monkeypatch
+    ):
+        app = app_with_real_catalog
+        urns = mismatched_sibling_tree
+
+        def fake_parse_chunk(path: Path):
+            urn = urns["urn_by_path"][path]
+            chunk = _Chunk(
+                cts_urn=urn,
+                prev_urn=None,
+                next_urn=None,
+                title="",
+                base_urn=urn.rsplit(":", 1)[0],
+                language="grc",
+                elements=[
+                    {"tagname": "text_run", "content": f"TEXT OF {urn}"}
+                ],
+            )
+            return chunk, {}
+
+        monkeypatch.setattr(chunksmod, "_parse_chunk", fake_parse_chunk)
+
+        client = app.test_client()
+        html = client.get(
+            f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{BASE_VERSION}/{SCHEME}:94/"
+        ).get_data(as_text=True)
+
+        fragment_url = (
+            f"/urn:cts:{CORPUS}:{TEXTGROUP}.{WORK}.{SIB_VERSION}/{SCHEME}:94/_text/"
+        )
+        assert f"TEXT OF {urns['base_urn']}" in html
+        assert f"TEXT OF {urns['sib_scheme_urn']}" not in html
+        assert f"[&#34;{fragment_url}&#34;]" in html
+
+        fragment = client.get(fragment_url)
+        assert fragment.status_code == 200
+        assert f"TEXT OF {urns['sib_scheme_urn']}" in fragment.get_data(as_text=True)
