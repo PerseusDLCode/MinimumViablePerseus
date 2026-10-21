@@ -114,7 +114,7 @@
                         <a href="{{ next_url }}" class="link">Next &rarr;</a>
                     {% endif %}
                 </div>
-                <div class="prose">
+                <div class="prose" dir="{{ 'rtl' if chunk.language == 'fas' else 'ltr' }}">
                     {% for element in chunk.elements %}
                         {% with text_container = element, note_source = chunk.title %}
                             {% include 'components/ReadableTextContainer.html.jinja' %}
@@ -181,7 +181,7 @@
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
-                                    <div class="p-4">
+                                    <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}">
                                         {% if sib_chunk %}
                                             {% with notes = namespace(items=[]) %}
                                                 {% for element in sib_chunk.elements %}
@@ -211,7 +211,7 @@
                                         ({{ sib.description }}) {% if sib_chunk %} — {{ sib_chunk.cts_urn.rsplit(":", 1)|last }}{% endif %}
                                         {% if focus_url %}<a href="{{ focus_url }}" class="link">focus</a>{% endif %}
                                     </summary>
-                                    <div class="p-4">
+                                    <div class="p-4" dir="{{ 'rtl' if sib.lang == 'fas' else 'ltr' }}">
                                         {% if sib_chunk %}
                                             {% with notes = namespace(items=[]) %}
                                                 {% for element in sib_chunk.elements %}
