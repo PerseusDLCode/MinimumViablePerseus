@@ -20,6 +20,23 @@ const MAX_WORKS_PER_PAGE = 25;
 const MODES = ['lemma', 'tagged', 'form'];
 const LANGS = ['auto', 'grc', 'la'];
 const LANG_ALIASES = { lat: 'la' };
+const SORTS = ['count', 'rate'];
+// Relative frequency is shown per this many words of the work.
+const RATE_PER = 10000;
+
+function rate(work) {
+    return work.n_words ? work.n / work.n_words * RATE_PER : 0;
+}
+
+// Most occurrences first, or highest relative frequency first; ties go to
+// the other measure, then to document order.
+function compareWorks(sort) {
+    return function (a, b) {
+        const byCount = b.n - a.n;
+        const byRate = rate(b) - rate(a);
+        return (sort === 'rate' ? byRate || byCount : byCount || byRate) || a.doc_id - b.doc_id;
+    };
+}
 
 // Alpine component for /search: corpus-wide search of the Greek and Latin
 // texts by dictionary lemma (every form Morpheus generates for it, matched
@@ -46,6 +63,7 @@ export default function corpusSearch(config) {
         candidates: [], // Morpheus lemmas matching q, each { id, headword, sequence_number, selected }
         forms: [], // matched corpus forms, most frequent first
         works: [],
+        sort: 'count', // works order: 'count' (occurrences) or 'rate' (per RATE_PER words)
         total: 0,
         selectedWork: null, // doc_id, or null for all works
         hits: [],
@@ -67,6 +85,7 @@ export default function corpusSearch(config) {
             const lang = LANG_ALIASES[params.get('lang')] || params.get('lang');
             if (LANGS.includes(lang)) this.lang = lang;
             this.loose = params.get('loose') === '1';
+            if (SORTS.includes(params.get('sort'))) this.sort = params.get('sort');
             const doc = Number(params.get('doc'));
             this.selectedWork = doc || null;
             if (this.q) this.search({ keepWork: true });
@@ -94,6 +113,7 @@ export default function corpusSearch(config) {
             if (this.mode !== 'lemma') params.set('mode', this.mode);
             if (this.lang !== 'auto') params.set('lang', this.lang);
             if (this.loose) params.set('loose', '1');
+            if (this.sort !== 'count') params.set('sort', this.sort);
             if (this.selectedWork) params.set('doc', this.selectedWork);
             history.replaceState(null, '', `${window.location.pathname}?${params}`);
         },
@@ -190,12 +210,26 @@ export default function corpusSearch(config) {
 
         async loadWorks() {
             this.works = match.ids.length ? await countsByWork(db, match.kind, match.ids) : [];
+            this.works.sort(compareWorks(this.sort));
             this.total = this.works.reduce(function (sum, w) { return sum + w.n; }, 0);
             const selected = this.selectedWork;
             if (selected && !this.works.some(function (w) { return w.doc_id === selected; })) {
                 this.selectedWork = null;
             }
             await this.resetHits();
+        },
+
+        async setSort(sort) {
+            if (sort === this.sort) return;
+            this.sort = sort;
+            this.syncUrl();
+            this.works = [...this.works].sort(compareWorks(sort));
+            // "All works" lists hits in works order, so it starts over; a
+            // single work's hits don't change.
+            if (!this.selectedWork) {
+                await this.resetHits();
+                this.updateBytes();
+            }
         },
 
         async selectWork(docId) {
@@ -254,6 +288,15 @@ export default function corpusSearch(config) {
 
         workLabel(work) {
             return work.author ? `${work.author}, ${work.title || work.base_urn}` : (work.title || work.base_urn);
+        },
+
+        // Occurrences per RATE_PER words, to two significant digits below
+        // 10 so that rare words don't all round to 0.
+        rateLabel(work) {
+            const r = rate(work);
+            return r >= 10
+                ? r.toLocaleString(undefined, { maximumFractionDigits: 0 })
+                : r.toLocaleString(undefined, { maximumSignificantDigits: 2 });
         },
 
         candidateLabel(c) {

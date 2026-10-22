@@ -94,6 +94,22 @@
                         </template>
                     </ul>
                 </details>
+                <div class="flex items-center gap-2 text-xs mb-2">
+                    <span class="text-base-content/70">Sort by</span>
+                    <div class="join">
+                        <button type="button"
+                                class="btn btn-xs join-item"
+                                :class="{ 'btn-active': sort === 'count' }"
+                                :aria-pressed="sort === 'count'"
+                                @click="setSort('count')">Occurrences</button>
+                        <button type="button"
+                                class="btn btn-xs join-item"
+                                :class="{ 'btn-active': sort === 'rate' }"
+                                :aria-pressed="sort === 'rate'"
+                                title="Occurrences per 10,000 words of the work"
+                                @click="setSort('rate')">Per 10k words</button>
+                    </div>
+                </div>
                 <ul class="menu menu-sm bg-base-100 rounded-box w-full p-1">
                     <li>
                         <a href="#"
@@ -107,7 +123,14 @@
                                :class="{ 'menu-active': selectedWork === work.doc_id }"
                                @click.prevent="selectWork(work.doc_id)">
                                 <span x-text="workLabel(work)"></span>
-                                <span class="text-base-content/60" x-text="work.n.toLocaleString()"></span>
+                                <span class="shrink-0 text-right tabular-nums text-base-content/60"
+                                      :title="`${work.n.toLocaleString()} in ${work.n_words.toLocaleString()} words; ${rateLabel(work)} per 10,000`">
+                                    <span :class="{ 'font-semibold text-base-content': sort === 'count' }"
+                                          x-text="work.n.toLocaleString()"></span>
+                                    ·
+                                    <span :class="{ 'font-semibold text-base-content': sort === 'rate' }"
+                                          x-text="rateLabel(work)"></span>
+                                </span>
                             </a>
                         </li>
                     </template>

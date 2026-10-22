@@ -108,7 +108,7 @@ export async function countsByWork(db, kind, ids) {
     });
     const docs = await allIn(
         db,
-        'SELECT doc_id, base_urn, title, author, corpus, first_chunk, last_chunk FROM documents WHERE doc_id IN',
+        'SELECT doc_id, base_urn, title, author, corpus, first_chunk, last_chunk, n_words FROM documents WHERE doc_id IN',
         Array.from(byDoc.keys()),
     );
     return docs
