@@ -3,8 +3,10 @@ import { guessLang, matchKey } from './search/normalize.js';
 import {
     countsByWork,
     describeHits,
+    formAnalyses,
     formsByMorphLemmas,
     formsByText,
+    hasTaggedHeadwords,
     hitsInWork,
     lemmasByText,
     morphLemmas,
@@ -38,6 +40,10 @@ function compareWorks(sort) {
     };
 }
 
+function headwordLabel(h) {
+    return h.sequence_number > 0 ? `${h.headword} (${h.sequence_number})` : h.headword;
+}
+
 // Alpine component for /search: corpus-wide search of the Greek and Latin
 // texts by dictionary lemma (every form Morpheus generates for it, matched
 // against the corpus), by lemma as tagged by the lemmatizer, or by exact
@@ -45,11 +51,19 @@ function compareWorks(sort) {
 // (/search-index/), a SQLite file read over HTTP range requests; see
 // search/db.js. mvp-index precomputes the Morpheus forms from
 // pdl-morph-server's morph.db.
+//
+// Morpheus generates forms that usually belong to another headword (μανίας
+// for μῆνις, by way of Doric μᾶνις), so a headword search hides words the
+// tagger assigned to another of the form's Morpheus headwords, unless
+// showOther is set, and lists every form's headwords with their analyses.
 export default function corpusSearch(config) {
     // Query state that doesn't need to be reactive.
     let db = null;
-    let match = null; // { kind: 'form'|'lemma', ids: [...] }
+    // { kind: 'form'|'lemma', ids: [...] }, plus morphIds, the selected
+    // Morpheus headwords, in a headword search.
+    let match = null;
     let cursor = null; // { workIndex, after: [chunk_id, seq] }
+    let headwordNames = new Map(); // morph_id -> label, for the matched forms' headwords
 
     return {
         q: '',
@@ -61,10 +75,15 @@ export default function corpusSearch(config) {
         seq: null,
 
         candidates: [], // Morpheus lemmas matching q, each { id, headword, sequence_number, selected }
-        forms: [], // matched corpus forms, most frequent first
+        // Matched corpus forms, most frequent first. In a headword search,
+        // each also has `other` (words the tagger assigned to another
+        // headword) and `headwords` ([{ id, label, analyses, selected }]).
+        forms: [],
         works: [],
         sort: 'count', // works order: 'count' (occurrences) or 'rate' (per RATE_PER words)
         total: 0,
+        showOther: false, // include words the tagger assigned to another headword
+        other: 0, // how many such words there are
         selectedWork: null, // doc_id, or null for all works
         hits: [],
         done: true,
@@ -86,6 +105,7 @@ export default function corpusSearch(config) {
             if (LANGS.includes(lang)) this.lang = lang;
             this.loose = params.get('loose') === '1';
             if (SORTS.includes(params.get('sort'))) this.sort = params.get('sort');
+            this.showOther = params.get('other') === '1';
             const doc = Number(params.get('doc'));
             this.selectedWork = doc || null;
             if (this.q) this.search({ keepWork: true });
@@ -114,6 +134,7 @@ export default function corpusSearch(config) {
             if (this.lang !== 'auto') params.set('lang', this.lang);
             if (this.loose) params.set('loose', '1');
             if (this.sort !== 'count') params.set('sort', this.sort);
+            if (this.showOther) params.set('other', '1');
             if (this.selectedWork) params.set('doc', this.selectedWork);
             history.replaceState(null, '', `${window.location.pathname}?${params}`);
         },
@@ -133,6 +154,7 @@ export default function corpusSearch(config) {
             this.works = [];
             this.hits = [];
             this.total = 0;
+            this.other = 0;
             if (!keepWork) this.selectedWork = null;
             this.syncUrl();
             try {
@@ -189,8 +211,47 @@ export default function corpusSearch(config) {
         async resolveMorpheusForms() {
             const ids = this.candidates.filter(function (c) { return c.selected; }).map(function (c) { return c.id; });
             const forms = ids.length ? await formsByMorphLemmas(db, ids) : [];
+            const formIds = forms.map(function (f) { return f.form_id; });
+            headwordNames = new Map();
+            if (hasTaggedHeadwords(db) && formIds.length) {
+                const byForm = new Map();
+                (await formAnalyses(db, formIds)).forEach(function (a) {
+                    const label = headwordLabel(a);
+                    headwordNames.set(a.morph_id, label);
+                    const list = byForm.get(a.form_id) || [];
+                    list.push({ id: a.morph_id, label: label, analyses: a.analyses, selected: ids.includes(a.morph_id) });
+                    byForm.set(a.form_id, list);
+                });
+                forms.forEach(function (f) {
+                    // The searched-for headwords first.
+                    f.headwords = (byForm.get(f.form_id) || []).sort(function (a, b) { return b.selected - a.selected; });
+                    f.other = 0;
+                });
+            }
             this.forms = forms.sort(function (a, b) { return b.n - a.n; });
-            return { kind: 'form', ids: forms.map(function (f) { return f.form_id; }) };
+            return { kind: 'form', ids: formIds, morphIds: ids };
+        },
+
+        // countsByWork's and hitsInWork's `headwords`: null unless this is a
+        // headword search on an index that records the tagger's choices.
+        headwordFilter() {
+            if (!match || !match.morphIds || !hasTaggedHeadwords(db)) return null;
+            return { ids: match.morphIds, hide: !this.showOther };
+        },
+
+        async setShowOther(show) {
+            this.showOther = show;
+            this.syncUrl();
+            this.searching = true;
+            try {
+                await this.loadWorks();
+            } catch (err) {
+                console.error(err);
+                this.error = `Search failed: ${err.message || err}`;
+            } finally {
+                this.searching = false;
+                this.updateBytes();
+            }
         },
 
         async toggleCandidate() {
@@ -209,8 +270,14 @@ export default function corpusSearch(config) {
         },
 
         async loadWorks() {
-            this.works = match.ids.length ? await countsByWork(db, match.kind, match.ids) : [];
-            this.works.sort(compareWorks(this.sort));
+            const counts = match.ids.length
+                ? await countsByWork(db, match.kind, match.ids, this.headwordFilter())
+                : { works: [], other: 0, otherByForm: new Map() };
+            this.works = counts.works.sort(compareWorks(this.sort));
+            this.other = counts.other;
+            this.forms.forEach(function (f) {
+                if ('other' in f) f.other = counts.otherByForm.get(f.form_id) || 0;
+            });
             this.total = this.works.reduce(function (sum, w) { return sum + w.n; }, 0);
             const selected = this.selectedWork;
             if (selected && !this.works.some(function (w) { return w.doc_id === selected; })) {
@@ -261,10 +328,13 @@ export default function corpusSearch(config) {
                 while (page.length < PAGE && cursor.workIndex < works.length && visited < MAX_WORKS_PER_PAGE) {
                     const work = works[cursor.workIndex];
                     const wanted = PAGE - page.length;
-                    const rows = await hitsInWork(db, match.kind, work, cursor.after, wanted);
+                    const rows = await hitsInWork(db, match.kind, work, cursor.after, wanted, this.headwordFilter());
                     if (rows.length) {
                         const described = await describeHits(db, work, rows, CONTEXT_WORDS);
-                        described.forEach(function (hit) { hit.work = work; });
+                        described.forEach(function (hit) {
+                            hit.work = work;
+                            hit.otherHeadword = hit.other ? headwordNames.get(hit.morph_id) || '' : null;
+                        });
                         page.push(...described);
                         const last = rows[rows.length - 1];
                         cursor.after = [last.chunk_id, last.seq];
