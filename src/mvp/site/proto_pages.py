@@ -5,7 +5,9 @@ import multiprocessing
 from functools import partial
 from pathlib import Path
 
+from lxml import etree
 from perseus_cts.chunker import Chunker
+from perseus_cts.constants import NS, XML_BASE
 from perseus_cts.cts_resolver import auto_chunk_units, available_refsDecl_ids
 from perseus_cts.models import Corpus, CTSCatalog
 
@@ -68,6 +70,78 @@ def _is_cts_urn(urn: str | None) -> bool:
         and parts[:2] == ["urn", "cts"]
         and len(parts[3].split(".")) == 3
     )
+
+
+def _scan_urn(xml_path: Path) -> str | None:
+    """Return the URN TEIDocument.metadata.urn would give xml_path, without
+    parsing the whole document.
+
+    Mirrors TEIDocument._extract_urn -- <text>/<body xml:base> first, else
+    the first <div n="urn:cts:..."> -- but stream-parses and stops at the
+    first hit, which for a well-formed document is right after its
+    teiHeader. Returns None when the file can't be parsed (the worker will
+    report that failure itself) or names no URN at all.
+    """
+    body_tag = f"{{{NS['tei']}}}body"
+    div_tag = f"{{{NS['tei']}}}div"
+    try:
+        for _, el in etree.iterparse(str(xml_path), events=("start",)):
+            if el.tag == body_tag:
+                xml_base = el.get(XML_BASE, "")
+                if xml_base.startswith("urn:cts:"):
+                    return xml_base
+            elif el.tag == div_tag:
+                n = el.get("n", "")
+                if n.startswith("urn:cts:"):
+                    return n
+    except (etree.XMLSyntaxError, OSError):
+        return None
+    return None
+
+
+def _pick_canonical(urn: str, paths: list[Path]) -> Path:
+    """Choose which of several files declaring the same URN to compile.
+
+    Prefers the conventionally named file (e.g. "tlg0085.tlg007.perseus-grc2.xml"
+    for urn:cts:greekLit:tlg0085.tlg007.perseus-grc2), falling back to the
+    first in sorted path order, so the choice is stable from run to run.
+    """
+    expected_name = f"{urn.split(':')[3]}.xml" if _is_cts_urn(urn) else None
+    named = [p for p in paths if p.name == expected_name]
+    return min(named or paths)
+
+
+def _dedupe_by_urn(
+    work: list[tuple[Path, str, str]], urns: list[str | None]
+) -> tuple[list[tuple[Path, str, str]], int]:
+    """Drop all but one work item per URN, returning the kept items and the
+    number dropped.
+
+    Every document is compiled into a directory derived from its URN (see
+    SiteMap.chunk_dir), not its filename, so two files declaring the same
+    URN (e.g. intermediate copies of a commentary left beside the final
+    one) would be compiled concurrently into the same directory by
+    different workers -- both pass the index.json skip-check before either
+    writes it -- and their interleaved writes can leave a chunk file with
+    the tail of another version's copy still on the end of it.
+    """
+    by_urn: dict[str, list[Path]] = {}
+    for (xml_path, _, _), urn in zip(work, urns):
+        if urn:
+            by_urn.setdefault(urn, []).append(xml_path)
+
+    dropped: set[Path] = set()
+    for urn, paths in sorted(by_urn.items()):
+        if len(paths) < 2:
+            continue
+        keep = _pick_canonical(urn, paths)
+        others = sorted(p for p in paths if p != keep)
+        dropped.update(others)
+        print(f"  DUPLICATE-URN: {urn}: compiling {keep}")
+        for other in others:
+            print(f"    skipping {other}")
+
+    return [item for item in work if item[0] not in dropped], len(dropped)
 
 
 def _compile_proto_page(
@@ -217,6 +291,10 @@ def generate_proto_pages(
     metadata.json's document.title/about are populated from __cts__.xml
     (see _compile_proto_page). It's passed once here as a plain function
     argument to Pool.imap_unordered, which pickles it to each worker.
+
+    Files declaring a URN another file already declares are skipped before
+    any compilation starts (see _dedupe_by_urn), since they'd otherwise
+    race each other into the same output directory.
     """
     work = []
     for corpus in corpora:
@@ -227,9 +305,11 @@ def generate_proto_pages(
             work.append((xml_path, source_repo, _source_path(corpus, xml_path)))
 
     generated = skipped = no_schema = failed = 0
-    total = len(work)
     ctx = multiprocessing.get_context("fork")
     with ctx.Pool(config.BUILD_WORKERS) as pool:
+        urns = pool.map(_scan_urn, [xml_path for xml_path, _, _ in work])
+        work, duplicates = _dedupe_by_urn(work, urns)
+        total = len(work)
         results = pool.imap_unordered(
             partial(_compile_proto_page, proto_dir=proto_dir, catalog=catalog), work
         )
@@ -249,5 +329,5 @@ def generate_proto_pages(
 
     print(
         f"Proto-pages: {generated} generated, {skipped} skipped, "
-        f"{no_schema} no-schema, {failed} failed."
+        f"{duplicates} duplicate-urn, {no_schema} no-schema, {failed} failed."
     )
