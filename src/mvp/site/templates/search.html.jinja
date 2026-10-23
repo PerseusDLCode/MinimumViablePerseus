@@ -68,6 +68,19 @@
                 </label>
             </template>
         </div>
+        {# Outside the results, so it's there even when every word is hidden. #}
+        <label x-cloak x-show="other || showOther" class="flex items-center gap-1.5 mb-4 text-sm">
+            <input type="checkbox"
+                   class="checkbox checkbox-xs"
+                   :checked="showOther"
+                   :disabled="searching"
+                   @change="setShowOther($event.target.checked)" />
+            <span>
+                Include <span class="font-semibold" x-text="other.toLocaleString()"></span>
+                <span x-text="other === 1 ? 'word' : 'words'"></span>
+                the tagger assigned to another of the form’s Morpheus headwords
+            </span>
+        </label>
         <template x-if="searched && !searching && !error && !total">
             <p class="text-base-content/70">
                 No occurrences found<span x-show="mode === 'form' && !loose">; try “Ignore accents”</span>.
@@ -86,14 +99,44 @@
                         <span x-text="forms.length.toLocaleString()"></span> matching
                         <span x-text="forms.length === 1 ? 'form' : 'forms'"></span>
                     </summary>
-                    <ul class="mt-1 max-h-48 overflow-y-auto columns-2">
+                    {# In a headword search, each form also lists every
+                       headword Morpheus gives it, with its analyses. #}
+                    <ul class="mt-1 max-h-96 overflow-y-auto"
+                        :class="forms.some(function (f) { return f.headwords; }) ? 'space-y-2' : 'columns-2'">
                         <template x-for="f in forms" :key="f.form_id">
                             <li>
                                 <span x-text="f.form"></span> <span class="text-base-content/60" x-text="f.n.toLocaleString()"></span>
+                                <span x-show="f.other" class="text-base-content/50 text-xs">
+                                    (<span x-text="(f.other || 0).toLocaleString()"></span> tagged as another headword)
+                                </span>
+                                <ul x-show="f.headwords" class="pl-3 text-xs text-base-content/70">
+                                    <template x-for="h in f.headwords || []" :key="h.id">
+                                        <li>
+                                            <span lang="grc" :class="{ 'font-semibold text-base-content': h.selected }" x-text="h.label"></span>:
+                                            <span x-text="h.analyses"></span>
+                                        </li>
+                                    </template>
+                                </ul>
                             </li>
                         </template>
                     </ul>
                 </details>
+                <div class="flex items-center gap-2 text-xs mb-2">
+                    <span class="text-base-content/70">Sort by</span>
+                    <div class="join">
+                        <button type="button"
+                                class="btn btn-xs join-item"
+                                :class="{ 'btn-active': sort === 'count' }"
+                                :aria-pressed="sort === 'count'"
+                                @click="setSort('count')">Occurrences</button>
+                        <button type="button"
+                                class="btn btn-xs join-item"
+                                :class="{ 'btn-active': sort === 'rate' }"
+                                :aria-pressed="sort === 'rate'"
+                                title="Occurrences per 10,000 words of the work"
+                                @click="setSort('rate')">Per 10k words</button>
+                    </div>
+                </div>
                 <ul class="menu menu-sm bg-base-100 rounded-box w-full p-1">
                     <li>
                         <a href="#"
@@ -107,7 +150,14 @@
                                :class="{ 'menu-active': selectedWork === work.doc_id }"
                                @click.prevent="selectWork(work.doc_id)">
                                 <span x-text="workLabel(work)"></span>
-                                <span class="text-base-content/60" x-text="work.n.toLocaleString()"></span>
+                                <span class="shrink-0 text-right tabular-nums text-base-content/60"
+                                      :title="`${work.n.toLocaleString()} in ${work.n_words.toLocaleString()} words; ${rateLabel(work)} per 10,000`">
+                                    <span :class="{ 'font-semibold text-base-content': sort === 'count' }"
+                                          x-text="work.n.toLocaleString()"></span>
+                                    ·
+                                    <span :class="{ 'font-semibold text-base-content': sort === 'rate' }"
+                                          x-text="rateLabel(work)"></span>
+                                </span>
                             </a>
                         </li>
                     </template>
@@ -121,7 +171,11 @@
                                 <a :href="hit.href" class="link" :title="hit.urn">
                                     <span x-text="workLabel(hit.work)"></span> <span x-text="hit.ref"></span>
                                 </a>
-                                <span x-show="hit.lemma || hit.upos">
+                                <span x-show="hit.lemma || hit.upos" title="Lemma and morphology from the automatic tagger">
+                                    <span x-show="hit.otherHeadword !== null" class="badge badge-xs badge-warning">
+                                        tagged as another headword<span x-show="hit.otherHeadword" x-text="`: ${hit.otherHeadword}`"></span>
+                                    </span>
+                                    <span class="text-base-content/50">Tagger:</span>
                                     <span x-text="hit.lemma"></span>
                                     <span x-show="hit.upos" x-text="hit.upos"></span>
                                     <span x-show="hit.feats" class="text-base-content/50" x-text="hit.feats"></span>
