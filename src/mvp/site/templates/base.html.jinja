@@ -58,6 +58,32 @@
             <div class="navbar-end"></div>
         </div>
         {% block content %}{% endblock %}
+        <footer class="p-4 text-center text-sm">
+            <button type="button" class="link" data-analytics-consent-open>Cookie preferences</button>
+        </footer>
+        <div class="toast toast-bottom toast-end z-50 hidden"
+             id="analytics-consent"
+             role="region"
+             aria-label="Cookie consent">
+            <div class="alert flex flex-col items-start gap-3 max-w-md whitespace-normal shadow-lg">
+                <p class="text-sm">
+                    We'd like to use Google Analytics cookies to understand how this site is used.
+                    No analytics cookies are set unless you accept, and you can change your mind
+                    at any time via "Cookie preferences" at the bottom of the page.
+                </p>
+                <div class="flex gap-2 self-end">
+                    <button type="button"
+                            class="btn btn-sm btn-ghost"
+                            data-analytics-consent="denied">Decline</button>
+                    <button type="button"
+                            class="btn btn-sm btn-primary"
+                            data-analytics-consent="granted">Accept</button>
+                </div>
+            </div>
+        </div>
+        <script type="module"
+                src="{{ url_for('static', filename='js/analyticsConsent.js') }}"
+                data-measurement-id="G-YK4J183583"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>
