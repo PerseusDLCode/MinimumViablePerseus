@@ -150,12 +150,14 @@
                                :class="{ 'menu-active': selectedWork === work.doc_id }"
                                @click.prevent="selectWork(work.doc_id)">
                                 <span x-text="workLabel(work)"></span>
-                                <span class="shrink-0 text-right tabular-nums text-base-content/60"
+                                {# Opacity rather than text-base-content, so the
+                                   numbers inherit the active row's text color. #}
+                                <span class="shrink-0 text-right tabular-nums"
                                       :title="`${work.n.toLocaleString()} in ${work.n_words.toLocaleString()} words; ${rateLabel(work)} per 10,000`">
-                                    <span :class="{ 'font-semibold text-base-content': sort === 'count' }"
+                                    <span :class="sort === 'count' ? 'font-semibold' : 'opacity-60'"
                                           x-text="work.n.toLocaleString()"></span>
-                                    ·
-                                    <span :class="{ 'font-semibold text-base-content': sort === 'rate' }"
+                                    <span class="opacity-60">·</span>
+                                    <span :class="sort === 'rate' ? 'font-semibold' : 'opacity-60'"
                                           x-text="rateLabel(work)"></span>
                                 </span>
                             </a>
