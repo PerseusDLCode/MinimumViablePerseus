@@ -40,14 +40,16 @@ async function open(url) {
     };
 }
 
+let manifestPromise = null;
 let searchDb = null;
 
 // /search-index/manifest.json names the current content-hashed database
-// file. The manifest is always revalidated; the database file itself never
-// changes once published, so it can be cached indefinitely.
-export function openSearchDb(baseUrl) {
-    if (!searchDb) {
-        searchDb = (async function () {
+// file and describes the index (build date, counts). It is always
+// revalidated; the database file itself never changes once published, so it
+// can be cached indefinitely.
+export function loadManifest(baseUrl) {
+    if (!manifestPromise) {
+        manifestPromise = (async function () {
             const base = new URL(baseUrl, window.location.href);
             const response = await fetch(new URL('manifest.json', base), { cache: 'no-cache' });
             if (response.status === 404) {
@@ -57,7 +59,18 @@ export function openSearchDb(baseUrl) {
                 );
             }
             if (!response.ok) throw new Error(`search index manifest: HTTP ${response.status}`);
-            const manifest = await response.json();
+            return response.json();
+        }());
+        manifestPromise.catch(function () { manifestPromise = null; });
+    }
+    return manifestPromise;
+}
+
+export function openSearchDb(baseUrl) {
+    if (!searchDb) {
+        searchDb = (async function () {
+            const base = new URL(baseUrl, window.location.href);
+            const manifest = await loadManifest(baseUrl);
             const db = await open(new URL(manifest.db, base).toString());
             db.manifest = manifest;
             return db;

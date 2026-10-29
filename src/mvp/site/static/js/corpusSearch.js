@@ -1,4 +1,4 @@
-import { openSearchDb } from './search/db.js';
+import { loadManifest, openSearchDb } from './search/db.js';
 import { guessLang, matchKey } from './search/normalize.js';
 import {
     countsByWork,
@@ -94,8 +94,12 @@ export default function corpusSearch(config) {
         notice: '',
         kbRead: 0,
         searched: false,
+        // Description of the search index, from its manifest; empty until
+        // (and unless) the manifest loads.
+        indexInfo: '',
 
         init() {
+            this.loadIndexInfo();
             const params = new URLSearchParams(window.location.search);
             this.headword = params.get('lemma');
             this.seq = params.get('seq');
@@ -109,6 +113,25 @@ export default function corpusSearch(config) {
             const doc = Number(params.get('doc'));
             this.selectedWork = doc || null;
             if (this.q) this.search({ keepWork: true });
+        },
+
+        async loadIndexInfo() {
+            try {
+                const m = await loadManifest(config.indexUrl);
+                const parts = [];
+                if (m.built_at) {
+                    const built = new Date(m.built_at).toLocaleDateString(undefined, { dateStyle: 'medium' });
+                    parts.push(`Index built ${built}`);
+                }
+                if (m.documents) parts.push(`${m.documents.toLocaleString()} works`);
+                if (m.words) {
+                    const words = m.words.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 });
+                    parts.push(`${words} words`);
+                }
+                this.indexInfo = parts.join(' · ');
+            } catch (err) {
+                // A search reports a missing index; nothing to show here.
+            }
         },
 
         effectiveLang() {

@@ -3,7 +3,11 @@
 {% block content %}
     <div class="max-w-4xl lg:max-w-6xl mx-auto mt-6 px-4 pb-12"
          x-data='corpusSearch({{ search_config | tojson }})'>
-        <h1 class="text-2xl font-bold mb-2">Search</h1>
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+            <h1 class="text-2xl font-bold">Search</h1>
+            <span class="badge badge-ghost badge-sm">v1</span>
+            <span x-cloak x-show="indexInfo" class="text-sm text-base-content/60" x-text="indexInfo"></span>
+        </div>
         <p class="text-sm text-base-content/70 mb-6 max-w-3xl">
             Find every occurrence of a Greek or Latin word across the corpus.
             Search by dictionary headword to find all of its forms, or by an exact form.
