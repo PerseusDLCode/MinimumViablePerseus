@@ -97,29 +97,31 @@
                                 @click="setSort('rate')">Per 10k words</button>
                     </div>
                 </div>
-                <ul class="menu menu-sm bg-base-100 rounded-box w-full p-1">
-                    <li>
+                {# Columns: label | count | vertical rule | rate. Each row
+                   is a subgrid, so the number columns size to their widest
+                   cell and the rule lines up in every row. #}
+                <ul class="menu menu-sm bg-base-100 rounded-box w-full p-1 grid grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+                    <li class="col-span-full">
                         <a href="#"
                            :class="{ 'menu-active': !selectedWork }"
                            @click.prevent="selectWork(null)">All works</a>
                     </li>
                     <template x-for="work in works" :key="work.doc_id">
-                        <li>
+                        <li class="col-span-full grid grid-cols-subgrid">
                             <a href="#"
-                               class="flex justify-between gap-2"
+                               class="col-span-full grid grid-cols-subgrid gap-0 items-center tabular-nums"
                                :class="{ 'menu-active': selectedWork === work.doc_id }"
+                               :title="`${work.n.toLocaleString()} in ${work.n_words.toLocaleString()} words; ${rateLabel(work)} per 10,000`"
                                @click.prevent="selectWork(work.doc_id)">
-                                <span x-text="workLabel(work)"></span>
-                                {# Opacity rather than text-base-content, so the
-                                   numbers inherit the active row's text color. #}
-                                <span class="shrink-0 text-right tabular-nums"
-                                      :title="`${work.n.toLocaleString()} in ${work.n_words.toLocaleString()} words; ${rateLabel(work)} per 10,000`">
-                                    <span :class="sort === 'count' ? 'font-semibold' : 'opacity-60'"
-                                          x-text="work.n.toLocaleString()"></span>
-                                    <span class="opacity-60">·</span>
-                                    <span :class="sort === 'rate' ? 'font-semibold' : 'opacity-60'"
-                                          x-text="rateLabel(work)"></span>
-                                </span>
+                                <span class="pr-3" x-text="workLabel(work)"></span>
+                                <span class="text-right pr-2"
+                                      :class="sort === 'count' ? 'font-semibold' : 'opacity-60'"
+                                      x-text="work.n.toLocaleString()"></span>
+                                <span class="self-stretch border-l border-current opacity-30"
+                                      aria-hidden="true"></span>
+                                <span class="text-right pl-2"
+                                      :class="sort === 'rate' ? 'font-semibold' : 'opacity-60'"
+                                      x-text="rateLabel(work)"></span>
                             </a>
                         </li>
                     </template>
