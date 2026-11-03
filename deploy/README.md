@@ -112,8 +112,7 @@ around to roll back to — fix the artifacts and let the next tick redeploy.
 Whatever proxies this host's port must pass `Range` requests through to
 `/search-index/` and must not compress those responses (sql.js-httpvfs reads
 the database by byte offset). It should route `/morph/` to pdl-morph-server as
-before: `/search` also reads `/morph/morph.db` to expand a dictionary headword
-into all of its forms.
+before.
 
 ## Making the GHCR packages public
 

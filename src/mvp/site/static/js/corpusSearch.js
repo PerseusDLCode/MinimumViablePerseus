@@ -1,15 +1,11 @@
 import { loadManifest, openSearchDb } from './search/db.js';
-import { guessLang, matchKey } from './search/normalize.js';
+import { guessLang } from './search/normalize.js';
 import {
     countsByWork,
     describeHits,
-    formAnalyses,
-    formsByMorphLemmas,
     formsByText,
-    hasTaggedHeadwords,
     hitsInWork,
     lemmasByText,
-    morphLemmas,
 } from './search/queries.js';
 
 const PAGE = 50;
@@ -19,7 +15,7 @@ const CONTEXT_WORDS = 10;
 // doesn't turn one click into hundreds of queries.
 const MAX_WORKS_PER_PAGE = 25;
 
-const MODES = ['lemma', 'tagged', 'form'];
+const MODES = ['tagged', 'form'];
 const LANGS = ['auto', 'grc', 'la'];
 const LANG_ALIASES = { lat: 'la' };
 const SORTS = ['count', 'rate'];
@@ -40,50 +36,26 @@ function compareWorks(sort) {
     };
 }
 
-function headwordLabel(h) {
-    return h.sequence_number > 0 ? `${h.headword} (${h.sequence_number})` : h.headword;
-}
-
 // Alpine component for /search: corpus-wide search of the Greek and Latin
-// texts by dictionary lemma (every form Morpheus generates for it, matched
-// against the corpus), by lemma as tagged by the lemmatizer, or by exact
-// form. Everything runs in the browser against the search index
-// (/search-index/), a SQLite file read over HTTP range requests; see
-// search/db.js. mvp-index precomputes the Morpheus forms from
-// pdl-morph-server's morph.db.
-//
-// Morpheus generates forms that usually belong to another headword (μανίας
-// for μῆνις, by way of Doric μᾶνις), so a headword search hides words the
-// tagger assigned to another of the form's Morpheus headwords, unless
-// showOther is set, and lists every form's headwords with their analyses.
+// texts by lemma, as tagged by the lemmatizer, or by exact form. Everything
+// runs in the browser against the search index (/search-index/), a SQLite
+// file read over HTTP range requests; see search/db.js.
 export default function corpusSearch(config) {
     // Query state that doesn't need to be reactive.
     let db = null;
-    // { kind: 'form'|'lemma', ids: [...] }, plus morphIds, the selected
-    // Morpheus headwords, in a headword search.
-    let match = null;
+    let match = null; // { kind: 'form'|'lemma', ids: [...] }
     let cursor = null; // { workIndex, after: [chunk_id, seq] }
-    let headwordNames = new Map(); // morph_id -> label, for the matched forms' headwords
 
     return {
         q: '',
-        mode: 'lemma',
+        mode: 'tagged',
         lang: 'auto',
-        loose: false,
-        // Set when arriving from pdl-morph-server with an exact headword.
-        headword: null,
-        seq: null,
+        loose: true,
 
-        candidates: [], // Morpheus lemmas matching q, each { id, headword, sequence_number, selected }
-        // Matched corpus forms, most frequent first. In a headword search,
-        // each also has `other` (words the tagger assigned to another
-        // headword) and `headwords` ([{ id, label, analyses, selected }]).
-        forms: [],
+        forms: [], // matched corpus forms, most frequent first (exact-form search)
         works: [],
         sort: 'count', // works order: 'count' (occurrences) or 'rate' (per RATE_PER words)
         total: 0,
-        showOther: false, // include words the tagger assigned to another headword
-        other: 0, // how many such words there are
         selectedWork: null, // doc_id, or null for all works
         hits: [],
         done: true,
@@ -101,15 +73,13 @@ export default function corpusSearch(config) {
         init() {
             this.loadIndexInfo();
             const params = new URLSearchParams(window.location.search);
-            this.headword = params.get('lemma');
-            this.seq = params.get('seq');
-            this.q = this.headword || params.get('q') || '';
+            // pdl-morph-server links here with ?lemma=<headword>.
+            this.q = params.get('q') || params.get('lemma') || '';
             if (MODES.includes(params.get('mode'))) this.mode = params.get('mode');
             const lang = LANG_ALIASES[params.get('lang')] || params.get('lang');
             if (LANGS.includes(lang)) this.lang = lang;
-            this.loose = params.get('loose') === '1';
+            this.loose = params.get('loose') !== '0';
             if (SORTS.includes(params.get('sort'))) this.sort = params.get('sort');
-            this.showOther = params.get('other') === '1';
             const doc = Number(params.get('doc'));
             this.selectedWork = doc || null;
             if (this.q) this.search({ keepWork: true });
@@ -139,25 +109,16 @@ export default function corpusSearch(config) {
         },
 
         submit() {
-            // Typing a new query drops the exact headword from pdl-morph-server.
-            this.headword = null;
-            this.seq = null;
             this.search({ keepWork: false });
         },
 
         syncUrl() {
             const params = new URLSearchParams();
-            if (this.headword) {
-                params.set('lemma', this.headword);
-                if (this.seq !== null) params.set('seq', this.seq);
-            } else {
-                params.set('q', this.q);
-            }
-            if (this.mode !== 'lemma') params.set('mode', this.mode);
+            params.set('q', this.q);
+            if (this.mode !== 'tagged') params.set('mode', this.mode);
             if (this.lang !== 'auto') params.set('lang', this.lang);
-            if (this.loose) params.set('loose', '1');
+            if (!this.loose) params.set('loose', '0');
             if (this.sort !== 'count') params.set('sort', this.sort);
-            if (this.showOther) params.set('other', '1');
             if (this.selectedWork) params.set('doc', this.selectedWork);
             history.replaceState(null, '', `${window.location.pathname}?${params}`);
         },
@@ -172,21 +133,18 @@ export default function corpusSearch(config) {
             this.searching = true;
             this.searched = true;
             this.error = this.notice = '';
-            this.candidates = [];
             this.forms = [];
             this.works = [];
             this.hits = [];
             this.total = 0;
-            this.other = 0;
             if (!keepWork) this.selectedWork = null;
             this.syncUrl();
             try {
                 db = await openSearchDb(config.indexUrl);
                 const lang = this.effectiveLang();
-                if (this.mode === 'lemma') {
-                    match = await this.resolveMorpheus(q, lang);
-                } else if (this.mode === 'tagged') {
-                    match = await this.resolveTagged(q, lang);
+                if (this.mode === 'tagged') {
+                    const lemmas = await lemmasByText(db, q, lang, this.loose);
+                    match = { kind: 'lemma', ids: lemmas.map(function (l) { return l.lemma_id; }) };
                 } else {
                     const forms = await formsByText(db, q, lang, this.loose);
                     match = { kind: 'form', ids: forms.map(function (f) { return f.form_id; }) };
@@ -202,105 +160,9 @@ export default function corpusSearch(config) {
             }
         },
 
-        async resolveTagged(q, lang, loose = this.loose) {
-            const lemmas = await lemmasByText(db, q, lang, loose);
-            return { kind: 'lemma', ids: lemmas.map(function (l) { return l.lemma_id; }) };
-        },
-
-        async resolveMorpheus(q, lang) {
-            // Headwords match ignoring accents (the "Ignore accents" box is
-            // hidden in this mode), so the tagged-lemma fallbacks do too.
-            if (!db.manifest.morph_lemmas) {
-                this.notice = 'This search index has no Morpheus headwords, so this shows lemmas as tagged by the lemmatizer instead.';
-                return this.resolveTagged(q, lang, true);
-            }
-            const candidates = await morphLemmas(db, {
-                text: q, headword: this.headword, seq: this.seq, lang: lang,
-            });
-            if (!candidates.length) {
-                this.notice = `No Morpheus headword “${q}” has forms in the corpus, so this shows lemmas as tagged by the lemmatizer instead.`;
-                return this.resolveTagged(q, lang, true);
-            }
-            // Headwords match ignoring accents, so "ὁ" also finds ὅ, ὀ, ...:
-            // start with just the ones accented as typed, if any.
-            const key = matchKey(q, lang);
-            const exact = candidates.some(function (c) { return matchKey(c.headword, lang) === key; });
-            this.candidates = candidates.map(function (c) {
-                return { ...c, selected: !exact || matchKey(c.headword, lang) === key };
-            });
-            return this.resolveMorpheusForms();
-        },
-
-        async resolveMorpheusForms() {
-            const ids = this.candidates.filter(function (c) { return c.selected; }).map(function (c) { return c.id; });
-            const forms = ids.length ? await formsByMorphLemmas(db, ids) : [];
-            const formIds = forms.map(function (f) { return f.form_id; });
-            headwordNames = new Map();
-            if (hasTaggedHeadwords(db) && formIds.length) {
-                const byForm = new Map();
-                (await formAnalyses(db, formIds)).forEach(function (a) {
-                    const label = headwordLabel(a);
-                    headwordNames.set(a.morph_id, label);
-                    const list = byForm.get(a.form_id) || [];
-                    list.push({ id: a.morph_id, label: label, analyses: a.analyses, selected: ids.includes(a.morph_id) });
-                    byForm.set(a.form_id, list);
-                });
-                forms.forEach(function (f) {
-                    // The searched-for headwords first.
-                    f.headwords = (byForm.get(f.form_id) || []).sort(function (a, b) { return b.selected - a.selected; });
-                    f.other = 0;
-                });
-            }
-            this.forms = forms.sort(function (a, b) { return b.n - a.n; });
-            return { kind: 'form', ids: formIds, morphIds: ids };
-        },
-
-        // countsByWork's and hitsInWork's `headwords`: null unless this is a
-        // headword search on an index that records the tagger's choices.
-        headwordFilter() {
-            if (!match || !match.morphIds || !hasTaggedHeadwords(db)) return null;
-            return { ids: match.morphIds, hide: !this.showOther };
-        },
-
-        async setShowOther(show) {
-            this.showOther = show;
-            this.syncUrl();
-            this.searching = true;
-            try {
-                await this.loadWorks();
-            } catch (err) {
-                console.error(err);
-                this.error = `Search failed: ${err.message || err}`;
-            } finally {
-                this.searching = false;
-                this.updateBytes();
-            }
-        },
-
-        async toggleCandidate() {
-            this.searching = true;
-            this.error = '';
-            try {
-                match = await this.resolveMorpheusForms();
-                await this.loadWorks();
-            } catch (err) {
-                console.error(err);
-                this.error = `Search failed: ${err.message || err}`;
-            } finally {
-                this.searching = false;
-                this.updateBytes();
-            }
-        },
-
         async loadWorks() {
-            const counts = match.ids.length
-                ? await countsByWork(db, match.kind, match.ids, this.headwordFilter())
-                : { works: [], other: 0, otherByForm: new Map() };
-            this.works = counts.works.sort(compareWorks(this.sort));
-            this.other = counts.other;
-            this.forms.forEach(function (f) {
-                if ('other' in f) f.other = counts.otherByForm.get(f.form_id) || 0;
-            });
+            const works = match.ids.length ? await countsByWork(db, match.kind, match.ids) : [];
+            this.works = works.sort(compareWorks(this.sort));
             this.total = this.works.reduce(function (sum, w) { return sum + w.n; }, 0);
             const selected = this.selectedWork;
             if (selected && !this.works.some(function (w) { return w.doc_id === selected; })) {
@@ -351,13 +213,10 @@ export default function corpusSearch(config) {
                 while (page.length < PAGE && cursor.workIndex < works.length && visited < MAX_WORKS_PER_PAGE) {
                     const work = works[cursor.workIndex];
                     const wanted = PAGE - page.length;
-                    const rows = await hitsInWork(db, match.kind, work, cursor.after, wanted, this.headwordFilter());
+                    const rows = await hitsInWork(db, match.kind, work, cursor.after, wanted);
                     if (rows.length) {
                         const described = await describeHits(db, work, rows, CONTEXT_WORDS);
-                        described.forEach(function (hit) {
-                            hit.work = work;
-                            hit.otherHeadword = hit.other ? headwordNames.get(hit.morph_id) || '' : null;
-                        });
+                        described.forEach(function (hit) { hit.work = work; });
                         page.push(...described);
                         const last = rows[rows.length - 1];
                         cursor.after = [last.chunk_id, last.seq];
@@ -390,10 +249,6 @@ export default function corpusSearch(config) {
             return r >= 10
                 ? r.toLocaleString(undefined, { maximumFractionDigits: 0 })
                 : r.toLocaleString(undefined, { maximumSignificantDigits: 2 });
-        },
-
-        candidateLabel(c) {
-            return c.sequence_number > 0 ? `${c.headword} (${c.sequence_number})` : c.headword;
         },
     };
 }

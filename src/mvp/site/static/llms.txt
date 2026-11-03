@@ -35,7 +35,7 @@ so you can map any passage on the site back to its source file.
 ## Searching the corpus
 
 [Search](/search/) finds every occurrence of a Greek or Latin word, by
-dictionary headword or exact form. It runs entirely in your browser against a
+lemma or exact form. It runs entirely in your browser against a
 SQLite index fetched in small byte ranges from `/search-index/`; the index is
 built from the open-source tokenization pipeline
 ([tokenization_pipeline](https://github.com/PerseusDLCode/tokenization_pipeline)),

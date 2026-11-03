@@ -10,7 +10,7 @@
         </div>
         <p class="text-sm text-base-content/70 mb-6 max-w-3xl">
             Find every occurrence of a Greek or Latin word across the corpus.
-            Search by dictionary headword to find all of its forms, or by an exact form.
+            Search by lemma to find all of its forms, or by an exact form.
         </p>
         <form class="space-y-3 mb-6" @submit.prevent="submit()">
             <div class="join w-full max-w-2xl">
@@ -30,14 +30,9 @@
                 <fieldset class="flex flex-wrap items-center gap-x-4 gap-y-1">
                     <legend class="sr-only">Search by</legend>
                     <label class="flex items-center gap-1.5"
-                           title="Every form Morpheus generates for this dictionary headword">
-                        <input type="radio" class="radio radio-xs" value="lemma" x-model="mode" />
-                        Headword (all forms)
-                    </label>
-                    <label class="flex items-center gap-1.5"
                            title="Words the automatic lemmatizer assigned to this lemma">
                         <input type="radio" class="radio radio-xs" value="tagged" x-model="mode" />
-                        Lemma as tagged
+                        Lemma
                     </label>
                     <label class="flex items-center gap-1.5">
                         <input type="radio" class="radio radio-xs" value="form" x-model="mode" />
@@ -52,7 +47,7 @@
                         <option value="la">Latin</option>
                     </select>
                 </label>
-                <label class="flex items-center gap-1.5" x-show="mode !== 'lemma'">
+                <label class="flex items-center gap-1.5">
                     <input type="checkbox" class="checkbox checkbox-xs" x-model="loose" />
                     Ignore accents
                 </label>
@@ -60,31 +55,6 @@
         </form>
         <div x-cloak x-show="error" class="alert alert-error mb-4" x-text="error"></div>
         <div x-cloak x-show="notice" class="alert alert-warning mb-4 text-sm" x-text="notice"></div>
-        <div x-cloak x-show="candidates.length > 1" class="mb-4 text-sm">
-            <span class="font-semibold mr-2">Headwords:</span>
-            <template x-for="c in candidates" :key="c.id">
-                <label class="inline-flex items-center gap-1 mr-4">
-                    <input type="checkbox"
-                           class="checkbox checkbox-xs"
-                           x-model="c.selected"
-                           @change="toggleCandidate()" />
-                    <span lang="grc" x-text="candidateLabel(c)"></span>
-                </label>
-            </template>
-        </div>
-        {# Outside the results, so it's there even when every word is hidden. #}
-        <label x-cloak x-show="other || showOther" class="flex items-center gap-1.5 mb-4 text-sm">
-            <input type="checkbox"
-                   class="checkbox checkbox-xs"
-                   :checked="showOther"
-                   :disabled="searching"
-                   @change="setShowOther($event.target.checked)" />
-            <span>
-                Include <span class="font-semibold" x-text="other.toLocaleString()"></span>
-                <span x-text="other === 1 ? 'word' : 'words'"></span>
-                the tagger assigned to another of the form’s Morpheus headwords
-            </span>
-        </label>
         <template x-if="searched && !searching && !error && !total">
             <p class="text-base-content/70">
                 No occurrences found<span x-show="mode === 'form' && !loose">; try “Ignore accents”</span>.
@@ -103,24 +73,10 @@
                         <span x-text="forms.length.toLocaleString()"></span> matching
                         <span x-text="forms.length === 1 ? 'form' : 'forms'"></span>
                     </summary>
-                    {# In a headword search, each form also lists every
-                       headword Morpheus gives it, with its analyses. #}
-                    <ul class="mt-1 max-h-96 overflow-y-auto"
-                        :class="forms.some(function (f) { return f.headwords; }) ? 'space-y-2' : 'columns-2'">
+                    <ul class="mt-1 max-h-96 overflow-y-auto columns-2">
                         <template x-for="f in forms" :key="f.form_id">
                             <li>
                                 <span x-text="f.form"></span> <span class="text-base-content/60" x-text="f.n.toLocaleString()"></span>
-                                <span x-show="f.other" class="text-base-content/50 text-xs">
-                                    (<span x-text="(f.other || 0).toLocaleString()"></span> tagged as another headword)
-                                </span>
-                                <ul x-show="f.headwords" class="pl-3 text-xs text-base-content/70">
-                                    <template x-for="h in f.headwords || []" :key="h.id">
-                                        <li>
-                                            <span lang="grc" :class="{ 'font-semibold text-base-content': h.selected }" x-text="h.label"></span>:
-                                            <span x-text="h.analyses"></span>
-                                        </li>
-                                    </template>
-                                </ul>
                             </li>
                         </template>
                     </ul>
@@ -178,9 +134,6 @@
                                     <span x-text="workLabel(hit.work)"></span> <span x-text="hit.ref"></span>
                                 </a>
                                 <span x-show="hit.lemma || hit.upos" title="Lemma and morphology from the automatic tagger">
-                                    <span x-show="hit.otherHeadword !== null" class="badge badge-xs badge-warning">
-                                        tagged as another headword<span x-show="hit.otherHeadword" x-text="`: ${hit.otherHeadword}`"></span>
-                                    </span>
                                     <span class="text-base-content/50">Tagger:</span>
                                     <span x-text="hit.lemma"></span>
                                     <span x-show="hit.upos" x-text="hit.upos"></span>
