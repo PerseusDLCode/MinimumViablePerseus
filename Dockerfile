@@ -43,6 +43,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 ARG GREEK_CORPUS_SHA=latest
 ARG LATIN_CORPUS_SHA=latest
 ARG ANGLIT_CORPUS_SHA=latest
+ARG ENGLIT_CORPUS_SHA=latest
 ARG FIRST_1K_GREEK_SHA=latest
 ARG PDLREFWK_SHA=latest
 
@@ -50,17 +51,22 @@ ARG CORPORA_DIR=/corpora
 RUN echo "greekLit @ ${GREEK_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
     https://github.com/PerseusDLCode/canonical-greekLit \
-    ${CORPORA_DIR}/greekLit
+    ${CORPORA_DIR}/canonical-greekLit
 
 RUN echo "latinLit @ ${LATIN_CORPUS_SHA}" && \
     git clone --depth 1 --branch editing \
     https://github.com/PerseusDLCode/canonical-latinLit \
-    ${CORPORA_DIR}/latinLit
+    ${CORPORA_DIR}/canonical-latinLit
 
 RUN echo "angLit @ ${ANGLIT_CORPUS_SHA}" && \
     git clone --depth 1 --branch master \
     https://github.com/PerseusDL/canonical-angLit \
-    ${CORPORA_DIR}/angLit
+    ${CORPORA_DIR}/canonical-angLit
+
+RUN echo "engLit @ ${ENGLIT_CORPUS_SHA}" && \
+    git clone --depth 1 --branch mvp \
+    https://github.com/PerseusDLCode/canonical-engLit \
+    ${CORPORA_DIR}/canonical-engLit
 
 RUN echo "First1KGreek @ ${FIRST_1K_GREEK_SHA}" && \
     git clone --depth 1 --branch editing \

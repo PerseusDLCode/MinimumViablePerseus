@@ -42,21 +42,26 @@ ARG CORPORA_DIR=/corpora
 ARG GREEKLIT_SHA=latest
 ARG LATINLIT_SHA=latest
 ARG ANGLIT_SHA=latest
+ARG ENGLIT_SHA=latest
 ARG FIRST1KGREEK_SHA=latest
 ARG NDDLC_SHA=latest
 ARG GRCNEWXML_SHA=latest
 
 RUN echo "greekLit @ ${GREEKLIT_SHA}" && \
     git clone --depth 1 --branch master \
-    https://github.com/PerseusDL/canonical-greekLit "${CORPORA_DIR}/greekLit"
+    https://github.com/PerseusDL/canonical-greekLit "${CORPORA_DIR}/canonical-greekLit"
 
 RUN echo "latinLit @ ${LATINLIT_SHA}" && \
     git clone --depth 1 --branch master \
-    https://github.com/PerseusDL/canonical-latinLit "${CORPORA_DIR}/latinLit"
+    https://github.com/PerseusDL/canonical-latinLit "${CORPORA_DIR}/canonical-latinLit"
 
 RUN echo "angLit @ ${ANGLIT_SHA}" && \
     git clone --depth 1 --branch master \
-    https://github.com/PerseusDL/canonical-angLit "${CORPORA_DIR}/angLit"
+    https://github.com/PerseusDL/canonical-angLit "${CORPORA_DIR}/canonical-angLit"
+
+RUN echo "engLit @ ${ENGLIT_SHA}" && \
+    git clone --depth 1 --branch mvp \
+    https://github.com/PerseusDLCode/canonical-engLit "${CORPORA_DIR}/canonical-engLit"
 
 RUN echo "First1KGreek @ ${FIRST1KGREEK_SHA}" && \
     git clone --depth 1 --branch editing \
