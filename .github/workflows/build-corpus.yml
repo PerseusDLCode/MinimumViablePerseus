@@ -18,8 +18,8 @@ name: Build corpus artifacts
 # as an OCI artifact to GHCR, tagged by a digest combining every corpus's
 # HEAD SHA (a change to any corpus can affect any shard's cross-references,
 # so all shards invalidate together); build-global.yml consumes the
-# manifests to regenerate /, /collections/, /urn-index.json, /research/
-# once any corpus changes.
+# manifests to regenerate /, /collections/, /urn-index.json, /cts-urns.json,
+# /research/ once any corpus changes.
 
 on:
   workflow_dispatch:

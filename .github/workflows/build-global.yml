@@ -1,7 +1,7 @@
 name: Build global pages
 
-# Regenerates the four corpus-independent pages (/, /collections/,
-# /urn-index.json, /research/) from the three corpora's manifest.json
+# Regenerates the corpus-independent pages (/, /collections/,
+# /urn-index.json, /cts-urns.json, /research/, ...) from the three corpora's manifest.json
 # artifacts (see build-corpus.yml / `mvp-build --mode global-only`).
 # Deliberately pulls only the small manifest artifacts, never the (much
 # larger) per-corpus page tarballs — see _merge_manifests in app.py.

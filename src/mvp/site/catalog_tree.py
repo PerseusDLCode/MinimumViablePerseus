@@ -615,6 +615,86 @@ def _flatten_search_index(collections: list[dict]) -> list[dict]:
     return entries
 
 
+# Bump when /cts-urns.json's shape changes incompatibly. This file is a
+# public contract read by other services (the legacy-Perseus redirect
+# server), not just this site's own JS, so change it deliberately.
+_CTS_URNS_SCHEMA_VERSION = 1
+
+
+def _work_default_sort_key(version: dict) -> tuple:
+    """Order a work's versions best-first for a work-level redirect.
+
+    Curated before experimental, editions before translations before
+    commentaries, then the preferred (latest) version of each family, then
+    /collections' own perseus-first/label/id order.
+    """
+    kind = version.get("kind", "")
+    return (
+        bool(version.get("experimental")),
+        _VERSION_KINDS.index(kind) if kind in _VERSION_KINDS else len(_VERSION_KINDS),
+        not version.get("preferred", False),
+        *_version_sort_key(version)[1:],
+    )
+
+
+def _build_cts_urns(collections: list[dict]) -> dict:
+    """Build /cts-urns.json: every deployed version URN -> its first page.
+
+    The site pre-paginates every text, so it can't resolve an arbitrary
+    passage URN itself. This file lets an external service (the redirect
+    server standing in for the old Perseus) map any incoming CTS URN onto a
+    page that exists. Resolution, most to least specific:
+
+    1. ``versions[version_urn]``: the exact version is deployed.
+    2. ``families[version_urn minus trailing digits]``: the version was
+       superseded or renumbered (old perseus-grc1 -> deployed perseus-grc2,
+       perseus-eng3 -> perseus-eng4). Families are split by id prefix, so an
+       English URN never lands on a Greek edition. Maps to the family's
+       newest curated version (see _version_family).
+    3. ``works[work_urn][0]``: for a URN naming only a work. Deliberately
+       not used as a fallback for an unmatched *version* URN — the caller
+       decides whether a different language/tradition is acceptable.
+
+    Like _flatten_search_index, requires every version to already carry a
+    resolved ``href``. Only each work's own ``versions`` are read, not its
+    cross-listed ``commentaries`` (see _attach_commentaries), so each
+    version appears exactly once, under its own work URN.
+    """
+    versions: dict[str, dict] = {}
+    works: dict[str, list[str]] = {}
+    families: dict[str, str] = {}
+    for corpus in collections:
+        for textgroup in corpus["textgroups"]:
+            for work in textgroup["works"]:
+                work_urn = f"urn:cts:{corpus['id']}:{textgroup['id']}.{work['id']}"
+                ordered = sorted(work["versions"], key=_work_default_sort_key)
+                works[work_urn] = [f"{work_urn}.{v['id']}" for v in ordered]
+                # Curated beats experimental, then highest number wins; ties
+                # across kinds (rare: a same-prefix commentary) go to the
+                # edition via `ordered`'s kind order.
+                best: dict[str, tuple[tuple[bool, int], str]] = {}
+                for v in ordered:
+                    family, number = _version_family(v["id"])
+                    rank = (bool(v.get("experimental")), -number)
+                    if family not in best or rank < best[family][0]:
+                        best[family] = (rank, v["id"])
+                for family, (_rank, version_id) in best.items():
+                    families[f"{work_urn}.{family}"] = f"{work_urn}.{version_id}"
+                for v in ordered:
+                    versions[f"{work_urn}.{v['id']}"] = {
+                        "href": v["href"],
+                        "kind": v["kind"],
+                        "language": v["language"],
+                        "experimental": bool(v.get("experimental")),
+                    }
+    return {
+        "schema_version": _CTS_URNS_SCHEMA_VERSION,
+        "versions": dict(sorted(versions.items())),
+        "families": dict(sorted(families.items())),
+        "works": dict(sorted(works.items())),
+    }
+
+
 def _build_urn_index(
     proto_dir: Path, catalog: CTSCatalog
 ) -> dict[str, list[dict]]:

@@ -21,6 +21,7 @@ from mvp.site.abbreviations import (
 )
 from mvp.site.catalog_tree import (
     _build_collections,
+    _build_cts_urns,
     _build_urn_index,
     _collections_display_tree,
     _curated_source,
@@ -179,21 +180,38 @@ def create_app(
             {"Content-Type": "text/html; charset=utf-8"},
         )
 
+    def _collections_with_hrefs() -> list[dict]:
+        """The collections tree with every version's first-page ``href`` resolved.
+
+        A global build's collections_override already carries hrefs (see
+        _build_corpus_manifest); a full build resolves them here, which
+        needs the request context these routes run in.
+        """
+        if collections_override is not None:
+            return collections_override
+        collections = _build_collections(config.PROTO_DIR, catalog, experimental)
+        for corpus in collections:
+            for textgroup in corpus["textgroups"]:
+                for work in textgroup["works"]:
+                    for version in work["versions"]:
+                        version["href"] = url_for(
+                            "reading_view", **version["first_chunk_kwargs"]
+                        )
+        return collections
+
     @app.get("/collections/search-index.json")
     def get_collections_search_index():
-        if collections_override is not None:
-            collections = collections_override
-        else:
-            collections = _build_collections(config.PROTO_DIR, catalog, experimental)
-            for corpus in collections:
-                for textgroup in corpus["textgroups"]:
-                    for work in textgroup["works"]:
-                        for version in work["versions"]:
-                            version["href"] = url_for(
-                                "reading_view", **version["first_chunk_kwargs"]
-                            )
         return (
-            _flatten_search_index(collections),
+            _flatten_search_index(_collections_with_hrefs()),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+    @app.get("/cts-urns.json")
+    def get_cts_urns():
+        """Every deployed version URN -> its first page (see _build_cts_urns)."""
+        return (
+            _build_cts_urns(_collections_with_hrefs()),
             200,
             {"Content-Type": "application/json"},
         )

@@ -46,13 +46,14 @@ def _parse_build_args(argv: list[str] | None = None) -> argparse.Namespace:
             "full (default): build everything from CORPORA_DIR, unchanged "
             "from mvp-build's original behavior. corpus-only: freeze a "
             "shard of reading pages plus manifest.json, skipping "
-            "/, /collections/, /urn-index.json, /research/ — CORPORA_DIR "
-            "must contain every corpus (not just one), same as a full "
+            "/, /collections/, /urn-index.json, /cts-urns.json, /research/ "
+            "— CORPORA_DIR must contain every corpus (not just one), same "
+            "as a full "
             "local checkout, so cross-corpus sibling/commentary lookups "
             "resolve correctly regardless of which shard a document lands "
             "in; --shard-index/--shard-count pick which slice of the full "
             "URL set this run actually writes to disk. global-only: skip "
-            "corpus discovery entirely and freeze just those four pages, "
+            "corpus discovery entirely and freeze just those global pages, "
             "built from manifest.json files passed via --manifest."
         ),
     )
@@ -123,9 +124,10 @@ def build():
     )
 
     # corpus-only builds must not auto-freeze the global no-arg pages (/,
-    # /collections/, /urn-index.json, /research/) — rendered from just this
-    # corpus's data, they'd be wrong, and a later global-only build produces
-    # the real ones anyway. global-only builds want exactly those four:
+    # /collections/, /urn-index.json, /cts-urns.json, /research/) — rendered
+    # from just this corpus's data, they'd be wrong, and a later global-only
+    # build produces the real ones anyway. global-only builds want exactly
+    # those:
     # that falls out for free below, since PROTO_DIR has no corpus data
     # checked out, so the explicitly-registered per-page generators
     # (get_first_chunk et al.) yield no URLs.
