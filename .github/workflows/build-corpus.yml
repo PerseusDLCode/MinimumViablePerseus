@@ -161,10 +161,22 @@ jobs:
       # on it too: without it, changing the count would leave the old
       # count's artifacts for shards 0..N-1 looking "already built" to the
       # skip check below, even though they hold a different slice of URLs.
+      #
+      # The branch is part of it too, because the frozen pages aren't
+      # branch-neutral: `build` runs in the GitHub Environment named after
+      # the branch, so each branch bakes its own MORPH_URL into every
+      # reading page (main -> production's morph server, dev -> staging's).
+      # Without the branch here, whichever branch built a given set of
+      # corpus SHAs first would satisfy the other's skip check, and the
+      # alias step would then tag that branch's pages for the other one
+      # (e.g. production serving pages whose morph links go to staging).
+      # vars.MORPH_URL can't be used directly: this job has no
+      # `environment`, so only repo-level variables resolve here.
       - name: Compute combined digest
         id: combined
         run: |
           digest=$(printf '%s' \
+            "branch=${{ github.ref_name }}" \
             "shards=${{ env.SHARD_COUNT }}" \
             "${{ steps.sha.outputs.greeklit }}" \
             "${{ steps.sha.outputs.latinlit }}" \
@@ -360,9 +372,10 @@ jobs:
       # Point this branch's alias (main -> latest = production,
       # dev -> staging) at the digest-tagged artifact. Runs whenever
       # the digest-tagged artifact exists in GHCR — whether it was
-      # just pushed above, or already existed from the other branch
-      # resolving the same combined digest (see the "Skip if already
-      # built" step) — so a skipped build still moves this branch's
+      # just pushed above, or already existed from an earlier run of
+      # this same branch (see the "Skip if already built" step; the
+      # digest includes the branch, so the other branch's artifacts
+      # never match) — so a skipped build still moves this branch's
       # alias forward instead of leaving it stale.
       # ---------------------------------------------------------- #
       - name: Tag pages/manifest artifacts with this branch's alias
